@@ -59,9 +59,5 @@ function LayoutShell({ children }: { children: ReactNode }) {
 }
 
 export function SiteLayout({ children }: { children: ReactNode }) {
-  return (
-    <BasketProvider>
-      <LayoutShell>{children}</LayoutShell>
-    </BasketProvider>
-  );
+  return <LayoutShell>{children}</LayoutShell>;
 }
