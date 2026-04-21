@@ -54,12 +54,12 @@ function HomePage() {
       <section className="relative overflow-hidden bg-cream lg:h-[78vh] lg:max-h-[680px] lg:min-h-[540px]">
         <div className="grain absolute inset-0 opacity-60" aria-hidden />
 
-        {/* Mobile/tablet: cloud centered behind content as faded backdrop */}
+        {/* Mobile/tablet: cloud centered behind content, larger and more present */}
         <div
-          className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-25 lg:hidden"
+          className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-40 lg:hidden"
           aria-hidden
         >
-          <div className="h-[80%] w-[90%] max-w-md">
+          <div className="h-[120%] w-[120%] max-w-none">
             <PackagingCloud />
           </div>
         </div>
@@ -165,7 +165,7 @@ function HomePage() {
               search={{ category: c.slug }}
               className="group relative overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-xl"
             >
-              <div className="aspect-[5/4] overflow-hidden bg-secondary">
+              <div className="aspect-[4/3] overflow-hidden bg-secondary">
                 <img
                   src={c.image}
                   alt={c.name}
@@ -232,7 +232,7 @@ function HomePage() {
               params={{ slug: p.slug }}
               className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-xl"
             >
-              <div className="relative aspect-square overflow-hidden bg-secondary">
+              <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
                 <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 {p.tags[0] && (
                   <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground backdrop-blur">
