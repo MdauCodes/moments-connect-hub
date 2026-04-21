@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-import cloudImgV1 from "@/assets/packaging-cloud-hero.png";
-import cloudImgV2 from "@/assets/packaging-cloud-hero-v2.png";
-import cloudImgV3 from "@/assets/packaging-cloud-hero-v3.png";
+import cloudImgKraft from "@/assets/packaging-cloud-hero.png";
+import cloudImgDiverse from "@/assets/packaging-cloud-hero-v3.png";
 
 /**
  * Roving spotlight regions over the dense packaging photo.
- * Coordinates are % of the image (0-100). Tuned to land roughly
- * over recognisable items in src/assets/packaging-cloud-hero.png.
+ * Coordinates are % of the image (0-100).
  */
 const SPOTS: Array<{ x: number; y: number; label: string }> = [
   { x: 38, y: 30, label: "Kraft carrier bags" },
@@ -21,9 +19,13 @@ const SPOTS: Array<{ x: number; y: number; label: string }> = [
   { x: 78, y: 35, label: "Gift & retail boxes" },
 ];
 
-export function PackagingCloud({ variant = "v1" }: { variant?: "v1" | "v2" | "v3" }) {
-  const [activeIdx, setActiveIdx] = useState(0);
+const CLOUD_VARIANTS = [cloudImgKraft, cloudImgDiverse] as const;
 
+export function PackagingCloud() {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [variantIdx, setVariantIdx] = useState(0);
+
+  // Spotlight rotation
   useEffect(() => {
     const id = window.setInterval(() => {
       setActiveIdx((i) => (i + 1) % SPOTS.length);
@@ -31,24 +33,40 @@ export function PackagingCloud({ variant = "v1" }: { variant?: "v1" | "v2" | "v3
     return () => window.clearInterval(id);
   }, []);
 
+  // Slow image crossfade between Kraft & Diverse variants
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setVariantIdx((i) => (i + 1) % CLOUD_VARIANTS.length);
+    }, 7000);
+    return () => window.clearInterval(id);
+  }, []);
+
   const active = SPOTS[activeIdx];
-  const cloudImg = variant === "v3" ? cloudImgV3 : variant === "v2" ? cloudImgV2 : cloudImgV1;
 
   return (
     <div className="relative h-full w-full select-none">
       <div className="relative h-full w-full">
-        <img
-          src={cloudImg}
-          alt="A cluster of branded paper packaging — bags, boxes, cups, jars, mailers and more"
-          width={1280}
-          height={1280}
-          className="h-full w-full object-contain"
-          style={{
-            filter: "drop-shadow(0 30px 40px rgb(0 0 0 / 0.12))",
-          }}
-        />
+        {/* Stacked images crossfade smoothly via opacity */}
+        {CLOUD_VARIANTS.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt={
+              i === 0
+                ? "A cluster of kraft paper packaging — bags, boxes, cups and more"
+                : "A diverse cluster of branded packaging — kraft, white, black, pastel bags & boxes"
+            }
+            width={1280}
+            height={1280}
+            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-[1500ms] ease-in-out"
+            style={{
+              opacity: variantIdx === i ? 1 : 0,
+              filter: "drop-shadow(0 30px 40px rgb(0 0 0 / 0.12))",
+            }}
+          />
+        ))}
 
-        {/* Roving spotlight glow — gentle fade transition only */}
+        {/* Roving spotlight glow */}
         <div
           className="pointer-events-none absolute h-[28%] w-[28%] rounded-full transition-all duration-[1400ms] ease-in-out"
           style={{
@@ -76,7 +94,7 @@ export function PackagingCloud({ variant = "v1" }: { variant?: "v1" | "v2" | "v3
         />
       </div>
 
-      {/* Floating label — positioned relative to the parent */}
+      {/* Floating label */}
       <div
         key={activeIdx}
         className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 animate-fade-in"
