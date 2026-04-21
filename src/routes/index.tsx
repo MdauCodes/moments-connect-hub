@@ -27,39 +27,76 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* ═══════════════════════════════════════════════
-          HERO — single full-bleed, scanning-first
+          HERO — split (food / retail), fits within viewport.
+          Sized so the stat strip below peeks into view.
           ═══════════════════════════════════════════════ */}
-      <section className="relative h-[640px] w-full overflow-hidden bg-foreground sm:h-[720px] lg:h-[760px]">
-        <img
-          src={heroCounter}
-          alt="A Nairobi café counter with branded paper bags, kraft food boxes and coffee cups"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        {/* Dark gradient for legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/55 to-foreground/10" />
+      <section className="relative w-full bg-foreground">
+        <div className="grid h-[calc(100svh-10rem)] min-h-[460px] max-h-[720px] grid-cols-1 md:grid-cols-2">
+          {/* FOOD SIDE */}
+          <Link
+            to="/products"
+            search={{ division: "food" }}
+            className="group relative block overflow-hidden"
+          >
+            <img
+              src={foodImg}
+              alt="Branded kraft takeaway food box from a Nairobi café"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/35 to-foreground/10" />
+            <div className="relative flex h-full flex-col justify-end p-6 sm:p-8 lg:p-12">
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-background/70">
+                Division 01
+              </span>
+              <h2 className="mt-2 font-display text-3xl font-medium leading-tight text-background sm:text-4xl lg:text-5xl">
+                Food Service
+              </h2>
+              <span className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-background">
+                Browse <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </div>
+          </Link>
 
-        <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-end px-5 pb-16 lg:px-8 lg:pb-24">
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-background/70">
-            Moments Packaging · Nairobi
-          </p>
-          <h1 className="mt-5 max-w-3xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-background sm:text-6xl lg:text-7xl">
-            Packaging for <em className="not-italic text-[color:var(--clay)]">every</em> Kenyan business.
-          </h1>
-          <p className="mt-5 max-w-lg text-base text-background/80 sm:text-lg">
-            Food service. Retail. Industrial. One supplier.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/products"
-              className="inline-flex items-center gap-2 bg-background px-6 py-3.5 text-sm font-medium text-foreground transition-opacity hover:opacity-90"
-            >
-              Browse catalogue <ArrowRight className="h-4 w-4" />
-            </Link>
+          {/* RETAIL SIDE */}
+          <Link
+            to="/products"
+            search={{ division: "retail-industrial" }}
+            className="group relative block overflow-hidden border-t border-background/15 md:border-l md:border-t-0"
+          >
+            <img
+              src={retailImg}
+              alt="Branded kraft retail shopping bags on a counter"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/35 to-foreground/10" />
+            <div className="relative flex h-full flex-col justify-end p-6 sm:p-8 lg:p-12">
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-background/70">
+                Division 02
+              </span>
+              <h2 className="mt-2 font-display text-3xl font-medium leading-tight text-background sm:text-4xl lg:text-5xl">
+                Retail & Industrial
+              </h2>
+              <span className="mt-4 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-background">
+                Browse <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Floating headline overlay (absolute → no extra height) */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10">
+          <div className="mx-auto max-w-7xl px-5 pt-6 lg:px-8 lg:pt-10">
+            <p className="pointer-events-auto font-mono text-[10px] uppercase tracking-[0.28em] text-background/80 sm:text-[11px]">
+              Moments Packaging · Nairobi
+            </p>
+            <h1 className="pointer-events-auto mt-2 max-w-2xl font-display text-3xl font-medium leading-[1.05] tracking-tight text-background sm:text-4xl lg:text-5xl">
+              Packaging for <em className="not-italic text-[color:var(--clay)]">every</em> Kenyan business.
+            </h1>
             <a
               href={whatsappLink("Hi Moments Packaging, I'd like to enquire about packaging.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border border-background/40 px-6 py-3.5 text-sm font-medium text-background transition-colors hover:bg-background/10"
+              className="pointer-events-auto mt-4 inline-flex items-center gap-2 bg-background px-5 py-2.5 text-sm font-medium text-foreground transition-opacity hover:opacity-90"
             >
               <MessageCircle className="h-4 w-4" /> WhatsApp us
             </a>
@@ -67,7 +104,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Stat strip — directly under hero */}
+      {/* Stat strip — peeks below the hero fold */}
       <section className="border-b border-border bg-cream">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-border md:grid-cols-4">
           {[
@@ -76,74 +113,13 @@ function HomePage() {
             { v: "47", l: "Counties served" },
             { v: "7–14", l: "Day production" },
           ].map((s) => (
-            <div key={s.l} className="bg-cream px-6 py-7 lg:px-8">
-              <p className="font-display text-3xl font-medium text-foreground sm:text-4xl">{s.v}</p>
+            <div key={s.l} className="bg-cream px-6 py-6 lg:px-8">
+              <p className="font-display text-2xl font-medium text-foreground sm:text-3xl">{s.v}</p>
               <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
                 {s.l}
               </p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════
-          TWO DIVISIONS — image-led, ≤8 words each
-          ═══════════════════════════════════════════════ */}
-      <section className="bg-background">
-        <div className="grid gap-px bg-border md:grid-cols-2">
-          {/* FOOD */}
-          <Link
-            to="/products"
-            search={{ division: "food" }}
-            className="group relative block overflow-hidden bg-background"
-          >
-            <div className="relative aspect-[4/3] overflow-hidden lg:aspect-[5/4]">
-              <img
-                src={foodImg}
-                alt="Hand holding a kraft takeaway food box"
-                className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-8 lg:p-12">
-                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-background/70">
-                  Division 01
-                </span>
-                <h2 className="mt-2 font-display text-3xl font-medium text-background sm:text-4xl">
-                  Food Service Packaging
-                </h2>
-                <span className="mt-5 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-background">
-                  Browse <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-              </div>
-            </div>
-          </Link>
-
-          {/* RETAIL */}
-          <Link
-            to="/products"
-            search={{ division: "retail-industrial" }}
-            className="group relative block overflow-hidden bg-background"
-          >
-            <div className="relative aspect-[4/3] overflow-hidden lg:aspect-[5/4]">
-              <img
-                src={retailImg}
-                alt="Branded kraft paper shopping bags on a retail counter"
-                className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-8 lg:p-12">
-                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-background/70">
-                  Division 02
-                </span>
-                <h2 className="mt-2 font-display text-3xl font-medium text-background sm:text-4xl">
-                  Retail & Industrial
-                </h2>
-                <span className="mt-5 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-background">
-                  Browse <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-              </div>
-            </div>
-          </Link>
         </div>
       </section>
 
