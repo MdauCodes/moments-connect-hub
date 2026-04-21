@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { categories, products } from "@/data/products";
+import { useBasket } from "@/contexts/BasketContext";
 import { z } from "zod";
 
 const searchSchema = z.object({
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/products")({
 function ProductsPage() {
   const { category } = Route.useSearch();
   const navigate = Route.useNavigate();
+  const basket = useBasket();
   const filtered = category ? products.filter((p) => p.category === category) : products;
   const activeCat = categories.find((c) => c.slug === category);
 
@@ -105,6 +107,39 @@ function ProductsPage() {
                   </div>
                   <span className="text-sm font-medium text-accent">View →</span>
                 </div>
+                {basket.isInBasket(p.id) ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      basket.remove(p.id);
+                    }}
+                    className="mt-4 w-full rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-sm font-medium text-accent transition-colors hover:bg-accent/15"
+                  >
+                    ✓ Added — tap to remove
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      basket.add({
+                        productId: p.id,
+                        name: p.name,
+                        image: p.image,
+                        qty: p.moq,
+                        size: "Medium",
+                        finish: "Standard",
+                        moq: p.moq,
+                      });
+                    }}
+                    className="mt-4 w-full rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                  >
+                    + Add to enquiry
+                  </button>
+                )}
               </div>
             </Link>
           ))}
