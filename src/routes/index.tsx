@@ -50,8 +50,8 @@ function HomePage() {
 
   return (
     <SiteLayout>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-cream lg:h-[90vh] lg:max-h-[860px]">
+      {/* Hero — compact, ~85vh, full-bleed image on the right (à la JaniaHub) */}
+      <section className="relative overflow-hidden bg-cream lg:h-[85vh] lg:max-h-[780px] lg:min-h-[640px]">
         <div className="grain absolute inset-0 opacity-60" aria-hidden />
 
         {/* Mobile/tablet: cloud peeks from right edge as faded backdrop */}
@@ -62,7 +62,14 @@ function HomePage() {
           <PackagingCloud />
         </div>
 
-        <div className="relative z-10 mx-auto grid h-full max-w-7xl items-center gap-12 px-5 pt-14 pb-16 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-12">
+        {/* Desktop: cloud is full-bleed on the right half, edge to edge top/bottom */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-1/2 lg:block">
+          <div className="relative h-full w-full">
+            <PackagingCloud />
+          </div>
+        </div>
+
+        <div className="relative z-10 mx-auto grid h-full max-w-7xl items-center gap-12 px-5 pt-14 pb-16 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-0">
           <div className="lg:col-span-6">
             <h1 className="font-display text-5xl font-medium leading-[1.02] text-foreground text-balance sm:text-6xl lg:text-7xl">
               {isCorp ? (
@@ -71,12 +78,12 @@ function HomePage() {
                 <>Packaging that makes the <em className="not-italic text-accent">moment</em>.</>
               )}
             </h1>
-            <p className="mt-6 max-w-xl text-lg text-muted-foreground text-balance">
+            <p className="mt-5 max-w-xl text-lg text-muted-foreground text-balance">
               {isCorp
                 ? "Dedicated production slots, bulk pricing and contracts for Kenya's biggest brands. From 10,000-unit runs to nationwide rollouts — one supplier, zero stress."
                 : "We design and print premium branded paper packaging for Kenya's most-loved restaurants, retailers and brands. From a 100-bag pilot to enterprise contracts."}
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/15 transition-all hover:bg-primary/90 hover:shadow-xl"
@@ -91,8 +98,8 @@ function HomePage() {
               </Link>
             </div>
 
-            {/* Stat row — replaces eyebrow chip + checkmark bullets */}
-            <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-8">
+            {/* Stat row */}
+            <dl className="mt-10 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-6">
               {(isCorp
                 ? [
                     { value: "5,000+", label: "Min order units" },
@@ -113,10 +120,8 @@ function HomePage() {
             </dl>
           </div>
 
-          {/* Desktop: cloud lives in the right column */}
-          <div className="relative hidden aspect-square lg:col-span-6 lg:block">
-            <PackagingCloud />
-          </div>
+          {/* Spacer column on desktop so the text doesn't overlap the cloud */}
+          <div className="hidden lg:col-span-6 lg:block" aria-hidden />
         </div>
       </section>
 
