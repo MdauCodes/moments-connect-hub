@@ -24,7 +24,7 @@ function PersonaSwitchButton() {
 
 export function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <PersonaProvider>
+    <>
       <PersonaGate />
       <div className="flex min-h-screen flex-col bg-background">
         <SiteHeader />
@@ -33,6 +33,6 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         <WhatsAppFloat />
         <PersonaSwitchButton />
       </div>
-    </PersonaProvider>
+    </>
   );
 }
