@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { categories, products, whatsappLink } from "@/data/products";
@@ -44,6 +45,8 @@ function HomePage() {
   const basket = useBasket();
   const isCorp = persona === "corporate";
   const isSme = persona === "sme";
+
+  const [cloudVariant, setCloudVariant] = useState<"v1" | "v2">("v1");
 
   const featured = products.filter((p) => p.tags.includes("Featured") || p.tags.includes("Trending")).slice(0, 4);
   const valueProps = isCorp ? corpValueProps : smeValueProps;
