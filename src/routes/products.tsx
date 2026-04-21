@@ -51,22 +51,15 @@ function ProductsPage() {
 
   return (
     <SiteLayout>
-      {/* Heading */}
+      {/* Heading — short */}
       <section className="border-b border-border bg-background">
-        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
+        <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-14">
           <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
             Catalogue · {filtered.length} products
           </p>
-          <h1 className="mt-5 max-w-4xl font-display text-5xl font-medium leading-tight text-foreground text-balance sm:text-6xl lg:text-7xl">
-            {activeDivision
-              ? divisions[activeDivision].label
-              : "Every kind of packaging Kenyan businesses need."}
+          <h1 className="mt-3 font-display text-4xl font-medium leading-tight text-foreground sm:text-5xl">
+            {activeDivision ? divisions[activeDivision].label : "All packaging"}
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
-            {activeDivision
-              ? divisions[activeDivision].description
-              : "Two divisions, one supplier. Filter by what you need to pack."}
-          </p>
         </div>
       </section>
 
