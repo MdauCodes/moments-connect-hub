@@ -3,8 +3,8 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { categories, products, whatsappLink } from "@/data/products";
 import { usePersona } from "@/contexts/PersonaContext";
 import { useBasket } from "@/contexts/BasketContext";
-import heroImg from "@/assets/hero-packaging.jpg";
-import { ArrowRight, Check, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
+import { PackagingCloud } from "@/components/PackagingCloud";
+import { ArrowRight, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -55,11 +55,7 @@ function HomePage() {
         <div className="grain absolute inset-0 opacity-60" aria-hidden />
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pt-14 pb-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:pt-24 lg:pb-28">
           <div className="lg:col-span-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              {isCorp ? "Enterprise packaging · Nationwide contracts" : "Custom packaging · Made in Kenya"}
-            </span>
-            <h1 className="mt-6 font-display text-5xl font-medium leading-[1.02] text-foreground text-balance sm:text-6xl lg:text-7xl">
+            <h1 className="font-display text-5xl font-medium leading-[1.02] text-foreground text-balance sm:text-6xl lg:text-7xl">
               {isCorp ? (
                 <>Volume packaging, <em className="not-italic text-accent">delivered on brief</em>.</>
               ) : (
@@ -85,35 +81,31 @@ function HomePage() {
                 {isCorp ? "View case studies" : "Browse catalogue"}
               </Link>
             </div>
-            <div className="mt-10 flex flex-wrap gap-x-7 gap-y-2 text-sm text-muted-foreground">
+
+            {/* Stat row — replaces eyebrow chip + checkmark bullets */}
+            <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-8">
               {(isCorp
-                ? ["MOQ from 5,000 units", "Dedicated account manager", "Contracts & SLAs available"]
-                : ["MOQ from 100 units", "7–14 day lead time", "Free quote in 24h"]
-              ).map((t) => (
-                <span key={t} className="inline-flex items-center gap-2">
-                  <Check className="h-4 w-4 text-accent" /> {t}
-                </span>
+                ? [
+                    { value: "5,000+", label: "Min order units" },
+                    { value: "24h", label: "Quote turnaround" },
+                    { value: "Net-30", label: "Contract terms" },
+                  ]
+                : [
+                    { value: "100", label: "MOQ units" },
+                    { value: "7–14", label: "Day lead time" },
+                    { value: "500+", label: "Brands packed" },
+                  ]
+              ).map((s) => (
+                <div key={s.label}>
+                  <dt className="font-display text-3xl font-medium text-foreground sm:text-4xl">{s.value}</dt>
+                  <dd className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">{s.label}</dd>
+                </div>
               ))}
-            </div>
+            </dl>
           </div>
 
           <div className="relative lg:col-span-6">
-            <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-accent/10 via-kraft/10 to-forest/10 blur-2xl" />
-            <div className="overflow-hidden rounded-[1.5rem] border border-border bg-background shadow-2xl shadow-ink/10">
-              <img
-                src={heroImg}
-                alt="Branded kraft paper bags, cups and food boxes by Moments Packaging Kenya"
-                width={1600}
-                height={1200}
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div className="absolute -bottom-6 -left-4 hidden rounded-2xl border border-border bg-background p-5 shadow-xl sm:block lg:-left-8">
-              <p className="font-display text-3xl font-semibold text-foreground">500+</p>
-              <p className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
-                Brands packed
-              </p>
-            </div>
+            <PackagingCloud />
           </div>
         </div>
       </section>
