@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 import { WhatsAppFloat } from "./WhatsAppFloat";
-import { PersonaProvider, usePersona } from "@/contexts/PersonaContext";
+import { usePersona } from "@/contexts/PersonaContext";
 import { PersonaGate } from "./PersonaGate";
 
 function PersonaSwitchButton() {
@@ -24,7 +24,7 @@ function PersonaSwitchButton() {
 
 export function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <PersonaProvider>
+    <>
       <PersonaGate />
       <div className="flex min-h-screen flex-col bg-background">
         <SiteHeader />
@@ -33,6 +33,6 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         <WhatsAppFloat />
         <PersonaSwitchButton />
       </div>
-    </PersonaProvider>
+    </>
   );
 }
