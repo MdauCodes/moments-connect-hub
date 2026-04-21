@@ -103,12 +103,12 @@ function ProductDetail() {
           {/* Spec column */}
           <div className="lg:col-span-7">
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-              {product.tags.join(" · ")}
+              {divisions[product.division].label}
             </p>
-            <h1 className="mt-4 font-display text-5xl font-medium leading-[1.05] text-foreground sm:text-6xl">
+            <h1 className="mt-3 font-display text-4xl font-medium leading-[1.05] text-foreground sm:text-5xl">
               {product.name}
             </h1>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">{product.description}</p>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">{product.description}</p>
 
             {/* Spec table — editorial */}
             <dl className="mt-10 grid grid-cols-2 gap-px border border-border bg-border">
