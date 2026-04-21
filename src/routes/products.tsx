@@ -1,9 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
-import { categories, products } from "@/data/products";
+import { ProductCard } from "@/components/ProductCard";
+import { DivisionBadge } from "@/components/DivisionBadge";
+import {
+  categories,
+  categoriesByDivision,
+  divisions,
+  products,
+  type Division,
+} from "@/data/products";
 import { z } from "zod";
 
 const searchSchema = z.object({
+  division: z.enum(["food", "retail-industrial"]).optional(),
   category: z.string().optional(),
 });
 
@@ -11,110 +20,171 @@ export const Route = createFileRoute("/products")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Product Catalogue — Moments Packaging Kenya" },
+      { title: "Catalogue — Food, Retail & Industrial Packaging | Moments Packaging Kenya" },
       {
         name: "description",
         content:
-          "Browse our full range of custom paper bags, cups, food boxes, mailers, labels and gifting packaging. WhatsApp to order.",
+          "Browse our two divisions — Food Service Packaging and Retail & Industrial Packaging. Cups, boxes, kraft bags, mailers, labels, gifting and bulk supplies. WhatsApp to order.",
       },
-      { property: "og:title", content: "Product Catalogue — Moments Packaging Kenya" },
-      { property: "og:description", content: "Custom paper packaging catalogue — bags, cups, boxes, mailers and more." },
+      { property: "og:title", content: "Catalogue — Moments Packaging Kenya" },
+      {
+        property: "og:description",
+        content: "Two divisions, one supplier — food and non-food packaging for Kenyan businesses.",
+      },
     ],
   }),
   component: ProductsPage,
 });
 
 function ProductsPage() {
-  const { category } = Route.useSearch();
+  const { division, category } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const filtered = category ? products.filter((p) => p.category === category) : products;
-  const activeCat = categories.find((c) => c.slug === category);
+
+  const filtered = products.filter((p) => {
+    if (division && p.division !== division) return false;
+    if (category && p.category !== category) return false;
+    return true;
+  });
+
+  const activeDivision: Division | undefined = division;
+  const visibleCategories = activeDivision ? categoriesByDivision(activeDivision) : categories;
 
   return (
     <SiteLayout>
-      <section className="bg-cream">
+      {/* Heading */}
+      <section className="border-b border-border bg-background">
         <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
-          <p className="text-xs uppercase tracking-[0.25em] text-accent">Catalogue</p>
-          <h1 className="mt-3 font-display text-5xl font-medium text-foreground sm:text-6xl">
-            {activeCat ? activeCat.name : "Every type of packaging."}
+          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+            Catalogue · {filtered.length} products
+          </p>
+          <h1 className="mt-5 max-w-4xl font-display text-5xl font-medium leading-tight text-foreground text-balance sm:text-6xl lg:text-7xl">
+            {activeDivision
+              ? divisions[activeDivision].label
+              : "Every kind of packaging Kenyan businesses need."}
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            {activeCat ? activeCat.blurb : "Browse by category. Tap any product to view details and order via WhatsApp or request a custom quote."}
+          <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
+            {activeDivision
+              ? divisions[activeDivision].description
+              : "Two divisions, one supplier. Filter by what you need to pack."}
           </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 pb-24 lg:px-8">
-        {/* Category pills */}
-        <div className="sticky top-[68px] z-20 -mx-5 flex gap-2 overflow-x-auto border-b border-border bg-background/95 px-5 py-4 backdrop-blur lg:mx-0 lg:rounded-full lg:border lg:px-3">
-          <button
-            onClick={() => navigate({ search: {} })}
-            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors ${
-              !category ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-secondary"
-            }`}
-          >
-            All products
-          </button>
-          {categories.map((c) => (
+      {/* Division switcher — primary filter */}
+      <section className="sticky top-[68px] z-30 border-b border-border bg-background">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="flex items-center gap-px overflow-x-auto bg-border">
             <button
-              key={c.slug}
-              onClick={() => navigate({ search: { category: c.slug } })}
-              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors ${
-                category === c.slug ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-secondary"
+              onClick={() => navigate({ search: {} })}
+              className={`whitespace-nowrap px-6 py-4 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors ${
+                !activeDivision
+                  ? "bg-foreground text-background"
+                  : "bg-background text-foreground/70 hover:bg-secondary"
               }`}
             >
-              {c.name}
+              All products
             </button>
-          ))}
-        </div>
-
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((p) => (
-            <Link
-              key={p.id}
-              to="/products/$slug"
-              params={{ slug: p.slug }}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-xl"
+            <button
+              onClick={() => navigate({ search: { division: "food" } })}
+              className={`flex items-center gap-2 whitespace-nowrap px-6 py-4 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors ${
+                activeDivision === "food"
+                  ? "bg-[color:var(--clay)] text-background"
+                  : "bg-background text-foreground/70 hover:bg-secondary"
+              }`}
             >
-              <div className="relative aspect-[5/4] overflow-hidden bg-secondary">
-                <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-                  {p.tags.map((t) => (
-                    <span
-                      key={t}
-                      className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider backdrop-blur ${
-                        t === "Discounted"
-                          ? "bg-accent text-accent-foreground"
-                          : t === "New"
-                          ? "bg-forest text-forest-foreground"
-                          : "bg-background/90 text-foreground"
-                      }`}
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="flex flex-1 flex-col p-6">
-                <h3 className="font-display text-xl text-foreground">{p.name}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">{p.description}</p>
-                <div className="mt-5 flex items-end justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-muted-foreground">MOQ</p>
-                    <p className="font-display text-lg text-foreground">{p.moq.toLocaleString()}</p>
-                  </div>
-                  <span className="text-sm font-medium text-accent">View →</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {filtered.length === 0 && (
-          <div className="mt-16 rounded-2xl border border-dashed border-border p-16 text-center text-muted-foreground">
-            No products in this category yet.
+              <span className={`h-1.5 w-1.5 ${activeDivision === "food" ? "bg-background" : "bg-[color:var(--clay)]"}`} />
+              Food Service
+            </button>
+            <button
+              onClick={() => navigate({ search: { division: "retail-industrial" } })}
+              className={`flex items-center gap-2 whitespace-nowrap px-6 py-4 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors ${
+                activeDivision === "retail-industrial"
+                  ? "bg-[color:var(--forest)] text-background"
+                  : "bg-background text-foreground/70 hover:bg-secondary"
+              }`}
+            >
+              <span className={`h-1.5 w-1.5 ${activeDivision === "retail-industrial" ? "bg-background" : "bg-[color:var(--forest)]"}`} />
+              Retail & Industrial
+            </button>
           </div>
+        </div>
+      </section>
+
+      {/* Category sub-filter */}
+      <section className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-7xl px-5 py-5 lg:px-8">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+            <span className="mr-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+              Categories /
+            </span>
+            <button
+              onClick={() =>
+                navigate({ search: activeDivision ? { division: activeDivision } : {} })
+              }
+              className={`px-3 py-1.5 text-xs transition-colors ${
+                !category
+                  ? "bg-foreground text-background"
+                  : "border border-border text-foreground/70 hover:border-foreground hover:text-foreground"
+              }`}
+            >
+              All
+            </button>
+            {visibleCategories.map((c) => (
+              <button
+                key={c.slug}
+                onClick={() =>
+                  navigate({
+                    search: activeDivision
+                      ? { division: activeDivision, category: c.slug }
+                      : { category: c.slug },
+                  })
+                }
+                className={`px-3 py-1.5 text-xs transition-colors ${
+                  category === c.slug
+                    ? "bg-foreground text-background"
+                    : "border border-border text-foreground/70 hover:border-foreground hover:text-foreground"
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Product list — editorial, hairline-divided */}
+      <section className="mx-auto max-w-7xl px-0 pb-24 lg:px-8 lg:pb-32">
+        {filtered.length === 0 ? (
+          <div className="border-y border-dashed border-border px-5 py-24 text-center">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+              No products match this filter.
+            </p>
+            <Link
+              to="/products"
+              className="mt-4 inline-block font-display text-xl text-foreground underline-offset-4 hover:underline"
+            >
+              View all products
+            </Link>
+          </div>
+        ) : (
+          <ul className="border-b border-border">
+            {filtered.map((p) => (
+              <li key={p.id}>
+                <ProductCard product={p} />
+              </li>
+            ))}
+          </ul>
         )}
+
+        {/* Footer summary */}
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 px-5 lg:px-0">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+            Showing {filtered.length} of {products.length} · {activeDivision ? divisions[activeDivision].label : "All divisions"}
+          </p>
+          {activeDivision && (
+            <DivisionBadge division={activeDivision} />
+          )}
+        </div>
       </section>
     </SiteLayout>
   );
