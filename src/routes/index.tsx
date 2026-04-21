@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { categories, products, whatsappLink } from "@/data/products";
