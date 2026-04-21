@@ -69,7 +69,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <PersonaProvider>
-      <Outlet />
+      <BasketProvider>
+        <Outlet />
+      </BasketProvider>
     </PersonaProvider>
   );
 }
