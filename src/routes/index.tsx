@@ -4,7 +4,7 @@ import { categories, products, whatsappLink } from "@/data/products";
 import { usePersona } from "@/contexts/PersonaContext";
 import { useBasket } from "@/contexts/BasketContext";
 import { PackagingCloud } from "@/components/PackagingCloud";
-import { ArrowRight, Check, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
+import { ArrowRight, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
