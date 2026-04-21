@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { PersonaProvider } from "@/contexts/PersonaContext";
+import { BasketProvider } from "@/contexts/BasketContext";
 
 import appCss from "../styles.css?url";
 
@@ -68,7 +69,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <PersonaProvider>
-      <Outlet />
+      <BasketProvider>
+        <Outlet />
+      </BasketProvider>
     </PersonaProvider>
   );
 }

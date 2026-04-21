@@ -4,7 +4,6 @@ import { SiteFooter } from "./SiteFooter";
 import { WhatsAppFloat } from "./WhatsAppFloat";
 import { usePersona } from "@/contexts/PersonaContext";
 import { PersonaGate } from "./PersonaGate";
-import { BasketProvider } from "@/contexts/BasketContext";
 import { BasketPill } from "./BasketPill";
 import { BasketDrawer } from "./BasketDrawer";
 
@@ -60,9 +59,5 @@ function LayoutShell({ children }: { children: ReactNode }) {
 }
 
 export function SiteLayout({ children }: { children: ReactNode }) {
-  return (
-    <BasketProvider>
-      <LayoutShell>{children}</LayoutShell>
-    </BasketProvider>
-  );
+  return <LayoutShell>{children}</LayoutShell>;
 }
