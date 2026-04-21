@@ -46,7 +46,7 @@ function HomePage() {
   const isCorp = persona === "corporate";
   const isSme = persona === "sme";
 
-  const [cloudVariant, setCloudVariant] = useState<"v1" | "v2">("v1");
+  const [cloudVariant, setCloudVariant] = useState<"v1" | "v2" | "v3">("v1");
 
   const featured = products.filter((p) => p.tags.includes("Featured") || p.tags.includes("Trending")).slice(0, 4);
   const valueProps = isCorp ? corpValueProps : smeValueProps;
@@ -89,6 +89,13 @@ function HomePage() {
             className={`rounded-full px-3 py-1 font-medium transition-colors ${cloudVariant === "v2" ? "bg-foreground text-background" : "text-foreground/70 hover:bg-secondary"}`}
           >
             Mixed
+          </button>
+          <button
+            type="button"
+            onClick={() => setCloudVariant("v3")}
+            className={`rounded-full px-3 py-1 font-medium transition-colors ${cloudVariant === "v3" ? "bg-foreground text-background" : "text-foreground/70 hover:bg-secondary"}`}
+          >
+            Diverse
           </button>
         </div>
 
