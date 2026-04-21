@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import cloudImgV1 from "@/assets/packaging-cloud-hero.png";
 import cloudImgV2 from "@/assets/packaging-cloud-hero-v2.png";
+import cloudImgV3 from "@/assets/packaging-cloud-hero-v3.png";
 
 /**
  * Roving spotlight regions over the dense packaging photo.
@@ -20,7 +21,7 @@ const SPOTS: Array<{ x: number; y: number; label: string }> = [
   { x: 78, y: 35, label: "Gift & retail boxes" },
 ];
 
-export function PackagingCloud({ variant = "v1" }: { variant?: "v1" | "v2" }) {
+export function PackagingCloud({ variant = "v1" }: { variant?: "v1" | "v2" | "v3" }) {
   const [activeIdx, setActiveIdx] = useState(0);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function PackagingCloud({ variant = "v1" }: { variant?: "v1" | "v2" }) {
   }, []);
 
   const active = SPOTS[activeIdx];
-  const cloudImg = variant === "v2" ? cloudImgV2 : cloudImgV1;
+  const cloudImg = variant === "v3" ? cloudImgV3 : variant === "v2" ? cloudImgV2 : cloudImgV1;
 
   return (
     <div className="relative h-full w-full select-none">
