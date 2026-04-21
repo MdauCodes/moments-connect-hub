@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { whatsappLink } from "@/data/products";
-import heroCounter from "@/assets/photos/hero-counter.jpg";
 import foodImg from "@/assets/photos/food-takeaway.jpg";
 import retailImg from "@/assets/photos/retail-bags.jpg";
 import { ArrowRight, MessageCircle } from "lucide-react";
