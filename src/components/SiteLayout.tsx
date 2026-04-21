@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 import { WhatsAppFloat } from "./WhatsAppFloat";
@@ -6,6 +6,7 @@ import { usePersona } from "@/contexts/PersonaContext";
 import { PersonaGate } from "./PersonaGate";
 import { BasketProvider } from "@/contexts/BasketContext";
 import { BasketPill } from "./BasketPill";
+import { BasketDrawer } from "./BasketDrawer";
 
 function PersonaSwitchButton() {
   const { persona, setPersona } = usePersona();
@@ -39,9 +40,10 @@ function ScrollLock() {
   return null;
 }
 
-export function SiteLayout({ children }: { children: ReactNode }) {
+function LayoutShell({ children }: { children: ReactNode }) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
   return (
-    <BasketProvider>
+    <>
       <ScrollLock />
       <PersonaGate />
       <div className="flex min-h-screen flex-col bg-background">
@@ -50,8 +52,17 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         <SiteFooter />
         <WhatsAppFloat />
         <PersonaSwitchButton />
-        <BasketPill />
+        <BasketPill onOpen={() => setDrawerOpen(true)} />
+        <BasketDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       </div>
+    </>
+  );
+}
+
+export function SiteLayout({ children }: { children: ReactNode }) {
+  return (
+    <BasketProvider>
+      <LayoutShell>{children}</LayoutShell>
     </BasketProvider>
   );
 }
