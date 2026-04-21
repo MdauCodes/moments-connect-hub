@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useState, type FormEvent } from "react";
-import { z } from "zod";
-import { COMPANY_EMAIL, COMPANY_PHONE, whatsappLink } from "@/data/products";
-import { Check, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { WHATSAPP_NUMBER, whatsappLink } from "@/data/products";
+import { Check, Loader2, MessageCircle, X } from "lucide-react";
+import { usePersona } from "@/contexts/PersonaContext";
+import { useBasket, type BasketItem } from "@/contexts/BasketContext";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -11,171 +12,417 @@ export const Route = createFileRoute("/contact")({
       { title: "Get a Custom Quote — Moments Packaging Kenya" },
       {
         name: "description",
-        content: "Tell us about your packaging needs. Get a tailored quote within 24 hours from the Moments Packaging sales team.",
+        content:
+          "Tell us about your packaging needs. Get a tailored quote within 24 hours from the Moments Packaging sales team.",
       },
       { property: "og:title", content: "Get a Custom Quote — Moments Packaging Kenya" },
-      { property: "og:description", content: "Request a custom packaging quote — answered within 24 hours by our Nairobi team." },
+      {
+        property: "og:description",
+        content: "Request a custom packaging quote — answered within 24 hours by our Nairobi team.",
+      },
     ],
   }),
   component: ContactPage,
 });
 
-const formSchema = z.object({
-  fullName: z.string().trim().min(2, "Please enter your name").max(100),
-  company: z.string().trim().max(100).optional(),
-  email: z.string().trim().email("Enter a valid email").max(255),
-  phone: z.string().trim().min(7, "Enter a valid phone number").max(20),
-  productInterest: z.string().trim().min(2, "Tell us what you need").max(200),
-  quantity: z.string().trim().min(1).max(50),
-  message: z.string().trim().max(1000).optional(),
-});
+type FormState = "idle" | "submitting" | "success" | "error";
+
+interface LocationState {
+  basketItems?: BasketItem[];
+}
+
+const inputClass =
+  "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50";
+const labelClass = "block text-sm font-medium text-foreground mb-1.5";
 
 function ContactPage() {
-  const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const { persona } = usePersona();
+  const { items, remove, clear } = useBasket();
+  const isCorp = persona === "corporate";
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  const location = useLocation();
+  const state = (location.state as LocationState | undefined) ?? {};
+  const incoming = state.basketItems;
+  const basketProducts: BasketItem[] = items.length === 0 && incoming ? incoming : items;
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [message, setMessage] = useState("");
+  const [estimatedVolume, setEstimatedVolume] = useState("");
+  const [timeline, setTimeline] = useState("");
+  const [artworkFile, setArtworkFile] = useState<File | null>(null);
+  const [referralSource, setReferralSource] = useState("");
+  const [formState, setFormState] = useState<FormState>("idle");
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
-    const result = formSchema.safeParse(data);
-    if (!result.success) {
-      const errs: Record<string, string> = {};
-      for (const issue of result.error.issues) {
-        if (issue.path[0]) errs[String(issue.path[0])] = issue.message;
-      }
-      setErrors(errs);
-      return;
+    setFormState("submitting");
+
+    const payload = {
+      customerType: isCorp ? "CORPORATE" : "SME",
+      name,
+      companyName: isCorp ? companyName : undefined,
+      email: email || undefined,
+      phone,
+      message: message || undefined,
+      estimatedVolume: isCorp ? estimatedVolume : undefined,
+      timeline: isCorp ? timeline : undefined,
+      artworkUrl: undefined as string | undefined,
+      referralSource: !isCorp ? referralSource : undefined,
+      products: basketProducts.map((item) => ({
+        productId: item.productId,
+        name: item.name,
+        qty: item.qty,
+        size: item.size,
+        finish: item.finish,
+      })),
+    };
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${apiUrl}/api/enquiries`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+      setFormState("success");
+      clear();
+    } catch (err) {
+      console.error("Enquiry submission failed:", err);
+      setFormState("error");
     }
-    setErrors({});
-    // In production: POST to Spring Boot /api/enquiries -> triggers Resend email
-    setSubmitted(true);
   }
 
   return (
     <SiteLayout>
       <section className="bg-cream">
         <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
-          <p className="text-xs uppercase tracking-[0.25em] text-accent">Get a quote</p>
-          <h1 className="mt-3 font-display text-5xl font-medium text-foreground sm:text-6xl lg:text-7xl text-balance">
-            Tell us what you need to pack.
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
-            Fill in the form and our sales team will respond within 24 hours with sizing, MOQ and
-            pricing options. Prefer WhatsApp? Tap below.
-          </p>
-        </div>
-      </section>
-
-      <section className="mx-auto grid max-w-7xl gap-12 px-5 py-16 lg:grid-cols-5 lg:gap-16 lg:px-8">
-        <div className="lg:col-span-3">
-          {submitted ? (
-            <div className="rounded-3xl border border-border bg-card p-10 text-center">
-              <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-accent/15">
-                <Check className="h-8 w-8 text-accent" />
+          <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+            {/* LEFT */}
+            <div className="lg:col-span-5">
+              <div className="lg:sticky lg:top-24">
+                <p className="text-xs uppercase tracking-widest text-accent">
+                  {isCorp ? "Enterprise enquiry" : "Quick enquiry"}
+                </p>
+                <h1 className="mt-3 font-display text-4xl font-medium text-foreground text-balance">
+                  {isCorp ? "Let's talk about your packaging." : "Tell us what you need."}
+                </h1>
+                <p className="mt-5 text-muted-foreground">
+                  {isCorp
+                    ? "Share your requirements and your dedicated account manager will be in touch within 24 hours."
+                    : "Fill in your details and we'll WhatsApp you a quote within 2 hours."}
+                </p>
+                <ul className="mt-8 space-y-3">
+                  {(isCorp
+                    ? [
+                        "Dedicated account manager assigned",
+                        "Formal quote within 24 hours",
+                        "Contracts and SLAs available",
+                      ]
+                    : [
+                        "Free quote, no obligation",
+                        "Reply within 2 hours on WhatsApp",
+                        "MOQ from just 100 units",
+                      ]
+                  ).map((bullet) => (
+                    <li key={bullet} className="flex items-start gap-3 text-sm text-foreground">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                      {bullet}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <h2 className="mt-6 font-display text-3xl text-foreground">Quote request received</h2>
-              <p className="mt-3 text-muted-foreground">
-                Thanks — our sales team will reach out within 24 hours. A confirmation has been sent
-                to your email.
-              </p>
-              <button
-                onClick={() => setSubmitted(false)}
-                className="mt-8 inline-flex rounded-full border border-border px-6 py-3 text-sm font-medium hover:bg-secondary"
-              >
-                Submit another enquiry
-              </button>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="rounded-3xl border border-border bg-card p-6 sm:p-10">
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Field label="Full name *" name="fullName" error={errors.fullName} />
-                <Field label="Company name" name="company" error={errors.company} />
-                <Field label="Email *" name="email" type="email" error={errors.email} />
-                <Field label="Phone / WhatsApp *" name="phone" type="tel" placeholder="+254 …" error={errors.phone} />
-                <Field label="Product interest *" name="productInterest" placeholder="e.g. Branded coffee cups" error={errors.productInterest} />
-                <Field label="Estimated quantity *" name="quantity" placeholder="e.g. 5,000 units / month" error={errors.quantity} />
-              </div>
-              <div className="mt-5">
-                <label className="text-xs uppercase tracking-widest text-muted-foreground">
-                  Anything else? (optional)
-                </label>
-                <textarea
-                  name="message"
-                  rows={5}
-                  maxLength={1000}
-                  className="mt-2 block w-full resize-none rounded-xl border border-input bg-background px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
-                  placeholder="Sizes, branding details, deadlines…"
-                />
-              </div>
-              <button
-                type="submit"
-                className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
-              >
-                Send quote request
-              </button>
-              <p className="mt-4 text-xs text-muted-foreground">
-                We respond within 24 hours, Mon–Sat.
-              </p>
-            </form>
-          )}
+
+            {/* RIGHT */}
+            <div className="lg:col-span-7">
+              {formState === "success" ? (
+                <SuccessPanel isCorp={isCorp} email={email} />
+              ) : (
+                <form
+                  onSubmit={handleSubmit}
+                  className="rounded-2xl border border-border bg-card p-8"
+                >
+                  {/* Products in enquiry */}
+                  <div>
+                    <h2 className="text-sm font-medium text-foreground">
+                      Products in your enquiry
+                    </h2>
+                    {basketProducts.length === 0 ? (
+                      <div className="mt-3 rounded-xl border border-dashed border-border bg-background/50 p-4">
+                        <p className="text-sm text-muted-foreground">No products selected yet.</p>
+                        <Link to="/products" className="mt-1 inline-block text-sm text-accent">
+                          Browse catalogue →
+                        </Link>
+                      </div>
+                    ) : (
+                      <ul className="mt-3 space-y-2">
+                        {basketProducts.map((item) => (
+                          <li
+                            key={item.productId}
+                            className="flex items-center gap-3 rounded-xl border border-border bg-background/50 p-3"
+                          >
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium text-foreground">
+                                {item.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Qty: {item.qty} · Size: {item.size} · Finish: {item.finish}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => remove(item.productId)}
+                              className="rounded-md p-1 text-muted-foreground hover:bg-secondary"
+                              aria-label={`Remove ${item.name}`}
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {basketProducts.length > 0 && (
+                      <Link to="/products" className="mt-2 inline-block text-xs text-accent">
+                        Edit basket
+                      </Link>
+                    )}
+                  </div>
+
+                  <div className="my-6 h-px bg-border" />
+
+                  {/* Form fields */}
+                  {!isCorp ? (
+                    <div className="space-y-4">
+                      <div>
+                        <label className={labelClass}>Name *</label>
+                        <input
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Your name"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Phone number *</label>
+                        <input
+                          type="tel"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="+254 7XX XXX XXX"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Email (optional)</label>
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="your@email.com"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Message (optional)</label>
+                        <textarea
+                          rows={3}
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          placeholder="Any specific requirements, colours, or questions?"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>How did you hear about us? (optional)</label>
+                        <select
+                          value={referralSource}
+                          onChange={(e) => setReferralSource(e.target.value)}
+                          className={inputClass}
+                        >
+                          <option value="">Select...</option>
+                          <option>Instagram</option>
+                          <option>WhatsApp</option>
+                          <option>Referral from another business</option>
+                          <option>Google search</option>
+                          <option>Walk-in / saw your work</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div>
+                        <label className={labelClass}>Contact name *</label>
+                        <input
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Full name"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Company name *</label>
+                        <input
+                          type="text"
+                          required
+                          value={companyName}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                          placeholder="Company / brand name"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Work email *</label>
+                        <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="you@company.com"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Phone (optional)</label>
+                        <input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="+254 7XX XXX XXX"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Estimated monthly volume *</label>
+                        <select
+                          required
+                          value={estimatedVolume}
+                          onChange={(e) => setEstimatedVolume(e.target.value)}
+                          className={inputClass}
+                        >
+                          <option value="">Select range...</option>
+                          <option>5,000 – 10,000 units</option>
+                          <option>10,000 – 50,000 units</option>
+                          <option>50,000 – 100,000 units</option>
+                          <option>100,000+ units</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Required timeline (optional)</label>
+                        <input
+                          type="text"
+                          value={timeline}
+                          onChange={(e) => setTimeline(e.target.value)}
+                          placeholder="e.g. Need by end of March"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Logo / artwork (optional)</label>
+                        <input
+                          type="file"
+                          accept=".pdf,.ai,.png,.jpg,.svg"
+                          onChange={(e) => setArtworkFile(e.target.files?.[0] ?? null)}
+                          className={inputClass}
+                        />
+                        <p className="mt-1.5 text-xs text-muted-foreground">
+                          PDF, AI, PNG or SVG. Max 10MB.
+                          {artworkFile && ` · Selected: ${artworkFile.name}`}
+                        </p>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Additional notes (optional)</label>
+                        <textarea
+                          rows={3}
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          placeholder="Anything else we should know?"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {formState === "error" && (
+                    <div className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+                      Something went wrong. Please try again or{" "}
+                      <a
+                        href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                      >
+                        WhatsApp us directly
+                      </a>
+                      .
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={formState === "submitting"}
+                    className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                  >
+                    {formState === "submitting" ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" /> Sending...
+                      </>
+                    ) : isCorp ? (
+                      "Request quote →"
+                    ) : (
+                      "Send enquiry →"
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
         </div>
-
-        <aside className="lg:col-span-2">
-          <div className="rounded-3xl bg-primary p-8 text-primary-foreground">
-            <h3 className="font-display text-2xl">Prefer to chat?</h3>
-            <p className="mt-2 text-sm text-primary-foreground/75">
-              Get an instant reply on WhatsApp. Best for SMEs and reorders.
-            </p>
-            <a
-              href={whatsappLink("Hi Moments Packaging, I'd like to enquire about packaging.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3.5 text-sm font-medium text-white"
-            >
-              <MessageCircle className="h-4 w-4" /> WhatsApp us now
-            </a>
-          </div>
-
-          <div className="mt-6 space-y-4 rounded-3xl border border-border bg-card p-8">
-            <ContactRow icon={Phone} label="Call" value={COMPANY_PHONE} />
-            <ContactRow icon={Mail} label="Email" value={COMPANY_EMAIL} />
-            <ContactRow icon={MapPin} label="Visit" value="Industrial Area, Nairobi · Mon–Sat 8am–5pm" />
-          </div>
-        </aside>
       </section>
     </SiteLayout>
   );
 }
 
-function Field({
-  label, name, type = "text", placeholder, error,
-}: { label: string; name: string; type?: string; placeholder?: string; error?: string }) {
+function SuccessPanel({ isCorp, email }: { isCorp: boolean; email: string }) {
   return (
-    <div>
-      <label className="text-xs uppercase tracking-widest text-muted-foreground">{label}</label>
-      <input
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        maxLength={255}
-        className={`mt-2 block w-full rounded-xl border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/30 ${
-          error ? "border-destructive" : "border-input focus:border-primary"
-        }`}
-      />
-      {error && <p className="mt-1.5 text-xs text-destructive">{error}</p>}
-    </div>
-  );
-}
-
-function ContactRow({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-4">
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary text-foreground">
-        <Icon className="h-4 w-4" />
+    <div className="rounded-2xl border border-border bg-card p-10 text-center">
+      <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-accent/20">
+        <Check className="h-8 w-8 text-accent" />
       </div>
-      <div>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
-        <p className="mt-1 text-sm text-foreground">{value}</p>
+      <h2 className="mt-6 font-display text-2xl text-foreground">Enquiry received!</h2>
+      <p className="mt-3 text-muted-foreground">
+        {isCorp
+          ? `Your account manager will email you within 24 hours with a formal quote. Check your inbox at ${email}.`
+          : "We'll WhatsApp you back within 2 hours with your quote. If it's urgent, message us directly."}
+      </p>
+      {!isCorp && (
+        <a
+          href={whatsappLink("Hi Moments Packaging, I just submitted an enquiry.")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3.5 text-sm font-medium text-white"
+        >
+          <MessageCircle className="h-4 w-4" /> WhatsApp us now
+        </a>
+      )}
+      <div className="mt-6">
+        <Link to="/products" className="text-sm text-accent">
+          Browse more products →
+        </Link>
       </div>
     </div>
   );
