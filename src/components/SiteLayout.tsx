@@ -1,9 +1,11 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 import { WhatsAppFloat } from "./WhatsAppFloat";
 import { usePersona } from "@/contexts/PersonaContext";
 import { PersonaGate } from "./PersonaGate";
+import { BasketProvider } from "@/contexts/BasketContext";
+import { BasketPill } from "./BasketPill";
 
 function PersonaSwitchButton() {
   const { persona, setPersona } = usePersona();
@@ -22,9 +24,25 @@ function PersonaSwitchButton() {
   );
 }
 
+function ScrollLock() {
+  const { persona } = usePersona();
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (persona === null) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [persona]);
+  return null;
+}
+
 export function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <>
+    <BasketProvider>
+      <ScrollLock />
       <PersonaGate />
       <div className="flex min-h-screen flex-col bg-background">
         <SiteHeader />
@@ -32,7 +50,8 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         <SiteFooter />
         <WhatsAppFloat />
         <PersonaSwitchButton />
+        <BasketPill />
       </div>
-    </>
+    </BasketProvider>
   );
 }
