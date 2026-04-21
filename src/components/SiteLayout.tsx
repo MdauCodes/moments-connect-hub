@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 import { WhatsAppFloat } from "./WhatsAppFloat";
-import { PersonaProvider, usePersona } from "@/contexts/PersonaContext";
+import { usePersona } from "@/contexts/PersonaContext";
 import { PersonaGate } from "./PersonaGate";
 
 function PersonaSwitchButton() {
