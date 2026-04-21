@@ -54,12 +54,12 @@ function HomePage() {
       <section className="relative overflow-hidden bg-cream lg:h-[78vh] lg:max-h-[680px] lg:min-h-[540px]">
         <div className="grain absolute inset-0 opacity-60" aria-hidden />
 
-        {/* Mobile/tablet: cloud centered behind content as faded backdrop */}
+        {/* Mobile/tablet: cloud centered behind content, larger and more present */}
         <div
-          className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-25 lg:hidden"
+          className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-40 lg:hidden"
           aria-hidden
         >
-          <div className="h-[80%] w-[90%] max-w-md">
+          <div className="h-[120%] w-[120%] max-w-none">
             <PackagingCloud />
           </div>
         </div>
