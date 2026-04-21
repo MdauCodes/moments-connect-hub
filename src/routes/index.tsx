@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { categories, products, whatsappLink } from "@/data/products";
 import { usePersona } from "@/contexts/PersonaContext";
+import { useBasket } from "@/contexts/BasketContext";
 import heroImg from "@/assets/hero-packaging.jpg";
 import { ArrowRight, Check, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
 
@@ -40,6 +41,7 @@ const corpValueProps = [
 
 function HomePage() {
   const { persona } = usePersona();
+  const basket = useBasket();
   const isCorp = persona === "corporate";
   const isSme = persona === "sme";
 
@@ -235,6 +237,39 @@ function HomePage() {
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent">
                   View product <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                 </span>
+                {basket.isInBasket(p.id) ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      basket.remove(p.id);
+                    }}
+                    className="mt-2 w-full rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-sm font-medium text-accent transition-colors hover:bg-accent/15"
+                  >
+                    ✓ Added — tap to remove
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      basket.add({
+                        productId: p.id,
+                        name: p.name,
+                        image: p.image,
+                        qty: p.moq,
+                        size: "Medium",
+                        finish: "Standard",
+                        moq: p.moq,
+                      });
+                    }}
+                    className="mt-2 w-full rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                  >
+                    + Add to enquiry
+                  </button>
+                )}
               </div>
             </Link>
           ))}
