@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { categories, products, whatsappLink } from "@/data/products";
+import { usePersona } from "@/contexts/PersonaContext";
 import heroImg from "@/assets/hero-packaging.jpg";
 import { ArrowRight, Check, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
 
@@ -25,14 +26,25 @@ export const Route = createFileRoute("/")({
 
 const trustLogos = ["JAVA HOUSE", "KFC", "SAFARICOM", "AIRTEL", "ARTCAFFE", "NAIVAS"];
 
-const valueProps = [
+const smeValueProps = [
   { icon: Sparkles, title: "Low MOQ from 100 units", body: "Pilot a small batch before scaling — perfect for new menus and product launches." },
   { icon: Truck, title: "Nationwide delivery", body: "From Mombasa to Kisumu — reliable lead times of 7–14 working days." },
   { icon: Award, title: "Custom branding", body: "1–4 colour print, embossing, foiling. Your logo, your colours, your way." },
 ];
 
+const corpValueProps = [
+  { icon: Sparkles, title: "Dedicated production slots", body: "Reserved capacity means your orders are never delayed by other clients." },
+  { icon: Truck, title: "Nationwide enterprise delivery", body: "Coordinated bulk delivery across all your outlets — Nairobi, Mombasa, Kisumu." },
+  { icon: Award, title: "Contracts & account management", body: "A named account manager, formal SLAs, and invoicing on net-30 terms." },
+];
+
 function HomePage() {
+  const { persona } = usePersona();
+  const isCorp = persona === "corporate";
+  const isSme = persona === "sme";
+
   const featured = products.filter((p) => p.tags.includes("Featured") || p.tags.includes("Trending")).slice(0, 4);
+  const valueProps = isCorp ? corpValueProps : smeValueProps;
 
   return (
     <SiteLayout>
@@ -43,31 +55,39 @@ function HomePage() {
           <div className="lg:col-span-6">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Custom packaging · Made in Kenya
+              {isCorp ? "Enterprise packaging · Nationwide contracts" : "Custom packaging · Made in Kenya"}
             </span>
             <h1 className="mt-6 font-display text-5xl font-medium leading-[1.02] text-foreground text-balance sm:text-6xl lg:text-7xl">
-              Packaging that makes the <em className="not-italic text-accent">moment</em>.
+              {isCorp ? (
+                <>Volume packaging, <em className="not-italic text-accent">delivered on brief</em>.</>
+              ) : (
+                <>Packaging that makes the <em className="not-italic text-accent">moment</em>.</>
+              )}
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground text-balance">
-              We design and print premium branded paper packaging for Kenya's most-loved
-              restaurants, retailers and brands. From a 100-bag pilot to enterprise contracts.
+              {isCorp
+                ? "Dedicated production slots, bulk pricing and contracts for Kenya's biggest brands. From 10,000-unit runs to nationwide rollouts — one supplier, zero stress."
+                : "We design and print premium branded paper packaging for Kenya's most-loved restaurants, retailers and brands. From a 100-bag pilot to enterprise contracts."}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/15 transition-all hover:bg-primary/90 hover:shadow-xl"
               >
-                Get a custom quote <ArrowRight className="h-4 w-4" />
+                {isCorp ? "Request enterprise quote" : "Get a free quote"} <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/products"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-7 py-4 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
               >
-                Browse catalogue
+                {isCorp ? "View case studies" : "Browse catalogue"}
               </Link>
             </div>
             <div className="mt-10 flex flex-wrap gap-x-7 gap-y-2 text-sm text-muted-foreground">
-              {["MOQ from 100", "7–14 day lead time", "Free quote in 24h"].map((t) => (
+              {(isCorp
+                ? ["MOQ from 5,000 units", "Dedicated account manager", "Contracts & SLAs available"]
+                : ["MOQ from 100 units", "7–14 day lead time", "Free quote in 24h"]
+              ).map((t) => (
                 <span key={t} className="inline-flex items-center gap-2">
                   <Check className="h-4 w-4 text-accent" /> {t}
                 </span>
@@ -118,7 +138,7 @@ function HomePage() {
           <div className="max-w-xl">
             <p className="text-xs uppercase tracking-[0.25em] text-accent">Catalogue</p>
             <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
-              Built for every product, every brand.
+              {isCorp ? "Built for scale, built for your brand." : "Built for every product, every brand."}
             </h2>
           </div>
           <Link to="/products" className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent">
@@ -160,7 +180,7 @@ function HomePage() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs uppercase tracking-[0.25em] text-accent">Why Moments</p>
             <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
-              Real partners, not just printers.
+              {isCorp ? "Built for brands that operate at scale." : "Real partners, not just printers."}
             </h2>
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-3">
@@ -181,9 +201,11 @@ function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-accent">Trending now</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-accent">
+              {isCorp ? "Most ordered by enterprise clients" : "Trending now"}
+            </p>
             <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
-              What our customers reorder.
+              {isCorp ? "What Kenya's biggest brands choose." : "What our customers reorder."}
             </h2>
           </div>
           <Link to="/products" className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent">
@@ -237,23 +259,41 @@ function HomePage() {
               Request enterprise quote <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="rounded-3xl bg-accent p-10 text-accent-foreground lg:p-14">
-            <span className="text-xs uppercase tracking-[0.25em] text-accent-foreground/70">For SMEs</span>
-            <h3 className="mt-3 font-display text-3xl lg:text-4xl">
-              Reorder in 30 seconds via WhatsApp.
-            </h3>
-            <p className="mt-4 max-w-md text-accent-foreground/85">
-              Browse our catalogue, tap order on any product — we'll handle the rest.
-            </p>
-            <a
-              href={whatsappLink("Hi Moments Packaging, I'd like to place an order.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent-foreground px-6 py-3.5 text-sm font-medium text-accent transition-opacity hover:opacity-90"
-            >
-              <MessageCircle className="h-4 w-4" /> Order on WhatsApp
-            </a>
-          </div>
+          {isSme ? (
+            <div className="rounded-3xl bg-accent p-10 text-accent-foreground lg:p-14">
+              <span className="text-xs uppercase tracking-[0.25em] text-accent-foreground/70">For SMEs</span>
+              <h3 className="mt-3 font-display text-3xl lg:text-4xl">
+                Reorder in 30 seconds via WhatsApp.
+              </h3>
+              <p className="mt-4 max-w-md text-accent-foreground/85">
+                Browse our catalogue, tap order on any product — we'll handle the rest.
+              </p>
+              <a
+                href={whatsappLink("Hi Moments Packaging, I'd like to place an order.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent-foreground px-6 py-3.5 text-sm font-medium text-accent transition-opacity hover:opacity-90"
+              >
+                <MessageCircle className="h-4 w-4" /> Order on WhatsApp
+              </a>
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-border bg-card p-10 text-foreground lg:p-14">
+              <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">For your team</span>
+              <h3 className="mt-3 font-display text-3xl lg:text-4xl">
+                Need samples before committing?
+              </h3>
+              <p className="mt-4 max-w-md text-muted-foreground">
+                Request a branded sample pack — we'll produce a small run with your logo so you can approve before full production.
+              </p>
+              <Link
+                to="/contact"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                Request sample pack <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
         </div>
       </section>
     </SiteLayout>
