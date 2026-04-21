@@ -63,15 +63,33 @@ function HomePage() {
           aria-hidden
         >
           <div className="h-[120%] w-[120%] max-w-none">
-            <PackagingCloud />
+            <PackagingCloud variant={cloudVariant} />
           </div>
         </div>
 
         {/* Desktop: cloud is full-bleed on the right half, edge to edge top/bottom */}
         <div className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-1/2 lg:block">
           <div className="relative h-full w-full">
-            <PackagingCloud />
+            <PackagingCloud variant={cloudVariant} />
           </div>
+        </div>
+
+        {/* Compare toggle — top-right */}
+        <div className="absolute right-4 top-4 z-30 flex gap-1 rounded-full border border-border bg-background/90 p-1 text-[11px] shadow-sm backdrop-blur">
+          <button
+            type="button"
+            onClick={() => setCloudVariant("v1")}
+            className={`rounded-full px-3 py-1 font-medium transition-colors ${cloudVariant === "v1" ? "bg-foreground text-background" : "text-foreground/70 hover:bg-secondary"}`}
+          >
+            Kraft
+          </button>
+          <button
+            type="button"
+            onClick={() => setCloudVariant("v2")}
+            className={`rounded-full px-3 py-1 font-medium transition-colors ${cloudVariant === "v2" ? "bg-foreground text-background" : "text-foreground/70 hover:bg-secondary"}`}
+          >
+            Mixed
+          </button>
         </div>
 
         <div className="relative z-10 mx-auto grid h-full max-w-7xl items-center gap-8 px-5 pt-10 pb-12 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-0">
