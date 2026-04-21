@@ -1,46 +1,22 @@
 import { useEffect, useState } from "react";
-import carrierBag from "@/assets/pkg-carrier-bag.png";
-import foodBox from "@/assets/pkg-food-box.png";
-import cup from "@/assets/pkg-cup.png";
-import mailer from "@/assets/pkg-mailer.png";
-import giftBox from "@/assets/pkg-gift-box.png";
-import pouch from "@/assets/pkg-pouch.png";
-import shippingBox from "@/assets/pkg-shipping-box.png";
-import pizzaBox from "@/assets/pkg-pizza-box.png";
+import cloudImg from "@/assets/packaging-cloud-hero.png";
 
-interface PackageItem {
-  src: string;
-  label: string;
-  /** orbit position 0–7 around the cluster */
-  pos: number;
-  /** scale multiplier vs base */
-  scale: number;
-  /** seconds offset for the float keyframe */
-  floatDelay: number;
-}
-
-const ITEMS: PackageItem[] = [
-  { src: carrierBag, label: "Kraft carrier bags", pos: 0, scale: 1.15, floatDelay: 0 },
-  { src: foodBox, label: "Food takeaway boxes", pos: 1, scale: 0.95, floatDelay: 1.2 },
-  { src: cup, label: "Branded paper cups", pos: 2, scale: 0.85, floatDelay: 2.4 },
-  { src: pizzaBox, label: "Pizza & flat boxes", pos: 3, scale: 1.0, floatDelay: 0.6 },
-  { src: shippingBox, label: "Shipping & retail boxes", pos: 4, scale: 1.2, floatDelay: 1.8 },
-  { src: mailer, label: "Mailer envelopes", pos: 5, scale: 0.9, floatDelay: 3.0 },
-  { src: pouch, label: "Stand-up pouches", pos: 6, scale: 0.95, floatDelay: 0.9 },
-  { src: giftBox, label: "Gift & retail boxes", pos: 7, scale: 0.9, floatDelay: 2.1 },
-];
-
-// Hand-tuned positions (% of container) for an organic orbital cluster.
-// Center hole is roughly (50, 50); items fall in a loose ring around it.
-const ORBIT_POSITIONS: Array<{ x: number; y: number }> = [
-  { x: 18, y: 28 },  // top-left
-  { x: 50, y: 12 },  // top-center
-  { x: 82, y: 26 },  // top-right
-  { x: 92, y: 58 },  // mid-right
-  { x: 70, y: 84 },  // bottom-right (hero — bigger)
-  { x: 32, y: 86 },  // bottom-left
-  { x: 8,  y: 60 },  // mid-left
-  { x: 50, y: 50 },  // center floater
+/**
+ * Roving spotlight regions over the dense packaging photo.
+ * Coordinates are % of the image (0-100). Tuned to land roughly
+ * over recognisable items in src/assets/packaging-cloud-hero.png.
+ */
+const SPOTS: Array<{ x: number; y: number; label: string }> = [
+  { x: 38, y: 30, label: "Kraft carrier bags" },
+  { x: 62, y: 22, label: "Shopping bags" },
+  { x: 50, y: 48, label: "Coffee cups & lids" },
+  { x: 30, y: 58, label: "Takeaway boxes" },
+  { x: 70, y: 52, label: "Food boxes" },
+  { x: 55, y: 72, label: "Jars & tubs" },
+  { x: 35, y: 80, label: "Pizza & meal boxes" },
+  { x: 75, y: 78, label: "Bottles & containers" },
+  { x: 22, y: 38, label: "Mailers & shipping" },
+  { x: 78, y: 35, label: "Gift & retail boxes" },
 ];
 
 export function PackagingCloud() {
@@ -48,78 +24,79 @@ export function PackagingCloud() {
 
   useEffect(() => {
     const id = window.setInterval(() => {
-      setActiveIdx((i) => (i + 1) % ITEMS.length);
+      setActiveIdx((i) => (i + 1) % SPOTS.length);
     }, 2600);
     return () => window.clearInterval(id);
   }, []);
 
+  const active = SPOTS[activeIdx];
+
   return (
-    <div className="relative aspect-square w-full select-none" aria-hidden="true">
-      {/* Soft radial glow that follows the active item */}
+    <div className="relative h-full w-full select-none">
+      {/* Slow drifting cluster */}
       <div
-        className="pointer-events-none absolute h-[55%] w-[55%] rounded-full bg-accent/20 blur-3xl transition-all duration-1000 ease-out"
+        className="relative h-full w-full"
+        style={{ animation: "pkg-drift 18s ease-in-out infinite" }}
+      >
+        <img
+          src={cloudImg}
+          alt="A cluster of branded kraft paper packaging — bags, boxes, cups, jars, mailers and more"
+          width={1280}
+          height={1280}
+          className="h-full w-full object-contain"
+          style={{
+            filter: "drop-shadow(0 30px 40px rgb(0 0 0 / 0.12))",
+          }}
+        />
+
+        {/* Roving spotlight glow */}
+        <div
+          className="pointer-events-none absolute h-[28%] w-[28%] rounded-full transition-all duration-1000 ease-out"
+          style={{
+            left: `${active.x}%`,
+            top: `${active.y}%`,
+            transform: "translate(-50%, -50%)",
+            background:
+              "radial-gradient(circle, rgb(212 165 116 / 0.55) 0%, rgb(212 165 116 / 0.15) 40%, transparent 70%)",
+            filter: "blur(8px)",
+            mixBlendMode: "screen",
+          }}
+          aria-hidden
+        />
+
+        {/* Subtle ring marker */}
+        <div
+          className="pointer-events-none absolute h-[14%] w-[14%] rounded-full border border-accent/60 transition-all duration-1000 ease-out"
+          style={{
+            left: `${active.x}%`,
+            top: `${active.y}%`,
+            transform: "translate(-50%, -50%)",
+            boxShadow: "0 0 0 6px rgb(212 165 116 / 0.12)",
+          }}
+          aria-hidden
+        />
+      </div>
+
+      {/* Floating label — positioned relative to the parent (not the drifting layer) */}
+      <div
+        key={activeIdx}
+        className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 animate-fade-in"
         style={{
-          left: `${ORBIT_POSITIONS[activeIdx].x}%`,
-          top: `${ORBIT_POSITIONS[activeIdx].y}%`,
-          transform: "translate(-50%, -50%)",
+          left: `${active.x}%`,
+          top: `${active.y + 14}%`,
         }}
-      />
-
-      {ITEMS.map((item, i) => {
-        const pos = ORBIT_POSITIONS[item.pos];
-        const isActive = i === activeIdx;
-        const baseSize = 28; // % of container width at scale 1
-        const size = baseSize * item.scale;
-
-        return (
-          <div
-            key={item.label}
-            className="absolute"
-            style={{
-              left: `${pos.x}%`,
-              top: `${pos.y}%`,
-              width: `${size}%`,
-              height: `${size}%`,
-              transform: "translate(-50%, -50%)",
-              animation: `pkg-float 6s ease-in-out ${item.floatDelay}s infinite`,
-            }}
-          >
-            <div
-              className={`relative h-full w-full transition-all duration-700 ease-out ${
-                isActive ? "scale-125 z-20" : "scale-100 z-10 opacity-70"
-              }`}
-              style={{
-                filter: isActive
-                  ? "drop-shadow(0 20px 25px rgb(0 0 0 / 0.18)) drop-shadow(0 0 30px rgb(212 165 116 / 0.45))"
-                  : "drop-shadow(0 10px 15px rgb(0 0 0 / 0.08))",
-              }}
-            >
-              <img
-                src={item.src}
-                alt=""
-                className="h-full w-full object-contain"
-                width={768}
-                height={768}
-                loading={i < 3 ? "eager" : "lazy"}
-              />
-            </div>
-
-            {/* Label that appears under the active item */}
-            <div
-              className={`absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-background transition-all duration-500 ${
-                isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
-              }`}
-            >
-              {item.label}
-            </div>
-          </div>
-        );
-      })}
+      >
+        <span className="whitespace-nowrap rounded-full bg-foreground px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-background shadow-lg">
+          {active.label}
+        </span>
+      </div>
 
       <style>{`
-        @keyframes pkg-float {
-          0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
-          50%      { transform: translate(-50%, -50%) translateY(-10px); }
+        @keyframes pkg-drift {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          25%      { transform: translate(-1.2%, -1.5%) rotate(-0.6deg); }
+          50%      { transform: translate(0.8%, 1%) rotate(0.4deg); }
+          75%      { transform: translate(-0.6%, 1.5%) rotate(-0.3deg); }
         }
       `}</style>
     </div>

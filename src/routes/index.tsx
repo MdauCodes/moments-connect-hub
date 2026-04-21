@@ -51,9 +51,18 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-cream">
+      <section className="relative overflow-hidden bg-cream lg:min-h-[90vh]">
         <div className="grain absolute inset-0 opacity-60" aria-hidden />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pt-14 pb-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:pt-24 lg:pb-28">
+
+        {/* Mobile/tablet: cloud peeks from right edge as faded backdrop */}
+        <div
+          className="pointer-events-none absolute -right-[35%] top-1/2 z-0 h-[110%] w-[100%] -translate-y-1/2 opacity-40 lg:hidden"
+          aria-hidden
+        >
+          <PackagingCloud />
+        </div>
+
+        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-5 pt-14 pb-20 lg:min-h-[90vh] lg:grid-cols-12 lg:gap-8 lg:px-8 lg:pt-20 lg:pb-20">
           <div className="lg:col-span-6">
             <h1 className="font-display text-5xl font-medium leading-[1.02] text-foreground text-balance sm:text-6xl lg:text-7xl">
               {isCorp ? (
@@ -104,7 +113,8 @@ function HomePage() {
             </dl>
           </div>
 
-          <div className="relative lg:col-span-6">
+          {/* Desktop: cloud lives in the right column */}
+          <div className="relative hidden aspect-square lg:col-span-6 lg:block">
             <PackagingCloud />
           </div>
         </div>
