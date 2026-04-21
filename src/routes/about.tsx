@@ -1,101 +1,104 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
-import aboutImg from "@/assets/photos/about-floor.jpg";
+import aboutImg from "@/assets/about-team.jpg";
 import { ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — Moments Packaging Kenya" },
+      { title: "About Us — Moments Packaging Kenya" },
       {
         name: "description",
-        content: "Nairobi-based packaging manufacturer since 2013. Food service, retail, gifting, agriculture and corporate.",
+        content: "Moments Packaging Kenya — a Nairobi-based custom packaging manufacturer serving restaurants, retailers and brands across East Africa.",
       },
-      { property: "og:title", content: "About — Moments Packaging Kenya" },
-      { property: "og:description", content: "One supplier. Two divisions." },
+      { property: "og:title", content: "About Us — Moments Packaging Kenya" },
+      { property: "og:description", content: "Nairobi-based custom packaging manufacturer for Kenya's leading brands." },
+      { property: "og:image", content: aboutImg },
     ],
   }),
   component: AboutPage,
 });
 
 const stats = [
-  { v: "13+", l: "Years operating" },
-  { v: "2", l: "Divisions" },
-  { v: "500+", l: "Brands packed" },
-  { v: "47", l: "Counties" },
+  { v: "500+", l: "Brands packaged" },
+  { v: "12", l: "Years in operation" },
+  { v: "14 days", l: "Average lead time" },
+  { v: "47", l: "Counties served" },
 ];
 
 const values = [
-  { t: "Range", b: "Food + non-food, one floor." },
-  { t: "Craft", b: "Every batch hand-checked." },
-  { t: "Speed", b: "7–14 days, every time." },
-  { t: "Partnership", b: "We brief, sample, deliver." },
+  { t: "Craft", b: "Every order is print-checked by hand. No batch leaves our floor without a second pair of eyes." },
+  { t: "Speed", b: "We protect your launch dates. 7–14 day production, with rush options when it matters." },
+  { t: "Partnership", b: "We don't just sell boxes. We help you brief, design, and roll out packaging that sells." },
 ];
 
 function AboutPage() {
   return (
     <SiteLayout>
-      {/* Hero — full image with overlay */}
-      <section className="relative h-[480px] w-full overflow-hidden bg-foreground sm:h-[560px]">
-        <img src={aboutImg} alt="The Moments Packaging factory floor in Nairobi" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/45 to-transparent" />
-        <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-end px-5 pb-12 lg:px-8 lg:pb-16">
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-background/70">
-            About · Est. 2013
-          </p>
-          <h1 className="mt-4 max-w-3xl font-display text-5xl font-medium leading-[1.04] text-background sm:text-6xl lg:text-7xl">
-            One supplier. <em className="not-italic text-[color:var(--clay)]">Every kind of packaging.</em>
-          </h1>
+      <section className="bg-cream">
+        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
+          <div className="max-w-3xl">
+            <p className="text-xs uppercase tracking-[0.25em] text-accent">Our story</p>
+            <h1 className="mt-3 font-display text-5xl font-medium text-foreground sm:text-6xl lg:text-7xl text-balance">
+              Built in Nairobi for Kenya's most ambitious brands.
+            </h1>
+            <p className="mt-6 text-lg text-muted-foreground">
+              Moments Packaging started in 2013 with a single offset press and a stubborn belief that
+              local brands deserve packaging as good as anything imported. Today we run a modern
+              production floor in Industrial Area, serving restaurants, retailers, and corporates
+              from Mombasa to Kisumu.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="border-b border-border bg-cream">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-border lg:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.l} className="bg-cream p-7 lg:p-10">
-              <p className="font-display text-4xl font-medium text-foreground sm:text-5xl">{s.v}</p>
-              <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{s.l}</p>
+      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <div className="overflow-hidden rounded-3xl border border-border">
+            <img src={aboutImg} alt="Moments Packaging production floor" className="h-full w-full object-cover" />
+          </div>
+          <div>
+            <h2 className="font-display text-4xl font-medium text-foreground">More than just packaging.</h2>
+            <p className="mt-5 text-muted-foreground">
+              We see ourselves as a partner in your brand's first impression. From the moment a
+              customer touches your bag, opens your box, or holds your cup — we want them to feel
+              the care that went in.
+            </p>
+            <p className="mt-4 text-muted-foreground">
+              Our team blends offset and digital print, structural design, and hand finishing. We
+              source FSC-certified paper where possible and continue investing in lower-impact
+              materials and inks.
+            </p>
+            <Link to="/contact" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+              Work with us <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-secondary/60">
+        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((s) => (
+              <div key={s.l}>
+                <p className="font-display text-5xl font-medium text-foreground">{s.v}</p>
+                <p className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">{s.l}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+        <h2 className="font-display text-4xl font-medium text-foreground">What we believe.</h2>
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {values.map((v, i) => (
+            <div key={v.t} className="rounded-2xl border border-border bg-background p-8">
+              <p className="font-display text-5xl font-medium text-accent">0{i + 1}</p>
+              <h3 className="mt-6 font-display text-2xl text-foreground">{v.t}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{v.b}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* Story — short */}
-      <section className="border-b border-border bg-background">
-        <div className="mx-auto max-w-3xl px-5 py-16 lg:px-8 lg:py-20">
-          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
-            Our story
-          </p>
-          <p className="mt-5 font-display text-2xl leading-snug text-foreground sm:text-3xl">
-            Started in 2013 with one offset press. Today we run two full divisions on one Nairobi floor —
-            so Kenyan businesses deal with one supplier, not three.
-          </p>
-        </div>
-      </section>
-
-      {/* Values — 4 short */}
-      <section className="border-b border-border bg-cream">
-        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
-          <h2 className="font-display text-3xl font-medium text-foreground sm:text-4xl">What we believe</h2>
-          <ul className="mt-10 grid gap-px bg-border md:grid-cols-2 lg:grid-cols-4">
-            {values.map((v) => (
-              <li key={v.t} className="bg-cream p-7 lg:p-10">
-                <h3 className="font-display text-2xl font-medium text-foreground">{v.t}</h3>
-                <p className="mt-2 text-muted-foreground">{v.b}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="bg-foreground text-background">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-5 py-14 lg:px-8 lg:py-16">
-          <h3 className="font-display text-3xl font-medium sm:text-4xl">Work with us.</h3>
-          <Link to="/contact" className="inline-flex items-center gap-2 bg-background px-6 py-3.5 text-sm font-medium text-foreground hover:bg-background/90">
-            Request a quote <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
       </section>
     </SiteLayout>
