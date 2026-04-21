@@ -33,11 +33,7 @@ export function PackagingCloud() {
 
   return (
     <div className="relative h-full w-full select-none">
-      {/* Slow drifting cluster */}
-      <div
-        className="relative h-full w-full"
-        style={{ animation: "pkg-drift 18s ease-in-out infinite" }}
-      >
+      <div className="relative h-full w-full">
         <img
           src={cloudImg}
           alt="A cluster of branded kraft paper packaging — bags, boxes, cups, jars, mailers and more"
@@ -49,9 +45,9 @@ export function PackagingCloud() {
           }}
         />
 
-        {/* Roving spotlight glow */}
+        {/* Roving spotlight glow — gentle fade transition only */}
         <div
-          className="pointer-events-none absolute h-[28%] w-[28%] rounded-full transition-all duration-1000 ease-out"
+          className="pointer-events-none absolute h-[28%] w-[28%] rounded-full transition-all duration-[1400ms] ease-in-out"
           style={{
             left: `${active.x}%`,
             top: `${active.y}%`,
@@ -66,7 +62,7 @@ export function PackagingCloud() {
 
         {/* Subtle ring marker */}
         <div
-          className="pointer-events-none absolute h-[14%] w-[14%] rounded-full border border-accent/60 transition-all duration-1000 ease-out"
+          className="pointer-events-none absolute h-[14%] w-[14%] rounded-full border border-accent/60 transition-all duration-[1400ms] ease-in-out"
           style={{
             left: `${active.x}%`,
             top: `${active.y}%`,
@@ -77,7 +73,7 @@ export function PackagingCloud() {
         />
       </div>
 
-      {/* Floating label — positioned relative to the parent (not the drifting layer) */}
+      {/* Floating label — positioned relative to the parent */}
       <div
         key={activeIdx}
         className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 animate-fade-in"
@@ -90,15 +86,6 @@ export function PackagingCloud() {
           {active.label}
         </span>
       </div>
-
-      <style>{`
-        @keyframes pkg-drift {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          25%      { transform: translate(-1.2%, -1.5%) rotate(-0.6deg); }
-          50%      { transform: translate(0.8%, 1%) rotate(0.4deg); }
-          75%      { transform: translate(-0.6%, 1.5%) rotate(-0.3deg); }
-        }
-      `}</style>
     </div>
   );
 }

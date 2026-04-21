@@ -50,16 +50,18 @@ function HomePage() {
 
   return (
     <SiteLayout>
-      {/* Hero — compact, ~85vh, full-bleed image on the right (à la JaniaHub) */}
-      <section className="relative overflow-hidden bg-cream lg:h-[85vh] lg:max-h-[780px] lg:min-h-[640px]">
+      {/* Hero — compact, fits within viewport with next section peeking */}
+      <section className="relative overflow-hidden bg-cream lg:h-[78vh] lg:max-h-[680px] lg:min-h-[540px]">
         <div className="grain absolute inset-0 opacity-60" aria-hidden />
 
-        {/* Mobile/tablet: cloud peeks from right edge as faded backdrop */}
+        {/* Mobile/tablet: cloud centered behind content as faded backdrop */}
         <div
-          className="pointer-events-none absolute -right-[35%] top-1/2 z-0 h-[110%] w-[100%] -translate-y-1/2 opacity-40 lg:hidden"
+          className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-25 lg:hidden"
           aria-hidden
         >
-          <PackagingCloud />
+          <div className="h-[80%] w-[90%] max-w-md">
+            <PackagingCloud />
+          </div>
         </div>
 
         {/* Desktop: cloud is full-bleed on the right half, edge to edge top/bottom */}
@@ -69,37 +71,37 @@ function HomePage() {
           </div>
         </div>
 
-        <div className="relative z-10 mx-auto grid h-full max-w-7xl items-center gap-12 px-5 pt-14 pb-16 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-0">
+        <div className="relative z-10 mx-auto grid h-full max-w-7xl items-center gap-8 px-5 pt-10 pb-12 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-0">
           <div className="lg:col-span-6">
-            <h1 className="font-display text-5xl font-medium leading-[1.02] text-foreground text-balance sm:text-6xl lg:text-7xl">
+            <h1 className="font-display text-4xl font-medium leading-[1.05] text-foreground text-balance sm:text-5xl lg:text-6xl">
               {isCorp ? (
                 <>Volume packaging, <em className="not-italic text-accent">delivered on brief</em>.</>
               ) : (
                 <>Packaging that makes the <em className="not-italic text-accent">moment</em>.</>
               )}
             </h1>
-            <p className="mt-5 max-w-xl text-lg text-muted-foreground text-balance">
+            <p className="mt-4 max-w-xl text-base text-muted-foreground text-balance lg:text-lg">
               {isCorp
                 ? "Dedicated production slots, bulk pricing and contracts for Kenya's biggest brands. From 10,000-unit runs to nationwide rollouts — one supplier, zero stress."
                 : "We design and print premium branded paper packaging for Kenya's most-loved restaurants, retailers and brands. From a 100-bag pilot to enterprise contracts."}
             </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/15 transition-all hover:bg-primary/90 hover:shadow-xl"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/15 transition-all hover:bg-primary/90 hover:shadow-xl"
               >
                 {isCorp ? "Request enterprise quote" : "Get a free quote"} <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/products"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-7 py-4 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
               >
                 {isCorp ? "View case studies" : "Browse catalogue"}
               </Link>
             </div>
 
             {/* Stat row */}
-            <dl className="mt-10 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-6">
+            <dl className="mt-7 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-5">
               {(isCorp
                 ? [
                     { value: "5,000+", label: "Min order units" },
@@ -113,8 +115,8 @@ function HomePage() {
                   ]
               ).map((s) => (
                 <div key={s.label}>
-                  <dt className="font-display text-3xl font-medium text-foreground sm:text-4xl">{s.value}</dt>
-                  <dd className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">{s.label}</dd>
+                  <dt className="font-display text-2xl font-medium text-foreground sm:text-3xl">{s.value}</dt>
+                  <dd className="mt-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{s.label}</dd>
                 </div>
               ))}
             </dl>
