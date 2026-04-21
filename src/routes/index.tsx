@@ -1,258 +1,369 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
-import { categories, products, whatsappLink } from "@/data/products";
-import heroImg from "@/assets/hero-packaging.jpg";
-import { ArrowRight, Check, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
+import { ProductCard } from "@/components/ProductCard";
+import {
+  categoriesByDivision,
+  divisions,
+  productsByDivision,
+  whatsappLink,
+} from "@/data/products";
+import heroFood from "@/assets/photos/hero-food.jpg";
+import heroRetail from "@/assets/photos/hero-retail.jpg";
+import { ArrowRight, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Moments Packaging Kenya — Custom Branded Paper Packaging" },
+      { title: "Moments Packaging Kenya — Food, Retail & Industrial Packaging" },
       {
         name: "description",
         content:
-          "Custom-branded paper bags, food boxes, cups, mailers and gifting packaging for Kenya's restaurants, retailers and brands. Low MOQ, fast turnaround, nationwide delivery.",
+          "A complete packaging partner for Kenyan businesses. Cups, food boxes, kraft bags, mailers, gifting and industrial supplies — custom-branded, low MOQ, delivered nationwide.",
       },
-      { property: "og:title", content: "Moments Packaging Kenya — Custom Branded Paper Packaging" },
+      {
+        property: "og:title",
+        content: "Moments Packaging Kenya — Food, Retail & Industrial Packaging",
+      },
       {
         property: "og:description",
-        content: "Premium custom packaging for restaurants, retailers and corporates across Kenya.",
+        content: "Two divisions, one partner. Packaging for food service, retail, e-commerce, gifting and agriculture across Kenya.",
       },
     ],
   }),
   component: HomePage,
 });
 
-const trustLogos = ["JAVA HOUSE", "KFC", "SAFARICOM", "AIRTEL", "ARTCAFFE", "NAIVAS"];
-
-const valueProps = [
-  { icon: Sparkles, title: "Low MOQ from 100 units", body: "Pilot a small batch before scaling — perfect for new menus and product launches." },
-  { icon: Truck, title: "Nationwide delivery", body: "From Mombasa to Kisumu — reliable lead times of 7–14 working days." },
-  { icon: Award, title: "Custom branding", body: "1–4 colour print, embossing, foiling. Your logo, your colours, your way." },
-];
+const trustClients = ["Java House", "KFC", "Artcaffe", "Naivas", "Safaricom", "Carrefour"];
 
 function HomePage() {
-  const featured = products.filter((p) => p.tags.includes("Featured") || p.tags.includes("Trending")).slice(0, 4);
+  const foodFeatured = productsByDivision("food").filter((p) => p.tags.includes("Featured")).slice(0, 3);
+  const retailFeatured = productsByDivision("retail-industrial").filter((p) => p.tags.includes("Featured")).slice(0, 3);
 
   return (
     <SiteLayout>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-cream">
-        <div className="grain absolute inset-0 opacity-60" aria-hidden />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pt-14 pb-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:pt-24 lg:pb-28">
-          <div className="lg:col-span-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Custom packaging · Made in Kenya
-            </span>
-            <h1 className="mt-6 font-display text-5xl font-medium leading-[1.02] text-foreground text-balance sm:text-6xl lg:text-7xl">
-              Packaging that makes the <em className="not-italic text-accent">moment</em>.
-            </h1>
-            <p className="mt-6 max-w-xl text-lg text-muted-foreground text-balance">
-              We design and print premium branded paper packaging for Kenya's most-loved
-              restaurants, retailers and brands. From a 100-bag pilot to enterprise contracts.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                to="/contact"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/15 transition-all hover:bg-primary/90 hover:shadow-xl"
-              >
-                Get a custom quote <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/products"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-7 py-4 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
-              >
-                Browse catalogue
-              </Link>
+      {/* ─── Marquee strip — sub-conscious dual-posture ─── */}
+      <div className="border-b border-border bg-cream">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground lg:px-8">
+          <span>Two divisions · One packaging partner for Kenya</span>
+          <span className="hidden sm:inline">Food Service ⟶ Retail & Industrial ⟶ Custom Branding ⟶ Nationwide Delivery</span>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          HERO — split, two equal worlds
+          ═══════════════════════════════════════════════════════════════ */}
+      <section className="border-b border-border bg-background">
+        <div className="mx-auto max-w-7xl px-5 pt-16 lg:px-8 lg:pt-24">
+          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+            01 — Moments Packaging Kenya · Est. 2013
+          </p>
+          <h1 className="mt-6 max-w-5xl font-display text-5xl font-medium leading-[1.02] tracking-tight text-foreground text-balance sm:text-7xl lg:text-[5.5rem]">
+            Whatever you make, <br className="hidden sm:block" />
+            <em className="not-italic text-[color:var(--forest)]">we pack it.</em>
+          </h1>
+          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            From a single café's coffee cups to a supermarket's branded shoppers, from corporate
+            gifting to agricultural baler twine — Moments Packaging is the one supplier Kenyan
+            businesses trust across both food and non-food packaging.
+          </p>
+        </div>
+
+        {/* Split hero — food | retail */}
+        <div className="mx-auto mt-14 grid max-w-7xl grid-cols-1 gap-px border-y border-border bg-border md:grid-cols-2 lg:px-0">
+          {/* FOOD SIDE */}
+          <Link
+            to="/products"
+            search={{ division: "food" }}
+            className="group relative block overflow-hidden bg-background"
+          >
+            <div className="relative aspect-[5/4] overflow-hidden md:aspect-[4/5] lg:aspect-[5/6]">
+              <img
+                src={heroFood}
+                alt="A served meal — the food we help businesses package and deliver"
+                className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
+              <div className="absolute inset-0 flex flex-col justify-end p-8 lg:p-12">
+                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-background/70">
+                  Division 01
+                </span>
+                <h2 className="mt-3 font-display text-4xl font-medium text-background sm:text-5xl">
+                  Food Service Packaging
+                </h2>
+                <p className="mt-3 max-w-md text-sm text-background/80">
+                  {divisions.food.tagline}. Cups, food boxes, trays, bagasse, foils, straws, hygienic supplies.
+                </p>
+                <span className="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-background">
+                  Browse food packaging <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </div>
             </div>
-            <div className="mt-10 flex flex-wrap gap-x-7 gap-y-2 text-sm text-muted-foreground">
-              {["MOQ from 100", "7–14 day lead time", "Free quote in 24h"].map((t) => (
-                <span key={t} className="inline-flex items-center gap-2">
-                  <Check className="h-4 w-4 text-accent" /> {t}
+          </Link>
+
+          {/* RETAIL SIDE */}
+          <Link
+            to="/products"
+            search={{ division: "retail-industrial" }}
+            className="group relative block overflow-hidden bg-background"
+          >
+            <div className="relative aspect-[5/4] overflow-hidden md:aspect-[4/5] lg:aspect-[5/6]">
+              <img
+                src={heroRetail}
+                alt="Branded shopping bags — the retail packaging we manufacture for shops and brands"
+                className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
+              <div className="absolute inset-0 flex flex-col justify-end p-8 lg:p-12">
+                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-background/70">
+                  Division 02
+                </span>
+                <h2 className="mt-3 font-display text-4xl font-medium text-background sm:text-5xl">
+                  Retail & Industrial
+                </h2>
+                <p className="mt-3 max-w-md text-sm text-background/80">
+                  {divisions["retail-industrial"].tagline}. Kraft bags, laminated shoppers, mailers, gifting, agri & bulk supplies.
+                </p>
+                <span className="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-background">
+                  Browse retail & industrial <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </div>
+            </div>
+          </Link>
+        </div>
+
+        {/* Mini-stats strip */}
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px border-b border-border bg-border md:grid-cols-4">
+          {[
+            { v: "13+", l: "Years in Nairobi" },
+            { v: "2", l: "Divisions" },
+            { v: "500+", l: "Brands packed" },
+            { v: "47", l: "Counties served" },
+          ].map((s) => (
+            <div key={s.l} className="bg-background px-6 py-8 lg:px-8 lg:py-10">
+              <p className="font-display text-4xl font-medium text-foreground sm:text-5xl">{s.v}</p>
+              <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+                {s.l}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          TRUST STRIP
+          ═══════════════════════════════════════════════════════════════ */}
+      <section className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-12">
+          <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground lg:col-span-3">
+              Trusted by Kenyan brands large and small
+            </p>
+            <div className="grid grid-cols-3 gap-x-6 gap-y-4 sm:grid-cols-6 lg:col-span-9">
+              {trustClients.map((l) => (
+                <span
+                  key={l}
+                  className="text-center font-display text-base font-medium text-foreground/45"
+                >
+                  {l}
                 </span>
               ))}
             </div>
           </div>
-
-          <div className="relative lg:col-span-6">
-            <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-accent/10 via-kraft/10 to-forest/10 blur-2xl" />
-            <div className="overflow-hidden rounded-[1.5rem] border border-border bg-background shadow-2xl shadow-ink/10">
-              <img
-                src={heroImg}
-                alt="Branded kraft paper bags, cups and food boxes by Moments Packaging Kenya"
-                width={1600}
-                height={1200}
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div className="absolute -bottom-6 -left-4 hidden rounded-2xl border border-border bg-background p-5 shadow-xl sm:block lg:-left-8">
-              <p className="font-display text-3xl font-semibold text-foreground">500+</p>
-              <p className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
-                Brands packed
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Trust strip */}
-      <section className="border-y border-border bg-background">
-        <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
-          <p className="text-center text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            Trusted by Kenya's most-loved brands
-          </p>
-          <div className="mt-6 grid grid-cols-3 gap-x-6 gap-y-4 text-center sm:grid-cols-6">
-            {trustLogos.map((l) => (
-              <span key={l} className="font-display text-base font-medium tracking-wider text-foreground/40">
-                {l}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div className="max-w-xl">
-            <p className="text-xs uppercase tracking-[0.25em] text-accent">Catalogue</p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
-              Built for every product, every brand.
-            </h2>
-          </div>
-          <Link to="/products" className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent">
-            View all products <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((c) => (
-            <Link
-              key={c.slug}
-              to="/products"
-              search={{ category: c.slug }}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-xl"
-            >
-              <div className="aspect-[5/4] overflow-hidden bg-secondary">
-                <img
-                  src={c.image}
-                  alt={c.name}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="font-display text-xl font-medium text-foreground">{c.name}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{c.blurb}</p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent">
-                  Explore <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Why us */}
-      <section className="bg-secondary/60">
+      {/* ═══════════════════════════════════════════════════════════════
+          DIVISION 01 — FOOD SERVICE (deep dive)
+          ═══════════════════════════════════════════════════════════════ */}
+      <section className="border-b border-border bg-background">
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs uppercase tracking-[0.25em] text-accent">Why Moments</p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
-              Real partners, not just printers.
-            </h2>
-          </div>
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {valueProps.map((v) => (
-              <div key={v.title} className="rounded-2xl border border-border bg-background p-8">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-primary-foreground">
-                  <v.icon className="h-5 w-5" />
-                </div>
-                <h3 className="mt-6 font-display text-xl text-foreground">{v.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{v.body}</p>
-              </div>
-            ))}
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-5">
+              <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-[color:var(--clay)]">
+                02 / Division 01
+              </p>
+              <h2 className="mt-4 font-display text-4xl font-medium text-foreground sm:text-5xl">
+                For the kitchens that feed Kenya.
+              </h2>
+              <p className="mt-6 text-muted-foreground">
+                Restaurants. Cafés. Cloud kitchens. Caterers. QSR chains. We supply the cups, boxes,
+                trays, foils, films, straws and hygienic essentials that move from your kitchen to
+                your customer — branded, food-safe and built to survive delivery.
+              </p>
+
+              <ul className="mt-8 grid grid-cols-2 gap-x-6 gap-y-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-foreground/75">
+                {categoriesByDivision("food").map((c) => (
+                  <li key={c.slug} className="flex items-center gap-2 border-l-2 border-[color:var(--clay)] pl-3">
+                    {c.name}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                to="/products"
+                search={{ division: "food" }}
+                className="mt-10 inline-flex items-center gap-2 border-b border-foreground pb-1 font-mono text-xs uppercase tracking-[0.2em] text-foreground hover:border-[color:var(--clay)] hover:text-[color:var(--clay)]"
+              >
+                Browse food service catalogue <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+
+            <div className="lg:col-span-7">
+              <ul className="divide-y divide-border border-y border-border">
+                {foodFeatured.map((p) => (
+                  <li key={p.id}>
+                    <ProductCard product={p} />
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Featured products */}
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-accent">Trending now</p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
-              What our customers reorder.
-            </h2>
-          </div>
-          <Link to="/products" className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent">
-            View all <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
+      {/* ═══════════════════════════════════════════════════════════════
+          DIVISION 02 — RETAIL & INDUSTRIAL (deep dive)
+          ═══════════════════════════════════════════════════════════════ */}
+      <section className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-7 lg:order-2">
+              <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-[color:var(--forest)]">
+                03 / Division 02
+              </p>
+              <h2 className="mt-4 font-display text-4xl font-medium text-foreground sm:text-5xl">
+                For the brands customers carry home.
+              </h2>
+              <p className="mt-6 text-muted-foreground">
+                Boutiques. Supermarkets. E-commerce sellers. Corporate procurement. Agro-processors.
+                We make the kraft carriers, laminated smart bags, non-woven shoppers, mailers, labels,
+                gifting boxes, grocery nets and baler twines that move your brand and your goods.
+              </p>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((p) => (
-            <Link
-              key={p.id}
-              to="/products/$slug"
-              params={{ slug: p.slug }}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-xl"
-            >
-              <div className="relative aspect-square overflow-hidden bg-secondary">
-                <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                {p.tags[0] && (
-                  <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground backdrop-blur">
-                    {p.tags[0]}
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-1 flex-col p-5">
-                <h3 className="font-display text-lg text-foreground">{p.name}</h3>
-                <p className="mt-1 text-xs text-muted-foreground">MOQ {p.moq.toLocaleString()} units</p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent">
-                  View product <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                </span>
-              </div>
-            </Link>
-          ))}
+              <ul className="mt-8 grid grid-cols-2 gap-x-6 gap-y-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-foreground/75">
+                {categoriesByDivision("retail-industrial").map((c) => (
+                  <li key={c.slug} className="flex items-center gap-2 border-l-2 border-[color:var(--forest)] pl-3">
+                    {c.name}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                to="/products"
+                search={{ division: "retail-industrial" }}
+                className="mt-10 inline-flex items-center gap-2 border-b border-foreground pb-1 font-mono text-xs uppercase tracking-[0.2em] text-foreground hover:border-[color:var(--forest)] hover:text-[color:var(--forest)]"
+              >
+                Browse retail & industrial catalogue <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+
+            <div className="lg:col-span-5 lg:order-1">
+              <ul className="divide-y divide-border border-y border-border bg-background">
+                {retailFeatured.map((p) => (
+                  <li key={p.id}>
+                    <ProductCard product={p} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Dual CTA */}
-      <section className="mx-auto max-w-7xl px-5 pb-24 lg:px-8">
-        <div className="grid gap-5 md:grid-cols-2">
-          <div className="rounded-3xl bg-primary p-10 text-primary-foreground lg:p-14">
-            <span className="text-xs uppercase tracking-[0.25em] text-primary-foreground/60">For Corporates</span>
-            <h3 className="mt-3 font-display text-3xl lg:text-4xl">
-              Need volume packaging for your brand?
-            </h3>
-            <p className="mt-4 max-w-md text-primary-foreground/75">
-              Talk to our enterprise team. Bulk pricing, contracts, and dedicated production slots.
-            </p>
-            <Link
-              to="/contact"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary-foreground px-6 py-3.5 text-sm font-medium text-primary transition-colors hover:bg-primary-foreground/90"
-            >
-              Request enterprise quote <ArrowRight className="h-4 w-4" />
-            </Link>
+      {/* ═══════════════════════════════════════════════════════════════
+          PROCESS / WHY US — editorial spec block
+          ═══════════════════════════════════════════════════════════════ */}
+      <section className="border-b border-border bg-background">
+        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+          <div className="grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+                04 — How we work
+              </p>
+              <h2 className="mt-4 font-display text-4xl font-medium text-foreground sm:text-5xl">
+                A serious supplier, not a print shop.
+              </h2>
+            </div>
+            <div className="lg:col-span-8">
+              <ul className="divide-y divide-border border-y border-border">
+                {[
+                  {
+                    n: "01", t: "Brief in 24 hours",
+                    b: "Tell us the product, quantity and brand. We confirm sizing, MOQ and pricing within one working day.",
+                  },
+                  {
+                    n: "02", t: "Proofs you can hold",
+                    b: "Digital mock-ups first, then physical print proofs for high-volume runs. No surprises on press day.",
+                  },
+                  {
+                    n: "03", t: "7–14 day production",
+                    b: "Standard turnaround across both divisions. Rush slots available for marketing and seasonal launches.",
+                  },
+                  {
+                    n: "04", t: "Delivered nationwide",
+                    b: "Direct from our Industrial Area floor to Mombasa, Kisumu, Nakuru, Eldoret and 47 counties.",
+                  },
+                ].map((s) => (
+                  <li key={s.n} className="flex items-start gap-8 py-6">
+                    <span className="font-display text-3xl font-medium text-muted-foreground/70">
+                      {s.n}
+                    </span>
+                    <div>
+                      <h3 className="font-display text-xl text-foreground">{s.t}</h3>
+                      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{s.b}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div className="rounded-3xl bg-accent p-10 text-accent-foreground lg:p-14">
-            <span className="text-xs uppercase tracking-[0.25em] text-accent-foreground/70">For SMEs</span>
-            <h3 className="mt-3 font-display text-3xl lg:text-4xl">
-              Reorder in 30 seconds via WhatsApp.
-            </h3>
-            <p className="mt-4 max-w-md text-accent-foreground/85">
-              Browse our catalogue, tap order on any product — we'll handle the rest.
-            </p>
-            <a
-              href={whatsappLink("Hi Moments Packaging, I'd like to place an order.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent-foreground px-6 py-3.5 text-sm font-medium text-accent transition-opacity hover:opacity-90"
-            >
-              <MessageCircle className="h-4 w-4" /> Order on WhatsApp
-            </a>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          DUAL CTA — corporate vs SME
+          ═══════════════════════════════════════════════════════════════ */}
+      <section className="bg-foreground text-background">
+        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
+          <div className="grid gap-px border border-background/20 bg-background/20 md:grid-cols-2">
+            <div className="bg-foreground p-10 lg:p-14">
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-background/55">
+                For corporates & enterprise
+              </p>
+              <h3 className="mt-4 font-display text-3xl font-medium text-background lg:text-4xl">
+                Volume contracts, dedicated production slots.
+              </h3>
+              <p className="mt-4 max-w-md text-sm text-background/70">
+                Bulk pricing, quality consistency across runs, and an account manager who answers.
+                Suited for QSR chains, supermarket groups, FMCG and corporate procurement.
+              </p>
+              <Link
+                to="/contact"
+                className="mt-8 inline-flex items-center gap-2 border border-background bg-background px-6 py-3.5 text-sm font-medium text-foreground transition-colors hover:bg-background/90"
+              >
+                Request enterprise quote <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="bg-foreground p-10 lg:p-14">
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-background/55">
+                For SMEs & repeat orders
+              </p>
+              <h3 className="mt-4 font-display text-3xl font-medium text-background lg:text-4xl">
+                Reorder in 30 seconds on WhatsApp.
+              </h3>
+              <p className="mt-4 max-w-md text-sm text-background/70">
+                Browse the catalogue, tap order on any product, send. We confirm price, lead time and
+                delivery — all in chat. Perfect for small restaurants and growing shops.
+              </p>
+              <a
+                href={whatsappLink("Hi Moments Packaging, I'd like to place an order.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 inline-flex items-center gap-2 border border-[#25D366] bg-[#25D366] px-6 py-3.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              >
+                <MessageCircle className="h-4 w-4" /> Order on WhatsApp
+              </a>
+            </div>
           </div>
         </div>
       </section>
