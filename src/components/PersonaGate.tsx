@@ -24,10 +24,10 @@ export function PersonaGate() {
           </div>
 
           <h1 className="mt-8 font-display text-3xl font-semibold text-foreground sm:text-4xl">
-            Who are you ordering for?
+            Which one explains your business better?
           </h1>
           <p className="mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
-            We'll tailor your experience.
+            We'll make sure you see exactly what matters to you.
           </p>
         </div>
 
@@ -41,10 +41,10 @@ export function PersonaGate() {
               SME
             </span>
             <h2 className="mt-2 font-display text-2xl font-semibold text-foreground">
-              Restaurant, Café or Retailer
+              We make packaging for my café, shop or restaurant
             </h2>
             <p className="mt-3 text-sm text-muted-foreground">
-              Small to medium orders, quick turnaround, WhatsApp-friendly.
+              Fast turnaround, low minimums, WhatsApp-friendly. You pick it, we print it.
             </p>
             <span className="mt-6 inline-flex items-center text-sm font-medium text-primary">
               Continue →
@@ -60,10 +60,10 @@ export function PersonaGate() {
               Enterprise
             </span>
             <h2 className="mt-2 font-display text-2xl font-semibold text-foreground">
-              Corporate or Enterprise Brand
+              We need packaging at scale for our brand
             </h2>
             <p className="mt-3 text-sm text-muted-foreground">
-              Volume orders, contracts, dedicated production slots.
+              Volume orders, contracts and a dedicated person who knows your account.
             </p>
             <span className="mt-6 inline-flex items-center text-sm font-medium text-primary">
               Continue →
