@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import logoUrl from "@/assets/moments-logo.png";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -16,14 +17,17 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-        <Link to="/" className="group flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground font-display text-lg font-semibold">
-            m
-          </span>
-          <span className="leading-tight">
-            <span className="block font-display text-base font-semibold text-foreground">Moments</span>
+        <Link to="/" className="group flex items-center gap-2.5" aria-label="Moments Packaging Kenya — Home">
+          <img
+            src={logoUrl}
+            alt="Moments Packaging Kenya logo"
+            width={140}
+            height={32}
+            className="h-8 w-auto sm:h-9"
+          />
+          <span className="hidden leading-tight sm:block">
             <span className="block text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Packaging Kenya
+              Packaging (K) Limited
             </span>
           </span>
         </Link>
