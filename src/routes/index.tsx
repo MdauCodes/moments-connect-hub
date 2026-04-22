@@ -74,16 +74,16 @@ function HomePage() {
           </div>
         </div>
 
-        <div className="relative z-10 mx-auto grid h-full max-w-7xl items-center gap-8 px-5 pt-10 pb-12 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-0">
+        <div className="relative z-10 mx-auto grid h-full max-w-7xl items-center gap-8 px-5 pt-8 pb-10 sm:pt-10 sm:pb-12 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-0">
           <div className="lg:col-span-6">
-            <h1 className="font-display text-4xl font-medium leading-[1.05] text-foreground text-balance sm:text-5xl lg:text-6xl">
+            <h1 className="font-display text-[2rem] font-medium leading-[1.1] text-foreground text-balance sm:text-5xl lg:text-6xl">
               {isCorp ? (
                 <>Volume packaging, <em className="not-italic text-accent">delivered on brief</em>.</>
               ) : (
                 <>Packaging that makes the <em className="not-italic text-accent">moment</em>.</>
               )}
             </h1>
-            <p className="mt-4 max-w-xl text-base text-muted-foreground text-balance lg:text-lg">
+            <p className="mt-4 max-w-xl text-sm text-muted-foreground text-balance sm:text-base lg:text-lg">
               {isCorp
                 ? "Dedicated production slots, bulk pricing and contracts for Kenya's biggest brands. From 10,000-unit runs to nationwide rollouts — one supplier, zero stress."
                 : "We design and print premium branded paper packaging for Kenya's most-loved restaurants, retailers and brands. From a 100-bag pilot to enterprise contracts."}
@@ -91,20 +91,20 @@ function HomePage() {
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/15 transition-all hover:bg-primary/90 hover:shadow-xl"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/15 transition-all hover:bg-primary/90 hover:shadow-xl sm:px-6"
               >
                 {isCorp ? "Request enterprise quote" : "Get a free quote"} <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/products"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary sm:px-6"
               >
                 {isCorp ? "View case studies" : "Browse catalogue"}
               </Link>
             </div>
 
             {/* Stat row */}
-            <dl className="mt-7 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-5">
+            <dl className="mt-7 grid max-w-lg grid-cols-3 gap-3 border-t border-border pt-5 sm:gap-6">
               {(isCorp
                 ? [
                     { value: "5,000+", label: "Min order units" },
@@ -118,8 +118,8 @@ function HomePage() {
                   ]
               ).map((s) => (
                 <div key={s.label}>
-                  <dt className="font-display text-2xl font-medium text-foreground sm:text-3xl">{s.value}</dt>
-                  <dd className="mt-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{s.label}</dd>
+                  <dt className="font-display text-xl font-medium text-foreground sm:text-3xl">{s.value}</dt>
+                  <dd className="mt-1 text-[10px] uppercase tracking-[0.15em] text-muted-foreground sm:text-[11px] sm:tracking-[0.18em]">{s.label}</dd>
                 </div>
               ))}
             </dl>
