@@ -3,8 +3,8 @@ import { COMPANY_EMAIL, COMPANY_PHONE } from "@/data/products";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-24 border-t border-border bg-primary text-primary-foreground">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 md:grid-cols-4 lg:px-8">
+    <footer className="mt-16 border-t border-border bg-primary text-primary-foreground sm:mt-24">
+      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:gap-10 sm:py-16 md:grid-cols-4 lg:px-8">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2">
             <span className="grid h-10 w-10 place-items-center rounded-md bg-primary-foreground/10 font-display text-xl text-primary-foreground">
