@@ -1,18 +1,50 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import logoUrl from "@/assets/moments-logo.png";
+import { categories } from "@/data/products";
 
-const nav = [
+type NavItem = {
+  to: "/" | "/products" | "/industries" | "/about" | "/contact";
+  label: string;
+  hasDropdown?: boolean;
+};
+
+const nav: readonly NavItem[] = [
   { to: "/", label: "Home" },
-  { to: "/products", label: "Products" },
+  { to: "/products", label: "Products", hasDropdown: true },
   { to: "/industries", label: "Industries" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Get a Quote" },
-] as const;
+];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
+  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside (for click-to-open on touch)
+  useEffect(() => {
+    if (!productsOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setProductsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [productsOpen]);
+
+  const openDropdown = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setProductsOpen(true);
+  };
+  const scheduleClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setProductsOpen(false), 120);
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
@@ -33,17 +65,73 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {nav.slice(0, -1).map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              className="rounded-full px-4 py-2 text-sm text-foreground/75 transition-colors hover:bg-secondary hover:text-foreground"
-              activeProps={{ className: "bg-secondary text-foreground" }}
-              activeOptions={{ exact: n.to === "/" }}
-            >
-              {n.label}
-            </Link>
-          ))}
+          {nav.slice(0, -1).map((n) => {
+            if (n.hasDropdown) {
+              return (
+                <div
+                  key={n.to}
+                  ref={dropdownRef}
+                  className="relative"
+                  onMouseEnter={openDropdown}
+                  onMouseLeave={scheduleClose}
+                >
+                  <Link
+                    to={n.to}
+                    className="inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm text-foreground/75 transition-colors hover:bg-secondary hover:text-foreground"
+                    activeProps={{ className: "bg-secondary text-foreground" }}
+                    onClick={() => setProductsOpen(false)}
+                  >
+                    {n.label}
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 transition-transform ${productsOpen ? "rotate-180" : ""}`}
+                      aria-hidden="true"
+                    />
+                  </Link>
+
+                  {productsOpen && (
+                    <div
+                      className="absolute left-1/2 top-full z-50 w-64 -translate-x-1/2 pt-2"
+                      onMouseEnter={openDropdown}
+                      onMouseLeave={scheduleClose}
+                    >
+                      <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-xl ring-1 ring-black/5">
+                        <Link
+                          to="/products"
+                          search={{}}
+                          onClick={() => setProductsOpen(false)}
+                          className="block border-b border-border px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                        >
+                          All products
+                        </Link>
+                        {categories.map((c) => (
+                          <Link
+                            key={c.slug}
+                            to="/products"
+                            search={{ category: c.slug }}
+                            onClick={() => setProductsOpen(false)}
+                            className="block border-b border-border/60 px-4 py-3 text-sm text-foreground/80 transition-colors last:border-b-0 hover:bg-secondary hover:text-foreground"
+                          >
+                            {c.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <Link
+                key={n.to}
+                to={n.to}
+                className="rounded-full px-4 py-2 text-sm text-foreground/75 transition-colors hover:bg-secondary hover:text-foreground"
+                activeProps={{ className: "bg-secondary text-foreground" }}
+                activeOptions={{ exact: n.to === "/" }}
+              >
+                {n.label}
+              </Link>
+            );
+          })}
           <Link
             to="/contact"
             className="ml-2 inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md"
@@ -64,18 +152,69 @@ export function SiteHeader() {
       {open && (
         <div className="border-t border-border bg-background md:hidden">
           <div className="flex flex-col px-5 py-3">
-            {nav.map((n) => (
-              <Link
-                key={n.to}
-                to={n.to}
-                onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-3 text-sm text-foreground/80 hover:bg-secondary"
-                activeProps={{ className: "bg-secondary text-foreground font-medium" }}
-                activeOptions={{ exact: n.to === "/" }}
-              >
-                {n.label}
-              </Link>
-            ))}
+            {nav.map((n) => {
+              if (n.hasDropdown) {
+                return (
+                  <div key={n.to}>
+                    <div className="flex items-center">
+                      <Link
+                        to={n.to}
+                        onClick={() => setOpen(false)}
+                        className="flex-1 rounded-md px-3 py-3 text-sm text-foreground/80 hover:bg-secondary"
+                        activeProps={{ className: "bg-secondary text-foreground font-medium" }}
+                      >
+                        {n.label}
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => setMobileProductsOpen((v) => !v)}
+                        aria-label="Toggle product categories"
+                        className="grid h-10 w-10 place-items-center rounded-md text-foreground/60 hover:bg-secondary"
+                      >
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform ${mobileProductsOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                    </div>
+                    {mobileProductsOpen && (
+                      <div className="ml-3 border-l border-border pl-3">
+                        <Link
+                          to="/products"
+                          search={{}}
+                          onClick={() => setOpen(false)}
+                          className="block rounded-md px-3 py-2.5 text-sm text-foreground/70 hover:bg-secondary"
+                        >
+                          All products
+                        </Link>
+                        {categories.map((c) => (
+                          <Link
+                            key={c.slug}
+                            to="/products"
+                            search={{ category: c.slug }}
+                            onClick={() => setOpen(false)}
+                            className="block rounded-md px-3 py-2.5 text-sm text-foreground/70 hover:bg-secondary"
+                          >
+                            {c.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  onClick={() => setOpen(false)}
+                  className="rounded-md px-3 py-3 text-sm text-foreground/80 hover:bg-secondary"
+                  activeProps={{ className: "bg-secondary text-foreground font-medium" }}
+                  activeOptions={{ exact: n.to === "/" }}
+                >
+                  {n.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
