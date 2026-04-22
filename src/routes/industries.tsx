@@ -13,8 +13,8 @@ export const Route = createFileRoute("/industries")({
       },
       { property: "og:title", content: "Industries We Serve — Moments Packaging Kenya" },
       { property: "og:description", content: "Packaging built for restaurants, retailers, pharma, beauty, gifting and e-commerce brands." },
-      { rel: "canonical", href: "https://www.momentspackaging.com/industries" },
     ],
+    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/industries" }],
   }),
   component: IndustriesPage,
 });

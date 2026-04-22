@@ -15,8 +15,8 @@ export const Route = createFileRoute("/about")({
       { property: "og:title", content: "About Moments Packaging Kenya" },
       { property: "og:description", content: "Nairobi-based custom packaging manufacturer for Kenya's leading brands." },
       { property: "og:image", content: aboutImg },
-      { rel: "canonical", href: "https://www.momentspackaging.com/about" },
     ],
+    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/about" }],
   }),
   component: AboutPage,
 });

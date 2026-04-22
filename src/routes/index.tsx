@@ -24,8 +24,8 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:image", content: "https://www.momentspackaging.com/og-image.jpg" },
       { name: "twitter:image", content: "https://www.momentspackaging.com/og-image.jpg" },
-      { rel: "canonical", href: "https://www.momentspackaging.com/" },
     ],
+    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/" }],
   }),
   component: HomePage,
 });

@@ -20,8 +20,8 @@ export const Route = createFileRoute("/contact")({
         property: "og:description",
         content: "Request a custom packaging quote — answered within 24 hours by our Nairobi team.",
       },
-      { rel: "canonical", href: "https://www.momentspackaging.com/contact" },
     ],
+    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/contact" }],
   }),
   component: ContactPage,
 });

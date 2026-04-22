@@ -20,8 +20,8 @@ export const Route = createFileRoute("/products")({
       },
       { property: "og:title", content: "Packaging Catalogue — Moments Packaging Kenya" },
       { property: "og:description", content: "Custom paper packaging catalogue — bags, cups, boxes, mailers, labels and gifting." },
-      { rel: "canonical", href: "https://www.momentspackaging.com/products" },
     ],
+    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/products" }],
   }),
   component: ProductsPage,
 });
