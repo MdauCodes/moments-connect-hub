@@ -5,13 +5,15 @@ import { ArrowRight, UtensilsCrossed, ShoppingBag, Pill, Sparkles, Gift, Buildin
 export const Route = createFileRoute("/industries")({
   head: () => ({
     meta: [
-      { title: "Industries We Serve — Moments Packaging Kenya" },
+      { title: "Industries We Serve — Restaurant, Retail & E-commerce Packaging Kenya" },
       {
         name: "description",
-        content: "Custom packaging solutions for Food & Beverage, Retail, Pharma, Beauty, Corporate Gifting and E-commerce across Kenya.",
+        content:
+          "Custom packaging solutions for Food & Beverage, Retail, Pharma, Beauty, Corporate Gifting and E-commerce brands across Kenya. Tailored MOQs, finishes and lead times for every sector.",
       },
       { property: "og:title", content: "Industries We Serve — Moments Packaging Kenya" },
       { property: "og:description", content: "Packaging built for restaurants, retailers, pharma, beauty, gifting and e-commerce brands." },
+      { rel: "canonical", href: "https://www.momentspackaging.com/industries" },
     ],
   }),
   component: IndustriesPage,
