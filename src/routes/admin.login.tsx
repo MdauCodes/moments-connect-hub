@@ -1,0 +1,176 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+
+export const Route = createFileRoute("/admin/login")({
+  component: AdminLoginPage,
+});
+
+const styles: Record<string, CSSProperties> = {
+  root: {
+    minHeight: "100vh",
+    width: "100%",
+    background: "#0F1117",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    color: "#E2E8F0",
+  },
+  card: {
+    width: "100%",
+    maxWidth: 400,
+    background: "#161B27",
+    border: "1px solid #1E2535",
+    borderRadius: 16,
+    padding: "2.5rem",
+  },
+  logoWrap: { display: "flex", justifyContent: "center" },
+  logoMark: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    background: "#2D5A3D",
+    color: "#C49A6C",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontFamily: "Georgia, serif",
+    fontSize: 16,
+    fontWeight: 600,
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: 600,
+    color: "#E2E8F0",
+    marginTop: 24,
+    textAlign: "center",
+  },
+  sub: { fontSize: 12, color: "#4A5568", textAlign: "center", marginTop: 4 },
+  form: { marginTop: 32, display: "flex", flexDirection: "column", gap: 16 },
+  field: { display: "flex", flexDirection: "column", gap: 6 },
+  label: {
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    color: "#4A5568",
+  },
+  input: {
+    background: "#0F1117",
+    border: "1px solid #1E2535",
+    borderRadius: 8,
+    padding: "10px 14px",
+    color: "#E2E8F0",
+    fontSize: 13,
+    outline: "none",
+    fontFamily: "inherit",
+  },
+  error: { fontSize: 13, color: "#FC8181", minHeight: 20 },
+  submit: {
+    width: "100%",
+    background: "#2D5A3D",
+    color: "#9AE6B4",
+    border: "none",
+    borderRadius: 10,
+    padding: 11,
+    fontSize: 13,
+    fontWeight: 500,
+    cursor: "pointer",
+    fontFamily: "inherit",
+  },
+  submitDisabled: { opacity: 0.6, cursor: "not-allowed" },
+};
+
+function AdminLoginPage() {
+  const { login, isAuthenticated } = useAdminAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate({ to: "/admin/enquiries" });
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await login(email, password);
+      navigate({ to: "/admin/enquiries" });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Login failed";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = "#2D5A3D";
+  };
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = "#1E2535";
+  };
+
+  return (
+    <div style={styles.root}>
+      <div style={styles.card}>
+        <div style={styles.logoWrap}>
+          <div style={styles.logoMark}>m</div>
+        </div>
+        <h1 style={styles.heading}>Admin login</h1>
+        <p style={styles.sub}>Moments Packaging internal dashboard</p>
+
+        <form style={styles.form} onSubmit={handleSubmit}>
+          <div style={styles.field}>
+            <label style={styles.label} htmlFor="admin-email">Email</label>
+            <input
+              id="admin-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@momentspackaging.com"
+              style={styles.input}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              required
+              autoComplete="email"
+            />
+          </div>
+
+          <div style={styles.field}>
+            <label style={styles.label} htmlFor="admin-password">Password</label>
+            <input
+              id="admin-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              style={styles.input}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              required
+              autoComplete="current-password"
+            />
+          </div>
+
+          <div style={styles.error}>{error}</div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{ ...styles.submit, ...(loading ? styles.submitDisabled : {}) }}
+          >
+            {loading ? "Signing in..." : "Sign in →"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
