@@ -10,18 +10,22 @@ import { ArrowRight, MessageCircle, Sparkles, Truck, Award } from "lucide-react"
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Moments Packaging Kenya — Custom Branded Paper Packaging" },
+      { title: "Moments Packaging Kenya — Custom Branded Paper Packaging | Nairobi" },
       {
         name: "description",
         content:
-          "Custom-branded paper bags, food boxes, cups, mailers and gifting packaging for Kenya's restaurants, retailers and brands. Low MOQ, fast turnaround, nationwide delivery.",
+          "Kenya's trusted custom packaging manufacturer. Branded paper bags, food boxes, cups, mailers and gifting packaging from 100 units. Based in Nairobi, delivering nationwide.",
       },
       { property: "og:title", content: "Moments Packaging Kenya — Custom Branded Paper Packaging" },
       {
         property: "og:description",
-        content: "Premium custom packaging for restaurants, retailers and corporates across Kenya.",
+        content:
+          "Premium custom packaging for restaurants, retailers and corporates across Kenya. Low MOQ, fast turnaround, nationwide delivery.",
       },
+      { property: "og:image", content: "https://www.momentspackaging.com/og-image.jpg" },
+      { name: "twitter:image", content: "https://www.momentspackaging.com/og-image.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/" }],
   }),
   component: HomePage,
 });

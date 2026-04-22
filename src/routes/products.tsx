@@ -12,15 +12,16 @@ export const Route = createFileRoute("/products")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Product Catalogue — Moments Packaging Kenya" },
+      { title: "Packaging Catalogue — Paper Bags, Cups, Boxes & Mailers Kenya | Moments Packaging" },
       {
         name: "description",
         content:
-          "Browse our full range of custom paper bags, cups, food boxes, mailers, labels and gifting packaging. WhatsApp to order.",
+          "Browse Kenya's full custom paper packaging catalogue: kraft bags, hot/cold cups, food boxes, e-commerce mailers, labels and gifting boxes. Low MOQ from 100 units. WhatsApp to order.",
       },
-      { property: "og:title", content: "Product Catalogue — Moments Packaging Kenya" },
-      { property: "og:description", content: "Custom paper packaging catalogue — bags, cups, boxes, mailers and more." },
+      { property: "og:title", content: "Packaging Catalogue — Moments Packaging Kenya" },
+      { property: "og:description", content: "Custom paper packaging catalogue — bags, cups, boxes, mailers, labels and gifting." },
     ],
+    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/products" }],
   }),
   component: ProductsPage,
 });
