@@ -74,16 +74,16 @@ function HomePage() {
           </div>
         </div>
 
-        <div className="relative z-10 mx-auto grid h-full max-w-7xl items-center gap-8 px-5 pt-10 pb-12 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-0">
+        <div className="relative z-10 mx-auto grid h-full max-w-7xl items-center gap-8 px-5 pt-8 pb-10 sm:pt-10 sm:pb-12 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-0">
           <div className="lg:col-span-6">
-            <h1 className="font-display text-4xl font-medium leading-[1.05] text-foreground text-balance sm:text-5xl lg:text-6xl">
+            <h1 className="font-display text-[2rem] font-medium leading-[1.1] text-foreground text-balance sm:text-5xl lg:text-6xl">
               {isCorp ? (
                 <>Volume packaging, <em className="not-italic text-accent">delivered on brief</em>.</>
               ) : (
                 <>Packaging that makes the <em className="not-italic text-accent">moment</em>.</>
               )}
             </h1>
-            <p className="mt-4 max-w-xl text-base text-muted-foreground text-balance lg:text-lg">
+            <p className="mt-4 max-w-xl text-sm text-muted-foreground text-balance sm:text-base lg:text-lg">
               {isCorp
                 ? "Dedicated production slots, bulk pricing and contracts for Kenya's biggest brands. From 10,000-unit runs to nationwide rollouts — one supplier, zero stress."
                 : "We design and print premium branded paper packaging for Kenya's most-loved restaurants, retailers and brands. From a 100-bag pilot to enterprise contracts."}
@@ -91,20 +91,20 @@ function HomePage() {
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/15 transition-all hover:bg-primary/90 hover:shadow-xl"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/15 transition-all hover:bg-primary/90 hover:shadow-xl sm:px-6"
               >
                 {isCorp ? "Request enterprise quote" : "Get a free quote"} <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/products"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary sm:px-6"
               >
                 {isCorp ? "View case studies" : "Browse catalogue"}
               </Link>
             </div>
 
             {/* Stat row */}
-            <dl className="mt-7 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-5">
+            <dl className="mt-7 grid max-w-lg grid-cols-3 gap-3 border-t border-border pt-5 sm:gap-6">
               {(isCorp
                 ? [
                     { value: "5,000+", label: "Min order units" },
@@ -118,8 +118,8 @@ function HomePage() {
                   ]
               ).map((s) => (
                 <div key={s.label}>
-                  <dt className="font-display text-2xl font-medium text-foreground sm:text-3xl">{s.value}</dt>
-                  <dd className="mt-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{s.label}</dd>
+                  <dt className="font-display text-xl font-medium text-foreground sm:text-3xl">{s.value}</dt>
+                  <dd className="mt-1 text-[10px] uppercase tracking-[0.15em] text-muted-foreground sm:text-[11px] sm:tracking-[0.18em]">{s.label}</dd>
                 </div>
               ))}
             </dl>
@@ -147,11 +147,11 @@ function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-28">
+        <div className="flex flex-wrap items-end justify-between gap-4 sm:gap-6">
           <div className="max-w-xl">
             <p className="text-xs uppercase tracking-[0.25em] text-accent">Catalogue</p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
+            <h2 className="mt-3 font-display text-3xl font-medium text-foreground sm:text-4xl lg:text-5xl">
               {isCorp ? "Built for scale, built for your brand." : "Built for every product, every brand."}
             </h2>
           </div>
@@ -160,7 +160,7 @@ function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((c) => (
             <Link
               key={c.slug}
@@ -190,14 +190,14 @@ function HomePage() {
 
       {/* Why us */}
       <section className="bg-secondary/60">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs uppercase tracking-[0.25em] text-accent">Why Moments</p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
+            <h2 className="mt-3 font-display text-3xl font-medium text-foreground sm:text-4xl lg:text-5xl">
               {isCorp ? "Built for brands that operate at scale." : "Real partners, not just printers."}
             </h2>
           </div>
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid gap-5 sm:mt-14 sm:gap-6 md:grid-cols-3">
             {valueProps.map((v) => (
               <div key={v.title} className="rounded-2xl border border-border bg-background p-8">
                 <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-primary-foreground">
@@ -212,13 +212,13 @@ function HomePage() {
       </section>
 
       {/* Featured products */}
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-28">
+        <div className="flex flex-wrap items-end justify-between gap-4 sm:gap-6">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-accent">
               {isCorp ? "Most ordered by enterprise clients" : "Trending now"}
             </p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
+            <h2 className="mt-3 font-display text-3xl font-medium text-foreground sm:text-4xl lg:text-5xl">
               {isCorp ? "What Kenya's biggest brands choose." : "What our customers reorder."}
             </h2>
           </div>
@@ -227,7 +227,7 @@ function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
           {featured.map((p) => (
             <Link
               key={p.id}
@@ -289,11 +289,11 @@ function HomePage() {
       </section>
 
       {/* Dual CTA */}
-      <section className="mx-auto max-w-7xl px-5 pb-24 lg:px-8">
+      <section className="mx-auto max-w-7xl px-5 pb-20 sm:pb-24 lg:px-8">
         <div className="grid gap-5 md:grid-cols-2">
-          <div className="rounded-3xl bg-primary p-10 text-primary-foreground lg:p-14">
+          <div className="rounded-3xl bg-primary p-7 text-primary-foreground sm:p-10 lg:p-14">
             <span className="text-xs uppercase tracking-[0.25em] text-primary-foreground/60">For Corporates</span>
-            <h3 className="mt-3 font-display text-3xl lg:text-4xl">
+            <h3 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl">
               Need volume packaging for your brand?
             </h3>
             <p className="mt-4 max-w-md text-primary-foreground/75">
@@ -307,9 +307,9 @@ function HomePage() {
             </Link>
           </div>
           {isSme ? (
-            <div className="rounded-3xl bg-accent p-10 text-accent-foreground lg:p-14">
+            <div className="rounded-3xl bg-accent p-7 text-accent-foreground sm:p-10 lg:p-14">
               <span className="text-xs uppercase tracking-[0.25em] text-accent-foreground/70">For SMEs</span>
-              <h3 className="mt-3 font-display text-3xl lg:text-4xl">
+              <h3 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl">
                 Reorder in 30 seconds via WhatsApp.
               </h3>
               <p className="mt-4 max-w-md text-accent-foreground/85">
@@ -325,9 +325,9 @@ function HomePage() {
               </a>
             </div>
           ) : (
-            <div className="rounded-3xl border border-border bg-card p-10 text-foreground lg:p-14">
+            <div className="rounded-3xl border border-border bg-card p-7 text-foreground sm:p-10 lg:p-14">
               <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">For your team</span>
-              <h3 className="mt-3 font-display text-3xl lg:text-4xl">
+              <h3 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl">
                 Need samples before committing?
               </h3>
               <p className="mt-4 max-w-md text-muted-foreground">

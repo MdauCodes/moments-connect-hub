@@ -53,7 +53,7 @@ function ProductDetail() {
         </Link>
       </div>
 
-      <section className="mx-auto grid max-w-7xl gap-12 px-5 py-10 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-14">
+      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-8 sm:gap-12 sm:py-10 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-14">
         <div className="overflow-hidden rounded-3xl border border-border bg-secondary">
           <img src={product.image} alt={product.name} className="aspect-square w-full object-cover" />
         </div>
@@ -66,8 +66,8 @@ function ProductDetail() {
               </span>
             ))}
           </div>
-          <h1 className="mt-4 font-display text-5xl font-medium text-foreground">{product.name}</h1>
-          <p className="mt-5 text-lg text-muted-foreground">{product.description}</p>
+          <h1 className="mt-4 font-display text-3xl font-medium text-foreground sm:text-4xl lg:text-5xl">{product.name}</h1>
+          <p className="mt-4 text-base text-muted-foreground sm:mt-5 sm:text-lg">{product.description}</p>
 
           <dl className="mt-8 grid grid-cols-2 gap-6 rounded-2xl border border-border bg-card p-6">
             <div>
@@ -137,9 +137,9 @@ function ProductDetail() {
       </section>
 
       {related.length > 0 && (
-        <section className="mx-auto max-w-7xl px-5 pb-24 lg:px-8">
-          <h2 className="font-display text-3xl text-foreground">You may also like</h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-3">
+        <section className="mx-auto max-w-7xl px-5 pb-20 sm:pb-24 lg:px-8">
+          <h2 className="font-display text-2xl text-foreground sm:text-3xl">You may also like</h2>
+          <div className="mt-6 grid gap-5 sm:mt-8 sm:grid-cols-3 sm:gap-6">
             {related.map((p) => (
               <Link
                 key={p.id}

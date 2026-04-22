@@ -36,13 +36,13 @@ function AboutPage() {
   return (
     <SiteLayout>
       <section className="bg-cream">
-        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:py-16 lg:px-8 lg:py-24">
           <div className="max-w-3xl">
             <p className="text-xs uppercase tracking-[0.25em] text-accent">Our story</p>
-            <h1 className="mt-3 font-display text-5xl font-medium text-foreground sm:text-6xl lg:text-7xl text-balance">
+            <h1 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl md:text-6xl lg:text-7xl text-balance">
               Built in Nairobi for Kenya's most ambitious brands.
             </h1>
-            <p className="mt-6 text-lg text-muted-foreground">
+            <p className="mt-5 text-base text-muted-foreground sm:mt-6 sm:text-lg">
               Moments Packaging started in 2013 with a single offset press and a stubborn belief that
               local brands deserve packaging as good as anything imported. Today we run a modern
               production floor in Industrial Area, serving restaurants, retailers, and corporates
@@ -52,13 +52,13 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-16">
           <div className="overflow-hidden rounded-3xl border border-border">
             <img src={aboutImg} alt="Moments Packaging production floor" className="h-full w-full object-cover" />
           </div>
           <div>
-            <h2 className="font-display text-4xl font-medium text-foreground">More than just packaging.</h2>
+            <h2 className="font-display text-3xl font-medium text-foreground sm:text-4xl">More than just packaging.</h2>
             <p className="mt-5 text-muted-foreground">
               We see ourselves as a partner in your brand's first impression. From the moment a
               customer touches your bag, opens your box, or holds your cup — we want them to feel
@@ -77,25 +77,25 @@ function AboutPage() {
       </section>
 
       <section className="bg-secondary/60">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8">
+          <div className="grid gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
             {stats.map((s) => (
               <div key={s.l}>
-                <p className="font-display text-5xl font-medium text-foreground">{s.v}</p>
-                <p className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">{s.l}</p>
+                <p className="font-display text-4xl font-medium text-foreground sm:text-5xl">{s.v}</p>
+                <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground sm:text-sm">{s.l}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-        <h2 className="font-display text-4xl font-medium text-foreground">What we believe.</h2>
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-28">
+        <h2 className="font-display text-3xl font-medium text-foreground sm:text-4xl">What we believe.</h2>
+        <div className="mt-10 grid gap-5 sm:gap-6 md:grid-cols-3">
           {values.map((v, i) => (
-            <div key={v.t} className="rounded-2xl border border-border bg-background p-8">
-              <p className="font-display text-5xl font-medium text-accent">0{i + 1}</p>
-              <h3 className="mt-6 font-display text-2xl text-foreground">{v.t}</h3>
+            <div key={v.t} className="rounded-2xl border border-border bg-background p-6 sm:p-8">
+              <p className="font-display text-4xl font-medium text-accent sm:text-5xl">0{i + 1}</p>
+              <h3 className="mt-5 font-display text-xl text-foreground sm:mt-6 sm:text-2xl">{v.t}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{v.b}</p>
             </div>
           ))}

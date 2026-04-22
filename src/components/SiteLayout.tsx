@@ -15,7 +15,7 @@ function PersonaSwitchButton() {
     <button
       type="button"
       onClick={() => setPersona(null)}
-      className="fixed bottom-6 left-6 z-40 inline-flex items-center gap-1 rounded-full border border-border bg-background/90 px-3 py-1.5 text-xs font-medium text-foreground/80 shadow-sm backdrop-blur transition-colors hover:bg-secondary"
+      className="fixed bottom-4 left-4 z-40 inline-flex items-center gap-1 rounded-full border border-border bg-background/90 px-2.5 py-1 text-[11px] font-medium text-foreground/80 shadow-sm backdrop-blur transition-colors hover:bg-secondary sm:bottom-6 sm:left-6 sm:px-3 sm:py-1.5 sm:text-xs"
       aria-label="Switch persona"
     >
       <span className="text-muted-foreground">Viewing as {label}</span>

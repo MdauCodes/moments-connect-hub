@@ -99,15 +99,15 @@ function ContactPage() {
   return (
     <SiteLayout>
       <section className="bg-cream">
-        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
-          <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:py-16 lg:px-8 lg:py-20">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
             {/* LEFT */}
             <div className="lg:col-span-5">
               <div className="lg:sticky lg:top-24">
                 <p className="text-xs uppercase tracking-widest text-accent">
                   {isCorp ? "Enterprise enquiry" : "Quick enquiry"}
                 </p>
-                <h1 className="mt-3 font-display text-4xl font-medium text-foreground text-balance">
+                <h1 className="mt-3 font-display text-3xl font-medium text-foreground text-balance sm:text-4xl">
                   {isCorp ? "Let's talk about your packaging." : "Tell us what you need."}
                 </h1>
                 <p className="mt-5 text-muted-foreground">
@@ -144,7 +144,7 @@ function ContactPage() {
               ) : (
                 <form
                   onSubmit={handleSubmit}
-                  className="rounded-2xl border border-border bg-card p-8"
+                  className="rounded-2xl border border-border bg-card p-5 sm:p-8"
                 >
                   {/* Products in enquiry */}
                   <div>

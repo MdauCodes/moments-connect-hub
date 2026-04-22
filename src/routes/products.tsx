@@ -35,20 +35,20 @@ function ProductsPage() {
   return (
     <SiteLayout>
       <section className="bg-cream">
-        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:py-16 lg:px-8 lg:py-20">
           <p className="text-xs uppercase tracking-[0.25em] text-accent">Catalogue</p>
-          <h1 className="mt-3 font-display text-5xl font-medium text-foreground sm:text-6xl">
+          <h1 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl lg:text-6xl">
             {activeCat ? activeCat.name : "Every type of packaging."}
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
             {activeCat ? activeCat.blurb : "Browse by category. Tap any product to view details and order via WhatsApp or request a custom quote."}
           </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 pb-24 lg:px-8">
+      <section className="mx-auto max-w-7xl px-5 pb-20 sm:pb-24 lg:px-8">
         {/* Category pills */}
-        <div className="sticky top-[68px] z-20 -mx-5 flex gap-2 overflow-x-auto border-b border-border bg-background/95 px-5 py-4 backdrop-blur lg:mx-0 lg:rounded-full lg:border lg:px-3">
+        <div className="sticky top-[73px] z-20 -mx-5 flex gap-2 overflow-x-auto border-b border-border bg-background/95 px-5 py-3 backdrop-blur sm:py-4 lg:top-[77px] lg:mx-0 lg:rounded-full lg:border lg:px-3">
           <button
             onClick={() => navigate({ search: {} })}
             className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors ${
@@ -70,7 +70,7 @@ function ProductsPage() {
           ))}
         </div>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {filtered.map((p) => (
             <Link
               key={p.id}
