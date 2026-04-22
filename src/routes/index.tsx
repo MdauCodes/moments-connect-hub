@@ -147,11 +147,11 @@ function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-28">
+        <div className="flex flex-wrap items-end justify-between gap-4 sm:gap-6">
           <div className="max-w-xl">
             <p className="text-xs uppercase tracking-[0.25em] text-accent">Catalogue</p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
+            <h2 className="mt-3 font-display text-3xl font-medium text-foreground sm:text-4xl lg:text-5xl">
               {isCorp ? "Built for scale, built for your brand." : "Built for every product, every brand."}
             </h2>
           </div>
@@ -160,7 +160,7 @@ function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((c) => (
             <Link
               key={c.slug}
@@ -190,14 +190,14 @@ function HomePage() {
 
       {/* Why us */}
       <section className="bg-secondary/60">
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs uppercase tracking-[0.25em] text-accent">Why Moments</p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
+            <h2 className="mt-3 font-display text-3xl font-medium text-foreground sm:text-4xl lg:text-5xl">
               {isCorp ? "Built for brands that operate at scale." : "Real partners, not just printers."}
             </h2>
           </div>
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid gap-5 sm:mt-14 sm:gap-6 md:grid-cols-3">
             {valueProps.map((v) => (
               <div key={v.title} className="rounded-2xl border border-border bg-background p-8">
                 <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-primary-foreground">
@@ -212,13 +212,13 @@ function HomePage() {
       </section>
 
       {/* Featured products */}
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-28">
+        <div className="flex flex-wrap items-end justify-between gap-4 sm:gap-6">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-accent">
               {isCorp ? "Most ordered by enterprise clients" : "Trending now"}
             </p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
+            <h2 className="mt-3 font-display text-3xl font-medium text-foreground sm:text-4xl lg:text-5xl">
               {isCorp ? "What Kenya's biggest brands choose." : "What our customers reorder."}
             </h2>
           </div>
@@ -227,7 +227,7 @@ function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
           {featured.map((p) => (
             <Link
               key={p.id}
@@ -289,11 +289,11 @@ function HomePage() {
       </section>
 
       {/* Dual CTA */}
-      <section className="mx-auto max-w-7xl px-5 pb-24 lg:px-8">
+      <section className="mx-auto max-w-7xl px-5 pb-20 sm:pb-24 lg:px-8">
         <div className="grid gap-5 md:grid-cols-2">
-          <div className="rounded-3xl bg-primary p-10 text-primary-foreground lg:p-14">
+          <div className="rounded-3xl bg-primary p-7 text-primary-foreground sm:p-10 lg:p-14">
             <span className="text-xs uppercase tracking-[0.25em] text-primary-foreground/60">For Corporates</span>
-            <h3 className="mt-3 font-display text-3xl lg:text-4xl">
+            <h3 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl">
               Need volume packaging for your brand?
             </h3>
             <p className="mt-4 max-w-md text-primary-foreground/75">
@@ -307,9 +307,9 @@ function HomePage() {
             </Link>
           </div>
           {isSme ? (
-            <div className="rounded-3xl bg-accent p-10 text-accent-foreground lg:p-14">
+            <div className="rounded-3xl bg-accent p-7 text-accent-foreground sm:p-10 lg:p-14">
               <span className="text-xs uppercase tracking-[0.25em] text-accent-foreground/70">For SMEs</span>
-              <h3 className="mt-3 font-display text-3xl lg:text-4xl">
+              <h3 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl">
                 Reorder in 30 seconds via WhatsApp.
               </h3>
               <p className="mt-4 max-w-md text-accent-foreground/85">
@@ -325,9 +325,9 @@ function HomePage() {
               </a>
             </div>
           ) : (
-            <div className="rounded-3xl border border-border bg-card p-10 text-foreground lg:p-14">
+            <div className="rounded-3xl border border-border bg-card p-7 text-foreground sm:p-10 lg:p-14">
               <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">For your team</span>
-              <h3 className="mt-3 font-display text-3xl lg:text-4xl">
+              <h3 className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl">
                 Need samples before committing?
               </h3>
               <p className="mt-4 max-w-md text-muted-foreground">
