@@ -4,13 +4,19 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import logoUrl from "@/assets/moments-logo.png";
 import { categories } from "@/data/products";
 
-const nav = [
+type NavItem = {
+  to: "/" | "/products" | "/industries" | "/about" | "/contact";
+  label: string;
+  hasDropdown?: boolean;
+};
+
+const nav: readonly NavItem[] = [
   { to: "/", label: "Home" },
   { to: "/products", label: "Products", hasDropdown: true },
   { to: "/industries", label: "Industries" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Get a Quote" },
-] as const;
+];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
