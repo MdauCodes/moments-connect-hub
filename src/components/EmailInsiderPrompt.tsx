@@ -1,0 +1,270 @@
+import { useEffect, useRef, useState } from "react";
+import { Sparkles, X, Gift, Bell, Tag } from "lucide-react";
+import { EMAIL_CAPTURE_ENABLED } from "@/config/features";
+import { usePersona } from "@/contexts/PersonaContext";
+import { api } from "@/services/api";
+
+/**
+ * Proactive insider-led email capture.
+ *
+ * Triggers (first one wins, per session):
+ *   1. Exit intent (desktop): mouseleave at top of viewport
+ *   2. Scroll depth: user scrolls past 50% of page
+ *   3. Idle: 30 seconds with no interaction
+ *
+ * Frequency: shown at most once every 3 days, never after submit.
+ * Suppressed when the bottom EmailCaptureBanner has already been submitted,
+ * to avoid double-prompting the same email.
+ */
+
+const STORAGE_KEY = "moments_insider_prompt";
+const BANNER_KEY = "moments_email_banner"; // matches EmailCaptureBanner.tsx
+const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+const IDLE_MS = 30_000;
+const SCROLL_THRESHOLD = 0.5;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type DismissedRecord = { value: "dismissed"; dismissedAt: number };
+
+function shouldShow(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    // If user already submitted via the bottom banner, never show this.
+    const banner = window.localStorage.getItem(BANNER_KEY);
+    if (banner === "submitted") return false;
+
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return true;
+    if (raw === "submitted") return false;
+    try {
+      const parsed = JSON.parse(raw) as DismissedRecord;
+      if (parsed?.value === "dismissed" && typeof parsed.dismissedAt === "number") {
+        if (Date.now() - parsed.dismissedAt < THREE_DAYS_MS) return false;
+      }
+    } catch {
+      // legacy / unknown — allow
+    }
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+export function EmailInsiderPrompt() {
+  const { persona } = usePersona();
+  const [eligible, setEligible] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const firedRef = useRef(false);
+
+  // Eligibility — re-check whenever persona changes (covers banner submit during session).
+  useEffect(() => {
+    if (!EMAIL_CAPTURE_ENABLED) return;
+    setEligible(shouldShow());
+  }, [persona]);
+
+  // Trigger setup
+  useEffect(() => {
+    if (!eligible || open || submitted) return;
+    if (typeof window === "undefined") return;
+    // Don't fire while persona gate is up.
+    if (persona === null) return;
+
+    const trigger = () => {
+      if (firedRef.current) return;
+      firedRef.current = true;
+      // Re-confirm eligibility at fire time (banner could have been submitted in between).
+      if (!shouldShow()) return;
+      setOpen(true);
+    };
+
+    // 1. Exit intent (desktop only — touch devices don't fire mouseleave reliably)
+    const onMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 0) trigger();
+    };
+
+    // 2. Scroll depth
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const scrollable = doc.scrollHeight - window.innerHeight;
+      if (scrollable <= 0) return;
+      const ratio = window.scrollY / scrollable;
+      if (ratio >= SCROLL_THRESHOLD) trigger();
+    };
+
+    // 3. Idle timer — resets on any user activity
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
+    const resetIdle = () => {
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(trigger, IDLE_MS);
+    };
+    const activityEvents: (keyof WindowEventMap)[] = [
+      "mousemove",
+      "keydown",
+      "touchstart",
+      "scroll",
+      "click",
+    ];
+
+    document.documentElement.addEventListener("mouseleave", onMouseLeave);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    activityEvents.forEach((ev) => window.addEventListener(ev, resetIdle, { passive: true }));
+    resetIdle();
+
+    return () => {
+      document.documentElement.removeEventListener("mouseleave", onMouseLeave);
+      window.removeEventListener("scroll", onScroll);
+      activityEvents.forEach((ev) => window.removeEventListener(ev, resetIdle));
+      if (idleTimer) clearTimeout(idleTimer);
+    };
+  }, [eligible, open, submitted, persona]);
+
+  // Auto-close after submit confirmation
+  useEffect(() => {
+    if (!submitted) return;
+    const t = setTimeout(() => setOpen(false), 3500);
+    return () => clearTimeout(t);
+  }, [submitted]);
+
+  if (!EMAIL_CAPTURE_ENABLED) return null;
+  if (!open) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!EMAIL_REGEX.test(trimmed) || trimmed.length > 255) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    try {
+      await api.submitLead(trimmed, persona ?? "unknown");
+      try {
+        window.localStorage.setItem(STORAGE_KEY, "submitted");
+      } catch {
+        // ignore
+      }
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDismiss = () => {
+    try {
+      const record: DismissedRecord = { value: "dismissed", dismissedAt: Date.now() };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+    } catch {
+      // ignore
+    }
+    setOpen(false);
+  };
+
+  return (
+    <div
+      role="dialog"
+      aria-labelledby="insider-prompt-title"
+      aria-describedby="insider-prompt-desc"
+      className="fixed bottom-4 right-4 z-50 w-[calc(100vw-2rem)] max-w-sm animate-in slide-in-from-bottom-4 fade-in duration-300 sm:bottom-6 sm:right-6"
+    >
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-2xl">
+        {/* Decorative gradient header */}
+        <div className="relative bg-gradient-to-br from-primary/15 via-primary/5 to-transparent px-5 pb-3 pt-5">
+          <button
+            type="button"
+            onClick={handleDismiss}
+            aria-label="Dismiss"
+            className="absolute right-2 top-2 rounded-full p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-primary">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+                Insiders only
+              </p>
+              <h3 id="insider-prompt-title" className="text-base font-semibold leading-tight">
+                Wait — be first in line.
+              </h3>
+            </div>
+          </div>
+        </div>
+
+        <div className="px-5 pb-5">
+          {submitted ? (
+            <div className="py-2 text-center">
+              <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-primary">
+                <Gift className="h-5 w-5" />
+              </div>
+              <p className="text-sm font-medium">You&apos;re on the insider list 🎉</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                We&apos;ll send the good stuff straight to your inbox.
+              </p>
+            </div>
+          ) : (
+            <>
+              <p id="insider-prompt-desc" className="text-sm text-muted-foreground">
+                Drop your email and be first to know about{" "}
+                <span className="font-medium text-foreground">new arrivals</span>,{" "}
+                <span className="font-medium text-foreground">trending packs</span>, and{" "}
+                <span className="font-medium text-foreground">exclusive goodies</span> made for you.
+              </p>
+
+              <ul className="mt-3 space-y-1.5 text-xs text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <Bell className="h-3.5 w-3.5 text-primary" />
+                  Early access to new drops
+                </li>
+                <li className="flex items-center gap-2">
+                  <Tag className="h-3.5 w-3.5 text-primary" />
+                  Insider-only deals & bulk pricing
+                </li>
+                <li className="flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  Trends & packaging tips, no spam
+                </li>
+              </ul>
+
+              <form onSubmit={handleSubmit} className="mt-4 space-y-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  maxLength={255}
+                  disabled={loading}
+                  autoComplete="email"
+                  className="w-full rounded-full border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+                {error && <p className="px-1 text-[11px] text-destructive">{error}</p>}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-70"
+                >
+                  {loading ? "Adding you..." : "Count me in"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDismiss}
+                  className="block w-full text-center text-[11px] text-muted-foreground hover:text-foreground"
+                >
+                  No thanks, I&apos;ll miss out
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
