@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { BlogEditor, blogToFormValues } from "@/components/admin/BlogEditor";
 import { blogStore } from "@/services/blogStore";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { can } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_adminAuth/admin/blogs/$id")({
   loader: async ({ params }) => {
@@ -20,6 +22,8 @@ export const Route = createFileRoute("/_adminAuth/admin/blogs/$id")({
 function EditBlogPage() {
   const { blog } = Route.useLoaderData();
   const navigate = useNavigate();
+  const { user } = useAdminAuth();
+  const canDelete = can(user?.role, "blog:delete");
 
   return (
     <AdminLayout title={`Edit: ${blog.title}`}>
@@ -27,11 +31,15 @@ function EditBlogPage() {
         initial={blogToFormValues(blog)}
         submitLabel="Save & publish"
         onCancel={() => navigate({ to: "/admin/blogs" })}
-        onDelete={async () => {
-          if (!confirm("Delete this blog permanently?")) return;
-          await blogStore.remove(blog.id);
-          navigate({ to: "/admin/blogs" });
-        }}
+        onDelete={
+          canDelete
+            ? async () => {
+                if (!confirm("Delete this blog permanently?")) return;
+                await blogStore.remove(blog.id);
+                navigate({ to: "/admin/blogs" });
+              }
+            : undefined
+        }
         onSubmit={async (values) => {
           await blogStore.update(blog.id, values);
           navigate({ to: "/admin/blogs" });
