@@ -1,5 +1,6 @@
 import { products, industries } from "@/data/products";
 import { blogStore } from "@/services/blogStore";
+import { searchProducts as rankSearch } from "@/services/search";
 import type { Blog, BlogStatus, BlogTemplate } from "@/data/blogs";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "";
@@ -55,14 +56,12 @@ export const api = {
     return result;
   },
 
-  // TODO: GET /api/products/search?q=
-  searchProducts: async (q: string) => {
-    const lower = q.toLowerCase();
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(lower) ||
-        p.description?.toLowerCase().includes(lower),
-    );
+  // TODO: GET /api/products/search?q=&limit=
+  // Backend will return the same shape from a Postgres full-text query
+  // weighted exactly the same way (see backendSpec.md §6 "Search ranking").
+  searchProducts: async (q: string, limit?: number) => {
+    if (!q || q.trim().length < 2) return [];
+    return rankSearch(products, q, limit);
   },
 
   // TODO: GET /api/products/recommended
