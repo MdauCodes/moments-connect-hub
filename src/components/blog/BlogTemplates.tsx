@@ -120,6 +120,14 @@ function Section({ label, body, accent }: { label: string; body: string; accent?
 
 // Compact card used in lists & the homepage strip.
 export function BlogCard({ blog }: { blog: Blog }) {
+  const date = blog.publishedAt
+    ? new Date(blog.publishedAt).toLocaleDateString("en-KE", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : "";
+
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-xl">
       <div className="aspect-[16/10] overflow-hidden bg-secondary">
@@ -141,7 +149,11 @@ export function BlogCard({ blog }: { blog: Blog }) {
           {blog.title}
         </h3>
         <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{blog.excerpt}</p>
-        <span className="mt-auto pt-4 text-sm font-medium text-accent">Read story →</span>
+        <div className="mt-4 flex items-center justify-between gap-3 border-t border-border/60 pt-3 text-[11px] text-muted-foreground">
+          <span className="truncate">By {blog.author}</span>
+          {date && <span className="flex-shrink-0">{date}</span>}
+        </div>
+        <span className="mt-3 text-sm font-medium text-accent">Read story →</span>
       </div>
     </article>
   );

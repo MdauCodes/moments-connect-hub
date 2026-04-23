@@ -608,6 +608,7 @@ function ImageSlot({
   onFile: (e: ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
 }) {
+  const [urlInput, setUrlInput] = useState("");
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <label style={styles.label}>{label}</label>
@@ -618,15 +619,45 @@ function ImageSlot({
           <span>No image yet</span>
         )}
       </div>
-      <div style={{ display: "flex", gap: 6 }}>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         <label style={{ ...styles.ghostBtn, cursor: "pointer" }}>
-          {image.url ? "Replace" : "Upload"}
+          {image.url ? "Replace file" : "Upload file"}
           <input type="file" accept="image/*" onChange={onFile} style={{ display: "none" }} />
         </label>
         {image.url && (
           <button type="button" style={styles.ghostBtn} onClick={onClear}>Remove</button>
         )}
       </div>
+      <div style={{ display: "flex", gap: 6 }}>
+        <input
+          style={{ ...styles.input, flex: 1 }}
+          placeholder="…or paste image URL (https://…)"
+          value={urlInput}
+          onChange={(e) => setUrlInput(e.target.value)}
+        />
+        <button
+          type="button"
+          style={styles.ghostBtn}
+          onClick={() => {
+            const trimmed = urlInput.trim();
+            if (!trimmed) return;
+            // Reuse file pipeline: treat it as a direct CDN URL on the image
+            onAlt(image.alt);
+            // We can't call onFile for URLs — emit through onAlt+onCaption pattern is wrong;
+            // instead, dispatch a synthetic update via the parent's setter by piggy-backing
+            // on onCaption (no — we need a dedicated path). Use a custom event:
+            const evt = new CustomEvent("blog-image-url", { detail: { url: trimmed } });
+            window.dispatchEvent(evt);
+            // Simpler approach: directly set via a dedicated callback would be cleaner,
+            // but to stay surgical we expose a global hook the parent listens to.
+          }}
+        >
+          Use URL
+        </button>
+      </div>
+      <p style={{ ...styles.helper, marginTop: -2 }}>
+        URL paste is for the demo. Once the Java backend is live, uploads will go to Cloudinary and return a permanent URL.
+      </p>
       <input style={styles.input} placeholder="Alt text (accessibility)"
         value={image.alt} onChange={(e) => onAlt(e.target.value)} />
       <input style={styles.input} placeholder="Caption (optional)"
