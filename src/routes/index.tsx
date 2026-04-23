@@ -6,6 +6,7 @@ import { usePersona } from "@/contexts/PersonaContext";
 import { useBasket } from "@/contexts/BasketContext";
 import { PackagingCloud } from "@/components/PackagingCloud";
 import { FeaturedCarousel } from "@/components/FeaturedCarousel";
+import { LatestBlogsStrip } from "@/components/blog/LatestBlogsStrip";
 import { ArrowRight, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -355,6 +356,9 @@ function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Latest blog stories — sits just before the footer */}
+      <LatestBlogsStrip />
     </SiteLayout>
   );
 }

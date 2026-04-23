@@ -5,7 +5,7 @@ import logoUrl from "@/assets/moments-logo.png";
 import { categories } from "@/data/products";
 
 type NavItem = {
-  to: "/" | "/products" | "/industries" | "/about" | "/contact";
+  to: "/" | "/products" | "/industries" | "/blog" | "/about" | "/contact";
   label: string;
   hasDropdown?: boolean;
 };
@@ -14,6 +14,7 @@ const nav: readonly NavItem[] = [
   { to: "/", label: "Home" },
   { to: "/products", label: "Products", hasDropdown: true },
   { to: "/industries", label: "Industries" },
+  { to: "/blog", label: "Blog" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Get a Quote" },
 ];
