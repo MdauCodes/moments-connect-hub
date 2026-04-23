@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
+import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton";
 import { products, productOrderMessage, whatsappLink } from "@/data/products";
 import { useState } from "react";
 import { ArrowLeft, Check, MessageCircle } from "lucide-react";
@@ -23,6 +24,11 @@ export const Route = createFileRoute("/products/$slug")({
       ],
     };
   },
+  pendingComponent: () => (
+    <SiteLayout>
+      <ProductDetailSkeleton />
+    </SiteLayout>
+  ),
   notFoundComponent: () => (
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-5 py-32 text-center lg:px-8">

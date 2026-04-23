@@ -177,4 +177,67 @@
     background-image: radial-gradient(circle at 1px 1px, oklch(0.5 0.04 60 / 0.06) 1px, transparent 0);
     background-size: 4px 4px;
   }
+
+  /* Shimmer sweep — used by skeletons and progress bar */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-secondary);
+  }
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      transparent 0,
+      oklch(1 0 0 / 0.45) 50%,
+      transparent 100%
+    );
+    animation: shimmer-sweep 1.6s infinite;
+  }
+  @keyframes shimmer-sweep {
+    100% { transform: translateX(100%); }
+  }
+
+  /* Progress bar shimmer highlight */
+  .progress-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      var(--accent) 0%,
+      var(--kraft) 50%,
+      var(--accent) 100%
+    );
+    background-size: 200% 100%;
+    animation: progress-flow 1.4s linear infinite;
+    box-shadow: 0 0 10px oklch(from var(--accent) l c h / 0.6);
+  }
+  @keyframes progress-flow {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Splash logo gold-shimmer text effect */
+  .splash-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      var(--foreground) 0%,
+      var(--accent) 45%,
+      var(--kraft) 55%,
+      var(--foreground) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: splash-flow 1.8s ease-in-out infinite;
+  }
+  @keyframes splash-flow {
+    0%, 100% { background-position: 100% 0; }
+    50% { background-position: -100% 0; }
+  }
+
+  .scrollbar-hide { scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
 }
