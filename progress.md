@@ -5,7 +5,7 @@
 > **Format rule:** keep statuses in the table — write narrative only under
 > "Recent decisions" and "Next up".
 
-Last updated: 2026-04-23 (insider email capture prompt)
+Last updated: 2026-04-23 (RBAC + admin product CRUD)
 
 ---
 
@@ -64,12 +64,13 @@ Last updated: 2026-04-23 (insider email capture prompt)
 | --- | --- | --- |
 | Admin login | ✅ | `/admin/login` (mock auth via `AdminAuthContext`) |
 | Admin shell + protected routes | ✅ | `_adminAuth.tsx` + `AdminProtectedRoute` |
-| Blogs CRUD | ✅ | Full mock CRUD via `localStorage` (`blogStore`) |
-| Products management | 🟡 | Page scaffolded, no edit/create yet |
-| Enquiries inbox | 🟡 | List + detail scaffolded, no real backend |
+| Role-based access control (ADMIN vs STAFF) | ✅ | Single source of truth in `src/lib/permissions.ts`. STAFF: blogs+products+enquiries CRUD, no delete, no `/admin/staff` or `/admin/settings`. Sidebar items + destructive buttons + route guards all read from the same matrix. Mirrored in `backendSpec.md` §2.1. |
+| Blogs CRUD | ✅ | Full mock CRUD via `localStorage` (`blogStore`). Delete button gated by `blog:delete` (ADMIN only). |
+| Products CRUD | ✅ | Full create/edit/delete via `localStorage` (`productStore`). `ProductEditor` exposes name, slug, category, price, MOQ, image (file + URL paste), description, sizes, material, finish, keywords, tags, industries, and carousel flags (`isDiscount`, `isNewArrival`, `isFastMoving`, `monthlyClicks`). Delete gated by `product:delete` (ADMIN only). |
+| Enquiries inbox | ✅ | Full list + filters + detail with status flow (NEW → IN PROGRESS → CLOSED, plus extended states), assignee, internal notes, communication templates. Mock data; same shapes as `backendSpec.md` §3.5. |
 | Analytics | 🟡 | Coming-soon placeholder |
-| Staff management | 🟡 | Coming-soon placeholder |
-| Settings | 🟡 | Coming-soon placeholder |
+| Staff management | 🟡 | Coming-soon placeholder — route exists but ADMIN-only via `staff:manage` permission |
+| Settings | 🟡 | Coming-soon placeholder — route exists but ADMIN-only via `settings:manage` permission |
 
 ### 2.4 Backend integration
 
@@ -79,7 +80,7 @@ Last updated: 2026-04-23 (insider email capture prompt)
 | `src/services/api.ts` wired against contract shapes | ✅ | All methods return mock data with `// TODO:` comments listing the eventual endpoint |
 | JWT login + refresh | 🔌 | Frontend admin auth context is mock-only |
 | Cloudinary image uploads | 🔌 | URL paste is the demo bridge |
-| Real product CRUD | 🔌 | Currently reads `src/data/products.ts` |
+| Real product CRUD | 🔌 | Admin CRUD persists to `localStorage` via `productStore`; public site still reads `src/data/products.ts`. Both feed the same `Product` shape, so the swap is one `api.ts` edit. |
 | Real blog persistence | 🔌 | Currently `localStorage` via `blogStore` |
 | Email capture + enquiry submission | 🔌 | `submitLead` / `submitEnquiry` log to console |
 
@@ -103,10 +104,10 @@ Last updated: 2026-04-23 (insider email capture prompt)
 
 ## 4. Next up (priority order)
 
-1. **Admin product CRUD** — wire `/admin/products` so admins can edit name/price/flags (`isDiscount`, `isNewArrival`, `isFastMoving`) and trigger the homepage carousel from real data.
-2. **Enquiries inbox** — convert to a real list+filter view backed by `api.getEnquiries` once `POST /api/v1/enquiries` is live in Spring Boot.
-3. **Spring Boot backend kickoff** — hand `backendSpec.md` to the Java team; first vertical slice should be auth + blogs (smallest schema, already proven shape).
-4. **Cloudinary integration** — once backend image-upload endpoint exists, replace the URL-paste field in `BlogEditor.tsx` with the upload→URL response.
+1. **Spring Boot backend kickoff** — hand `backendSpec.md` to the Java team; first vertical slice should be auth + blogs (smallest schema, already proven shape), then products, then enquiries.
+2. **Wire public product list to `productStore`** — today the public site reads `src/data/products.ts` while admin writes go to `productStore`. Either merge them or wait for the real backend; pick before the next demo.
+3. **Staff management screen** — replace the coming-soon panel with invite-by-email + role assignment (`ADMIN` / `STAFF`) once `/api/v1/admin/users` is live.
+4. **Cloudinary / S3 integration** — once backend image-upload endpoint exists, replace the URL-paste field in `BlogEditor.tsx` and `ProductEditor.tsx` with the upload→URL response.
 5. **Analytics dashboard** — replace the coming-soon panel with real product-click + enquiry charts.
 6. **AI-generated blog drafts** — feature-flagged option in the blog editor that calls the Java backend's AI endpoint.
 
@@ -114,8 +115,8 @@ Last updated: 2026-04-23 (insider email capture prompt)
 
 ## 5. Known gaps / debt
 
-- Admin auth is mock-only; do **not** ship publicly until JWT auth is wired.
-- Blog `localStorage` store is per-browser — drafts created on one machine won't appear on another. Acceptable for demo, must die when backend lands.
-- Product data lives in `src/data/products.ts`; admin product page has no real persistence yet.
+- Admin auth is mock-only; do **not** ship publicly until JWT auth is wired. Role enforcement is currently UI-side only — the Spring Boot backend MUST re-check every permission server-side using the same matrix in `src/lib/permissions.ts` / `backendSpec.md` §2.1.
+- Blog and product `localStorage` stores are per-browser — content created on one machine won't appear on another. Acceptable for demo, must die when backend lands.
+- Public product listing still reads `src/data/products.ts`; admin product writes go to `productStore` (localStorage). The two are not yet reconciled.
 - No automated tests yet. Add Vitest + Playwright after the Spring Boot backend stabilises.
 - `src/routeTree.gen.ts` is auto-generated by the TanStack Router Vite plugin — never edit by hand.
