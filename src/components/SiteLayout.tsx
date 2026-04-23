@@ -8,6 +8,23 @@ import { BasketPill } from "./BasketPill";
 import { BasketDrawer } from "./BasketDrawer";
 import { PageProgressBar } from "./PageProgressBar";
 import { EmailCaptureBanner } from "./EmailCaptureBanner";
+import { AppSplash } from "./AppSplash";
+
+const SPLASH_KEY = "moments_splash_shown";
+
+function FirstVisitSplash() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (sessionStorage.getItem(SPLASH_KEY)) return;
+    sessionStorage.setItem(SPLASH_KEY, "1");
+    setShow(true);
+  }, []);
+
+  if (!show) return null;
+  return <AppSplash />;
+}
 
 function PersonaSwitchButton() {
   const { persona, setPersona } = usePersona();
@@ -45,6 +62,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   return (
     <>
+      <FirstVisitSplash />
       <PageProgressBar />
       <ScrollLock />
       <PersonaGate />
