@@ -44,36 +44,39 @@ function IndustriesPage() {
 
       <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8">
         <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-          {industries.map((ind) => (
-            <Link
-              key={ind.id}
-              to="/products"
-              search={{ industry: ind.slug }}
-              className="group flex flex-col rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-xl sm:p-8"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-2xl text-primary-foreground transition-colors group-hover:bg-accent">
-                  <span aria-hidden>{ind.icon}</span>
+          {industries.map((ind) => {
+            const Icon = ind.icon;
+            return (
+              <Link
+                key={ind.id}
+                to="/products"
+                search={{ industry: ind.slug }}
+                className="group flex flex-col rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-xl sm:p-8"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-primary-foreground transition-colors group-hover:bg-accent">
+                    <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
                 </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
-              </div>
-              <h2 className="mt-5 font-display text-xl text-foreground sm:mt-6 sm:text-2xl">
-                {ind.name}
-              </h2>
-              {ind.tagline && (
-                <p className="mt-1 text-sm font-medium text-accent">{ind.tagline}</p>
-              )}
-              <p className="mt-2 text-sm text-muted-foreground">{ind.description}</p>
-              {ind.keywords && ind.keywords.length > 0 && (
-                <p className="mt-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground/80">
-                  {ind.keywords.slice(0, 4).join(" · ")}
-                </p>
-              )}
-              <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-foreground transition-colors group-hover:text-accent">
-                See products <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-              </span>
-            </Link>
-          ))}
+                <h2 className="mt-5 font-display text-xl text-foreground sm:mt-6 sm:text-2xl">
+                  {ind.name}
+                </h2>
+                {ind.tagline && (
+                  <p className="mt-1 text-sm font-medium text-accent">{ind.tagline}</p>
+                )}
+                <p className="mt-2 text-sm text-muted-foreground">{ind.description}</p>
+                {ind.keywords && ind.keywords.length > 0 && (
+                  <p className="mt-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground/80">
+                    {ind.keywords.slice(0, 4).join(" · ")}
+                  </p>
+                )}
+                <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-foreground transition-colors group-hover:text-accent">
+                  See products <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 

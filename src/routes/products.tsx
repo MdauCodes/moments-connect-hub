@@ -172,18 +172,20 @@ function ProductsPage() {
           </button>
           {industries.map((ind) => {
             const active = selectedIndustry?.id === ind.id;
+            const Icon = ind.icon;
             return (
               <button
                 key={ind.id}
                 type="button"
                 onClick={() => setIndustrySlug(active ? null : ind.slug)}
-                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm transition-colors ${
+                className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-1.5 text-sm transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground"
                     : "cursor-pointer border border-border text-muted-foreground hover:bg-secondary"
                 }`}
               >
-                {ind.icon} {ind.name}
+                <Icon className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
+                {ind.name}
               </button>
             );
           })}

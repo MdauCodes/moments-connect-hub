@@ -31,26 +31,32 @@ export function IndustriesStrip() {
         </div>
 
         <ul className="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-          {industries.map((ind) => (
-            <li key={ind.id}>
-              <Link
-                to="/products"
-                search={{ industry: ind.slug }}
-                className="group flex h-full flex-col rounded-2xl border border-border bg-background p-5 transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-md"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <span className="text-2xl" aria-hidden>
-                    {ind.icon}
-                  </span>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
-                </div>
-                <h3 className="mt-4 font-display text-lg text-foreground">{ind.name}</h3>
-                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                  {ind.tagline ?? ind.description}
-                </p>
-              </Link>
-            </li>
-          ))}
+          {industries.map((ind) => {
+            const Icon = ind.icon;
+            return (
+              <li key={ind.id}>
+                <Link
+                  to="/products"
+                  search={{ industry: ind.slug }}
+                  className="group flex h-full flex-col rounded-2xl border border-border bg-background p-5 transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-md"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <span
+                      className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-foreground transition-colors group-hover:bg-accent/10 group-hover:text-accent"
+                      aria-hidden
+                    >
+                      <Icon className="h-5 w-5" strokeWidth={1.75} />
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
+                  </div>
+                  <h3 className="mt-4 font-display text-lg text-foreground">{ind.name}</h3>
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                    {ind.tagline ?? ind.description}
+                  </p>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </section>
