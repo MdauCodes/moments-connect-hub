@@ -10,11 +10,52 @@ interface FlaggedProduct extends Product {
   flag: Flag;
 }
 
-const flagMeta: Record<Flag, { label: string; icon: typeof Tag; tone: string }> = {
-  discount: { label: "Deal", icon: Tag, tone: "bg-accent/15 text-accent" },
-  new: { label: "New", icon: Sparkles, tone: "bg-primary/10 text-primary" },
-  fast: { label: "Fast", icon: Flame, tone: "bg-kraft/15 text-kraft" },
+const flagMeta: Record<Flag, { label: string; icon: typeof Tag; tone: string; ctaTone: string }> = {
+  discount: {
+    label: "Deal",
+    icon: Tag,
+    tone: "bg-accent/15 text-accent",
+    ctaTone: "text-accent",
+  },
+  new: {
+    label: "Mpya",
+    icon: Sparkles,
+    tone: "bg-primary/10 text-primary",
+    ctaTone: "text-primary",
+  },
+  fast: {
+    label: "Hot",
+    icon: Flame,
+    tone: "bg-kraft/15 text-kraft",
+    ctaTone: "text-kraft",
+  },
 };
+
+/**
+ * Builds the per-flag "scanning brain" hook + CTA copy.
+ * Discount → savings-led. Fast → social proof. New → freshness in Sheng.
+ */
+function getCardCopy(p: FlaggedProduct): { hook: string; cta: string } {
+  switch (p.flag) {
+    case "discount":
+      return {
+        hook: p.discountPercent
+          ? `Save ${p.discountPercent}% on bulk orders`
+          : "Limited-time bulk deal",
+        cta: p.discountPercent ? `Get ${p.discountPercent}% off` : "Grab the deal",
+      };
+    case "fast":
+      return {
+        hook: "Restocked weekly — brands keep reordering",
+        cta: "People like these",
+      };
+    case "new":
+      return {
+        hook: "Fresh in the warehouse this week",
+        cta: "Hizi zimeingia jana",
+      };
+  }
+}
 
 /**
  * Compact horizontal carousel showcasing products flagged by admin as
