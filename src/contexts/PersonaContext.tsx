@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-export type Persona = "sme" | "corporate" | null;
+export type Persona = "sme" | "corporate" | "individual" | null;
 
 type PersonaContextValue = {
   persona: Persona;
@@ -18,7 +18,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (stored === "sme" || stored === "corporate") {
+      if (stored === "sme" || stored === "corporate" || stored === "individual") {
         setPersonaState(stored);
       }
     } catch {
