@@ -31,7 +31,7 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-const trustLogos = ["JAVA HOUSE", "KFC", "SAFARICOM", "AIRTEL", "ARTCAFFE", "NAIVAS"];
+// const trustLogos = ["JAVA HOUSE", "KFC", "SAFARICOM", "AIRTEL", "ARTCAFFE", "NAIVAS"]; // re-enable with trust strip
 
 const smeValueProps = [
   { icon: Sparkles, title: "Low MOQ from 100 units", body: "Pilot a small batch before scaling — perfect for new menus and product launches." },
