@@ -8,7 +8,7 @@ enquiry funnel, the blog, **and** the staff/admin dashboard — all in one
 TanStack Start app, ready to plug into a Java Spring Boot backend.
 
 > 📄 Companion docs:
-> - [`backendSpec.md`](./backendSpec.md) — full Spring Boot API contract (auth, schema, endpoints, DTOs)
+> - [`backendSpec.md`](./backendSpec.md) — **paste-ready** Spring Boot build brief (20 sections: stack, package layout, full Flyway SQL, every endpoint + DTO, role matrix, search algorithm, security checklist, tests, Docker/CI, acceptance criteria). Designed so an autonomous coding agent can build the backend end-to-end without follow-up questions.
 > - [`progress.md`](./progress.md) — living status tracker; update at the end of every session
 
 ---
