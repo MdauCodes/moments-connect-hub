@@ -97,7 +97,7 @@ export function EmailCaptureBanner({ onVisibilityChange }: EmailCaptureBannerPro
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-wrap items-center justify-between gap-4 bg-primary px-5 py-3 text-primary-foreground">
       {submitted ? (
-        <p className="mx-auto text-sm font-medium">Thank you! 🎉 You&apos;re on the list.</p>
+        <p className="mx-auto text-sm font-medium">Thank you. You&apos;re on the list.</p>
       ) : (
         <>
           <p className="text-sm">
