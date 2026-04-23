@@ -9,7 +9,17 @@ export const Route = createFileRoute("/_adminAuth/admin/blogs")({
   component: AdminBlogsPage,
 });
 
-const styles: Record<string, CSSProperties | ((...args: never[]) => CSSProperties)> = {
+const badgeStyle = (tone: "ok" | "muted"): CSSProperties => ({
+  display: "inline-block",
+  padding: "2px 8px",
+  borderRadius: 999,
+  fontSize: 10.5,
+  fontWeight: 600,
+  background: tone === "ok" ? "#1E3A2A" : "#1E2535",
+  color: tone === "ok" ? "#9AE6B4" : "#8896A8",
+});
+
+const styles: Record<string, CSSProperties> = {
   toolbar: {
     display: "flex",
     alignItems: "center",
@@ -51,15 +61,6 @@ const styles: Record<string, CSSProperties | ((...args: never[]) => CSSPropertie
     color: "#CBD5E0",
     borderBottom: "1px solid #1E2535",
   },
-  badge: (tone: "ok" | "muted") => ({
-    display: "inline-block",
-    padding: "2px 8px",
-    borderRadius: 999,
-    fontSize: 10.5,
-    fontWeight: 600,
-    background: tone === "ok" ? "#1E3A2A" : "#1E2535",
-    color: tone === "ok" ? "#9AE6B4" : "#8896A8",
-  }),
   link: { color: "#9AE6B4", textDecoration: "none", fontWeight: 500 },
   emptyState: {
     background: "#161B27",

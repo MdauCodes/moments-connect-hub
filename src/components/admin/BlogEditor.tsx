@@ -327,7 +327,7 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
               key={t}
               type="button"
               onClick={() => changeTemplate(t)}
-              style={styles.templateBtn(values.template === t)}
+              style={templateBtnStyle(values.template === t)}
             >
               <div style={styles.templateLabel}>{TEMPLATE_META[t].label}</div>
               <div style={styles.templateBlurb}>{TEMPLATE_META[t].blurb}</div>
