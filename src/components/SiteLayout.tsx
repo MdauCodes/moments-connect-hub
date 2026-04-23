@@ -8,6 +8,7 @@ import { BasketPill } from "./BasketPill";
 import { BasketDrawer } from "./BasketDrawer";
 import { PageProgressBar } from "./PageProgressBar";
 import { EmailCaptureBanner } from "./EmailCaptureBanner";
+import { EmailInsiderPrompt } from "./EmailInsiderPrompt";
 import { AppSplash } from "./AppSplash";
 
 const SPLASH_KEY = "moments_splash_shown";
@@ -78,6 +79,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
         <BasketPill onOpen={() => setDrawerOpen(true)} liftAbove={bannerVisible} />
         <BasketDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
         <EmailCaptureBanner onVisibilityChange={setBannerVisible} />
+        <EmailInsiderPrompt />
       </div>
     </>
   );

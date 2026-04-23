@@ -163,13 +163,16 @@ Plus join table `product_industries(product_id, industry_id)`.
 Items: `enquiry_items(id, enquiry_id, product_id, qty, size, finish, notes)`.
 
 ### 3.6 Leads (`leads`)
-| Column | Type |
-| --- | --- |
-| id | UUID PK |
-| email | TEXT NOT NULL |
-| persona | TEXT |
-| source | TEXT | `email_capture_banner` / `footer` / etc. |
-| created_at | TIMESTAMPTZ |
+| Column | Type | Notes |
+| --- | --- | --- |
+| id | UUID PK | |
+| email | TEXT NOT NULL | Validated `@Email`, max 255 |
+| persona | TEXT | `sme` / `corporate` / `individual` / `unknown` |
+| source | TEXT | `email_capture_banner` (bottom bar) / `insider_prompt` (slide-in) / `footer` |
+| trigger | TEXT NULL | For `insider_prompt` only: `exit_intent` / `scroll_50` / `idle_30s`. Useful for measuring which trigger converts best. |
+| created_at | TIMESTAMPTZ | |
+
+`UNIQUE (email)` — second submission from the same email should return `200` with the existing record id (idempotent), not `409`. The same email may be submitted from both the banner and the insider prompt; treat them as one lead and update `source` to whichever fired first.
 
 ### 3.7 Product clicks (`product_clicks`)
 | Column | Type |
@@ -426,7 +429,24 @@ not strict mode).
 
 ---
 
-## 7. File storage
+## 7. Lead capture surfaces (frontend → backend)
+
+The frontend has **two** lead-capture surfaces that both POST to the same
+`/api/v1/public/leads` endpoint. The backend must accept the optional
+`source` and `trigger` fields documented in §3.6 and de-duplicate by email.
+
+| Surface | Component | When it fires | `source` | `trigger` |
+| --- | --- | --- | --- | --- |
+| Bottom banner | `EmailCaptureBanner` | Page load (suppressed for 7 days after dismiss) | `email_capture_banner` | — |
+| Insider slide-in | `EmailInsiderPrompt` | First of: exit-intent / 50% scroll / 30s idle (suppressed for 3 days after dismiss, never if banner already submitted) | `insider_prompt` | `exit_intent` \| `scroll_50` \| `idle_30s` |
+
+Frontend currently sends `{ email, persona }` — backend should accept the
+extended `{ email, persona, source, trigger }` payload from day one even if
+older clients only send the first two (treat missing fields as `null`).
+
+---
+
+## 8. File storage
 
 - Bucket `moments-uploads/<env>/<entity>/<uuid>.<ext>`.
 - Generate signed PUT URLs for direct client-to-S3 upload, or accept

@@ -5,7 +5,7 @@
 > **Format rule:** keep statuses in the table — write narrative only under
 > "Recent decisions" and "Next up".
 
-Last updated: 2026-04-23 (search + market segmentation)
+Last updated: 2026-04-23 (insider email capture prompt)
 
 ---
 
@@ -38,6 +38,7 @@ Last updated: 2026-04-23 (search + market segmentation)
 | Persona gate ("Viewing as …") | ✅ | `PersonaContext` + `PersonaGate` |
 | Basket pill + drawer | ✅ | `BasketContext`, `BasketPill`, `BasketDrawer` |
 | Email capture banner (footer-stack aware) | ✅ | Auto-offsets persona pill & basket pill via `liftAbove` prop |
+| Insider email capture prompt (slide-in) | ✅ | `EmailInsiderPrompt` — exit-intent + 50% scroll + 30s idle, slide-in card bottom-right, insider-led copy, 3-day re-prompt cap, suppressed once banner submitted |
 | WhatsApp float | ✅ | `WhatsAppFloat` |
 | Page progress bar | ✅ | `PageProgressBar` |
 | Branded splash screen | ✅ | `AppSplash` — themed shimmer, navbar logo |
@@ -86,6 +87,7 @@ Last updated: 2026-04-23 (search + market segmentation)
 
 ## 3. Recent decisions (newest first)
 
+- **2026-04-23** — **Insider email capture prompt:** new `EmailInsiderPrompt` slide-in card layered on top of the existing bottom banner. Triggers on first of (exit-intent / 50% scroll depth / 30s idle), copy is **insider-led** ("be first to know about new arrivals, trends & exclusive goodies"), shows once per 3 days, never re-shows after submit, and is fully suppressed if the user has already submitted via the bottom banner (shared `moments_email_banner` key). Same `api.submitLead(email, persona)` endpoint as the banner — no new backend contract needed. See `backendSpec.md` §7.
 - **2026-04-23** — **Market segmentation:** industries expanded from 7 ad-hoc to a canonical 8-segment taxonomy (F&B, Agriculture, Textile & Apparel, E-commerce & Mailers, Gifting & Events, Beauty & Personal Care, Pharma & Health, Industrial & Hardware) with stable slugs + IDs + keywords. Added home `IndustriesStrip`, rebuilt `/industries` page, added `industry` URL search param to `/products` so industry chips and SearchCommand links share state.
 - **2026-04-23** — **Global ranked search:** new `SearchCommand` overlay (desktop bar + mobile icon + ⌘K), uses dedicated `src/services/search.ts` weighted-ranking engine. Order: name → popularity (capped boost) → industry → description → category/material/finish/sizes/tags/keywords. Shimmer skeleton during fetch, recent searches in `localStorage`, suggested queries, browse-by-industry idle state. `Product` gained optional `material`, `finish`, `keywords` fields and the contract is mirrored in `backendSpec.md` §6.
 - **2026-04-23** — Added "Suggested next read" block on blog detail; cards now show author + date; image URL paste added alongside file upload (temporary until Cloudinary).
