@@ -10,11 +10,52 @@ interface FlaggedProduct extends Product {
   flag: Flag;
 }
 
-const flagMeta: Record<Flag, { label: string; icon: typeof Tag; tone: string }> = {
-  discount: { label: "Deal", icon: Tag, tone: "bg-accent/15 text-accent" },
-  new: { label: "New", icon: Sparkles, tone: "bg-primary/10 text-primary" },
-  fast: { label: "Fast", icon: Flame, tone: "bg-kraft/15 text-kraft" },
+const flagMeta: Record<Flag, { label: string; icon: typeof Tag; tone: string; ctaTone: string }> = {
+  discount: {
+    label: "Deal",
+    icon: Tag,
+    tone: "bg-accent/15 text-accent",
+    ctaTone: "text-accent",
+  },
+  new: {
+    label: "Mpya",
+    icon: Sparkles,
+    tone: "bg-primary/10 text-primary",
+    ctaTone: "text-primary",
+  },
+  fast: {
+    label: "Hot",
+    icon: Flame,
+    tone: "bg-kraft/15 text-kraft",
+    ctaTone: "text-kraft",
+  },
 };
+
+/**
+ * Builds the per-flag "scanning brain" hook + CTA copy.
+ * Discount → savings-led. Fast → social proof. New → freshness in Sheng.
+ */
+function getCardCopy(p: FlaggedProduct): { hook: string; cta: string } {
+  switch (p.flag) {
+    case "discount":
+      return {
+        hook: p.discountPercent
+          ? `Save ${p.discountPercent}% on bulk orders`
+          : "Limited-time bulk deal",
+        cta: p.discountPercent ? `Get ${p.discountPercent}% off` : "Grab the deal",
+      };
+    case "fast":
+      return {
+        hook: "Restocked weekly — brands keep reordering",
+        cta: "People like these",
+      };
+    case "new":
+      return {
+        hook: "Fresh in the warehouse this week",
+        cta: "Hizi zimeingia jana",
+      };
+  }
+}
 
 /**
  * Compact horizontal carousel showcasing products flagged by admin as
@@ -133,40 +174,48 @@ export function FeaturedCarousel() {
             {items.map((p) => {
               const meta = flagMeta[p.flag];
               const Icon = meta.icon;
+              const copy = getCardCopy(p);
               return (
                 <Link
                   key={p.id}
                   to="/products/$slug"
                   params={{ slug: p.slug }}
                   data-carousel-card
-                  className="group flex w-[58%] shrink-0 snap-start gap-3 rounded-xl border border-border bg-card p-2.5 transition-all hover:-translate-y-0.5 hover:shadow-md sm:w-[260px] sm:p-3"
+                  className="group flex w-[72%] shrink-0 snap-start gap-3 rounded-xl border border-border bg-card p-2.5 transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md sm:w-[300px] sm:p-3"
                 >
-                  <div className="aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-secondary sm:h-20 sm:w-20">
+                  <div className="relative aspect-square h-[88px] w-[88px] shrink-0 overflow-hidden rounded-lg bg-secondary sm:h-24 sm:w-24">
                     <img
                       src={p.image}
                       alt={p.name}
                       loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                    {p.flag === "discount" && p.discountPercent ? (
+                      <span className="absolute left-1 top-1 rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-bold text-accent-foreground shadow-sm">
+                        -{p.discountPercent}%
+                      </span>
+                    ) : null}
                   </div>
                   <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-                    <div>
+                    <div className="min-w-0">
                       <span
                         className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${meta.tone}`}
                       >
                         <Icon className="h-2.5 w-2.5" />
                         {meta.label}
-                        {p.flag === "discount" && p.discountPercent ? ` ${p.discountPercent}%` : ""}
                       </span>
                       <h3 className="mt-1 truncate font-display text-sm font-medium text-foreground sm:text-base">
                         {p.name}
                       </h3>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">
-                        MOQ {p.moq.toLocaleString()}
+                      <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
+                        {copy.hook}
                       </p>
                     </div>
-                    <span className="mt-1 inline-flex items-center gap-0.5 text-[11px] font-medium text-accent">
-                      View <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                    <span
+                      className={`mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold ${meta.ctaTone}`}
+                    >
+                      {copy.cta}
+                      <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                     </span>
                   </div>
                 </Link>
