@@ -1,0 +1,180 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, ChevronLeft, ChevronRight, Flame, Sparkles, Tag } from "lucide-react";
+import { api } from "@/services/api";
+import type { Product } from "@/data/products";
+
+type Flag = "discount" | "new" | "fast";
+
+interface FlaggedProduct extends Product {
+  flag: Flag;
+}
+
+const flagMeta: Record<Flag, { label: string; icon: typeof Tag; tone: string }> = {
+  discount: { label: "Deal", icon: Tag, tone: "bg-accent/15 text-accent" },
+  new: { label: "New", icon: Sparkles, tone: "bg-primary/10 text-primary" },
+  fast: { label: "Fast", icon: Flame, tone: "bg-kraft/15 text-kraft" },
+};
+
+/**
+ * Compact horizontal carousel showcasing products flagged by admin as
+ * discounted, new arrivals, or fast moving. Mocked via api.getProducts
+ * until the backend is wired up. Renders nothing if no products qualify.
+ */
+export function FeaturedCarousel() {
+  const [items, setItems] = useState<FlaggedProduct[] | null>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [discount, fresh, fast] = await Promise.all([
+        api.getProducts({ isDiscount: true }),
+        api.getProducts({ isNewArrival: true }),
+        api.getProducts({ isFastMoving: true }),
+      ]);
+      const merged = new Map<string, FlaggedProduct>();
+      discount.forEach((p) => merged.set(p.id, { ...p, flag: "discount" }));
+      fresh.forEach((p) => {
+        if (!merged.has(p.id)) merged.set(p.id, { ...p, flag: "new" });
+      });
+      fast.forEach((p) => {
+        if (!merged.has(p.id)) merged.set(p.id, { ...p, flag: "fast" });
+      });
+      if (!cancelled) setItems(Array.from(merged.values()));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const updateScrollState = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanPrev(el.scrollLeft > 4);
+    setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+
+  useEffect(() => {
+    if (!items || items.length === 0) return;
+    updateScrollState();
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      el.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [items]);
+
+  const scrollBy = (dir: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const card = el.querySelector<HTMLElement>("[data-carousel-card]");
+    const step = card ? card.offsetWidth + 16 : el.clientWidth * 0.8;
+    el.scrollBy({ left: step * dir, behavior: "smooth" });
+  };
+
+  const heading = useMemo(() => "Picks of the moment", []);
+
+  // Render nothing while loading to avoid layout flash
+  if (items === null) return null;
+  // Empty state: keep the heading per user preference
+  const isEmpty = items.length === 0;
+
+  return (
+    <section className="border-t border-border bg-background">
+      <div className="mx-auto max-w-7xl px-5 py-8 sm:py-10 lg:px-8 lg:py-12">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-accent sm:text-xs">
+              Curated highlights
+            </p>
+            <h2 className="mt-1.5 font-display text-xl font-medium text-foreground sm:text-2xl lg:text-3xl">
+              {heading}
+            </h2>
+          </div>
+          {!isEmpty && (
+            <div className="hidden items-center gap-1.5 sm:flex">
+              <button
+                type="button"
+                onClick={() => scrollBy(-1)}
+                disabled={!canPrev}
+                aria-label="Scroll left"
+                className="grid h-9 w-9 place-items-center rounded-full border border-border bg-background text-foreground/70 transition-all hover:bg-secondary disabled:opacity-30"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollBy(1)}
+                disabled={!canNext}
+                aria-label="Scroll right"
+                className="grid h-9 w-9 place-items-center rounded-full border border-border bg-background text-foreground/70 transition-all hover:bg-secondary disabled:opacity-30"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {isEmpty ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            Nothing featured right now — check back soon.
+          </p>
+        ) : (
+          <div
+            ref={scrollerRef}
+            className="scrollbar-hide mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 sm:gap-4"
+          >
+            {items.map((p) => {
+              const meta = flagMeta[p.flag];
+              const Icon = meta.icon;
+              return (
+                <Link
+                  key={p.id}
+                  to="/products/$slug"
+                  params={{ slug: p.slug }}
+                  data-carousel-card
+                  className="group flex w-[58%] shrink-0 snap-start gap-3 rounded-xl border border-border bg-card p-2.5 transition-all hover:-translate-y-0.5 hover:shadow-md sm:w-[260px] sm:p-3"
+                >
+                  <div className="aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-secondary sm:h-20 sm:w-20">
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+                    <div>
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${meta.tone}`}
+                      >
+                        <Icon className="h-2.5 w-2.5" />
+                        {meta.label}
+                        {p.flag === "discount" && p.discountPercent ? ` ${p.discountPercent}%` : ""}
+                      </span>
+                      <h3 className="mt-1 truncate font-display text-sm font-medium text-foreground sm:text-base">
+                        {p.name}
+                      </h3>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        MOQ {p.moq.toLocaleString()}
+                      </p>
+                    </div>
+                    <span className="mt-1 inline-flex items-center gap-0.5 text-[11px] font-medium text-accent">
+                      View <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

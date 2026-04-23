@@ -5,6 +5,7 @@ import { categories, products, whatsappLink } from "@/data/products";
 import { usePersona } from "@/contexts/PersonaContext";
 import { useBasket } from "@/contexts/BasketContext";
 import { PackagingCloud } from "@/components/PackagingCloud";
+import { FeaturedCarousel } from "@/components/FeaturedCarousel";
 import { ArrowRight, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -134,7 +135,10 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Trust strip */}
+      {/*
+        Trust strip — temporarily hidden until brand permissions are confirmed.
+        Uncomment once the listed brands have approved use of their names/logos.
+
       <section className="border-y border-border bg-background">
         <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
           <p className="text-center text-xs uppercase tracking-[0.25em] text-muted-foreground">
@@ -149,6 +153,10 @@ function HomePage() {
           </div>
         </div>
       </section>
+      */}
+
+      {/* Curated picks: discounts / new arrivals / fast movers (admin-flagged) */}
+      <FeaturedCarousel />
 
       {/* Categories */}
       <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-28">

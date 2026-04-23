@@ -30,7 +30,11 @@ function readStoredState(): "hidden" | "show" {
   }
 }
 
-export function EmailCaptureBanner() {
+interface EmailCaptureBannerProps {
+  onVisibilityChange?: (visible: boolean) => void;
+}
+
+export function EmailCaptureBanner({ onVisibilityChange }: EmailCaptureBannerProps = {}) {
   const { persona } = usePersona();
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState("");
@@ -42,6 +46,10 @@ export function EmailCaptureBanner() {
     if (!EMAIL_CAPTURE_ENABLED) return;
     setVisible(readStoredState() === "show");
   }, []);
+
+  useEffect(() => {
+    onVisibilityChange?.(visible);
+  }, [visible, onVisibilityChange]);
 
   useEffect(() => {
     if (!submitted) return;
