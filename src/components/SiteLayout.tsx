@@ -26,15 +26,17 @@ function FirstVisitSplash() {
   return <AppSplash />;
 }
 
-function PersonaSwitchButton() {
+function PersonaSwitchButton({ liftAbove }: { liftAbove: boolean }) {
   const { persona, setPersona } = usePersona();
   if (persona === null) return null;
-  const label = persona === "sme" ? "SME" : "Corporate";
+  const label = persona === "sme" ? "SME" : persona === "corporate" ? "Corporate" : "Individual";
   return (
     <button
       type="button"
       onClick={() => setPersona(null)}
-      className="fixed bottom-4 left-4 z-40 inline-flex items-center gap-1 rounded-full border border-border bg-background/90 px-2.5 py-1 text-[11px] font-medium text-foreground/80 shadow-sm backdrop-blur transition-colors hover:bg-secondary sm:bottom-6 sm:left-6 sm:px-3 sm:py-1.5 sm:text-xs"
+      className={`fixed left-4 z-40 inline-flex items-center gap-1 rounded-full border border-border bg-background/90 px-2.5 py-1 text-[11px] font-medium text-foreground/80 shadow-sm backdrop-blur transition-all duration-300 hover:bg-secondary sm:left-6 sm:px-3 sm:py-1.5 sm:text-xs ${
+        liftAbove ? "bottom-24 sm:bottom-24" : "bottom-4 sm:bottom-6"
+      }`}
       aria-label="Switch persona"
     >
       <span className="text-muted-foreground">Viewing as {label}</span>
@@ -60,6 +62,7 @@ function ScrollLock() {
 
 function LayoutShell({ children }: { children: ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [bannerVisible, setBannerVisible] = useState(false);
   return (
     <>
       <FirstVisitSplash />
@@ -71,10 +74,10 @@ function LayoutShell({ children }: { children: ReactNode }) {
         <main className="flex-1">{children}</main>
         <SiteFooter />
         <WhatsAppFloat />
-        <PersonaSwitchButton />
-        <BasketPill onOpen={() => setDrawerOpen(true)} />
+        <PersonaSwitchButton liftAbove={bannerVisible} />
+        <BasketPill onOpen={() => setDrawerOpen(true)} liftAbove={bannerVisible} />
         <BasketDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
-        <EmailCaptureBanner />
+        <EmailCaptureBanner onVisibilityChange={setBannerVisible} />
       </div>
     </>
   );

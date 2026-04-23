@@ -218,24 +218,45 @@
     100% { background-position: -200% 0; }
   }
 
-  /* Splash logo gold-shimmer text effect */
-  .splash-shimmer {
+  /* Splash logo themed shimmer — sweeps an accent/kraft highlight across the logo */
+  .splash-logo-wrap {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    border-radius: 0.75rem;
+  }
+  .splash-logo-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      110deg,
+      transparent 30%,
+      oklch(from var(--accent) l c h / 0.55) 50%,
+      oklch(from var(--kraft) l c h / 0.4) 55%,
+      transparent 70%
+    );
+    transform: translateX(-100%);
+    animation: splash-flow 1.8s ease-in-out infinite;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .splash-tagline {
     background-image: linear-gradient(
       90deg,
-      var(--foreground) 0%,
-      var(--accent) 45%,
-      var(--kraft) 55%,
-      var(--foreground) 100%
+      var(--muted-foreground) 0%,
+      var(--accent) 50%,
+      var(--muted-foreground) 100%
     );
     background-size: 200% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: splash-flow 1.8s ease-in-out infinite;
+    animation: splash-flow 2.2s ease-in-out infinite;
   }
   @keyframes splash-flow {
-    0%, 100% { background-position: 100% 0; }
-    50% { background-position: -100% 0; }
+    0% { transform: translateX(-100%); background-position: 100% 0; }
+    100% { transform: translateX(100%); background-position: -100% 0; }
   }
 
   .scrollbar-hide { scrollbar-width: none; }

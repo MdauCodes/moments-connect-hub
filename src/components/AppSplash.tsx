@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
+import logoUrl from "@/assets/moments-logo.png";
 
 /**
- * Initial app splash. Shows a branded wordmark with a gold shimmer sweep,
- * then fades out once the router has hydrated. Only rendered on the very
- * first mount (per session) — subsequent route changes use PageProgressBar.
+ * Initial app splash. Mirrors the navbar branding (logo + small tagline)
+ * with a themed accent/kraft shimmer sweep across the logo. Fades out
+ * once the router has hydrated. Only rendered on the very first mount
+ * per session — subsequent route changes use PageProgressBar.
  */
 export function AppSplash() {
   const [hidden, setHidden] = useState(false);
   const [removed, setRemoved] = useState(false);
 
   useEffect(() => {
-    // Give the first paint a moment, then fade.
-    const fadeTimer = setTimeout(() => setHidden(true), 450);
-    const removeTimer = setTimeout(() => setRemoved(true), 900);
+    const fadeTimer = setTimeout(() => setHidden(true), 500);
+    const removeTimer = setTimeout(() => setRemoved(true), 950);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
@@ -27,12 +28,19 @@ export function AppSplash() {
       className="fixed inset-0 z-[200] flex items-center justify-center bg-background transition-opacity duration-500 ease-out"
       style={{ opacity: hidden ? 0 : 1, pointerEvents: hidden ? "none" : "auto" }}
     >
-      <div className="flex flex-col items-center gap-4">
-        <span className="splash-shimmer font-display text-4xl font-medium tracking-tight sm:text-5xl">
-          Moments
+      <div className="flex flex-col items-center gap-3">
+        <span className="splash-logo-wrap">
+          <img
+            src={logoUrl}
+            alt=""
+            width={180}
+            height={52}
+            className="h-12 w-auto sm:h-14"
+            draggable={false}
+          />
         </span>
-        <span className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
-          Packaging Kenya
+        <span className="splash-tagline text-[10px] font-medium uppercase tracking-[0.32em] sm:text-xs">
+          Packaging (K) Limited
         </span>
       </div>
     </div>
