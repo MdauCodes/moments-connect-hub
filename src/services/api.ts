@@ -1,4 +1,6 @@
 import { products, industries } from "@/data/products";
+import { blogStore } from "@/services/blogStore";
+import type { Blog, BlogStatus, BlogTemplate } from "@/data/blogs";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "";
 void API_URL;
@@ -6,9 +8,24 @@ void API_URL;
 export const api = {
   // TODO: GET /api/config
   getConfig: async () => ({
-    blogsEnabled: false,
+    blogsEnabled: true,
     emailCaptureEnabled: true,
   }),
+
+  // TODO: GET /api/blogs?status=published
+  getBlogs: async (params?: {
+    status?: BlogStatus;
+    template?: BlogTemplate;
+    limit?: number;
+  }): Promise<Blog[]> => blogStore.list(params),
+
+  // TODO: GET /api/blogs/{slug}
+  getBlogBySlug: async (slug: string): Promise<Blog | null> =>
+    blogStore.getBySlug(slug),
+
+  // TODO: GET /api/blogs/latest?limit=3 (published only)
+  getLatestBlogs: async (limit = 3): Promise<Blog[]> =>
+    blogStore.list({ status: "published", limit }),
 
   // TODO: GET /api/products
   getProducts: async (params?: {
