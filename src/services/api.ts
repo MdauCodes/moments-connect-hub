@@ -27,6 +27,18 @@ export const api = {
   getLatestBlogs: async (limit = 3): Promise<Blog[]> =>
     blogStore.list({ status: "published", limit }),
 
+  // TODO: GET /api/blogs/{slug}/related?limit=2
+  getRelatedBlogs: async (excludeSlug: string, limit = 2): Promise<Blog[]> => {
+    const all = await blogStore.list({ status: "published" });
+    const others = all.filter((b) => b.slug !== excludeSlug);
+    // Shuffle deterministically-ish then slice
+    for (let i = others.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [others[i], others[j]] = [others[j], others[i]];
+    }
+    return others.slice(0, limit);
+  },
+
   // TODO: GET /api/products
   getProducts: async (params?: {
     industryId?: string;
