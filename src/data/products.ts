@@ -4,6 +4,17 @@ import boxesImg from "@/assets/cat-boxes.jpg";
 import labelsImg from "@/assets/cat-labels.jpg";
 import giftingImg from "@/assets/cat-gifting.jpg";
 import mailersImg from "@/assets/cat-mailers.jpg";
+import {
+  UtensilsCrossed,
+  Wheat,
+  Shirt,
+  Package,
+  Gift,
+  Sparkles,
+  Pill,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
 
 export const WHATSAPP_NUMBER = "254700000000"; // placeholder — replace with client number
 export const COMPANY_EMAIL = "sales@momentspackaging.co.ke";
@@ -15,7 +26,8 @@ export interface Industry {
   id: string;
   name: string;
   slug: string;
-  icon: string; // emoji used by chips/lists
+  /** Lucide icon component rendered in chips/lists. */
+  icon: LucideIcon;
   description: string;
   /** Short tagline used on the home strip + /industries hero card. */
   tagline?: string;
@@ -35,7 +47,7 @@ export const industries: Industry[] = [
     id: "1",
     name: "Food & Beverage",
     slug: "food-beverage",
-    icon: "🍔",
+    icon: UtensilsCrossed,
     description: "Restaurants, cafés, cloud kitchens & takeaways.",
     tagline: "From the first sip to the last bite.",
     keywords: ["restaurant", "cafe", "coffee", "takeaway", "delivery", "fnb", "kitchen", "bakery", "juice", "drinks"],
@@ -44,7 +56,7 @@ export const industries: Industry[] = [
     id: "2",
     name: "Agriculture",
     slug: "agriculture",
-    icon: "🌾",
+    icon: Wheat,
     description: "Farm produce, seeds, agro-processed goods & exports.",
     tagline: "Field to shelf — packed to last.",
     keywords: ["farm", "agro", "produce", "seeds", "grain", "tea", "coffee beans", "horticulture", "export"],
@@ -53,7 +65,7 @@ export const industries: Industry[] = [
     id: "3",
     name: "Textile & Apparel",
     slug: "textile-apparel",
-    icon: "🧵",
+    icon: Shirt,
     description: "Fashion brands, tailors, fabric & garment exporters.",
     tagline: "Packaging your customers want to keep.",
     keywords: ["fashion", "clothing", "garments", "boutique", "tailor", "fabric", "apparel"],
@@ -62,7 +74,7 @@ export const industries: Industry[] = [
     id: "4",
     name: "E-commerce & Mailers",
     slug: "ecommerce-mailers",
-    icon: "📦",
+    icon: Package,
     description: "Online sellers, D2C brands & courier-ready packs.",
     tagline: "Built for the unboxing reel.",
     keywords: ["online store", "d2c", "shipping", "courier", "instagram shop", "tiktok shop", "mailer"],
@@ -71,7 +83,7 @@ export const industries: Industry[] = [
     id: "5",
     name: "Gifting & Events",
     slug: "gifting-events",
-    icon: "🎁",
+    icon: Gift,
     description: "Weddings, birthdays, corporate hampers & event swag.",
     tagline: "Make the moment memorable.",
     keywords: ["wedding", "birthday", "hamper", "gift", "events", "corporate gifting", "swag", "favours"],
@@ -80,7 +92,7 @@ export const industries: Industry[] = [
     id: "6",
     name: "Beauty & Personal Care",
     slug: "beauty-personal-care",
-    icon: "💄",
+    icon: Sparkles,
     description: "Skincare, haircare, candles, soap & wellness brands.",
     tagline: "Shelf-ready packaging that sells itself.",
     keywords: ["skincare", "cosmetics", "haircare", "candles", "soap", "spa", "wellness", "beauty"],
@@ -89,7 +101,7 @@ export const industries: Industry[] = [
     id: "7",
     name: "Pharma & Health",
     slug: "pharma-health",
-    icon: "💊",
+    icon: Pill,
     description: "Pharmacies, supplements, clinics & medical supplies.",
     tagline: "Compliant. Tamper-evident. On time.",
     keywords: ["pharmacy", "medicine", "supplements", "clinic", "medical", "health", "drugs"],
@@ -98,7 +110,7 @@ export const industries: Industry[] = [
     id: "8",
     name: "Industrial & Hardware",
     slug: "industrial-hardware",
-    icon: "🛠️",
+    icon: Wrench,
     description: "Manufacturers, hardware brands & B2B suppliers.",
     tagline: "Heavy-duty packs that survive the warehouse.",
     keywords: ["industrial", "hardware", "manufacturing", "tools", "spares", "b2b", "wholesale"],

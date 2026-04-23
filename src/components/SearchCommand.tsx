@@ -252,19 +252,22 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
               <section>
                 <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Browse industries</p>
                 <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {allIndustries.map((ind) => (
-                    <li key={ind.id}>
-                      <Link
-                        to="/products"
-                        search={{ industry: ind.slug }}
-                        onClick={onClose}
-                        className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground transition-all hover:-translate-y-0.5 hover:shadow-sm"
-                      >
-                        <span aria-hidden>{ind.icon}</span>
-                        <span className="truncate">{ind.name}</span>
-                      </Link>
-                    </li>
-                  ))}
+                  {allIndustries.map((ind) => {
+                    const Icon = ind.icon;
+                    return (
+                      <li key={ind.id}>
+                        <Link
+                          to="/products"
+                          search={{ industry: ind.slug }}
+                          onClick={onClose}
+                          className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground transition-all hover:-translate-y-0.5 hover:shadow-sm"
+                        >
+                          <Icon className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.75} aria-hidden />
+                          <span className="truncate">{ind.name}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             </div>
