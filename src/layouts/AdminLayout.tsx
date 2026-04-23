@@ -8,6 +8,7 @@ import {
   Settings,
   Bell,
   Search,
+  FileText,
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
@@ -28,6 +29,7 @@ interface NavItem {
 const mainNav: NavItem[] = [
   { label: "Enquiries", to: "/admin/enquiries", icon: LayoutList, badge: 7 },
   { label: "Products", to: "/admin/products", icon: Package },
+  { label: "Blogs", to: "/admin/blogs", icon: FileText },
   { label: "Analytics", to: "/admin/analytics", icon: BarChart2 },
 ];
 
