@@ -206,7 +206,7 @@ export function emptyFormValues(): BlogFormValues {
     status: "draft",
     coverImage: { url: "", alt: "" },
     body: emptyBody("educative"),
-    author: "Moments Team",
+    author: "Moments Packaging Director",
     tags: [],
   };
 }
