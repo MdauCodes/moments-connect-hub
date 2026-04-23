@@ -31,8 +31,6 @@ function readStoredState(): "hidden" | "show" {
 }
 
 export function EmailCaptureBanner() {
-  if (!EMAIL_CAPTURE_ENABLED) return null;
-
   const { persona } = usePersona();
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState("");
@@ -41,6 +39,7 @@ export function EmailCaptureBanner() {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
+    if (!EMAIL_CAPTURE_ENABLED) return;
     setVisible(readStoredState() === "show");
   }, []);
 
@@ -50,6 +49,7 @@ export function EmailCaptureBanner() {
     return () => clearTimeout(t);
   }, [submitted]);
 
+  if (!EMAIL_CAPTURE_ENABLED) return null;
   if (!visible) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
