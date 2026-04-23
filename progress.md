@@ -5,7 +5,7 @@
 > **Format rule:** keep statuses in the table — write narrative only under
 > "Recent decisions" and "Next up".
 
-Last updated: 2026-04-23
+Last updated: 2026-04-23 (search + market segmentation)
 
 ---
 
@@ -31,7 +31,9 @@ Last updated: 2026-04-23
 | Featured carousel (Deals / New / Fast-moving) | ✅ | Mocked via `isDiscount`, `isNewArrival`, `isFastMoving` flags on products. Section hides when nothing is flagged. |
 | "Trusted by brands" strip | ❌ | Commented out in `index.tsx` until brand permissions are confirmed. |
 | Products listing & detail | ✅ | `/products`, `/products/$slug` |
-| Industries page | ✅ | `/industries` |
+| Industries page | ✅ | `/industries` — 8 segments (F&B, Agriculture, Textile & Apparel, E-commerce & Mailers, Gifting & Events, Beauty & Personal Care, Pharma & Health, Industrial & Hardware) |
+| "Industries we serve" home strip | ✅ | `IndustriesStrip` component — 8 cards link to `/products?industry=<slug>` |
+| Global product search overlay | ✅ | `SearchCommand` — desktop bar + mobile icon, ⌘K / `/`, debounced, ranked, shimmer skeleton, recent + suggested queries |
 | About / Contact pages | ✅ | `/about`, `/contact` |
 | Persona gate ("Viewing as …") | ✅ | `PersonaContext` + `PersonaGate` |
 | Basket pill + drawer | ✅ | `BasketContext`, `BasketPill`, `BasketDrawer` |
@@ -84,6 +86,8 @@ Last updated: 2026-04-23
 
 ## 3. Recent decisions (newest first)
 
+- **2026-04-23** — **Market segmentation:** industries expanded from 7 ad-hoc to a canonical 8-segment taxonomy (F&B, Agriculture, Textile & Apparel, E-commerce & Mailers, Gifting & Events, Beauty & Personal Care, Pharma & Health, Industrial & Hardware) with stable slugs + IDs + keywords. Added home `IndustriesStrip`, rebuilt `/industries` page, added `industry` URL search param to `/products` so industry chips and SearchCommand links share state.
+- **2026-04-23** — **Global ranked search:** new `SearchCommand` overlay (desktop bar + mobile icon + ⌘K), uses dedicated `src/services/search.ts` weighted-ranking engine. Order: name → popularity (capped boost) → industry → description → category/material/finish/sizes/tags/keywords. Shimmer skeleton during fetch, recent searches in `localStorage`, suggested queries, browse-by-industry idle state. `Product` gained optional `material`, `finish`, `keywords` fields and the contract is mirrored in `backendSpec.md` §6.
 - **2026-04-23** — Added "Suggested next read" block on blog detail; cards now show author + date; image URL paste added alongside file upload (temporary until Cloudinary).
 - **2026-04-23** — Homepage latest-blogs strip now scales 1→2→3→4→5 columns across breakpoints; fetches up to 5 latest posts.
 - **2026-04-23** — Default author across all blog flows is **"Moments Packaging Director"**.
