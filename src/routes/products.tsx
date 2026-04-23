@@ -256,7 +256,7 @@ function ProductsPage() {
                     )}
                     {p.isFastMoving && !p.isNewArrival && !p.isDiscount && (
                       <span className="rounded-full bg-orange-600/90 px-2.5 py-1 text-[10px] font-semibold text-white">
-                        🔥 Popular
+                        Popular
                       </span>
                     )}
                   </div>
