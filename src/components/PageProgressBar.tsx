@@ -12,7 +12,6 @@ export function PageProgressBar() {
 
     if (status === "pending") {
       setOpacity(1);
-      // start from 0 then animate to 85%
       setWidth(0);
       const grow = requestAnimationFrame(() => setWidth(85));
       return () => cancelAnimationFrame(grow);
@@ -20,8 +19,8 @@ export function PageProgressBar() {
 
     if (status === "idle") {
       setWidth(100);
-      fadeTimer = setTimeout(() => setOpacity(0), 200);
-      resetTimer = setTimeout(() => setWidth(0), 400);
+      fadeTimer = setTimeout(() => setOpacity(0), 220);
+      resetTimer = setTimeout(() => setWidth(0), 460);
     }
 
     return () => {
@@ -33,11 +32,11 @@ export function PageProgressBar() {
   return (
     <div
       aria-hidden="true"
-      className="fixed left-0 top-0 z-[100] h-[2px] bg-accent"
+      className="progress-shimmer fixed left-0 top-0 z-[100] h-[3px]"
       style={{
         width: `${width}%`,
         opacity,
-        transition: "width 400ms ease-out, opacity 200ms ease-out",
+        transition: "width 420ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease-out",
       }}
     />
   );
