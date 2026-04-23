@@ -185,24 +185,24 @@ export function SiteHeader() {
             </Link>
           </nav>
 
-          {/* Mobile cluster: search icon + menu */}
-          <div className="ml-auto flex items-center gap-2 md:hidden">
-            <button
-              type="button"
-              onClick={() => openSearch()}
-              aria-label="Search packaging"
-              className="grid h-10 w-10 place-items-center rounded-md border border-border text-foreground/80 transition-colors hover:bg-secondary"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setOpen((v) => !v)}
-              aria-label="Toggle menu"
-              className="grid h-10 w-10 place-items-center rounded-md border border-border"
-            >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
+          {/* Tablet/mobile search icon (shown below lg, where the full search bar is hidden) */}
+          <button
+            type="button"
+            onClick={() => openSearch()}
+            aria-label="Search packaging"
+            className="ml-auto grid h-10 w-10 place-items-center rounded-md border border-border text-foreground/80 transition-colors hover:bg-secondary md:ml-2 lg:hidden"
+          >
+            <Search className="h-5 w-5" />
+          </button>
+
+          {/* Mobile menu toggle */}
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Toggle menu"
+            className="grid h-10 w-10 place-items-center rounded-md border border-border md:hidden"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
 
         {open && (
