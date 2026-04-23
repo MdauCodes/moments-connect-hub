@@ -1,8 +1,10 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
-import { BlogBodyRenderer } from "@/components/blog/BlogTemplates";
+import { BlogBodyRenderer, BlogCard } from "@/components/blog/BlogTemplates";
 import { api } from "@/services/api";
 import { TEMPLATE_META } from "@/data/blogs";
+import type { Blog } from "@/data/blogs";
 import { BLOGS_ENABLED } from "@/config/features";
 import { ArrowLeft } from "lucide-react";
 
@@ -67,6 +69,18 @@ export const Route = createFileRoute("/blog/$slug")({
 function BlogDetailPage() {
   const { blog } = Route.useLoaderData();
   const meta = TEMPLATE_META[blog.template];
+  const [related, setRelated] = useState<Blog[] | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    api.getRelatedBlogs(blog.slug, 2).then((r) => {
+      if (mounted) setRelated(r);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [blog.slug]);
+
   const date = blog.publishedAt
     ? new Date(blog.publishedAt).toLocaleDateString("en-KE", {
         year: "numeric",
@@ -150,6 +164,29 @@ function BlogDetailPage() {
             </div>
           )}
         </div>
+
+        {related && related.length > 0 && (
+          <aside className="border-t border-border bg-secondary/40">
+            <div className="mx-auto max-w-5xl px-5 py-14 lg:px-8 lg:py-20">
+              <p className="text-xs uppercase tracking-[0.25em] text-accent">Keep reading</p>
+              <h2 className="mt-3 font-display text-2xl font-medium text-foreground sm:text-3xl">
+                Suggested next read
+              </h2>
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 sm:gap-6">
+                {related.map((r) => (
+                  <Link
+                    key={r.id}
+                    to="/blog/$slug"
+                    params={{ slug: r.slug }}
+                    className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    <BlogCard blog={r} />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </aside>
+        )}
       </article>
     </SiteLayout>
   );

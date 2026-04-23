@@ -15,7 +15,8 @@ export function LatestBlogsStrip() {
   useEffect(() => {
     if (!BLOGS_ENABLED) return;
     let mounted = true;
-    api.getLatestBlogs(3).then((b) => {
+    // Fetch up to 5 so wide screens can render 4–5 cards
+    api.getLatestBlogs(5).then((b) => {
       if (mounted) setBlogs(b);
     });
     return () => {
@@ -44,7 +45,7 @@ export function LatestBlogsStrip() {
           </Link>
         </div>
 
-        <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {(blogs ?? Array.from({ length: 3 })).map((b, i) =>
             b ? (
               <Link
