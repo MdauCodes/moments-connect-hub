@@ -81,6 +81,7 @@ src/
     BasketPill.tsx        ← floating basket button (auto-lifts above email banner)
     BasketDrawer.tsx      ← basket sheet
     EmailCaptureBanner.tsx← bottom banner; reports visibility upward
+    EmailInsiderPrompt.tsx← slide-in card; exit-intent + 50% scroll + 30s idle
     PersonaGate.tsx       ← "Are you SME / corporate / events?" gate + "Viewing as" pill
     PackagingCloud.tsx    ← animated category cloud on the landing page
     FeaturedCarousel.tsx  ← Deals / New / Fast-moving products row
