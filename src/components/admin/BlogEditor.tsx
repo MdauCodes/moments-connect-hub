@@ -349,6 +349,7 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
             onAlt={(alt) => patch("coverImage", { ...values.coverImage, alt })}
             onCaption={(caption) => patch("coverImage", { ...values.coverImage, caption })}
             onFile={(e) => readImage(e, "cover")}
+            onUrl={(url) => patch("coverImage", { ...values.coverImage, url })}
             onClear={() => patch("coverImage", { url: "", alt: "" })}
           />
           <ImageSlot
@@ -365,6 +366,9 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
               })
             }
             onFile={(e) => readImage(e, "secondary")}
+            onUrl={(url) =>
+              patch("secondaryImage", { url, alt: values.secondaryImage?.alt ?? "" })
+            }
             onClear={() => patch("secondaryImage", undefined)}
           />
         </div>
@@ -599,6 +603,7 @@ function ImageSlot({
   onAlt,
   onCaption,
   onFile,
+  onUrl,
   onClear,
 }: {
   label: string;
@@ -606,6 +611,7 @@ function ImageSlot({
   onAlt: (alt: string) => void;
   onCaption: (caption: string) => void;
   onFile: (e: ChangeEvent<HTMLInputElement>) => void;
+  onUrl: (url: string) => void;
   onClear: () => void;
 }) {
   const [urlInput, setUrlInput] = useState("");
@@ -641,15 +647,8 @@ function ImageSlot({
           onClick={() => {
             const trimmed = urlInput.trim();
             if (!trimmed) return;
-            // Reuse file pipeline: treat it as a direct CDN URL on the image
-            onAlt(image.alt);
-            // We can't call onFile for URLs — emit through onAlt+onCaption pattern is wrong;
-            // instead, dispatch a synthetic update via the parent's setter by piggy-backing
-            // on onCaption (no — we need a dedicated path). Use a custom event:
-            const evt = new CustomEvent("blog-image-url", { detail: { url: trimmed } });
-            window.dispatchEvent(evt);
-            // Simpler approach: directly set via a dedicated callback would be cleaner,
-            // but to stay surgical we expose a global hook the parent listens to.
+            onUrl(trimmed);
+            setUrlInput("");
           }}
         >
           Use URL
