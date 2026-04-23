@@ -17,7 +17,18 @@ import { TEMPLATE_META } from "@/data/blogs";
 // Renders a different field set per template — these are the same fields the
 // Spring Boot backend will need to accept on POST/PUT /api/admin/blogs.
 
-const styles: Record<string, CSSProperties | ((...args: never[]) => CSSProperties)> = {
+const templateBtnStyle = (active: boolean): CSSProperties => ({
+  background: active ? "#1E3A2A" : "#0F1117",
+  border: `1px solid ${active ? "#4CAF72" : "#1E2535"}`,
+  borderRadius: 10,
+  padding: 12,
+  textAlign: "left",
+  cursor: "pointer",
+  color: active ? "#9AE6B4" : "#CBD5E0",
+  fontFamily: "inherit",
+});
+
+const styles: Record<string, CSSProperties> = {
   wrap: { maxWidth: 880, display: "flex", flexDirection: "column", gap: 18 },
   row: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" },
   field: { display: "flex", flexDirection: "column", gap: 6 },
@@ -68,16 +79,6 @@ const styles: Record<string, CSSProperties | ((...args: never[]) => CSSPropertie
     gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
     gap: 10,
   },
-  templateBtn: (active: boolean): CSSProperties => ({
-    background: active ? "#1E3A2A" : "#0F1117",
-    border: `1px solid ${active ? "#4CAF72" : "#1E2535"}`,
-    borderRadius: 10,
-    padding: 12,
-    textAlign: "left",
-    cursor: "pointer",
-    color: active ? "#9AE6B4" : "#CBD5E0",
-    fontFamily: "inherit",
-  }),
   templateLabel: { fontSize: 12.5, fontWeight: 600 },
   templateBlurb: { fontSize: 10.5, color: "#4A5568", marginTop: 4 },
   ghostBtn: {
