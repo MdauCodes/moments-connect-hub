@@ -119,6 +119,33 @@ const styles: Record<string, CSSProperties> = {
   },
 };
 
+function chipStyle(active: boolean): CSSProperties {
+  return {
+    border: `1px solid ${active ? "#2D5A3D" : "#2A3448"}`,
+    background: active ? "#1E3A2A" : "#1E2535",
+    color: active ? "#4CAF72" : "#8896A8",
+    borderRadius: 999,
+    padding: "5px 12px",
+    fontSize: 11.5,
+    cursor: "pointer",
+    fontFamily: "inherit",
+  };
+}
+
+function flagStyle(color: string, bg: string): CSSProperties {
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 4,
+    background: bg,
+    color: color,
+    borderRadius: 999,
+    padding: "2px 8px",
+    fontSize: 10,
+    fontWeight: 600,
+  };
+}
+
 function categoryName(slug: string): string {
   return categories.find((c) => c.slug === slug)?.name ?? slug;
 }
