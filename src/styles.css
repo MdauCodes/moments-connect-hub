@@ -261,4 +261,14 @@
 
   .scrollbar-hide { scrollbar-width: none; }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Horizontal marquee — translate by exactly half because the rail
+     duplicates its items, producing a seamless infinite loop. */
+  @keyframes marquee-x {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [style*="marquee-x"] { animation: none !important; }
+  }
 }
