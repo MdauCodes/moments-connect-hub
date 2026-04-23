@@ -205,7 +205,7 @@ export function EmailInsiderPrompt() {
               <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-primary">
                 <Gift className="h-5 w-5" />
               </div>
-              <p className="text-sm font-medium">You&apos;re on the insider list 🎉</p>
+              <p className="text-sm font-medium">You&apos;re on the insider list.</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 We&apos;ll send the good stuff straight to your inbox.
               </p>
