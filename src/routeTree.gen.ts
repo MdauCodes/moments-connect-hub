@@ -26,6 +26,8 @@ import { Route as AdminAuthAdminProductsRouteImport } from './routes/_adminAuth.
 import { Route as AdminAuthAdminEnquiriesRouteImport } from './routes/_adminAuth.admin.enquiries'
 import { Route as AdminAuthAdminBlogsRouteImport } from './routes/_adminAuth.admin.blogs'
 import { Route as AdminAuthAdminAnalyticsRouteImport } from './routes/_adminAuth.admin.analytics'
+import { Route as AdminAuthAdminProductsNewRouteImport } from './routes/_adminAuth.admin.products.new'
+import { Route as AdminAuthAdminProductsIdRouteImport } from './routes/_adminAuth.admin.products.$id'
 import { Route as AdminAuthAdminEnquiriesIdRouteImport } from './routes/_adminAuth.admin.enquiries.$id'
 import { Route as AdminAuthAdminBlogsNewRouteImport } from './routes/_adminAuth.admin.blogs.new'
 import { Route as AdminAuthAdminBlogsIdRouteImport } from './routes/_adminAuth.admin.blogs.$id'
@@ -114,6 +116,18 @@ const AdminAuthAdminAnalyticsRoute = AdminAuthAdminAnalyticsRouteImport.update({
   path: '/admin/analytics',
   getParentRoute: () => AdminAuthRoute,
 } as any)
+const AdminAuthAdminProductsNewRoute =
+  AdminAuthAdminProductsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AdminAuthAdminProductsRoute,
+  } as any)
+const AdminAuthAdminProductsIdRoute =
+  AdminAuthAdminProductsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AdminAuthAdminProductsRoute,
+  } as any)
 const AdminAuthAdminEnquiriesIdRoute =
   AdminAuthAdminEnquiriesIdRouteImport.update({
     id: '/$id',
@@ -145,12 +159,14 @@ export interface FileRoutesByFullPath {
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
   '/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
-  '/admin/products': typeof AdminAuthAdminProductsRoute
+  '/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/admin/staff': typeof AdminAuthAdminStaffRoute
   '/admin/blogs/$id': typeof AdminAuthAdminBlogsIdRoute
   '/admin/blogs/new': typeof AdminAuthAdminBlogsNewRoute
   '/admin/enquiries/$id': typeof AdminAuthAdminEnquiriesIdRoute
+  '/admin/products/$id': typeof AdminAuthAdminProductsIdRoute
+  '/admin/products/new': typeof AdminAuthAdminProductsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -166,12 +182,14 @@ export interface FileRoutesByTo {
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
   '/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
-  '/admin/products': typeof AdminAuthAdminProductsRoute
+  '/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/admin/staff': typeof AdminAuthAdminStaffRoute
   '/admin/blogs/$id': typeof AdminAuthAdminBlogsIdRoute
   '/admin/blogs/new': typeof AdminAuthAdminBlogsNewRoute
   '/admin/enquiries/$id': typeof AdminAuthAdminEnquiriesIdRoute
+  '/admin/products/$id': typeof AdminAuthAdminProductsIdRoute
+  '/admin/products/new': typeof AdminAuthAdminProductsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -189,12 +207,14 @@ export interface FileRoutesById {
   '/_adminAuth/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/_adminAuth/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
   '/_adminAuth/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
-  '/_adminAuth/admin/products': typeof AdminAuthAdminProductsRoute
+  '/_adminAuth/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/_adminAuth/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/_adminAuth/admin/staff': typeof AdminAuthAdminStaffRoute
   '/_adminAuth/admin/blogs/$id': typeof AdminAuthAdminBlogsIdRoute
   '/_adminAuth/admin/blogs/new': typeof AdminAuthAdminBlogsNewRoute
   '/_adminAuth/admin/enquiries/$id': typeof AdminAuthAdminEnquiriesIdRoute
+  '/_adminAuth/admin/products/$id': typeof AdminAuthAdminProductsIdRoute
+  '/_adminAuth/admin/products/new': typeof AdminAuthAdminProductsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -218,6 +238,8 @@ export interface FileRouteTypes {
     | '/admin/blogs/$id'
     | '/admin/blogs/new'
     | '/admin/enquiries/$id'
+    | '/admin/products/$id'
+    | '/admin/products/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -239,6 +261,8 @@ export interface FileRouteTypes {
     | '/admin/blogs/$id'
     | '/admin/blogs/new'
     | '/admin/enquiries/$id'
+    | '/admin/products/$id'
+    | '/admin/products/new'
   id:
     | '__root__'
     | '/'
@@ -261,6 +285,8 @@ export interface FileRouteTypes {
     | '/_adminAuth/admin/blogs/$id'
     | '/_adminAuth/admin/blogs/new'
     | '/_adminAuth/admin/enquiries/$id'
+    | '/_adminAuth/admin/products/$id'
+    | '/_adminAuth/admin/products/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -397,6 +423,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuthAdminAnalyticsRouteImport
       parentRoute: typeof AdminAuthRoute
     }
+    '/_adminAuth/admin/products/new': {
+      id: '/_adminAuth/admin/products/new'
+      path: '/new'
+      fullPath: '/admin/products/new'
+      preLoaderRoute: typeof AdminAuthAdminProductsNewRouteImport
+      parentRoute: typeof AdminAuthAdminProductsRoute
+    }
+    '/_adminAuth/admin/products/$id': {
+      id: '/_adminAuth/admin/products/$id'
+      path: '/$id'
+      fullPath: '/admin/products/$id'
+      preLoaderRoute: typeof AdminAuthAdminProductsIdRouteImport
+      parentRoute: typeof AdminAuthAdminProductsRoute
+    }
     '/_adminAuth/admin/enquiries/$id': {
       id: '/_adminAuth/admin/enquiries/$id'
       path: '/$id'
@@ -448,11 +488,27 @@ const AdminAuthAdminEnquiriesRouteWithChildren =
     AdminAuthAdminEnquiriesRouteChildren,
   )
 
+interface AdminAuthAdminProductsRouteChildren {
+  AdminAuthAdminProductsIdRoute: typeof AdminAuthAdminProductsIdRoute
+  AdminAuthAdminProductsNewRoute: typeof AdminAuthAdminProductsNewRoute
+}
+
+const AdminAuthAdminProductsRouteChildren: AdminAuthAdminProductsRouteChildren =
+  {
+    AdminAuthAdminProductsIdRoute: AdminAuthAdminProductsIdRoute,
+    AdminAuthAdminProductsNewRoute: AdminAuthAdminProductsNewRoute,
+  }
+
+const AdminAuthAdminProductsRouteWithChildren =
+  AdminAuthAdminProductsRoute._addFileChildren(
+    AdminAuthAdminProductsRouteChildren,
+  )
+
 interface AdminAuthRouteChildren {
   AdminAuthAdminAnalyticsRoute: typeof AdminAuthAdminAnalyticsRoute
   AdminAuthAdminBlogsRoute: typeof AdminAuthAdminBlogsRouteWithChildren
   AdminAuthAdminEnquiriesRoute: typeof AdminAuthAdminEnquiriesRouteWithChildren
-  AdminAuthAdminProductsRoute: typeof AdminAuthAdminProductsRoute
+  AdminAuthAdminProductsRoute: typeof AdminAuthAdminProductsRouteWithChildren
   AdminAuthAdminSettingsRoute: typeof AdminAuthAdminSettingsRoute
   AdminAuthAdminStaffRoute: typeof AdminAuthAdminStaffRoute
 }
@@ -461,7 +517,7 @@ const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminAnalyticsRoute: AdminAuthAdminAnalyticsRoute,
   AdminAuthAdminBlogsRoute: AdminAuthAdminBlogsRouteWithChildren,
   AdminAuthAdminEnquiriesRoute: AdminAuthAdminEnquiriesRouteWithChildren,
-  AdminAuthAdminProductsRoute: AdminAuthAdminProductsRoute,
+  AdminAuthAdminProductsRoute: AdminAuthAdminProductsRouteWithChildren,
   AdminAuthAdminSettingsRoute: AdminAuthAdminSettingsRoute,
   AdminAuthAdminStaffRoute: AdminAuthAdminStaffRoute,
 }

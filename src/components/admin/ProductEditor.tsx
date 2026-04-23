@@ -149,16 +149,6 @@ const styles: Record<string, CSSProperties> = {
   },
   cardTitle: { fontSize: 13, fontWeight: 600, color: "#E2E8F0" },
   chipRow: { display: "flex", flexWrap: "wrap", gap: 8 },
-  chip: (active: boolean): CSSProperties => ({
-    border: `1px solid ${active ? "#4CAF72" : "#1E2535"}`,
-    background: active ? "#1E3A2A" : "#0F1117",
-    color: active ? "#9AE6B4" : "#8896A8",
-    borderRadius: 999,
-    padding: "5px 12px",
-    fontSize: 11.5,
-    cursor: "pointer",
-    fontFamily: "inherit",
-  }),
   imagePreview: {
     width: "100%",
     maxWidth: 280,
