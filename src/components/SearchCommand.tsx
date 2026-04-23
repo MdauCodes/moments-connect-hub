@@ -342,12 +342,12 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
                             {p.name}
                           </p>
                           {p.isDiscount && (
-                            <span className="shrink-0 rounded-full bg-red-600/10 px-1.5 py-0.5 text-[10px] font-semibold text-red-700">
+                            <span className="shrink-0 rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-semibold text-accent">
                               -{p.discountPercent}%
                             </span>
                           )}
                           {p.isNewArrival && (
-                            <span className="shrink-0 rounded-full bg-green-600/10 px-1.5 py-0.5 text-[10px] font-semibold text-green-700">
+                            <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
                               New
                             </span>
                           )}

@@ -11,6 +11,8 @@ import { categories } from "@/data/products";
 
 const searchSchema = z.object({
   category: z.string().optional(),
+  industry: z.string().optional(),
+  q: z.string().optional(),
 });
 
 export const Route = createFileRoute("/products")({
