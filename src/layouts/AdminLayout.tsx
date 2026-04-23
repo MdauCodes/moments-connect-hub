@@ -289,14 +289,22 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
 
         <nav style={styles.nav}>
           <div style={styles.sectionLabel}>Main</div>
-          {mainNav.map((item) => (
-            <NavLink key={item.to} item={item} active={isActive(item.to)} />
-          ))}
+          {mainNav
+            .filter((item) => !item.requires || can(user?.role, item.requires))
+            .map((item) => (
+              <NavLink key={item.to} item={item} active={isActive(item.to)} />
+            ))}
 
-          <div style={styles.sectionLabel}>Manage</div>
-          {manageNav.map((item) => (
-            <NavLink key={item.to} item={item} active={isActive(item.to)} />
-          ))}
+          {manageNav.some((item) => !item.requires || can(user?.role, item.requires)) && (
+            <>
+              <div style={styles.sectionLabel}>Manage</div>
+              {manageNav
+                .filter((item) => !item.requires || can(user?.role, item.requires))
+                .map((item) => (
+                  <NavLink key={item.to} item={item} active={isActive(item.to)} />
+                ))}
+            </>
+          )}
         </nav>
 
         <div style={styles.sidebarBottom}>
