@@ -34,17 +34,28 @@ export const Route = createFileRoute("/products")({
 });
 
 function ProductsPage() {
-  const { category } = Route.useSearch();
+  const { category, industry: industrySlug } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const basket = useBasket();
   const activeCat = useMemo(() => categories.find((c) => c.slug === category), [category]);
 
   const [industries, setIndustries] = useState<Industry[]>([]);
-  const [selectedIndustryId, setSelectedIndustryId] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const selectedIndustry = useMemo(
+    () => industries.find((i) => i.slug === industrySlug) ?? null,
+    [industries, industrySlug],
+  );
+
+  const setIndustrySlug = (slug: string | null) => {
+    void navigate({
+      search: (prev) => ({ ...prev, industry: slug ?? undefined }),
+    });
+  };
 
   // Load industries once
   useEffect(() => {
@@ -63,7 +74,7 @@ function ProductsPage() {
     let cancelled = false;
     setIsLoading(true);
     void api
-      .getProducts(selectedIndustryId ? { industryId: selectedIndustryId } : undefined)
+      .getProducts(selectedIndustry ? { industryId: selectedIndustry.id } : undefined)
       .then((data) => {
         if (cancelled) return;
         const next = category ? data.filter((p) => p.category === category) : data;
@@ -73,7 +84,7 @@ function ProductsPage() {
     return () => {
       cancelled = true;
     };
-  }, [selectedIndustryId, activeQuery, category]);
+  }, [selectedIndustry, activeQuery, category]);
 
   // Debounced search
   useEffect(() => {
@@ -86,21 +97,24 @@ function ProductsPage() {
     };
   }, [query]);
 
-  // Run search when activeQuery changes (>1 char)
+  // Run search when activeQuery changes (>1 char) — uses ranked search service
   useEffect(() => {
     if (activeQuery.length <= 1) return;
     let cancelled = false;
     setIsLoading(true);
     void api.searchProducts(activeQuery).then((data) => {
       if (cancelled) return;
-      const next = category ? data.filter((p) => p.category === category) : data;
+      let next = category ? data.filter((p) => p.category === category) : data;
+      if (selectedIndustry) {
+        next = next.filter((p) => p.industryIds.includes(selectedIndustry.id));
+      }
       setProducts(next);
       setIsLoading(false);
     });
     return () => {
       cancelled = true;
     };
-  }, [activeQuery, category]);
+  }, [activeQuery, category, selectedIndustry]);
 
   const showingSearch = activeQuery.length > 1;
 
