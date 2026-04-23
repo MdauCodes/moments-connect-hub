@@ -253,6 +253,19 @@ const styles: Record<string, CSSProperties> = {
   switchLabel: { fontSize: 12.5, color: "#CBD5E0", flex: 1 },
 };
 
+function chipStyle(active: boolean): CSSProperties {
+  return {
+    border: `1px solid ${active ? "#4CAF72" : "#1E2535"}`,
+    background: active ? "#1E3A2A" : "#0F1117",
+    color: active ? "#9AE6B4" : "#8896A8",
+    borderRadius: 999,
+    padding: "5px 12px",
+    fontSize: 11.5,
+    cursor: "pointer",
+    fontFamily: "inherit",
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Image picker — mirrors BlogEditor (file -> DataURL, or URL paste)
 // ---------------------------------------------------------------------------
