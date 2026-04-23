@@ -211,7 +211,7 @@ function AdminProductsPage() {
       <div style={styles.filterRow}>
         <button
           type="button"
-          style={styles.chip(activeCat === "ALL")}
+          style={chipStyle(activeCat === "ALL")}
           onClick={() => setActiveCat("ALL")}
         >
           All categories
@@ -220,7 +220,7 @@ function AdminProductsPage() {
           <button
             key={c.slug}
             type="button"
-            style={styles.chip(activeCat === c.slug)}
+            style={chipStyle(activeCat === c.slug)}
             onClick={() => setActiveCat(c.slug)}
           >
             {c.name}
@@ -280,17 +280,17 @@ function AdminProductsPage() {
                 <td style={styles.td}>
                   <div style={styles.flagRow}>
                     {p.isDiscount && (
-                      <span style={styles.flag("#FC8181", "#3A1A1A")}>
+                      <span style={flagStyle("#FC8181", "#3A1A1A")}>
                         <Tag size={10} /> -{p.discountPercent ?? 0}%
                       </span>
                     )}
                     {p.isNewArrival && (
-                      <span style={styles.flag("#B794F4", "#2D1F4A")}>
+                      <span style={flagStyle("#B794F4", "#2D1F4A")}>
                         <Sparkles size={10} /> New
                       </span>
                     )}
                     {p.isFastMoving && (
-                      <span style={styles.flag("#F6C453", "#2D2A1A")}>
+                      <span style={flagStyle("#F6C453", "#2D2A1A")}>
                         <Flame size={10} /> Fast
                       </span>
                     )}
