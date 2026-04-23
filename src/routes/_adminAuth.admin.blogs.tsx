@@ -138,7 +138,7 @@ function AdminBlogsPage() {
                 </td>
                 <td style={styles.td}>{TEMPLATE_META[b.template].label}</td>
                 <td style={styles.td}>
-                  <span style={styles.badge(b.status === "published" ? "ok" : "muted")}>
+                  <span style={badgeStyle(b.status === "published" ? "ok" : "muted")}>
                     {b.status}
                   </span>
                 </td>
