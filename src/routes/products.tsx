@@ -161,9 +161,9 @@ function ProductsPage() {
         <div className="scrollbar-hide mt-4 flex gap-2 overflow-x-auto pb-3">
           <button
             type="button"
-            onClick={() => setSelectedIndustryId(null)}
+            onClick={() => setIndustrySlug(null)}
             className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm transition-colors ${
-              selectedIndustryId === null
+              selectedIndustry === null
                 ? "bg-primary text-primary-foreground"
                 : "cursor-pointer border border-border text-muted-foreground hover:bg-secondary"
             }`}
@@ -171,12 +171,12 @@ function ProductsPage() {
             All industries
           </button>
           {industries.map((ind) => {
-            const active = selectedIndustryId === ind.id;
+            const active = selectedIndustry?.id === ind.id;
             return (
               <button
                 key={ind.id}
                 type="button"
-                onClick={() => setSelectedIndustryId(ind.id)}
+                onClick={() => setIndustrySlug(active ? null : ind.slug)}
                 className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground"
