@@ -158,6 +158,30 @@ write `bg-[#…]` or `text-white` in components** — themes break.
 `liftAbove` to `BasketPill` and the persona "Viewing as" pill so they never
 overlap the banner. Add new floating UI by extending the same prop.
 
+### 4.4.1 Email capture (two surfaces, one endpoint)
+
+We deliberately layer **two** capture surfaces, both POSTing to
+`api.submitLead(email, persona)`:
+
+1. **`EmailCaptureBanner`** (bottom bar) — shown on page load, dismissible
+   for 7 days. Storage key: `moments_email_banner`.
+2. **`EmailInsiderPrompt`** (slide-in card, bottom-right) — proactive,
+   insider-led copy ("be first to know about new arrivals, trends &
+   exclusive goodies"). Triggers on the **first** of:
+   - Exit intent (mouseleave at top of viewport, desktop only)
+   - Scroll depth ≥ 50% of page
+   - 30 seconds of idle (any user activity resets the timer)
+
+   Shown at most **once per 3 days**, never again after submit, and fully
+   suppressed if the bottom banner has already been submitted (reads the
+   same `moments_email_banner` key) so we never double-prompt the same
+   visitor. Storage key: `moments_insider_prompt`.
+
+Backend mapping is in `backendSpec.md` §3.6 and §7 — the same `/leads`
+endpoint accepts an optional `source` (`email_capture_banner` |
+`insider_prompt`) and `trigger` (`exit_intent` | `scroll_50` | `idle_30s`)
+so we can measure which capture path converts best.
+
 ### 4.5 Splash + page progress
 
 Initial app load renders `AppSplash` (navbar-matching logo + themed shimmer).
