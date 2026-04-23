@@ -6,6 +6,8 @@ import { usePersona } from "@/contexts/PersonaContext";
 import { PersonaGate } from "./PersonaGate";
 import { BasketPill } from "./BasketPill";
 import { BasketDrawer } from "./BasketDrawer";
+import { PageProgressBar } from "./PageProgressBar";
+import { EmailCaptureBanner } from "./EmailCaptureBanner";
 
 function PersonaSwitchButton() {
   const { persona, setPersona } = usePersona();
@@ -43,6 +45,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   return (
     <>
+      <PageProgressBar />
       <ScrollLock />
       <PersonaGate />
       <div className="flex min-h-screen flex-col bg-background">
@@ -53,6 +56,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
         <PersonaSwitchButton />
         <BasketPill onOpen={() => setDrawerOpen(true)} />
         <BasketDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+        <EmailCaptureBanner />
       </div>
     </>
   );
