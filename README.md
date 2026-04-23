@@ -110,6 +110,12 @@ src/
   services/
     api.ts                ← single source of truth for all backend calls (mock today)
     blogStore.ts          ← localStorage-backed mock CRUD for blogs
+    productStore.ts       ← localStorage-backed mock CRUD for products (admin)
+    search.ts             ← weighted ranking engine for SearchCommand
+
+  lib/
+    permissions.ts        ← single source of truth for ADMIN vs STAFF permissions (mirrored in backendSpec.md §2.1)
+    utils.ts
 
   config/
     features.ts           ← BLOGS_ENABLED, EMAIL_CAPTURE_ENABLED feature flags
@@ -206,6 +212,27 @@ admin form (`BlogEditor.tsx`) and the public renderer (`BlogTemplates.tsx`).
 
 `AdminAuthContext` is a placeholder. **Do not ship admin routes publicly**
 until the Spring Boot JWT flow described in `backendSpec.md` §2 is wired in.
+
+### 4.8 Role-based access control
+
+Two roles exist: **ADMIN** and **STAFF**. The full permission matrix lives in
+[`src/lib/permissions.ts`](./src/lib/permissions.ts) and is the **single source
+of truth** — `AdminLayout` (sidebar), route layouts (`<Forbidden />` gate),
+and individual buttons (delete actions) all call `can(role, permission)` from
+the same file.
+
+| | ADMIN | STAFF |
+| --- | --- | --- |
+| Blogs create / edit | ✅ | ✅ |
+| Blogs delete | ✅ | ❌ |
+| Products create / edit | ✅ | ✅ |
+| Products delete | ✅ | ❌ |
+| Enquiries view / update | ✅ | ✅ |
+| `/admin/staff` | ✅ | ❌ (Forbidden) |
+| `/admin/settings` | ✅ | ❌ (Forbidden) |
+
+The Spring Boot backend **must re-check every permission server-side** using
+the same matrix — UI guards are convenience only. See `backendSpec.md` §2.1.
 
 ---
 
