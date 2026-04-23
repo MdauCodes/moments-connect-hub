@@ -438,7 +438,7 @@ not strict mode).
 
 ---
 
-## 7. Background jobs
+## 8. Background jobs
 
 | Job | Schedule | Purpose |
 | --- | --- | --- |
@@ -451,7 +451,7 @@ lock (e.g. ShedLock) so jobs don't double-run when scaled horizontally.
 
 ---
 
-## 8. Errors
+## 9. Errors
 
 All errors return:
 
@@ -475,7 +475,7 @@ Apply `@ControllerAdvice` to translate `MethodArgumentNotValidException`,
 
 ---
 
-## 9. Security checklist
+## 10. Security checklist
 
 - [ ] BCrypt passwords (cost ≥ 12), no SHA-anything.
 - [ ] CSRF disabled for stateless JWT API; ensure SameSite cookies are not
@@ -492,7 +492,7 @@ Apply `@ControllerAdvice` to translate `MethodArgumentNotValidException`,
 
 ---
 
-## 10. Mapping to the React frontend
+## 11. Mapping to the React frontend
 
 | Frontend file | Backend endpoint | Notes |
 | --- | --- | --- |
