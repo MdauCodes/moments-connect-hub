@@ -247,7 +247,7 @@ endpoints support `?page=&size=&sort=` (Spring `Pageable`).
 | GET | `/industries` | `Industry[]` |
 | GET | `/products?industryId=&isDiscount=&isNewArrival=&isFastMoving=&category=` | `Page<Product>` |
 | GET | `/products/recommended` | `Product[]` (top 4 by `monthly_clicks`) |
-| GET | `/products/search?q=` | `Product[]` |
+| GET | `/products/search?q=&limit=` | `Product[]` — ranked, see §6 |
 | GET | `/products/{slug}` | `Product` (404 if missing) |
 | POST | `/products/{id}/click` | `204` (records to `product_clicks`) |
 | GET | `/blogs?status=published&template=&limit=` | `Blog[]` (status forced to `published`) |
@@ -370,7 +370,63 @@ formatted enquiry, persist with `status='new'`, return `{ id, reference }`.
 
 ---
 
-## 6. File storage
+## 6. Search ranking
+
+`GET /api/v1/public/products/search?q=&limit=` is the single endpoint that
+powers the global search overlay (`SearchCommand`) and the in-page filter on
+`/products`. The frontend already implements the exact ranking algorithm
+client-side in `src/services/search.ts` against the in-memory fixtures —
+**mirror it on the backend** so swap-over is invisible.
+
+### 6.1 Inputs
+- `q` — required, trim, reject if length < 2 (return `[]`).
+- `limit` — optional, default 12, max 50.
+
+### 6.2 Weighted scoring (apply in order, sum the score)
+
+| Rank | Signal | Field(s) | Weight |
+| --- | --- | --- | --- |
+| 1 | Name — exact (case-insensitive, trimmed) | `name` | 1000 |
+| 1 | Name — starts-with | `name` | 600 |
+| 1 | Name — contains phrase | `name` | 400 |
+| 1 | Name — token match (per token) | `name` | 220 |
+| 2 | Popularity (additive boost, capped) | `monthly_clicks` | `min(monthly_clicks / 50, 25)` |
+| 3 | Industry — exact name match | joined `industries.name` | 180 |
+| 3 | Industry — name contains | joined `industries.name` | 120 |
+| 3 | Industry — keyword overlap | `industries.keywords[]` | 90 |
+| 4 | Description — phrase contains | `description` | 80 |
+| 4 | Description — token match (per token) | `description` | 35 |
+| 5 | Category match | `category` | 60 |
+| 5 | Tag match | `tags[]` | 50 |
+| 5 | Material match | `material` | 45 |
+| 5 | Finish match | `finish` | 30 |
+| 5 | Size match | `sizes[]` | 25 |
+| 5 | Custom keyword match | `keywords[]` | 70 |
+
+Popularity is **additive only** and capped — it never overrides relevance,
+it only breaks ties between similarly-scored products. Drop any product
+whose total score is `0`. Sort `score DESC`, then `monthly_clicks DESC` as
+the secondary tiebreaker, then `name ASC`.
+
+### 6.3 Implementation hint (Postgres)
+
+A `tsvector` column populated by trigger from
+`name || ' ' || description || ' ' || array_to_string(keywords,' ') || …`
+plus `ts_rank_cd` is the right baseline. Apply the weight table above as a
+post-rank boost (e.g. add `100 * (lower(name) LIKE q || '%')::int`). Cache
+the top 200 results per query in Redis for 60 seconds — the public catalogue
+churn rate is low.
+
+### 6.4 Frontend contract
+
+The React client expects the same `Product` shape as `GET /products`. No
+extra `score` field is needed; if you add one it must be ignored without
+breaking JSON deserialisation (the frontend uses TypeScript `interface`,
+not strict mode).
+
+---
+
+## 7. File storage
 
 - Bucket `moments-uploads/<env>/<entity>/<uuid>.<ext>`.
 - Generate signed PUT URLs for direct client-to-S3 upload, or accept
