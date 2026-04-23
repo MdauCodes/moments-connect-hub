@@ -102,7 +102,24 @@ All tables use `id UUID PRIMARY KEY DEFAULT gen_random_uuid()` and
 | id | UUID PK |
 | name | TEXT NOT NULL |
 | slug | TEXT UNIQUE NOT NULL |
+| icon | TEXT (emoji shown in chips/lists) |
 | description | TEXT |
+| tagline | TEXT (short marketing line shown on `/industries` cards) |
+| keywords | TEXT[] (synonyms / colloquialisms used by search recall) |
+
+**Canonical seed data — keep slugs and IDs stable, the React app references
+them as the source of truth (see `src/data/products.ts`):**
+
+| id | name | slug | icon |
+| --- | --- | --- | --- |
+| 1 | Food & Beverage | `food-beverage` | 🍔 |
+| 2 | Agriculture | `agriculture` | 🌾 |
+| 3 | Textile & Apparel | `textile-apparel` | 🧵 |
+| 4 | E-commerce & Mailers | `ecommerce-mailers` | 📦 |
+| 5 | Gifting & Events | `gifting-events` | 🎁 |
+| 6 | Beauty & Personal Care | `beauty-personal-care` | 💄 |
+| 7 | Pharma & Health | `pharma-health` | 💊 |
+| 8 | Industrial & Hardware | `industrial-hardware` | 🛠️ |
 
 ### 3.4 Products (`products`)
 | Column | Type | Notes |
@@ -121,6 +138,9 @@ All tables use `id UUID PRIMARY KEY DEFAULT gen_random_uuid()` and
 | discount_percent | INT | 1–90 when `is_discount = true` |
 | is_new_arrival | BOOLEAN DEFAULT false | |
 | is_fast_moving | BOOLEAN DEFAULT false | |
+| material | TEXT | e.g. `Kraft 120gsm`, `PE-lined paper` (searchable) |
+| finish | TEXT | e.g. `Matte`, `Gloss`, `Soft-touch` (searchable) |
+| keywords | TEXT[] | free-form synonyms / sheng / common misspellings (boosts recall) |
 | total_clicks, monthly_clicks | BIGINT DEFAULT 0 | |
 | total_enquiries, monthly_enquiries | BIGINT DEFAULT 0 | |
 | created_at, updated_at | TIMESTAMPTZ | |
