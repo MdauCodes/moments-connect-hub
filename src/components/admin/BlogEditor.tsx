@@ -17,7 +17,7 @@ import { TEMPLATE_META } from "@/data/blogs";
 // Renders a different field set per template — these are the same fields the
 // Spring Boot backend will need to accept on POST/PUT /api/admin/blogs.
 
-const styles: Record<string, CSSProperties> = {
+const styles: Record<string, CSSProperties | ((...args: never[]) => CSSProperties)> = {
   wrap: { maxWidth: 880, display: "flex", flexDirection: "column", gap: 18 },
   row: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" },
   field: { display: "flex", flexDirection: "column", gap: 6 },

@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_adminAuth/admin/blogs")({
   component: AdminBlogsPage,
 });
 
-const styles: Record<string, CSSProperties> = {
+const styles: Record<string, CSSProperties | ((...args: never[]) => CSSProperties)> = {
   toolbar: {
     display: "flex",
     alignItems: "center",
