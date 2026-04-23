@@ -1,32 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
-import { ArrowRight, UtensilsCrossed, ShoppingBag, Pill, Sparkles, Gift, Building2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { industries } from "@/data/products";
 
 export const Route = createFileRoute("/industries")({
   head: () => ({
     meta: [
-      { title: "Industries We Serve — Restaurant, Retail & E-commerce Packaging Kenya" },
+      { title: "Industries We Serve — Packaging for Every Market in Kenya | Moments Packaging" },
       {
         name: "description",
         content:
-          "Custom packaging solutions for Food & Beverage, Retail, Pharma, Beauty, Corporate Gifting and E-commerce brands across Kenya. Tailored MOQs, finishes and lead times for every sector.",
+          "Custom packaging for Food & Beverage, Agriculture, Textile, E-commerce, Gifting, Beauty, Pharma and Industrial brands across Kenya. Tailored MOQs, finishes and lead times for every sector.",
       },
       { property: "og:title", content: "Industries We Serve — Moments Packaging Kenya" },
-      { property: "og:description", content: "Packaging built for restaurants, retailers, pharma, beauty, gifting and e-commerce brands." },
+      {
+        property: "og:description",
+        content:
+          "Eight industries, one production line. Packaging built for Kenyan restaurants, farms, fashion brands, online stores, gifting, beauty, pharma and hardware.",
+      },
     ],
     links: [{ rel: "canonical", href: "https://www.momentspackaging.com/industries" }],
   }),
   component: IndustriesPage,
 });
-
-const industries = [
-  { icon: UtensilsCrossed, name: "Food & Beverage", body: "Restaurants, cafés, cloud kitchens. Branded burger boxes, cups, bags & wraps that survive delivery." },
-  { icon: ShoppingBag, name: "Retail & Supermarket", body: "Carrier bags, tissue, and printed packaging for shoppers who post your bag on Instagram." },
-  { icon: Building2, name: "Corporate & Enterprise", body: "Bulk runs with consistent print quality. Contract pricing and dedicated account managers." },
-  { icon: Sparkles, name: "Beauty & Wellness", body: "Premium rigid boxes, sleeves, and labels for skincare, candles, and wellness brands." },
-  { icon: Pill, name: "Pharma & Health", body: "Compliant cartons, inserts and labels for pharmacies, supplements and clinics." },
-  { icon: Gift, name: "Corporate Gifting", body: "End-of-year hampers, onboarding kits and event swag — custom-built and ready on time." },
-];
 
 function IndustriesPage() {
   return (
@@ -39,8 +35,8 @@ function IndustriesPage() {
               Packaging for every kind of business.
             </h1>
             <p className="mt-5 text-base text-muted-foreground sm:mt-6 sm:text-lg">
-              Whatever you sell, we've probably packed it. Here's how we work with the industries we
-              serve every day across Kenya.
+              Whatever you sell, we've probably packed it. Eight industries — one production
+              line, one quality bar. Pick a sector to jump straight to the products we make for it.
             </p>
           </div>
         </div>
@@ -48,14 +44,35 @@ function IndustriesPage() {
 
       <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8">
         <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-          {industries.map((i) => (
-            <div key={i.name} className="group rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-xl sm:p-8">
-              <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-primary-foreground transition-colors group-hover:bg-accent">
-                <i.icon className="h-5 w-5" />
+          {industries.map((ind) => (
+            <Link
+              key={ind.id}
+              to="/products"
+              search={{ industry: ind.slug }}
+              className="group flex flex-col rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-xl sm:p-8"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-2xl text-primary-foreground transition-colors group-hover:bg-accent">
+                  <span aria-hidden>{ind.icon}</span>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
               </div>
-              <h3 className="mt-5 font-display text-xl text-foreground sm:mt-6 sm:text-2xl">{i.name}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{i.body}</p>
-            </div>
+              <h2 className="mt-5 font-display text-xl text-foreground sm:mt-6 sm:text-2xl">
+                {ind.name}
+              </h2>
+              {ind.tagline && (
+                <p className="mt-1 text-sm font-medium text-accent">{ind.tagline}</p>
+              )}
+              <p className="mt-2 text-sm text-muted-foreground">{ind.description}</p>
+              {ind.keywords && ind.keywords.length > 0 && (
+                <p className="mt-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground/80">
+                  {ind.keywords.slice(0, 4).join(" · ")}
+                </p>
+              )}
+              <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-foreground transition-colors group-hover:text-accent">
+                See products <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              </span>
+            </Link>
           ))}
         </div>
       </section>
@@ -71,7 +88,10 @@ function IndustriesPage() {
                 Tell us what you sell. We'll recommend formats, sizes and pricing within 24 hours.
               </p>
             </div>
-            <Link to="/contact" className="inline-flex items-center justify-center gap-2 rounded-full bg-primary-foreground px-6 py-3.5 text-sm font-medium text-primary sm:px-7 sm:py-4 lg:justify-self-end">
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary-foreground px-6 py-3.5 text-sm font-medium text-primary sm:px-7 sm:py-4 lg:justify-self-end"
+            >
               Talk to our team <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

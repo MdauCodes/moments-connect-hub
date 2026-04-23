@@ -7,6 +7,7 @@ import { useBasket } from "@/contexts/BasketContext";
 import { PackagingCloud } from "@/components/PackagingCloud";
 import { FeaturedCarousel } from "@/components/FeaturedCarousel";
 import { CategoryShowcase } from "@/components/CategoryShowcase";
+import { IndustriesStrip } from "@/components/IndustriesStrip";
 import { LatestBlogsStrip } from "@/components/blog/LatestBlogsStrip";
 import { ArrowRight, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
 
@@ -162,6 +163,9 @@ function HomePage() {
 
       {/* Self-presenting marquee with tabs per category */}
       <CategoryShowcase />
+
+      {/* Industries we serve — market segmentation strip */}
+      <IndustriesStrip />
 
       {/* Categories */}
       <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-28">
