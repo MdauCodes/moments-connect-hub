@@ -595,7 +595,7 @@ export function ProductEditor({
               <button
                 key={ind.id}
                 type="button"
-                style={styles.chip(active)}
+                style={chipStyle(active)}
                 onClick={() => toggleIndustry(ind.id)}
               >
                 {ind.name}
@@ -618,7 +618,7 @@ export function ProductEditor({
                 <button
                   key={t}
                   type="button"
-                  style={styles.chip(values.tags.includes(t))}
+                  style={chipStyle(values.tags.includes(t))}
                   onClick={() => toggleTag(t)}
                 >
                   {t}
