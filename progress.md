@@ -5,7 +5,7 @@
 > **Format rule:** keep statuses in the table — write narrative only under
 > "Recent decisions" and "Next up".
 
-Last updated: 2026-04-23 (RBAC + admin product CRUD)
+Last updated: 2026-04-23 (backendSpec.md rewritten as a full build brief)
 
 ---
 
