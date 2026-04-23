@@ -15,18 +15,94 @@ export interface Industry {
   id: string;
   name: string;
   slug: string;
-  icon: string; // emoji
+  icon: string; // emoji used by chips/lists
   description: string;
+  /** Short tagline used on the home strip + /industries hero card. */
+  tagline?: string;
+  /** Synonyms / colloquialisms to broaden search recall. */
+  keywords?: string[];
 }
 
+/**
+ * Canonical taxonomy of markets we serve.
+ * Keep IDs stable — they're referenced by `Product.industryIds`.
+ *
+ * Backend mapping: `industries` table (id/name/slug/description) +
+ * `industry_keywords` text[] for search recall. See backendSpec.md §3.3.
+ */
 export const industries: Industry[] = [
-  { id: "1", name: "Food & Beverage", slug: "food-beverage", icon: "🍔", description: "Restaurants, cafés, takeaways" },
-  { id: "2", name: "Retail & Fashion", slug: "retail-fashion", icon: "🛍️", description: "Shops, boutiques, clothing brands" },
-  { id: "3", name: "Agriculture", slug: "agriculture", icon: "🌾", description: "Farm produce, seeds, agro products" },
-  { id: "4", name: "Textiles", slug: "textiles", icon: "🧵", description: "Fabric, garments, textile exports" },
-  { id: "5", name: "Events & Gifting", slug: "events-gifting", icon: "🎁", description: "Weddings, birthdays, corporate gifts" },
-  { id: "6", name: "E-commerce", slug: "ecommerce", icon: "📦", description: "Online stores and delivery brands" },
-  { id: "7", name: "Pharmaceuticals", slug: "pharma", icon: "💊", description: "Medicine, health and wellness products" },
+  {
+    id: "1",
+    name: "Food & Beverage",
+    slug: "food-beverage",
+    icon: "🍔",
+    description: "Restaurants, cafés, cloud kitchens & takeaways.",
+    tagline: "From the first sip to the last bite.",
+    keywords: ["restaurant", "cafe", "coffee", "takeaway", "delivery", "fnb", "kitchen", "bakery", "juice", "drinks"],
+  },
+  {
+    id: "2",
+    name: "Agriculture",
+    slug: "agriculture",
+    icon: "🌾",
+    description: "Farm produce, seeds, agro-processed goods & exports.",
+    tagline: "Field to shelf — packed to last.",
+    keywords: ["farm", "agro", "produce", "seeds", "grain", "tea", "coffee beans", "horticulture", "export"],
+  },
+  {
+    id: "3",
+    name: "Textile & Apparel",
+    slug: "textile-apparel",
+    icon: "🧵",
+    description: "Fashion brands, tailors, fabric & garment exporters.",
+    tagline: "Packaging your customers want to keep.",
+    keywords: ["fashion", "clothing", "garments", "boutique", "tailor", "fabric", "apparel"],
+  },
+  {
+    id: "4",
+    name: "E-commerce & Mailers",
+    slug: "ecommerce-mailers",
+    icon: "📦",
+    description: "Online sellers, D2C brands & courier-ready packs.",
+    tagline: "Built for the unboxing reel.",
+    keywords: ["online store", "d2c", "shipping", "courier", "instagram shop", "tiktok shop", "mailer"],
+  },
+  {
+    id: "5",
+    name: "Gifting & Events",
+    slug: "gifting-events",
+    icon: "🎁",
+    description: "Weddings, birthdays, corporate hampers & event swag.",
+    tagline: "Make the moment memorable.",
+    keywords: ["wedding", "birthday", "hamper", "gift", "events", "corporate gifting", "swag", "favours"],
+  },
+  {
+    id: "6",
+    name: "Beauty & Personal Care",
+    slug: "beauty-personal-care",
+    icon: "💄",
+    description: "Skincare, haircare, candles, soap & wellness brands.",
+    tagline: "Shelf-ready packaging that sells itself.",
+    keywords: ["skincare", "cosmetics", "haircare", "candles", "soap", "spa", "wellness", "beauty"],
+  },
+  {
+    id: "7",
+    name: "Pharma & Health",
+    slug: "pharma-health",
+    icon: "💊",
+    description: "Pharmacies, supplements, clinics & medical supplies.",
+    tagline: "Compliant. Tamper-evident. On time.",
+    keywords: ["pharmacy", "medicine", "supplements", "clinic", "medical", "health", "drugs"],
+  },
+  {
+    id: "8",
+    name: "Industrial & Hardware",
+    slug: "industrial-hardware",
+    icon: "🛠️",
+    description: "Manufacturers, hardware brands & B2B suppliers.",
+    tagline: "Heavy-duty packs that survive the warehouse.",
+    keywords: ["industrial", "hardware", "manufacturing", "tools", "spares", "b2b", "wholesale"],
+  },
 ];
 
 export type Product = {
@@ -49,6 +125,13 @@ export type Product = {
   monthlyClicks: number;
   totalEnquiries: number;
   monthlyEnquiries: number;
+  /**
+   * Optional searchable enrichments (admin-editable, all backend-bound).
+   * Kept optional so existing fixtures keep working.
+   */
+  material?: string; // e.g. "Kraft 120gsm", "PE-lined paper"
+  finish?: string;   // e.g. "Matte", "Gloss", "Soft-touch"
+  keywords?: string[]; // free-form synonyms / sheng / common misspellings
 };
 
 export const categories = [
@@ -72,7 +155,10 @@ export const products: Product[] = [
     isDiscount: false,
     isNewArrival: true,
     isFastMoving: true,
-    industryIds: ["2", "6"],
+    industryIds: ["1", "3", "4", "6"],
+    material: "Kraft 120gsm",
+    finish: "Matte",
+    keywords: ["paper bag", "carrier bag", "shopping bag", "gift bag"],
     totalClicks: 1240, monthlyClicks: 312,
     totalEnquiries: 86, monthlyEnquiries: 19,
   },
@@ -89,6 +175,9 @@ export const products: Product[] = [
     isNewArrival: true,
     isFastMoving: false,
     industryIds: ["1"],
+    material: "PE-lined paper",
+    finish: "Matte",
+    keywords: ["coffee", "tea", "hot cup", "takeaway cup", "kikombe"],
     totalClicks: 980, monthlyClicks: 244,
     totalEnquiries: 71, monthlyEnquiries: 16,
   },
@@ -103,7 +192,10 @@ export const products: Product[] = [
     isDiscount: false,
     isNewArrival: false,
     isFastMoving: false,
-    industryIds: ["1"],
+    industryIds: ["1", "4"],
+    material: "Kraft + PE liner",
+    finish: "Natural",
+    keywords: ["meal box", "lunch box", "salad bowl", "delivery box"],
     totalClicks: 612, monthlyClicks: 138,
     totalEnquiries: 42, monthlyEnquiries: 9,
   },
@@ -118,7 +210,10 @@ export const products: Product[] = [
     isDiscount: false,
     isNewArrival: false,
     isFastMoving: true,
-    industryIds: ["1"],
+    industryIds: ["1", "4"],
+    material: "Kraft 350gsm",
+    finish: "Natural",
+    keywords: ["burger box", "clamshell", "sandwich box", "wrap box"],
     totalClicks: 845, monthlyClicks: 201,
     totalEnquiries: 58, monthlyEnquiries: 14,
   },
@@ -134,7 +229,10 @@ export const products: Product[] = [
     discountPercent: 15,
     isNewArrival: false,
     isFastMoving: false,
-    industryIds: ["6", "2"],
+    industryIds: ["4", "3", "6"],
+    material: "Kraft 250gsm",
+    finish: "Natural",
+    keywords: ["mailer", "shipping bag", "courier pack", "ecommerce envelope", "polymailer alternative"],
     totalClicks: 734, monthlyClicks: 178,
     totalEnquiries: 49, monthlyEnquiries: 12,
   },
@@ -149,7 +247,10 @@ export const products: Product[] = [
     isDiscount: false,
     isNewArrival: false,
     isFastMoving: false,
-    industryIds: ["3", "7", "4"],
+    industryIds: ["2", "6", "7", "8"],
+    material: "Self-adhesive vinyl / paper",
+    finish: "Matte / Gloss / Kraft",
+    keywords: ["sticker", "label", "seal", "tag", "barcode label"],
     totalClicks: 423, monthlyClicks: 96,
     totalEnquiries: 28, monthlyEnquiries: 6,
   },
@@ -164,7 +265,10 @@ export const products: Product[] = [
     isDiscount: false,
     isNewArrival: false,
     isFastMoving: true,
-    industryIds: ["5"],
+    industryIds: ["5", "6"],
+    material: "Greyboard 1200gsm + art paper wrap",
+    finish: "Soft-touch",
+    keywords: ["gift box", "hamper box", "wedding box", "corporate gift", "presentation box"],
     totalClicks: 567, monthlyClicks: 134,
     totalEnquiries: 39, monthlyEnquiries: 11,
   },
@@ -179,7 +283,10 @@ export const products: Product[] = [
     isDiscount: false,
     isNewArrival: false,
     isFastMoving: false,
-    industryIds: ["3", "1"],
+    industryIds: ["2", "1", "8"],
+    material: "Kraft 90gsm",
+    finish: "Natural",
+    keywords: ["grocery bag", "sos bag", "flat bottom bag", "produce bag", "mboga bag"],
     totalClicks: 689, monthlyClicks: 162,
     totalEnquiries: 47, monthlyEnquiries: 10,
   },
