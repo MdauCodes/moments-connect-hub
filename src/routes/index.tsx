@@ -6,6 +6,7 @@ import { usePersona } from "@/contexts/PersonaContext";
 import { useBasket } from "@/contexts/BasketContext";
 import { PackagingCloud } from "@/components/PackagingCloud";
 import { FeaturedCarousel } from "@/components/FeaturedCarousel";
+import { CategoryShowcase } from "@/components/CategoryShowcase";
 import { LatestBlogsStrip } from "@/components/blog/LatestBlogsStrip";
 import { ArrowRight, MessageCircle, Sparkles, Truck, Award } from "lucide-react";
 
@@ -158,6 +159,9 @@ function HomePage() {
 
       {/* Curated picks: discounts / new arrivals / fast movers (admin-flagged) */}
       <FeaturedCarousel />
+
+      {/* Self-presenting marquee with tabs per category */}
+      <CategoryShowcase />
 
       {/* Categories */}
       <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-28">
