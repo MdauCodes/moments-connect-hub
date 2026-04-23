@@ -11,6 +11,7 @@ import {
   FileText,
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { can, type Permission } from "@/lib/permissions";
 
 interface AdminLayoutProps {
   title: string;
@@ -24,6 +25,8 @@ interface NavItem {
   to: string;
   icon: typeof LayoutList;
   badge?: number;
+  /** If set, the item is only rendered when the current role has this permission. */
+  requires?: Permission;
 }
 
 const mainNav: NavItem[] = [
@@ -34,8 +37,8 @@ const mainNav: NavItem[] = [
 ];
 
 const manageNav: NavItem[] = [
-  { label: "Staff", to: "/admin/staff", icon: Users },
-  { label: "Settings", to: "/admin/settings", icon: Settings },
+  { label: "Staff", to: "/admin/staff", icon: Users, requires: "staff:manage" },
+  { label: "Settings", to: "/admin/settings", icon: Settings, requires: "settings:manage" },
 ];
 
 const styles: Record<string, CSSProperties> = {
