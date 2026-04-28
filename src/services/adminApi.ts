@@ -141,20 +141,26 @@ export function clearAdminSession(): void {
 export async function refreshAdminSession(session = readAdminSession()): Promise<AdminSession | null> {
   if (!session?.refreshToken) return null;
 
-  const res = await fetch(apiUrl("/api/v1/auth/refresh"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.refreshToken}`,
-    },
-    body: JSON.stringify({ refreshToken: session.refreshToken }),
-  });
+  for (const path of ["/api/v1/auth/refresh", "/api/v1/auth/refresh-token"]) {
+    const res = await fetch(apiUrl(path), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.refreshToken}`,
+      },
+      body: JSON.stringify({ refreshToken: session.refreshToken }),
+    });
 
-  if (!res.ok) return null;
+    if (res.ok) {
+      const next = normalizeAdminSession((await res.json()) as AuthResponse, session);
+      writeAdminSession(next);
+      return next;
+    }
 
-  const next = normalizeAdminSession((await res.json()) as AuthResponse, session);
-  writeAdminSession(next);
-  return next;
+    if (res.status !== 404 && res.status !== 405) return null;
+  }
+
+  return null;
 }
 
 export async function getValidAdminSession(): Promise<AdminSession | null> {
