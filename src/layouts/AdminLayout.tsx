@@ -279,8 +279,8 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
   };
 
   const displayName = user?.name ?? "Admin User";
-  const displayEmail = user?.email ?? displayRole;
   const displayRole = user?.role === "ADMIN" ? "Administrator" : user?.role === "STAFF" ? "Staff" : "Signed in";
+  const displayEmail = user?.email ?? displayRole;
 
   return (
     <div className="admin-shell" style={styles.root}>
