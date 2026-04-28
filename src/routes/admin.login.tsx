@@ -1,16 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, type CSSProperties, type FocusEvent, type FormEvent } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
 export const Route = createFileRoute("/admin/login")({
-  validateSearch: (search) => ({
-    redirect:
-      typeof search.redirect === "string" &&
-      search.redirect.startsWith("/admin/") &&
-      search.redirect !== "/admin/login"
-        ? search.redirect
-        : "/admin/enquiries",
-  }),
   component: AdminLoginPage,
 });
 
@@ -18,30 +10,29 @@ const styles: Record<string, CSSProperties> = {
   root: {
     minHeight: "100vh",
     width: "100%",
-    background: "color-mix(in oklch, var(--forest) 16%, var(--background))",
+    background: "#0F1117",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
-    fontFamily: "var(--font-sans)",
-    color: "var(--foreground)",
+    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    color: "#E2E8F0",
   },
   card: {
     width: "100%",
     maxWidth: 400,
-    background: "color-mix(in oklch, var(--card) 92%, var(--forest))",
-    border: "1px solid var(--border)",
+    background: "#161B27",
+    border: "1px solid #1E2535",
     borderRadius: 16,
     padding: "2.5rem",
-    boxShadow: "0 24px 70px color-mix(in oklch, var(--forest) 20%, transparent)",
   },
   logoWrap: { display: "flex", justifyContent: "center" },
   logoMark: {
     width: 30,
     height: 30,
     borderRadius: 8,
-    background: "var(--primary)",
-    color: "var(--kraft)",
+    background: "#2D5A3D",
+    color: "#C49A6C",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -52,35 +43,34 @@ const styles: Record<string, CSSProperties> = {
   heading: {
     fontSize: 20,
     fontWeight: 600,
-    color: "var(--foreground)",
+    color: "#E2E8F0",
     marginTop: 24,
     textAlign: "center",
-    fontFamily: "var(--font-display)",
   },
-  sub: { fontSize: 12, color: "var(--muted-foreground)", textAlign: "center", marginTop: 4 },
+  sub: { fontSize: 12, color: "#4A5568", textAlign: "center", marginTop: 4 },
   form: { marginTop: 32, display: "flex", flexDirection: "column", gap: 16 },
   field: { display: "flex", flexDirection: "column", gap: 6 },
   label: {
     fontSize: 11,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
-    color: "var(--muted-foreground)",
+    color: "#4A5568",
   },
   input: {
-    background: "var(--background)",
-    border: "1px solid var(--input)",
+    background: "#0F1117",
+    border: "1px solid #1E2535",
     borderRadius: 8,
     padding: "10px 14px",
-    color: "var(--foreground)",
+    color: "#E2E8F0",
     fontSize: 13,
     outline: "none",
     fontFamily: "inherit",
   },
-  error: { fontSize: 13, color: "var(--destructive)", minHeight: 20 },
+  error: { fontSize: 13, color: "#FC8181", minHeight: 20 },
   submit: {
     width: "100%",
-    background: "var(--primary)",
-    color: "var(--primary-foreground)",
+    background: "#2D5A3D",
+    color: "#9AE6B4",
     border: "none",
     borderRadius: 10,
     padding: 11,
@@ -93,18 +83,18 @@ const styles: Record<string, CSSProperties> = {
 };
 
 function AdminLoginPage() {
-  const { login, isAuthenticated, isCheckingSession } = useAdminAuth();
-  const { redirect } = Route.useSearch();
+  const { login, isAuthenticated } = useAdminAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!isCheckingSession && isAuthenticated) {
-      window.location.replace(redirect);
+    if (isAuthenticated) {
+      navigate({ to: "/admin/enquiries" });
     }
-  }, [isAuthenticated, isCheckingSession, redirect]);
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -112,7 +102,7 @@ function AdminLoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      window.location.replace(redirect);
+      navigate({ to: "/admin/enquiries" });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
@@ -121,11 +111,11 @@ function AdminLoginPage() {
     }
   };
 
-  const handleFocus = (e: FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = "var(--primary)";
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = "#2D5A3D";
   };
-  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = "var(--input)";
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = "#1E2535";
   };
 
   return (
@@ -139,9 +129,7 @@ function AdminLoginPage() {
 
         <form style={styles.form} onSubmit={handleSubmit}>
           <div style={styles.field}>
-            <label style={styles.label} htmlFor="admin-email">
-              Email
-            </label>
+            <label style={styles.label} htmlFor="admin-email">Email</label>
             <input
               id="admin-email"
               type="email"
@@ -157,9 +145,7 @@ function AdminLoginPage() {
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label} htmlFor="admin-password">
-              Password
-            </label>
+            <label style={styles.label} htmlFor="admin-password">Password</label>
             <input
               id="admin-password"
               type="password"

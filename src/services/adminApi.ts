@@ -33,7 +33,6 @@ type AuthResponse = {
 };
 
 const EXPIRY_SKEW_MS = 30_000;
-let verifiedSession: AdminSession | null = null;
 
 function isBrowser(): boolean {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -92,17 +91,14 @@ function normalizeRole(data: AuthResponse, fallback?: AdminRole): AdminRole | nu
   return fallback ?? null;
 }
 
-export function normalizeAdminSession(
-  data: AuthResponse,
-  fallback?: Partial<AdminSession>,
-): AdminSession {
+export function normalizeAdminSession(data: AuthResponse, fallback?: Partial<AdminSession>): AdminSession {
   const token = data.accessToken ?? data.token ?? fallback?.token;
   const email = data.user?.email ?? data.email ?? fallback?.email;
   const firstName = data.user?.firstName?.trim() ?? "";
   const lastName = data.user?.lastName?.trim() ?? "";
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
 
-  if (!token || !email || !hasCompactJwtShape(token)) {
+  if (!token || !email) {
     throw new Error("Authentication response was missing required session details");
   }
 
@@ -129,14 +125,7 @@ export function readAdminSession(): AdminSession | null {
     const raw = window.localStorage.getItem(ADMIN_SESSION_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as AdminSession;
-    if (!parsed?.token || !isAdminRole(parsed.role) || !hasCompactJwtShape(parsed.token)) {
-      clearAdminSession();
-      return null;
-    }
-    if (isJwtExpired(parsed.token) && !parsed.refreshToken) {
-      clearAdminSession();
-      return null;
-    }
+    if (!parsed?.token || !isAdminRole(parsed.role)) return null;
     return parsed;
   } catch {
     clearAdminSession();
@@ -151,28 +140,12 @@ export function writeAdminSession(session: AdminSession): void {
 }
 
 export function clearAdminSession(): void {
-  verifiedSession = null;
   if (!isBrowser()) return;
   window.localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
   notifySessionChanged();
 }
 
-async function validateAdminSession(session: AdminSession): Promise<AdminSession | null> {
-  if (verifiedSession?.token === session.token) return verifiedSession;
-
-  const res = await fetch(apiUrl("/api/v1/admin/enquiries?size=1"), {
-    headers: { Authorization: `Bearer ${session.token}` },
-  });
-
-  if (!res.ok) return null;
-
-  verifiedSession = session;
-  return session;
-}
-
-export async function refreshAdminSession(
-  session = readAdminSession(),
-): Promise<AdminSession | null> {
+export async function refreshAdminSession(session = readAdminSession()): Promise<AdminSession | null> {
   if (!session?.refreshToken) return null;
 
   for (const path of ["/api/v1/auth/refresh", "/api/v1/auth/refresh-token"]) {
@@ -199,30 +172,24 @@ export async function refreshAdminSession(
 export async function getValidAdminSession(): Promise<AdminSession | null> {
   const session = readAdminSession();
   if (!session) return null;
-  const candidate = isJwtExpired(session.token) ? await refreshAdminSession(session) : session;
-  if (!candidate) {
-    clearAdminSession();
-    return null;
-  }
-
-  const validated = await validateAdminSession(candidate);
-  if (!validated) clearAdminSession();
-  return validated;
+  if (!isJwtExpired(session.token)) return session;
+  const refreshed = await refreshAdminSession(session);
+  if (!refreshed) clearAdminSession();
+  return refreshed;
 }
 
 export async function adminFetch(path: string, init?: RequestInit): Promise<Response> {
   const session = await getValidAdminSession();
   if (!session) throw new Error("Admin session expired. Please sign in again.");
 
-  const makeRequest = (token: string) =>
-    fetch(apiUrl(path), {
-      ...init,
-      headers: {
-        "Content-Type": "application/json",
-        ...init?.headers,
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const makeRequest = (token: string) => fetch(apiUrl(path), {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...init?.headers,
+    },
+  });
 
   let res = await makeRequest(session.token);
   if (res.status === 401) {
@@ -232,11 +199,7 @@ export async function adminFetch(path: string, init?: RequestInit): Promise<Resp
 
   if (res.status === 401 || res.status === 403) {
     clearAdminSession();
-    throw new Error(
-      res.status === 403
-        ? "Admin access is not authorised."
-        : "Admin session expired. Please sign in again.",
-    );
+    throw new Error(res.status === 403 ? "Admin access is not authorised." : "Admin session expired. Please sign in again.");
   }
 
   return res;

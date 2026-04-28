@@ -9,7 +9,6 @@ import {
   Bell,
   Search,
   FileText,
-  LogOut,
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can, type Permission } from "@/lib/permissions";
@@ -49,22 +48,22 @@ const styles: Record<string, CSSProperties> = {
     height: "100vh",
     width: "100vw",
     overflow: "hidden",
-    background: "color-mix(in oklch, var(--forest) 14%, var(--background))",
-    color: "var(--foreground)",
-    fontFamily: "var(--font-sans)",
+    background: "#0F1117",
+    color: "#E2E8F0",
+    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
   },
   sidebar: {
     width: 220,
     height: "100vh",
-    background: "color-mix(in oklch, var(--card) 88%, var(--forest))",
-    borderRight: "1px solid var(--border)",
+    background: "#161B27",
+    borderRight: "1px solid #1E2535",
     display: "flex",
     flexDirection: "column",
     flexShrink: 0,
   },
   sidebarTop: {
     padding: "18px 16px",
-    borderBottom: "1px solid var(--border)",
+    borderBottom: "1px solid #1E2535",
     display: "flex",
     alignItems: "center",
     gap: 10,
@@ -73,8 +72,8 @@ const styles: Record<string, CSSProperties> = {
     width: 30,
     height: 30,
     borderRadius: 8,
-    background: "var(--primary)",
-    color: "var(--kraft)",
+    background: "#2D5A3D",
+    color: "#C49A6C",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -83,14 +82,14 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: 600,
     lineHeight: 1,
   },
-  brandName: { fontSize: 12, fontWeight: 600, color: "var(--foreground)", lineHeight: 1.2 },
-  brandSub: { fontSize: 10, color: "var(--muted-foreground)", lineHeight: 1.2 },
+  brandName: { fontSize: 12, fontWeight: 600, color: "#E2E8F0", lineHeight: 1.2 },
+  brandSub: { fontSize: 10, color: "#4A5568", lineHeight: 1.2 },
   nav: { flex: 1, overflowY: "auto", padding: "10px 8px" },
   sectionLabel: {
     fontSize: 9.5,
     textTransform: "uppercase",
     letterSpacing: "0.1em",
-    color: "var(--muted-foreground)",
+    color: "#4A5568",
     padding: "10px 16px 4px",
   },
   navItem: {
@@ -99,20 +98,20 @@ const styles: Record<string, CSSProperties> = {
     gap: 9,
     padding: "7px 10px",
     borderRadius: 7,
-    color: "var(--muted-foreground)",
+    color: "#8896A8",
     fontSize: 12.5,
     textDecoration: "none",
     cursor: "pointer",
     transition: "background 120ms, color 120ms",
   },
   navItemActive: {
-    background: "color-mix(in oklch, var(--primary) 18%, transparent)",
-    color: "var(--primary)",
+    background: "#1E3A2A",
+    color: "#4CAF72",
   },
   badge: {
     marginLeft: "auto",
-    background: "var(--destructive)",
-    color: "var(--destructive-foreground)",
+    background: "#C53030",
+    color: "white",
     fontSize: 9,
     fontWeight: 600,
     padding: "2px 6px",
@@ -121,7 +120,7 @@ const styles: Record<string, CSSProperties> = {
   },
   sidebarBottom: {
     marginTop: "auto",
-    borderTop: "1px solid var(--border)",
+    borderTop: "1px solid #1E2535",
     padding: "12px 8px",
   },
   userPill: {
@@ -137,8 +136,8 @@ const styles: Record<string, CSSProperties> = {
     width: 28,
     height: 28,
     borderRadius: "50%",
-    background: "var(--primary)",
-    color: "var(--kraft)",
+    background: "#2D5A3D",
+    color: "#C49A6C",
     fontSize: 11,
     fontWeight: 600,
     display: "flex",
@@ -146,8 +145,8 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "center",
     flexShrink: 0,
   },
-  userName: { fontSize: 12, color: "var(--foreground)", lineHeight: 1.2 },
-  userRole: { fontSize: 10, color: "var(--muted-foreground)", lineHeight: 1.2 },
+  userName: { fontSize: 12, color: "#CBD5E0", lineHeight: 1.2 },
+  userRole: { fontSize: 10, color: "#4A5568", lineHeight: 1.2 },
   main: {
     flex: 1,
     display: "flex",
@@ -157,35 +156,30 @@ const styles: Record<string, CSSProperties> = {
   },
   topbar: {
     height: 52,
-    background: "color-mix(in oklch, var(--card) 88%, var(--forest))",
-    borderBottom: "1px solid var(--border)",
+    background: "#161B27",
+    borderBottom: "1px solid #1E2535",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     padding: "0 20px",
     flexShrink: 0,
   },
-  topbarTitle: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: "var(--foreground)",
-    fontFamily: "var(--font-display)",
-  },
+  topbarTitle: { fontSize: 14, fontWeight: 600, color: "#E2E8F0" },
   topbarRight: { display: "flex", alignItems: "center", gap: 12 },
   searchWrap: { position: "relative", display: "flex", alignItems: "center" },
   searchIcon: {
     position: "absolute",
     left: 10,
-    color: "var(--muted-foreground)",
+    color: "#4A5568",
     pointerEvents: "none",
   },
   searchInput: {
-    background: "var(--background)",
-    border: "1px solid var(--input)",
+    background: "#0F1117",
+    border: "1px solid #1E2535",
     borderRadius: 8,
     padding: "6px 12px 6px 32px",
     fontSize: 12,
-    color: "var(--foreground)",
+    color: "#E2E8F0",
     width: 200,
     outline: "none",
     fontFamily: "inherit",
@@ -194,14 +188,14 @@ const styles: Record<string, CSSProperties> = {
     position: "relative",
     width: 32,
     height: 32,
-    background: "var(--secondary)",
+    background: "#1E2535",
     borderRadius: 8,
     border: "none",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
-    color: "var(--secondary-foreground)",
+    color: "#8896A8",
   },
   bellDot: {
     position: "absolute",
@@ -209,13 +203,13 @@ const styles: Record<string, CSSProperties> = {
     right: 6,
     width: 7,
     height: 7,
-    background: "var(--destructive)",
+    background: "#C53030",
     borderRadius: "50%",
-    border: "1.5px solid var(--card)",
+    border: "1.5px solid #161B27",
   },
   actionBtn: {
-    background: "var(--primary)",
-    color: "var(--primary-foreground)",
+    background: "#2D5A3D",
+    color: "#9AE6B4",
     border: "none",
     borderRadius: 8,
     padding: "6px 14px",
@@ -228,7 +222,7 @@ const styles: Record<string, CSSProperties> = {
     flex: 1,
     overflowY: "auto",
     padding: 20,
-    background: "color-mix(in oklch, var(--forest) 14%, var(--background))",
+    background: "#0F1117",
   },
 };
 
@@ -247,26 +241,28 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       style={{ ...styles.navItem, ...(active ? styles.navItemActive : {}) }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.background = "var(--secondary)";
-          e.currentTarget.style.color = "var(--foreground)";
+          e.currentTarget.style.background = "#1E2535";
+          e.currentTarget.style.color = "#E2E8F0";
         }
       }}
       onMouseLeave={(e) => {
         if (!active) {
           e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "var(--muted-foreground)";
+          e.currentTarget.style.color = "#8896A8";
         }
       }}
     >
       <Icon size={16} />
       <span>{item.label}</span>
-      {item.badge !== undefined && item.badge > 0 && <span style={styles.badge}>{item.badge}</span>}
+      {item.badge !== undefined && item.badge > 0 && (
+        <span style={styles.badge}>{item.badge}</span>
+      )}
     </Link>
   );
 }
 
 export function AdminLayout({ title, actionLabel, onAction, children }: AdminLayoutProps) {
-  const { user, logout } = useAdminAuth();
+  const { user } = useAdminAuth();
   const location = useLocation();
   const pathname = location.pathname;
 
@@ -278,8 +274,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
   };
 
   const displayName = user?.name ?? "Admin User";
-  const displayRole =
-    user?.role === "ADMIN" ? "Administrator" : user?.role === "STAFF" ? "Staff" : "Signed in";
+  const displayRole = user?.role === "ADMIN" ? "Administrator" : user?.role === "STAFF" ? "Staff" : "Signed in";
 
   return (
     <div style={styles.root}>
@@ -315,7 +310,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
         <div style={styles.sidebarBottom}>
           <div
             style={styles.userPill}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--secondary)")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#1E2535")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             <div style={styles.avatar}>{getInitials(displayName)}</div>
@@ -323,20 +318,6 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
               <div style={styles.userName}>{displayName}</div>
               <div style={styles.userRole}>{displayRole}</div>
             </div>
-            <button
-              type="button"
-              aria-label="Sign out"
-              onClick={logout}
-              style={{
-                marginLeft: "auto",
-                border: 0,
-                background: "transparent",
-                color: "var(--muted-foreground)",
-                cursor: "pointer",
-              }}
-            >
-              <LogOut size={15} />
-            </button>
           </div>
         </div>
       </aside>
@@ -347,7 +328,11 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
           <div style={styles.topbarRight}>
             <div style={styles.searchWrap}>
               <Search size={14} style={styles.searchIcon} />
-              <input type="text" placeholder="Search enquiries..." style={styles.searchInput} />
+              <input
+                type="text"
+                placeholder="Search enquiries..."
+                style={styles.searchInput}
+              />
             </div>
             <button type="button" style={styles.bellBtn} aria-label="Notifications">
               <Bell size={15} />

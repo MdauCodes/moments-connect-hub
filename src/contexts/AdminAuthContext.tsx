@@ -38,13 +38,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     setUser(readAdminSession());
 
-    const syncSession = () => {
-      setIsCheckingSession(true);
-      void getValidAdminSession().then((session) => {
-        setUser(session);
-        setIsCheckingSession(false);
-      });
-    };
+    const syncSession = () => setUser(readAdminSession());
     window.addEventListener(ADMIN_SESSION_CHANGED_EVENT, syncSession);
     window.addEventListener("storage", syncSession);
 
