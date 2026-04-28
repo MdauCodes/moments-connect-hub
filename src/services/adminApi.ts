@@ -45,6 +45,7 @@ function notifySessionChanged(): void {
 
 function decodeJwtPayload(token: string): { exp?: number } | null {
   try {
+    if (!hasCompactJwtShape(token)) return null;
     const [, payload] = token.split(".");
     if (!payload) return null;
     const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
@@ -55,8 +56,14 @@ function decodeJwtPayload(token: string): { exp?: number } | null {
   }
 }
 
+function hasCompactJwtShape(token: string): boolean {
+  const periodCount = (token.match(/\./g) ?? []).length;
+  return periodCount === 2 || periodCount === 4;
+}
+
 export function isJwtExpired(token: string | undefined, skewMs = EXPIRY_SKEW_MS): boolean {
   if (!token) return true;
+  if (!hasCompactJwtShape(token)) return true;
   if (!isBrowser()) return false;
   const payload = decodeJwtPayload(token);
   if (!payload?.exp) return false;
@@ -146,7 +153,6 @@ export async function refreshAdminSession(session = readAdminSession()): Promise
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session.refreshToken}`,
       },
       body: JSON.stringify({ refreshToken: session.refreshToken }),
     });
