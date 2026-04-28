@@ -325,11 +325,6 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
           <span style={styles.helper}>Cover required · Secondary optional</span>
         </div>
         <div style={styles.row}>
-        <div style={styles.cardHeader}>
-          <span style={styles.cardTitle}>Images</span>
-          <span style={styles.helper}>Cover required · Secondary optional</span>
-        </div>
-        <div style={styles.row}>
           <ImageSlot
             label="Cover image"
             image={values.coverImage}
@@ -358,7 +353,6 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
             }
             onClear={() => patch("secondaryImage", undefined)}
           />
-        </div>
         </div>
       </div>
 
