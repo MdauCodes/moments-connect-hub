@@ -67,7 +67,7 @@ export function isAdminRole(role: unknown): role is AdminRole {
   return role === "ADMIN" || role === "STAFF";
 }
 
-function normalizeRole(data: AuthResponse, fallback?: AdminRole): AdminRole {
+function normalizeRole(data: AuthResponse, fallback?: AdminRole): AdminRole | null {
   const direct = String(data.user?.role ?? data.role ?? "").replace(/^ROLE_/, "");
   if (isAdminRole(direct)) return direct;
 
@@ -75,7 +75,7 @@ function normalizeRole(data: AuthResponse, fallback?: AdminRole): AdminRole {
   if (roles.some((role) => role === "ROLE_ADMIN" || role === "ADMIN")) return "ADMIN";
   if (roles.some((role) => role === "ROLE_STAFF" || role === "STAFF")) return "STAFF";
 
-  return fallback ?? "STAFF";
+  return fallback ?? null;
 }
 
 export function normalizeAdminSession(data: AuthResponse, fallback?: Partial<AdminSession>): AdminSession {
@@ -89,18 +89,19 @@ export function normalizeAdminSession(data: AuthResponse, fallback?: Partial<Adm
     throw new Error("Authentication response was missing required session details");
   }
 
+  const role = normalizeRole(data, fallback?.role);
+  if (!role) {
+    throw new Error("This account is not authorised for the admin dashboard");
+  }
+
   const session: AdminSession = {
     id: data.user?.id ?? fallback?.id,
     token,
     refreshToken: data.refreshToken ?? fallback?.refreshToken,
     name: data.user?.name ?? (fullName || undefined) ?? data.name ?? fallback?.name ?? email,
     email,
-    role: normalizeRole(data, fallback?.role),
+    role,
   };
-
-  if (!isAdminRole(session.role)) {
-    throw new Error("This account is not authorised for the admin dashboard");
-  }
 
   return session;
 }
