@@ -33,6 +33,7 @@ type AuthResponse = {
 };
 
 const EXPIRY_SKEW_MS = 30_000;
+let verifiedSession: AdminSession | null = null;
 
 function isBrowser(): boolean {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -125,7 +126,14 @@ export function readAdminSession(): AdminSession | null {
     const raw = window.localStorage.getItem(ADMIN_SESSION_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as AdminSession;
-    if (!parsed?.token || !isAdminRole(parsed.role)) return null;
+    if (!parsed?.token || !isAdminRole(parsed.role) || !hasCompactJwtShape(parsed.token)) {
+      clearAdminSession();
+      return null;
+    }
+    if (isJwtExpired(parsed.token) && !parsed.refreshToken) {
+      clearAdminSession();
+      return null;
+    }
     return parsed;
   } catch {
     clearAdminSession();
@@ -140,9 +148,25 @@ export function writeAdminSession(session: AdminSession): void {
 }
 
 export function clearAdminSession(): void {
+  verifiedSession = null;
   if (!isBrowser()) return;
   window.localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
   notifySessionChanged();
+}
+
+async function validateAdminSession(session: AdminSession): Promise<AdminSession | null> {
+  if (verifiedSession?.token === session.token) return verifiedSession;
+
+  const res = await fetch(apiUrl("/api/v1/auth/me"), {
+    headers: { Authorization: `Bearer ${session.token}` },
+  });
+
+  if (!res.ok) return null;
+
+  const next = normalizeAdminSession((await res.json()) as AuthResponse, session);
+  verifiedSession = next;
+  writeAdminSession(next);
+  return next;
 }
 
 export async function refreshAdminSession(session = readAdminSession()): Promise<AdminSession | null> {
@@ -172,10 +196,15 @@ export async function refreshAdminSession(session = readAdminSession()): Promise
 export async function getValidAdminSession(): Promise<AdminSession | null> {
   const session = readAdminSession();
   if (!session) return null;
-  if (!isJwtExpired(session.token)) return session;
-  const refreshed = await refreshAdminSession(session);
-  if (!refreshed) clearAdminSession();
-  return refreshed;
+  const candidate = isJwtExpired(session.token) ? await refreshAdminSession(session) : session;
+  if (!candidate) {
+    clearAdminSession();
+    return null;
+  }
+
+  const validated = await validateAdminSession(candidate);
+  if (!validated) clearAdminSession();
+  return validated;
 }
 
 export async function adminFetch(path: string, init?: RequestInit): Promise<Response> {
