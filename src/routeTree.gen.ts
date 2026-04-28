@@ -438,10 +438,10 @@ declare module '@tanstack/react-router' {
     }
     '/_adminAuth/admin/products/new': {
       id: '/_adminAuth/admin/products/new'
-      path: '/new'
+      path: '/admin/products/new'
       fullPath: '/admin/products/new'
       preLoaderRoute: typeof AdminAuthAdminProductsNewRouteImport
-      parentRoute: typeof AdminAuthAdminProductsRoute
+      parentRoute: typeof AdminAuthRoute
     }
     '/_adminAuth/admin/products/$id': {
       id: '/_adminAuth/admin/products/$id'
@@ -452,10 +452,10 @@ declare module '@tanstack/react-router' {
     }
     '/_adminAuth/admin/enquiries/new': {
       id: '/_adminAuth/admin/enquiries/new'
-      path: '/new'
+      path: '/admin/enquiries/new'
       fullPath: '/admin/enquiries/new'
       preLoaderRoute: typeof AdminAuthAdminEnquiriesNewRouteImport
-      parentRoute: typeof AdminAuthAdminEnquiriesRoute
+      parentRoute: typeof AdminAuthRoute
     }
     '/_adminAuth/admin/enquiries/$id': {
       id: '/_adminAuth/admin/enquiries/$id'
