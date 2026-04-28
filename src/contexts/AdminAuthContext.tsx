@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { apiUrl } from "@/config/api";
 import {
   ADMIN_SESSION_CHANGED_EVENT,
@@ -46,11 +46,11 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const ensureValidSession = async (): Promise<AdminUser | null> => {
+  const ensureValidSession = useCallback(async (): Promise<AdminUser | null> => {
     const session = await getValidAdminSession();
     setUser(session);
     return session;
-  };
+  }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
     const res = await fetch(apiUrl("/api/v1/auth/login"), {
