@@ -3,6 +3,9 @@ import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
 export const Route = createFileRoute("/admin/login")({
+  validateSearch: (search) => ({
+    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+  }),
   component: AdminLoginPage,
 });
 
@@ -85,16 +88,18 @@ const styles: Record<string, CSSProperties> = {
 function AdminLoginPage() {
   const { login, isAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
+  const { redirect } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const safeRedirect = redirect && !redirect.startsWith("/admin/login") ? redirect : "/admin/enquiries";
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate({ to: "/admin/enquiries" });
+      navigate({ to: safeRedirect });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, safeRedirect]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -102,7 +107,7 @@ function AdminLoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      navigate({ to: "/admin/enquiries" });
+      navigate({ to: safeRedirect });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
