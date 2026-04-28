@@ -28,6 +28,12 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
 
+  const ensureValidSession = useCallback(async (): Promise<AdminUser | null> => {
+    const session = await getValidAdminSession();
+    setUser(session);
+    return session;
+  }, []);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     setUser(readAdminSession());
@@ -58,12 +64,6 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
     return () => window.clearTimeout(timeout);
   }, [ensureValidSession, user?.token]);
-
-  const ensureValidSession = useCallback(async (): Promise<AdminUser | null> => {
-    const session = await getValidAdminSession();
-    setUser(session);
-    return session;
-  }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
     const res = await fetch(apiUrl("/api/v1/auth/login"), {
