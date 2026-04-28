@@ -2,8 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties } from "react";
 import { MessageCircle, Copy } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
-import { useAdminAuth } from "@/contexts/AdminAuthContext";
-import { apiUrl } from "@/config/api";
+import { adminFetch } from "@/services/adminApi";
 
 export const Route = createFileRoute("/_adminAuth/admin/enquiries/$id")({
   component: AdminEnquiryDetailPage,
@@ -399,14 +398,7 @@ function normalizeEnquiryDetail(e: EnquiryApiDto): EnquiryDetail {
 
 function AdminEnquiryDetailPage() {
   const { id } = Route.useParams();
-  const { user } = useAdminAuth();
   const navigate = useNavigate();
-
-  const token = user?.token;
-  const authHeaders: HeadersInit = {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
 
   const [enquiry, setEnquiry] = useState<EnquiryDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -429,9 +421,7 @@ function AdminEnquiryDetailPage() {
       setLoading(true);
       setLoadError(null);
       try {
-        const res = await fetch(apiUrl(`/api/v1/admin/enquiries/${id}`), {
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        });
+        const res = await adminFetch(`/api/v1/admin/enquiries/${id}`);
         if (!res.ok) throw new Error(`Failed to load enquiry (${res.status})`);
         const data = normalizeEnquiryDetail((await res.json()) as EnquiryApiDto);
         if (!cancelled) {
@@ -452,13 +442,12 @@ function AdminEnquiryDetailPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, token]);
+  }, [id]);
 
   const patch = async (path: string, body: Record<string, unknown>): Promise<boolean> => {
     try {
-      const res = await fetch(apiUrl(`/api/v1/admin/enquiries/${id}`), {
+      const res = await adminFetch(`/api/v1/admin/enquiries/${id}`, {
         method: "PATCH",
-        headers: authHeaders,
         body: JSON.stringify({
           status: enquiry?.status,
           assignedTo: enquiry?.assignedTo,
