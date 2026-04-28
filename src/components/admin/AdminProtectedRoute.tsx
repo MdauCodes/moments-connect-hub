@@ -3,16 +3,23 @@ import { Outlet, useNavigate } from "@tanstack/react-router";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
 export function AdminProtectedRoute() {
-  const { isAuthenticated } = useAdminAuth();
+  const { user, isAuthenticated, isCheckingSession, ensureValidSession } = useAdminAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate({ to: "/admin/login" });
-    }
-  }, [isAuthenticated, navigate]);
+    if (isCheckingSession) return;
 
-  if (!isAuthenticated) return null;
+    if (!isAuthenticated) {
+      void navigate({ to: "/admin/login" });
+      return;
+    }
+
+    void ensureValidSession().then((session) => {
+      if (!session) void navigate({ to: "/admin/login" });
+    });
+  }, [ensureValidSession, isAuthenticated, isCheckingSession, navigate, user?.token]);
+
+  if (isCheckingSession || !isAuthenticated) return null;
   return <Outlet />;
 }
 
