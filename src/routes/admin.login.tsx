@@ -89,7 +89,6 @@ const styles: Record<string, CSSProperties> = {
 
 function AdminLoginPage() {
   const { login, isAuthenticated, isCheckingSession } = useAdminAuth();
-  const navigate = useNavigate();
   const { redirect } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -98,9 +97,9 @@ function AdminLoginPage() {
 
   useEffect(() => {
     if (!isCheckingSession && isAuthenticated) {
-      navigate({ to: redirect, replace: true });
+      window.location.replace(redirect);
     }
-  }, [isAuthenticated, isCheckingSession, navigate, redirect]);
+  }, [isAuthenticated, isCheckingSession, redirect]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -108,7 +107,7 @@ function AdminLoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      navigate({ to: redirect, replace: true });
+      window.location.replace(redirect);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
