@@ -3,6 +3,7 @@ import { apiUrl } from "@/config/api";
 import {
   ADMIN_SESSION_CHANGED_EVENT,
   clearAdminSession,
+  getJwtExpiresAt,
   getValidAdminSession,
   normalizeAdminSession,
   readAdminSession,
@@ -45,6 +46,18 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("storage", syncSession);
     };
   }, []);
+
+  useEffect(() => {
+    if (!user?.token) return;
+    const expiresAt = getJwtExpiresAt(user.token);
+    if (!expiresAt) return;
+
+    const timeout = window.setTimeout(() => {
+      void ensureValidSession();
+    }, Math.max(expiresAt - Date.now() - 30_000, 0));
+
+    return () => window.clearTimeout(timeout);
+  }, [ensureValidSession, user?.token]);
 
   const ensureValidSession = useCallback(async (): Promise<AdminUser | null> => {
     const session = await getValidAdminSession();
