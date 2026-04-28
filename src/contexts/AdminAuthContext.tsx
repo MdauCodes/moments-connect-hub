@@ -94,7 +94,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       id: data.user?.id,
       token,
       refreshToken: data.refreshToken,
-      name: data.user?.name ?? fullName ?? data.name ?? data.user?.email ?? data.email ?? "Admin",
+      name: data.user?.name ?? (fullName || undefined) ?? data.name ?? data.user?.email ?? data.email ?? "Admin",
       email: data.user?.email ?? data.email ?? email,
       role: roleFromResponse ?? roleFromRoles,
     };
