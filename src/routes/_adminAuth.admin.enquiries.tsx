@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Inbox } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { apiUrl } from "@/config/api";
 
 export const Route = createFileRoute("/_adminAuth/admin/enquiries")({
   component: AdminEnquiriesPage,
@@ -389,14 +390,13 @@ function AdminEnquiriesPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
     const token = user?.token;
 
     const run = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${apiUrl}/api/admin/enquiries`, {
+        const res = await fetch(apiUrl("/api/admin/enquiries"), {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         if (!res.ok) {
