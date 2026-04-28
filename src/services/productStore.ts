@@ -1,12 +1,82 @@
 // ----------------------------------------------------------------------------
-// Mock product store — localStorage-backed CRUD that mirrors the eventual
-// Spring Boot REST contract for /api/admin/products. Replace each method
-// with a real fetch() call once the backend is live; signatures stay the same.
+// Product store — uses the Spring Boot admin API when VITE_API_URL is present.
+// Mock localStorage data is disabled by default and only used when
+// VITE_USE_MOCK_DATA=true or no API URL is configured.
 // ----------------------------------------------------------------------------
 
 import { products as seedProducts, type Product } from "@/data/products";
 
 const STORAGE_KEY = "moments_products_v1";
+const API_URL = import.meta.env.VITE_API_URL ?? "";
+const USE_MOCKS = import.meta.env.VITE_USE_MOCK_DATA === "true" || !API_URL;
+
+type PageResponse<T> = { content: T[] };
+
+function authHeaders(): HeadersInit {
+  if (!isBrowser()) return { "Content-Type": "application/json" };
+  const raw = localStorage.getItem("moments_admin_token");
+  const token = raw ? (JSON.parse(raw) as { token?: string }).token : undefined;
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+function toBackendPayload(input: Partial<ProductDraft>) {
+  return {
+    slug: input.slug,
+    name: input.name,
+    category: input.category,
+    description: input.description,
+    moq: input.moq,
+    sizes: input.sizes ?? [],
+    tags: input.tags ?? [],
+    primaryImageUrl: input.image,
+    imageUrls: input.images ?? [],
+    isDiscount: input.isDiscount ?? false,
+    discountPercent: input.isDiscount ? input.discountPercent : null,
+    isNewArrival: input.isNewArrival ?? false,
+    isFastMoving: input.isFastMoving ?? false,
+    material: input.material,
+    finish: input.finish,
+    keywords: input.keywords ?? [],
+    industryIds: input.industryIds ?? [],
+  };
+}
+
+function normalizeProduct(
+  p: Partial<Product> & { id: string; slug: string; name: string; primaryImageUrl?: string; imageUrls?: string[] },
+): Product {
+  const image = p.image ?? p.primaryImageUrl ?? p.imageUrls?.[0] ?? "";
+  return {
+    ...p,
+    category: p.category ?? "bags",
+    description: p.description ?? "",
+    moq: p.moq ?? 1,
+    image,
+    images: p.images ?? p.imageUrls ?? (image ? [image] : []),
+    isDiscount: p.isDiscount ?? false,
+    isNewArrival: p.isNewArrival ?? false,
+    isFastMoving: p.isFastMoving ?? false,
+    tags: p.tags ?? [],
+    sizes: p.sizes ?? [],
+    industryIds: p.industryIds ?? [],
+    totalClicks: p.totalClicks ?? 0,
+    monthlyClicks: p.monthlyClicks ?? 0,
+    totalEnquiries: p.totalEnquiries ?? 0,
+    monthlyEnquiries: p.monthlyEnquiries ?? 0,
+  };
+}
+
+async function adminJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_URL}/api/v1/admin${path}`, {
+    ...init,
+    headers: { ...authHeaders(), ...init?.headers },
+  });
+  if (!res.ok) throw new Error(`Admin API request failed: ${res.status}`);
+  if (res.status === 204) return undefined as T;
+  return res.json() as Promise<T>;
+}
 
 function isBrowser(): boolean {
   return typeof window !== "undefined" && typeof localStorage !== "undefined";
@@ -54,14 +124,33 @@ export type ProductDraft = Omit<Product, "id" | "slug"> & { slug?: string };
 
 export const productStore = {
   list: async (): Promise<Product[]> => {
+    if (!USE_MOCKS) {
+      const data = await adminJson<PageResponse<Product> | Product[]>("/products?size=100");
+      return (Array.isArray(data) ? data : data.content).map(normalizeProduct);
+    }
     return [...readAll()].sort((a, b) => b.monthlyClicks - a.monthlyClicks);
   },
 
   getById: async (id: string): Promise<Product | null> => {
+    if (!USE_MOCKS) {
+      try {
+        const data = await adminJson<Product>(`/products/${encodeURIComponent(id)}`);
+        return normalizeProduct(data);
+      } catch {
+        return null;
+      }
+    }
     return readAll().find((p) => p.id === id) ?? null;
   },
 
   create: async (input: ProductDraft): Promise<Product> => {
+    if (!USE_MOCKS) {
+      const data = await adminJson<Product>("/products", {
+        method: "POST",
+        body: JSON.stringify(toBackendPayload(input)),
+      });
+      return normalizeProduct(data);
+    }
     const all = readAll();
     const baseSlug = slugify(input.slug || input.name);
     const slug = uniqueSlug(baseSlug, all);
@@ -76,6 +165,13 @@ export const productStore = {
   },
 
   update: async (id: string, patch: Partial<Product>): Promise<Product | null> => {
+    if (!USE_MOCKS) {
+      const data = await adminJson<Product>(`/products/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        body: JSON.stringify(toBackendPayload(patch)),
+      });
+      return normalizeProduct(data);
+    }
     const all = readAll();
     const idx = all.findIndex((p) => p.id === id);
     if (idx === -1) return null;
@@ -95,6 +191,10 @@ export const productStore = {
   },
 
   remove: async (id: string): Promise<boolean> => {
+    if (!USE_MOCKS) {
+      await adminJson<void>(`/products/${encodeURIComponent(id)}`, { method: "DELETE" });
+      return true;
+    }
     const all = readAll();
     const next = all.filter((p) => p.id !== id);
     if (next.length === all.length) return false;

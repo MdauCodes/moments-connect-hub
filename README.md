@@ -24,7 +24,7 @@ TanStack Start app, ready to plug into a Java Spring Boot backend.
 | Animation | `framer-motion` |
 | Icons | `lucide-react` |
 | State | React context (`PersonaContext`, `BasketContext`, `AdminAuthContext`) |
-| Data layer | `src/services/api.ts` — single typed façade; today returns mocks, tomorrow hits Spring Boot |
+| Data layer | `src/services/api.ts` — single typed façade; prefers Spring Boot, mock data is opt-in only |
 | Build target | Edge runtime (Cloudflare Workers via Wrangler) |
 
 ---
@@ -50,10 +50,11 @@ Environment variables go in `.env.local` (see `.env.example`):
 
 ```
 VITE_API_URL=https://api.momentspackaging.com   # Spring Boot base URL once live
+VITE_USE_MOCK_DATA=false                        # true only for offline demos
 ```
 
-While the backend is not yet built, `VITE_API_URL` is unused — the `api`
-façade returns mock data.
+For local backend testing, use `VITE_API_URL=http://localhost:8080` and keep
+`VITE_USE_MOCK_DATA=false` so catalogue/admin data comes from Spring Boot.
 
 ---
 
@@ -108,9 +109,9 @@ src/
     blogs.ts              ← Blog model + seed posts + TEMPLATE_META
 
   services/
-    api.ts                ← single source of truth for all backend calls (mock today)
+    api.ts                ← single source of truth for public backend calls
     blogStore.ts          ← localStorage-backed mock CRUD for blogs
-    productStore.ts       ← localStorage-backed mock CRUD for products (admin)
+    productStore.ts       ← admin product CRUD via Spring Boot, mock fallback optional
     search.ts             ← weighted ranking engine for SearchCommand
 
   lib/

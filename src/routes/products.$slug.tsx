@@ -1,13 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton";
-import { products, productOrderMessage, whatsappLink } from "@/data/products";
-import { useState } from "react";
+import { productOrderMessage, whatsappLink, type Product } from "@/data/products";
+import { api } from "@/services/api";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Check, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/products/$slug")({
-  loader: ({ params }) => {
-    const product = products.find((p) => p.slug === params.slug);
+  loader: async ({ params }) => {
+    const product = await api.getProductBySlug(params.slug);
     if (!product) throw notFound();
     return { product };
   },
@@ -47,9 +48,24 @@ function ProductDetail() {
   const { product } = Route.useLoaderData();
   const [size, setSize] = useState(product.sizes[0]);
   const [qty, setQty] = useState(product.moq);
+  const [related, setRelated] = useState<Product[]>([]);
 
   const orderHref = whatsappLink(productOrderMessage(product, size, qty));
-  const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3);
+  useEffect(() => {
+    void api.trackClick(product.id);
+  }, [product.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void api.getProducts().then((items) => {
+      if (!cancelled) {
+        setRelated(items.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [product.category, product.id]);
 
   return (
     <SiteLayout>
