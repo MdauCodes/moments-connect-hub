@@ -519,7 +519,11 @@ function AdminEnquiriesPage() {
   };
 
   return (
-    <AdminLayout title="Enquiries" actionLabel="+ New enquiry">
+    <AdminLayout
+      title="Enquiries"
+      actionLabel="+ New enquiry"
+      onAction={() => navigate({ to: "/admin/enquiries/new" })}
+    >
       <style>{`@keyframes adminPulse { 0%,100% { opacity: 1 } 50% { opacity: 0.45 } }`}</style>
 
       {/* Stat cards */}
