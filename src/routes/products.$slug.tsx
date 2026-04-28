@@ -3,7 +3,7 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton";
 import { products, productOrderMessage, whatsappLink } from "@/data/products";
 import { api } from "@/services/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Check, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/products/$slug")({
@@ -50,7 +50,9 @@ function ProductDetail() {
   const [qty, setQty] = useState(product.moq);
 
   const orderHref = whatsappLink(productOrderMessage(product, size, qty));
-  void api.trackClick(product.id);
+  useEffect(() => {
+    void api.trackClick(product.id);
+  }, [product.id]);
   const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3);
 
   return (
