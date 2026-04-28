@@ -142,7 +142,7 @@ export const api = {
 
   // GET /api/v1/public/industries
   getIndustries: async () => {
-    if (!USE_MOCKS && API_URL) {
+    if (!USE_MOCKS && API_BASE_URL) {
       const data = await getJson<Array<Partial<Industry> & { displayId?: number }>>(
         "/api/v1/public/industries",
       );
@@ -153,7 +153,7 @@ export const api = {
 
   // GET /api/v1/public/products/{slug}
   getProductBySlug: async (slug: string): Promise<Product | null> => {
-    if (!USE_MOCKS && API_URL) {
+    if (!USE_MOCKS && API_BASE_URL) {
       try {
         const data = await getJson<Product>(`/api/v1/public/products/${encodeURIComponent(slug)}`);
         return normalizeProduct(data);
@@ -166,8 +166,8 @@ export const api = {
 
   // POST /api/v1/public/enquiries
   submitEnquiry: async (payload: unknown) => {
-    if (!USE_MOCKS && API_URL) {
-      const res = await fetch(`${API_URL}/api/v1/public/enquiries`, {
+    if (!USE_MOCKS && API_BASE_URL) {
+      const res = await fetch(apiUrl("/api/v1/public/enquiries"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -181,8 +181,8 @@ export const api = {
 
   // POST /api/v1/public/leads
   submitLead: async (email: string, persona: string) => {
-    if (!USE_MOCKS && API_URL) {
-      const res = await fetch(`${API_URL}/api/v1/public/leads`, {
+    if (!USE_MOCKS && API_BASE_URL) {
+      const res = await fetch(apiUrl("/api/v1/public/leads"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, persona }),
@@ -196,8 +196,8 @@ export const api = {
 
   // POST /api/v1/public/products/{id}/click
   trackClick: async (productId: string) => {
-    if (!USE_MOCKS && API_URL) {
-      await fetch(`${API_URL}/api/v1/public/products/${encodeURIComponent(productId)}/click`, {
+    if (!USE_MOCKS && API_BASE_URL) {
+      await fetch(apiUrl(`/api/v1/public/products/${encodeURIComponent(productId)}/click`), {
         method: "POST",
       });
       return;
