@@ -484,12 +484,13 @@ export function ProductEditor({
 
   return (
     <form style={styles.wrap} onSubmit={handleSubmit}>
-      {/* Core */}
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <div style={styles.cardTitle}>Core details</div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={styles.mainColumn}>
+        {/* Core */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <div style={styles.cardTitle}>Core details</div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={styles.row}>
             <div style={styles.field}>
               <label style={styles.label}>Name</label>
@@ -549,16 +550,19 @@ export function ProductEditor({
               placeholder="Short product summary shown on the catalogue + detail page."
             />
           </div>
+          </div>
+        </div>
+
+        {/* Image */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <div style={styles.cardTitle}>Product image</div>
+          </div>
+          <ImagePicker value={values.image} onChange={(url) => set("image", url)} />
         </div>
       </div>
 
-      {/* Image */}
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <div style={styles.cardTitle}>Product image</div>
-        </div>
-        <ImagePicker value={values.image} onChange={(url) => set("image", url)} />
-      </div>
+      <div style={styles.sideColumn}>
 
       {/* Sizes & material */}
       <div style={styles.card}>
