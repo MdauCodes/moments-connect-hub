@@ -762,6 +762,7 @@ export function ProductEditor({
           </button>
         </div>
       </div>
+      </div>
     </form>
   );
 }
