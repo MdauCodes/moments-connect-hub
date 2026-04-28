@@ -11,11 +11,8 @@ export const Route = createFileRoute("/_adminAuth/admin/enquiries/$id")({
 
 type EnquiryStatus =
   | "NEW"
-  | "REVIEWING"
-  | "QUOTED"
-  | "CONFIRMED"
-  | "IN_PRODUCTION"
-  | "DELIVERED";
+  | "IN_PROGRESS"
+  | "CLOSED";
 
 type CustomerType = "SME" | "CORPORATE";
 
@@ -50,11 +47,8 @@ interface EnquiryDetail {
 
 const STATUSES: EnquiryStatus[] = [
   "NEW",
-  "REVIEWING",
-  "QUOTED",
-  "CONFIRMED",
-  "IN_PRODUCTION",
-  "DELIVERED",
+  "IN_PROGRESS",
+  "CLOSED",
 ];
 
 const STATUS_STYLES: Record<
@@ -62,11 +56,8 @@ const STATUS_STYLES: Record<
   { bg: string; color: string; border: string; label: string }
 > = {
   NEW: { bg: "#2D1F4A", color: "#B794F4", border: "#44337A", label: "New" },
-  REVIEWING: { bg: "#1A2E40", color: "#63B3ED", border: "#2C4A63", label: "Reviewing" },
-  QUOTED: { bg: "#2D3A1A", color: "#A3C96E", border: "#4A6B2A", label: "Quoted" },
-  CONFIRMED: { bg: "#1E3A2A", color: "#68D391", border: "#2D5A3D", label: "Confirmed" },
-  IN_PRODUCTION: { bg: "#2D2A1A", color: "#F6C453", border: "#6B5A2A", label: "In production" },
-  DELIVERED: { bg: "#1A2030", color: "#4A5568", border: "#2A3448", label: "Delivered" },
+  IN_PROGRESS: { bg: "#1A2E40", color: "#63B3ED", border: "#2C4A63", label: "In progress" },
+  CLOSED: { bg: "#1E3A2A", color: "#68D391", border: "#2D5A3D", label: "Closed" },
 };
 
 const styles: Record<string, CSSProperties> = {
