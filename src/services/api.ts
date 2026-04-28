@@ -1,10 +1,10 @@
 import { products, industries } from "@/data/products";
 import { blogStore } from "@/services/blogStore";
 import { searchProducts as rankSearch } from "@/services/search";
+import { API_BASE_URL, apiUrl } from "@/config/api";
 import type { Product, Industry } from "@/data/products";
 import type { Blog, BlogStatus, BlogTemplate } from "@/data/blogs";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "";
 const USE_MOCKS = import.meta.env.VITE_USE_MOCK_DATA === "true";
 
 type PageResponse<T> = { content: T[] };
@@ -19,7 +19,7 @@ function qs(params: Record<string, string | number | boolean | undefined>): stri
 }
 
 async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`);
+  const res = await fetch(apiUrl(path));
   if (!res.ok) throw new Error(`API request failed: ${res.status}`);
   return res.json() as Promise<T>;
 }
@@ -104,7 +104,7 @@ export const api = {
     isNewArrival?: boolean;
     isFastMoving?: boolean;
   }) => {
-    if (!USE_MOCKS && API_URL) {
+    if (!USE_MOCKS && API_BASE_URL) {
       const data = await getJson<PageResponse<Product> | Product[]>(
         `/api/v1/public/products${qs({ ...params, size: 100 })}`,
       );
@@ -122,7 +122,7 @@ export const api = {
   // GET /api/v1/public/products/search?q=&limit=
   searchProducts: async (q: string, limit?: number) => {
     if (!q || q.trim().length < 2) return [];
-    if (!USE_MOCKS && API_URL) {
+    if (!USE_MOCKS && API_BASE_URL) {
       const data = await getJson<Product[]>(
         `/api/v1/public/products/search${qs({ q: q.trim(), limit })}`,
       );
@@ -133,7 +133,7 @@ export const api = {
 
   // GET /api/v1/public/products/recommended
   getRecommended: async () => {
-    if (!USE_MOCKS && API_URL) {
+    if (!USE_MOCKS && API_BASE_URL) {
       const data = await getJson<Product[]>("/api/v1/public/products/recommended");
       return data.map(normalizeProduct);
     }
