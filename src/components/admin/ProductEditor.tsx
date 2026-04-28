@@ -92,7 +92,7 @@ export function productToFormValues(p: Product): ProductFormValues {
 // ---------------------------------------------------------------------------
 
 const styles: Record<string, CSSProperties> = {
-  wrap: { maxWidth: 920, display: "flex", flexDirection: "column", gap: 18 },
+  wrap: { maxWidth: 1180, display: "grid", gridTemplateColumns: "minmax(0, 65fr) minmax(280px, 35fr)", gap: 18, alignItems: "start" },
   row: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" },
   rowThree: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr 1fr" },
   field: { display: "flex", flexDirection: "column", gap: 6 },
@@ -147,7 +147,9 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     marginBottom: 12,
   },
-  cardTitle: { fontSize: 13, fontWeight: 600, color: "var(--admin-text)" },
+  cardTitle: { fontSize: 16, fontWeight: 600, color: "var(--admin-text)", fontFamily: "var(--font-display)" },
+  mainColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
+  sideColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
   chipRow: { display: "flex", flexWrap: "wrap", gap: 8 },
   imagePreview: {
     width: "100%",
