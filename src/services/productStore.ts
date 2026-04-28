@@ -5,22 +5,13 @@
 // ----------------------------------------------------------------------------
 
 import { products as seedProducts, type Product } from "@/data/products";
-import { API_BASE_URL, apiUrl } from "@/config/api";
+import { API_BASE_URL } from "@/config/api";
+import { adminFetch } from "@/services/adminApi";
 
 const STORAGE_KEY = "moments_products_v1";
 const USE_MOCKS = import.meta.env.VITE_USE_MOCK_DATA === "true" || !API_BASE_URL;
 
 type PageResponse<T> = { content: T[] };
-
-function authHeaders(): HeadersInit {
-  if (!isBrowser()) return { "Content-Type": "application/json" };
-  const raw = localStorage.getItem("moments_admin_token");
-  const token = raw ? (JSON.parse(raw) as { token?: string }).token : undefined;
-  return {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
 
 function toBackendPayload(input: Partial<ProductDraft>) {
   return {
@@ -69,10 +60,7 @@ function normalizeProduct(
 }
 
 async function adminJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(apiUrl(`/api/v1/admin${path}`), {
-    ...init,
-    headers: { ...authHeaders(), ...init?.headers },
-  });
+  const res = await adminFetch(`/api/v1/admin${path}`, init);
   if (!res.ok) throw new Error(`Admin API request failed: ${res.status}`);
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;

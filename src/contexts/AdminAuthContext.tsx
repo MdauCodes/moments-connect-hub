@@ -1,42 +1,69 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { apiUrl } from "@/config/api";
+import {
+  ADMIN_SESSION_CHANGED_EVENT,
+  clearAdminSession,
+  getJwtExpiresAt,
+  getValidAdminSession,
+  normalizeAdminSession,
+  readAdminSession,
+  writeAdminSession,
+  type AdminSession,
+} from "@/services/adminApi";
 
-export interface AdminUser {
-  id?: string;
-  name: string;
-  email: string;
-  role: "ADMIN" | "STAFF";
-  token: string;
-  refreshToken?: string;
-}
+export type AdminUser = AdminSession;
 
 interface AdminAuthContextValue {
   user: AdminUser | null;
   isAuthenticated: boolean;
+  isCheckingSession: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  ensureValidSession: () => Promise<AdminUser | null>;
 }
-
-const STORAGE_KEY = "moments_admin_token";
 
 const AdminAuthContext = createContext<AdminAuthContextValue | undefined>(undefined);
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+  const ensureValidSession = useCallback(async (): Promise<AdminUser | null> => {
+    const session = await getValidAdminSession();
+    setUser(session);
+    return session;
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as AdminUser;
-      if (parsed && parsed.token) {
-        setUser(parsed);
-      }
-    } catch {
-      // ignore corrupt storage
-    }
+    setUser(readAdminSession());
+
+    const syncSession = () => setUser(readAdminSession());
+    window.addEventListener(ADMIN_SESSION_CHANGED_EVENT, syncSession);
+    window.addEventListener("storage", syncSession);
+
+    void getValidAdminSession().then((session) => {
+      setUser(session);
+      setIsCheckingSession(false);
+    });
+
+    return () => {
+      window.removeEventListener(ADMIN_SESSION_CHANGED_EVENT, syncSession);
+      window.removeEventListener("storage", syncSession);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!user?.token) return;
+    const expiresAt = getJwtExpiresAt(user.token);
+    if (!expiresAt) return;
+
+    const timeout = window.setTimeout(() => {
+      void ensureValidSession();
+    }, Math.max(expiresAt - Date.now() - 30_000, 0));
+
+    return () => window.clearTimeout(timeout);
+  }, [ensureValidSession, user?.token]);
 
   const login = async (email: string, password: string): Promise<void> => {
     const res = await fetch(apiUrl("/api/v1/auth/login"), {
@@ -56,63 +83,18 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       throw new Error(message);
     }
 
-    const data = (await res.json()) as {
-      accessToken?: string;
-      refreshToken?: string;
-      token?: string;
-      name?: string;
-      email?: string;
-      role?: "ADMIN" | "STAFF";
-      user?: {
-        id?: string;
-        name?: string;
-        firstName?: string;
-        lastName?: string;
-        email: string;
-        role?: "ADMIN" | "STAFF";
-        roles?: string[];
-      };
-    };
-
-    const roleFromResponse = data.user?.role ?? data.role;
-    const roles = data.user?.roles ?? [];
-    const roleFromRoles: "ADMIN" | "STAFF" = roles.includes("ROLE_ADMIN")
-      ? "ADMIN"
-      : roles.includes("ROLE_STAFF")
-        ? "STAFF"
-        : "STAFF";
-    const token = data.accessToken ?? data.token;
-    const firstName = data.user?.firstName?.trim() ?? "";
-    const lastName = data.user?.lastName?.trim() ?? "";
-    const fullName = [firstName, lastName].filter(Boolean).join(" ");
-
-    if (!token || !data.user?.email && !data.email) {
-      throw new Error("Login response was missing required user details");
-    }
-
-    const next: AdminUser = {
-      id: data.user?.id,
-      token,
-      refreshToken: data.refreshToken,
-      name: data.user?.name ?? (fullName || undefined) ?? data.name ?? data.user?.email ?? data.email ?? "Admin",
-      email: data.user?.email ?? data.email ?? email,
-      role: roleFromResponse ?? roleFromRoles,
-    };
+    const next = normalizeAdminSession(await res.json(), { email });
     setUser(next);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    }
+    writeAdminSession(next);
   };
 
   const logout = (): void => {
     setUser(null);
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
+    clearAdminSession();
   };
 
   return (
-    <AdminAuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+    <AdminAuthContext.Provider value={{ user, isAuthenticated: !!user, isCheckingSession, login, logout, ensureValidSession }}>
       {children}
     </AdminAuthContext.Provider>
   );

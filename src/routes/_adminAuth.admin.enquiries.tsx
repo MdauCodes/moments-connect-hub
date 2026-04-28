@@ -2,8 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Inbox } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
-import { useAdminAuth } from "@/contexts/AdminAuthContext";
-import { apiUrl } from "@/config/api";
+import { adminFetch } from "@/services/adminApi";
 
 export const Route = createFileRoute("/_adminAuth/admin/enquiries")({
   component: AdminEnquiriesPage,
@@ -413,7 +412,6 @@ function normalizeEnquiry(e: EnquiryApiDto): Enquiry {
 }
 
 function AdminEnquiriesPage() {
-  const { user } = useAdminAuth();
   const navigate = useNavigate();
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -424,15 +422,11 @@ function AdminEnquiriesPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const token = user?.token;
-
     const run = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(apiUrl("/api/v1/admin/enquiries?size=100"), {
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        });
+        const res = await adminFetch("/api/v1/admin/enquiries?size=100");
         if (!res.ok) {
           throw new Error(`Failed to load enquiries (${res.status})`);
         }
@@ -456,7 +450,7 @@ function AdminEnquiriesPage() {
     return () => {
       cancelled = true;
     };
-  }, [user?.token, reloadKey]);
+  }, [reloadKey]);
 
   const filteredEnquiries = useMemo(() => {
     return enquiries.filter((e) => {
