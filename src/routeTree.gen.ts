@@ -496,13 +496,11 @@ const AdminAuthAdminBlogsRouteWithChildren =
 
 interface AdminAuthAdminEnquiriesRouteChildren {
   AdminAuthAdminEnquiriesIdRoute: typeof AdminAuthAdminEnquiriesIdRoute
-  AdminAuthAdminEnquiriesNewRoute: typeof AdminAuthAdminEnquiriesNewRoute
 }
 
 const AdminAuthAdminEnquiriesRouteChildren: AdminAuthAdminEnquiriesRouteChildren =
   {
     AdminAuthAdminEnquiriesIdRoute: AdminAuthAdminEnquiriesIdRoute,
-    AdminAuthAdminEnquiriesNewRoute: AdminAuthAdminEnquiriesNewRoute,
   }
 
 const AdminAuthAdminEnquiriesRouteWithChildren =
@@ -512,13 +510,11 @@ const AdminAuthAdminEnquiriesRouteWithChildren =
 
 interface AdminAuthAdminProductsRouteChildren {
   AdminAuthAdminProductsIdRoute: typeof AdminAuthAdminProductsIdRoute
-  AdminAuthAdminProductsNewRoute: typeof AdminAuthAdminProductsNewRoute
 }
 
 const AdminAuthAdminProductsRouteChildren: AdminAuthAdminProductsRouteChildren =
   {
     AdminAuthAdminProductsIdRoute: AdminAuthAdminProductsIdRoute,
-    AdminAuthAdminProductsNewRoute: AdminAuthAdminProductsNewRoute,
   }
 
 const AdminAuthAdminProductsRouteWithChildren =
