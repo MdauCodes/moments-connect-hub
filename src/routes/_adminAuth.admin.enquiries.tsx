@@ -40,9 +40,8 @@ interface Enquiry {
 type FilterKey =
   | "ALL"
   | "NEW"
-  | "REVIEWING"
-  | "QUOTED"
-  | "CONFIRMED"
+  | "IN_PROGRESS"
+  | "CLOSED"
   | "SME"
   | "CORPORATE";
 
@@ -51,8 +50,8 @@ const PAGE_SIZE = 15;
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "ALL", label: "All" },
   { key: "NEW", label: "New" },
-  { key: "REVIEWING", label: "In progress" },
-  { key: "QUOTED", label: "Closed" },
+  { key: "IN_PROGRESS", label: "In progress" },
+  { key: "CLOSED", label: "Closed" },
   { key: "SME", label: "SME only" },
   { key: "CORPORATE", label: "Corporate only" },
 ];
@@ -369,6 +368,47 @@ function downloadCsv(filename: string, csv: string): void {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+type EnquiryApiItem = {
+  productId?: string;
+  productName?: string;
+  name?: string;
+  quantity?: number;
+  qty?: number;
+  size?: string;
+  finish?: string;
+};
+
+type EnquiryApiDto = Partial<Omit<Enquiry, "products" | "name" | "phone" | "customerType">> & {
+  id: string;
+  persona?: string;
+  contact?: { name?: string; email?: string; phone?: string; company?: string };
+  companyName?: string;
+  products?: EnquiryApiItem[];
+  items?: EnquiryApiItem[];
+};
+
+function normalizeEnquiry(e: EnquiryApiDto): Enquiry {
+  const items = e.items ?? e.products ?? [];
+  return {
+    id: e.id,
+    customerType: e.persona === "CORPORATE" ? "CORPORATE" : "SME",
+    name: e.contact?.name ?? "Unknown customer",
+    companyName: e.contact?.company ?? e.companyName,
+    email: e.contact?.email ?? e.email,
+    phone: e.contact?.phone ?? e.phone ?? "",
+    products: items.map((item) => ({
+      productId: item.productId ?? item.name ?? item.productName ?? "",
+      name: item.productName ?? item.name ?? "Product",
+      qty: item.quantity ?? item.qty ?? 1,
+      size: item.size,
+      finish: item.finish,
+    })),
+    status: e.status ?? "NEW",
+    createdAt: e.createdAt ?? new Date().toISOString(),
+    isRead: e.isRead ?? true,
+  };
 }
 
 function AdminEnquiriesPage() {
