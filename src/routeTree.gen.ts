@@ -119,9 +119,9 @@ const AdminAuthAdminAnalyticsRoute = AdminAuthAdminAnalyticsRouteImport.update({
 } as any)
 const AdminAuthAdminProductsNewRoute =
   AdminAuthAdminProductsNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AdminAuthAdminProductsRoute,
+    id: '/admin/products/new',
+    path: '/admin/products/new',
+    getParentRoute: () => AdminAuthRoute,
   } as any)
 const AdminAuthAdminProductsIdRoute =
   AdminAuthAdminProductsIdRouteImport.update({
@@ -131,9 +131,9 @@ const AdminAuthAdminProductsIdRoute =
   } as any)
 const AdminAuthAdminEnquiriesNewRoute =
   AdminAuthAdminEnquiriesNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AdminAuthAdminEnquiriesRoute,
+    id: '/admin/enquiries/new',
+    path: '/admin/enquiries/new',
+    getParentRoute: () => AdminAuthRoute,
   } as any)
 const AdminAuthAdminEnquiriesIdRoute =
   AdminAuthAdminEnquiriesIdRouteImport.update({
