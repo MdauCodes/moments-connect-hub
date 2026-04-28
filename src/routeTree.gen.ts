@@ -525,7 +525,9 @@ const AdminAuthAdminProductsRouteWithChildren =
 interface AdminAuthRouteChildren {
   AdminAuthAdminAnalyticsRoute: typeof AdminAuthAdminAnalyticsRoute
   AdminAuthAdminBlogsRoute: typeof AdminAuthAdminBlogsRouteWithChildren
+  AdminAuthAdminEnquiriesNewRoute: typeof AdminAuthAdminEnquiriesNewRoute
   AdminAuthAdminEnquiriesRoute: typeof AdminAuthAdminEnquiriesRouteWithChildren
+  AdminAuthAdminProductsNewRoute: typeof AdminAuthAdminProductsNewRoute
   AdminAuthAdminProductsRoute: typeof AdminAuthAdminProductsRouteWithChildren
   AdminAuthAdminSettingsRoute: typeof AdminAuthAdminSettingsRoute
   AdminAuthAdminStaffRoute: typeof AdminAuthAdminStaffRoute
@@ -534,7 +536,9 @@ interface AdminAuthRouteChildren {
 const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminAnalyticsRoute: AdminAuthAdminAnalyticsRoute,
   AdminAuthAdminBlogsRoute: AdminAuthAdminBlogsRouteWithChildren,
+  AdminAuthAdminEnquiriesNewRoute: AdminAuthAdminEnquiriesNewRoute,
   AdminAuthAdminEnquiriesRoute: AdminAuthAdminEnquiriesRouteWithChildren,
+  AdminAuthAdminProductsNewRoute: AdminAuthAdminProductsNewRoute,
   AdminAuthAdminProductsRoute: AdminAuthAdminProductsRouteWithChildren,
   AdminAuthAdminSettingsRoute: AdminAuthAdminSettingsRoute,
   AdminAuthAdminStaffRoute: AdminAuthAdminStaffRoute,
