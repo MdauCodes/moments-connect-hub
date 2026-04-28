@@ -8,6 +8,14 @@ import type { Blog, BlogStatus, BlogTemplate } from "@/data/blogs";
 const USE_MOCKS = import.meta.env.VITE_USE_MOCK_DATA === "true";
 
 type PageResponse<T> = { content: T[] };
+type ProductApiDto = Partial<Product> & {
+  id: string;
+  slug: string;
+  name: string;
+  primaryImageUrl?: string;
+  imageUrls?: string[];
+  industries?: Array<{ id?: string | number; displayId?: string | number; slug?: string }>;
+};
 
 function qs(params: Record<string, string | number | boolean | undefined>): string {
   const search = new URLSearchParams();
@@ -24,9 +32,15 @@ async function getJson<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-function normalizeProduct(
-  p: Partial<Product> & { id: string; slug: string; name: string; primaryImageUrl?: string; imageUrls?: string[] },
-): Product {
+function normalizeIndustryIds(p: ProductApiDto): string[] {
+  if (p.industryIds?.length) return p.industryIds.map(String);
+  return (p.industries ?? [])
+    .map((industry) => industry.id ?? industry.displayId ?? industries.find((i) => i.slug === industry.slug)?.id)
+    .filter((id): id is string | number => id !== undefined && id !== null)
+    .map(String);
+}
+
+function normalizeProduct(p: ProductApiDto): Product {
   const image = p.image ?? p.primaryImageUrl ?? p.imageUrls?.[0] ?? "";
   return {
     ...p,
@@ -40,7 +54,7 @@ function normalizeProduct(
     isFastMoving: p.isFastMoving ?? false,
     tags: p.tags ?? [],
     sizes: p.sizes ?? [],
-    industryIds: p.industryIds ?? [],
+    industryIds: normalizeIndustryIds(p),
     totalClicks: p.totalClicks ?? 0,
     monthlyClicks: p.monthlyClicks ?? 0,
     totalEnquiries: p.totalEnquiries ?? 0,
