@@ -242,14 +242,14 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       style={{ ...styles.navItem, ...(active ? styles.navItemActive : {}) }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.background = "#1E2535";
-          e.currentTarget.style.color = "#E2E8F0";
+          e.currentTarget.style.background = "var(--secondary)";
+          e.currentTarget.style.color = "var(--foreground)";
         }
       }}
       onMouseLeave={(e) => {
         if (!active) {
           e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "#8896A8";
+          e.currentTarget.style.color = "var(--muted-foreground)";
         }
       }}
     >
@@ -263,7 +263,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
 }
 
 export function AdminLayout({ title, actionLabel, onAction, children }: AdminLayoutProps) {
-  const { user } = useAdminAuth();
+  const { user, logout } = useAdminAuth();
   const location = useLocation();
   const pathname = location.pathname;
 
@@ -311,7 +311,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
         <div style={styles.sidebarBottom}>
           <div
             style={styles.userPill}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#1E2535")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--secondary)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             <div style={styles.avatar}>{getInitials(displayName)}</div>
@@ -319,6 +319,14 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
               <div style={styles.userName}>{displayName}</div>
               <div style={styles.userRole}>{displayRole}</div>
             </div>
+            <button
+              type="button"
+              aria-label="Sign out"
+              onClick={logout}
+              style={{ marginLeft: "auto", border: 0, background: "transparent", color: "var(--muted-foreground)", cursor: "pointer" }}
+            >
+              <LogOut size={15} />
+            </button>
           </div>
         </div>
       </aside>
