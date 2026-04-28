@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Product store — uses the Spring Boot admin API when VITE_API_URL is present.
+// Product store — uses the Spring Boot admin API via VITE_API_BASE_URL.
 // Mock localStorage data is disabled by default and only used when
 // VITE_USE_MOCK_DATA=true or no API URL is configured.
 // ----------------------------------------------------------------------------
