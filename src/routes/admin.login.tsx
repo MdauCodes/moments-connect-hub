@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties, type FocusEvent, type FormEvent } from "react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
