@@ -429,11 +429,11 @@ function AdminEnquiryDetailPage() {
       setLoading(true);
       setLoadError(null);
       try {
-        const res = await fetch(apiUrl(`/api/admin/enquiries/${id}`), {
+        const res = await fetch(apiUrl(`/api/v1/admin/enquiries/${id}`), {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         if (!res.ok) throw new Error(`Failed to load enquiry (${res.status})`);
-        const data = (await res.json()) as EnquiryDetail;
+        const data = normalizeEnquiryDetail((await res.json()) as EnquiryApiDto);
         if (!cancelled) {
           setEnquiry(data);
           setNotesDraft(data.internalNotes ?? "");
@@ -448,14 +448,6 @@ function AdminEnquiryDetailPage() {
     };
     void run();
 
-    // Mark as read — fire and forget
-    void fetch(apiUrl(`/api/admin/enquiries/${id}/read`), {
-      method: "PATCH",
-      headers: authHeaders,
-    }).catch(() => {
-      /* ignore */
-    });
-
     return () => {
       cancelled = true;
     };
@@ -464,10 +456,15 @@ function AdminEnquiryDetailPage() {
 
   const patch = async (path: string, body: Record<string, unknown>): Promise<boolean> => {
     try {
-      const res = await fetch(apiUrl(`/api/admin/enquiries/${id}/${path}`), {
+      const res = await fetch(apiUrl(`/api/v1/admin/enquiries/${id}`), {
         method: "PATCH",
         headers: authHeaders,
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          status: enquiry?.status,
+          assignedTo: enquiry?.assignedTo,
+          internalNotes: enquiry?.internalNotes,
+          ...body,
+        }),
       });
       if (!res.ok) throw new Error(`Update failed (${res.status})`);
       return true;
