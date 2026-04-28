@@ -63,6 +63,12 @@ export function isJwtExpired(token: string | undefined, skewMs = EXPIRY_SKEW_MS)
   return payload.exp * 1000 <= Date.now() + skewMs;
 }
 
+export function getJwtExpiresAt(token: string | undefined): number | null {
+  if (!token || !isBrowser()) return null;
+  const payload = decodeJwtPayload(token);
+  return payload?.exp ? payload.exp * 1000 : null;
+}
+
 export function isAdminRole(role: unknown): role is AdminRole {
   return role === "ADMIN" || role === "STAFF";
 }
