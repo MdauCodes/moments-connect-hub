@@ -11,11 +11,8 @@ export const Route = createFileRoute("/_adminAuth/admin/enquiries")({
 
 type EnquiryStatus =
   | "NEW"
-  | "REVIEWING"
-  | "QUOTED"
-  | "CONFIRMED"
-  | "IN_PRODUCTION"
-  | "DELIVERED";
+  | "IN_PROGRESS"
+  | "CLOSED";
 
 type CustomerType = "SME" | "CORPORATE";
 
@@ -43,9 +40,8 @@ interface Enquiry {
 type FilterKey =
   | "ALL"
   | "NEW"
-  | "REVIEWING"
-  | "QUOTED"
-  | "CONFIRMED"
+  | "IN_PROGRESS"
+  | "CLOSED"
   | "SME"
   | "CORPORATE";
 
@@ -54,9 +50,8 @@ const PAGE_SIZE = 15;
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "ALL", label: "All" },
   { key: "NEW", label: "New" },
-  { key: "REVIEWING", label: "Reviewing" },
-  { key: "QUOTED", label: "Quoted" },
-  { key: "CONFIRMED", label: "Confirmed" },
+  { key: "IN_PROGRESS", label: "In progress" },
+  { key: "CLOSED", label: "Closed" },
   { key: "SME", label: "SME only" },
   { key: "CORPORATE", label: "Corporate only" },
 ];
@@ -66,11 +61,8 @@ const STATUS_STYLES: Record<
   { bg: string; color: string; border: string; dot: string; label: string }
 > = {
   NEW: { bg: "#2D1F4A", color: "#B794F4", border: "#44337A", dot: "#B794F4", label: "New" },
-  REVIEWING: { bg: "#1A2E40", color: "#63B3ED", border: "#2C4A63", dot: "#63B3ED", label: "Reviewing" },
-  QUOTED: { bg: "#2D3A1A", color: "#A3C96E", border: "#4A6B2A", dot: "#A3C96E", label: "Quoted" },
-  CONFIRMED: { bg: "#1E3A2A", color: "#68D391", border: "#2D5A3D", dot: "#68D391", label: "Confirmed" },
-  IN_PRODUCTION: { bg: "#2D2A1A", color: "#F6C453", border: "#6B5A2A", dot: "#F6C453", label: "In production" },
-  DELIVERED: { bg: "#1A2030", color: "#4A5568", border: "#2A3448", dot: "#4A5568", label: "Delivered" },
+  IN_PROGRESS: { bg: "#1A2E40", color: "#63B3ED", border: "#2C4A63", dot: "#63B3ED", label: "In progress" },
+  CLOSED: { bg: "#1E3A2A", color: "#68D391", border: "#2D5A3D", dot: "#68D391", label: "Closed" },
 };
 
 const styles: Record<string, CSSProperties> = {
@@ -378,6 +370,48 @@ function downloadCsv(filename: string, csv: string): void {
   URL.revokeObjectURL(url);
 }
 
+type EnquiryApiItem = {
+  productId?: string;
+  productName?: string;
+  name?: string;
+  quantity?: number;
+  qty?: number;
+  size?: string;
+  finish?: string;
+};
+
+type EnquiryApiDto = Partial<Omit<Enquiry, "products" | "name" | "phone" | "customerType">> & {
+  id: string;
+  persona?: string;
+  contact?: { name?: string; email?: string; phone?: string; company?: string };
+  companyName?: string;
+  phone?: string;
+  products?: EnquiryApiItem[];
+  items?: EnquiryApiItem[];
+};
+
+function normalizeEnquiry(e: EnquiryApiDto): Enquiry {
+  const items = e.items ?? e.products ?? [];
+  return {
+    id: e.id,
+    customerType: e.persona === "CORPORATE" ? "CORPORATE" : "SME",
+    name: e.contact?.name ?? "Unknown customer",
+    companyName: e.contact?.company ?? e.companyName,
+    email: e.contact?.email ?? e.email,
+    phone: e.contact?.phone ?? e.phone ?? "",
+    products: items.map((item) => ({
+      productId: item.productId ?? item.name ?? item.productName ?? "",
+      name: item.productName ?? item.name ?? "Product",
+      qty: item.quantity ?? item.qty ?? 1,
+      size: item.size,
+      finish: item.finish,
+    })),
+    status: e.status ?? "NEW",
+    createdAt: e.createdAt ?? new Date().toISOString(),
+    isRead: e.isRead ?? true,
+  };
+}
+
 function AdminEnquiriesPage() {
   const { user } = useAdminAuth();
   const navigate = useNavigate();
@@ -396,15 +430,16 @@ function AdminEnquiriesPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(apiUrl("/api/admin/enquiries"), {
+        const res = await fetch(apiUrl("/api/v1/admin/enquiries?size=100"), {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         if (!res.ok) {
           throw new Error(`Failed to load enquiries (${res.status})`);
         }
-        const data = (await res.json()) as Enquiry[];
+        const data = (await res.json()) as { content?: EnquiryApiDto[] } | EnquiryApiDto[];
         if (!cancelled) {
-          setEnquiries(Array.isArray(data) ? data : []);
+          const rows = Array.isArray(data) ? data : data.content ?? [];
+          setEnquiries(rows.map(normalizeEnquiry));
         }
       } catch (err) {
         if (!cancelled) {
@@ -433,9 +468,8 @@ function AdminEnquiriesPage() {
         case "CORPORATE":
           return e.customerType === "CORPORATE";
         case "NEW":
-        case "REVIEWING":
-        case "QUOTED":
-        case "CONFIRMED":
+        case "IN_PROGRESS":
+        case "CLOSED":
           return e.status === filter;
         default:
           return true;
@@ -464,11 +498,11 @@ function AdminEnquiriesPage() {
       const created = new Date(e.createdAt);
       if (e.status === "NEW" && isSameDay(created, now)) newToday++;
       if (e.status === "NEW" && isSameDay(created, yesterday)) newYesterday++;
-      if (e.status === "NEW" || e.status === "REVIEWING") {
+      if (e.status === "NEW" || e.status === "IN_PROGRESS") {
         pending++;
         if (now.getTime() - created.getTime() > dayMs) overdue++;
       }
-      if (e.status === "CONFIRMED" && isSameMonth(created, now)) confirmedThisMonth++;
+      if (e.status === "CLOSED" && isSameMonth(created, now)) confirmedThisMonth++;
     }
 
     return { newToday, newYesterday, pending, overdue, confirmedThisMonth };

@@ -11,11 +11,8 @@ export const Route = createFileRoute("/_adminAuth/admin/enquiries/$id")({
 
 type EnquiryStatus =
   | "NEW"
-  | "REVIEWING"
-  | "QUOTED"
-  | "CONFIRMED"
-  | "IN_PRODUCTION"
-  | "DELIVERED";
+  | "IN_PROGRESS"
+  | "CLOSED";
 
 type CustomerType = "SME" | "CORPORATE";
 
@@ -50,11 +47,8 @@ interface EnquiryDetail {
 
 const STATUSES: EnquiryStatus[] = [
   "NEW",
-  "REVIEWING",
-  "QUOTED",
-  "CONFIRMED",
-  "IN_PRODUCTION",
-  "DELIVERED",
+  "IN_PROGRESS",
+  "CLOSED",
 ];
 
 const STATUS_STYLES: Record<
@@ -62,11 +56,8 @@ const STATUS_STYLES: Record<
   { bg: string; color: string; border: string; label: string }
 > = {
   NEW: { bg: "#2D1F4A", color: "#B794F4", border: "#44337A", label: "New" },
-  REVIEWING: { bg: "#1A2E40", color: "#63B3ED", border: "#2C4A63", label: "Reviewing" },
-  QUOTED: { bg: "#2D3A1A", color: "#A3C96E", border: "#4A6B2A", label: "Quoted" },
-  CONFIRMED: { bg: "#1E3A2A", color: "#68D391", border: "#2D5A3D", label: "Confirmed" },
-  IN_PRODUCTION: { bg: "#2D2A1A", color: "#F6C453", border: "#6B5A2A", label: "In production" },
-  DELIVERED: { bg: "#1A2030", color: "#4A5568", border: "#2A3448", label: "Delivered" },
+  IN_PROGRESS: { bg: "#1A2E40", color: "#63B3ED", border: "#2C4A63", label: "In progress" },
+  CLOSED: { bg: "#1E3A2A", color: "#68D391", border: "#2D5A3D", label: "Closed" },
 };
 
 const styles: Record<string, CSSProperties> = {
@@ -358,6 +349,54 @@ function digitsOnly(phone: string): string {
   return phone.replace(/[^\d]/g, "");
 }
 
+type EnquiryApiItem = {
+  productId?: string;
+  productName?: string;
+  name?: string;
+  quantity?: number;
+  qty?: number;
+  size?: string;
+  finish?: string;
+};
+
+type EnquiryApiDto = Partial<Omit<EnquiryDetail, "products" | "name" | "phone" | "customerType">> & {
+  id: string;
+  persona?: string;
+  contact?: { name?: string; email?: string; phone?: string; company?: string };
+  companyName?: string;
+  phone?: string;
+  source?: string;
+  products?: EnquiryApiItem[];
+  items?: EnquiryApiItem[];
+};
+
+function normalizeEnquiryDetail(e: EnquiryApiDto): EnquiryDetail {
+  const items = e.items ?? e.products ?? [];
+  return {
+    id: e.id,
+    customerType: e.persona === "CORPORATE" ? "CORPORATE" : "SME",
+    name: e.contact?.name ?? "Unknown customer",
+    companyName: e.contact?.company ?? e.companyName,
+    email: e.contact?.email ?? e.email,
+    phone: e.contact?.phone ?? e.phone ?? "",
+    message: e.message,
+    referralSource: e.source,
+    status: e.status ?? "NEW",
+    isRead: e.isRead ?? true,
+    createdAt: e.createdAt ?? new Date().toISOString(),
+    products: items.map((item) => ({
+      productId: item.productId ?? item.name ?? item.productName ?? "",
+      name: item.productName ?? item.name ?? "Product",
+      qty: item.quantity ?? item.qty ?? 1,
+      size: item.size,
+      finish: item.finish,
+    })),
+    internalNotes: e.internalNotes,
+    assignedTo: e.assignedTo,
+    followUpDate: e.followUpDate,
+  };
+}
+
 function AdminEnquiryDetailPage() {
   const { id } = Route.useParams();
   const { user } = useAdminAuth();
@@ -390,11 +429,11 @@ function AdminEnquiryDetailPage() {
       setLoading(true);
       setLoadError(null);
       try {
-        const res = await fetch(apiUrl(`/api/admin/enquiries/${id}`), {
+        const res = await fetch(apiUrl(`/api/v1/admin/enquiries/${id}`), {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         if (!res.ok) throw new Error(`Failed to load enquiry (${res.status})`);
-        const data = (await res.json()) as EnquiryDetail;
+        const data = normalizeEnquiryDetail((await res.json()) as EnquiryApiDto);
         if (!cancelled) {
           setEnquiry(data);
           setNotesDraft(data.internalNotes ?? "");
@@ -409,14 +448,6 @@ function AdminEnquiryDetailPage() {
     };
     void run();
 
-    // Mark as read — fire and forget
-    void fetch(apiUrl(`/api/admin/enquiries/${id}/read`), {
-      method: "PATCH",
-      headers: authHeaders,
-    }).catch(() => {
-      /* ignore */
-    });
-
     return () => {
       cancelled = true;
     };
@@ -425,10 +456,15 @@ function AdminEnquiryDetailPage() {
 
   const patch = async (path: string, body: Record<string, unknown>): Promise<boolean> => {
     try {
-      const res = await fetch(apiUrl(`/api/admin/enquiries/${id}/${path}`), {
+      const res = await fetch(apiUrl(`/api/v1/admin/enquiries/${id}`), {
         method: "PATCH",
         headers: authHeaders,
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          status: enquiry?.status,
+          assignedTo: enquiry?.assignedTo,
+          internalNotes: enquiry?.internalNotes,
+          ...body,
+        }),
       });
       if (!res.ok) throw new Error(`Update failed (${res.status})`);
       return true;
