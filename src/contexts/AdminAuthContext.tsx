@@ -65,7 +65,9 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       role?: "ADMIN" | "STAFF";
       user?: {
         id?: string;
-        name: string;
+        name?: string;
+        firstName?: string;
+        lastName?: string;
         email: string;
         role?: "ADMIN" | "STAFF";
         roles?: string[];
@@ -73,8 +75,16 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     };
 
     const roleFromResponse = data.user?.role ?? data.role;
-    const roleFromRoles = data.user?.roles?.includes("ROLE_ADMIN") ? "ADMIN" : "STAFF";
+    const roles = data.user?.roles ?? [];
+    const roleFromRoles: "ADMIN" | "STAFF" = roles.includes("ROLE_ADMIN")
+      ? "ADMIN"
+      : roles.includes("ROLE_STAFF")
+        ? "STAFF"
+        : "STAFF";
     const token = data.accessToken ?? data.token;
+    const firstName = data.user?.firstName?.trim() ?? "";
+    const lastName = data.user?.lastName?.trim() ?? "";
+    const fullName = [firstName, lastName].filter(Boolean).join(" ");
 
     if (!token || !data.user?.email && !data.email) {
       throw new Error("Login response was missing required user details");
@@ -84,7 +94,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       id: data.user?.id,
       token,
       refreshToken: data.refreshToken,
-      name: data.user?.name ?? data.name ?? data.user?.email ?? data.email ?? "Admin",
+      name: data.user?.name ?? fullName ?? data.name ?? data.user?.email ?? data.email ?? "Admin",
       email: data.user?.email ?? data.email ?? email,
       role: roleFromResponse ?? roleFromRoles,
     };
