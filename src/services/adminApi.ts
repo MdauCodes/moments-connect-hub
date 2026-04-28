@@ -126,7 +126,12 @@ export function readAdminSession(): AdminSession | null {
     const raw = window.localStorage.getItem(ADMIN_SESSION_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as AdminSession;
-    if (!parsed?.token || !isAdminRole(parsed.role)) return null;
+    const token = parsed?.token;
+    if (!token || token.split(".").length !== 3) {
+      window.localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+      return null;
+    }
+    if (!isAdminRole(parsed.role)) return null;
     return parsed;
   } catch {
     clearAdminSession();
