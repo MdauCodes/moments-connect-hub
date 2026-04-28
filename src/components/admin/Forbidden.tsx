@@ -18,7 +18,7 @@ const iconWrap: CSSProperties = {
   height: 56,
   borderRadius: "50%",
   background: "color-mix(in oklab, var(--admin-clay) 20%, var(--admin-surface))",
-  border: "1px solid #4A2A2A",
+  border: "1px solid var(--admin-clay)",
   color: "var(--admin-clay)",
   display: "flex",
   alignItems: "center",
@@ -30,7 +30,7 @@ const sub: CSSProperties = { fontSize: 12.5, color: "var(--admin-muted)", maxWid
 const back: CSSProperties = {
   marginTop: 8,
   background: "var(--admin-border)",
-  border: "1px solid #2A3448",
+  border: "1px solid var(--admin-border)",
   color: "var(--admin-text)",
   borderRadius: 8,
   padding: "8px 14px",

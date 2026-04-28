@@ -11,15 +11,15 @@ export const Route = createFileRoute("/_adminAuth/admin/enquiries/new")({
 
 const styles: Record<string, CSSProperties> = {
   form: { maxWidth: 760, display: "flex", flexDirection: "column", gap: 16 },
-  card: { background: "var(--admin-surface)", border: "1px solid #1E2535", borderRadius: 10, padding: 16 },
+  card: { background: "var(--admin-surface)", border: "1px solid var(--admin-border)", borderRadius: 10, padding: 16 },
   title: { fontSize: 13, fontWeight: 600, color: "var(--admin-text)", marginBottom: 14 },
   row: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 },
   field: { display: "flex", flexDirection: "column", gap: 6 },
   label: { fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--admin-muted)" },
-  input: { background: "var(--admin-bg)", border: "1px solid #1E2535", borderRadius: 8, padding: "9px 12px", color: "var(--admin-text)", fontSize: 13, fontFamily: "inherit", outline: "none" },
-  textarea: { background: "var(--admin-bg)", border: "1px solid #1E2535", borderRadius: 8, padding: "10px 12px", color: "var(--admin-text)", fontSize: 13, fontFamily: "inherit", outline: "none", minHeight: 90, resize: "vertical" },
+  input: { background: "var(--admin-bg)", border: "1px solid var(--admin-border)", borderRadius: 8, padding: "9px 12px", color: "var(--admin-text)", fontSize: 13, fontFamily: "inherit", outline: "none" },
+  textarea: { background: "var(--admin-bg)", border: "1px solid var(--admin-border)", borderRadius: 8, padding: "10px 12px", color: "var(--admin-text)", fontSize: 13, fontFamily: "inherit", outline: "none", minHeight: 90, resize: "vertical" },
   actions: { display: "flex", justifyContent: "flex-end", gap: 10 },
-  ghostBtn: { background: "transparent", border: "1px solid #1E2535", color: "var(--admin-muted)", borderRadius: 8, padding: "8px 14px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" },
+  ghostBtn: { background: "transparent", border: "1px solid var(--admin-border)", color: "var(--admin-muted)", borderRadius: 8, padding: "8px 14px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" },
   primaryBtn: { background: "var(--admin-accent)", color: "var(--cream)", border: "none", borderRadius: 8, padding: "9px 16px", fontSize: 12.5, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" },
   error: { fontSize: 12, color: "var(--admin-clay)" },
 };

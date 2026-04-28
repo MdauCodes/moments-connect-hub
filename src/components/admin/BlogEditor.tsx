@@ -40,7 +40,7 @@ const styles: Record<string, CSSProperties> = {
   },
   input: {
     background: "var(--admin-bg)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "9px 12px",
     color: "var(--admin-text)",
@@ -50,7 +50,7 @@ const styles: Record<string, CSSProperties> = {
   },
   textarea: {
     background: "var(--admin-bg)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "10px 12px",
     color: "var(--admin-text)",
@@ -62,7 +62,7 @@ const styles: Record<string, CSSProperties> = {
   },
   card: {
     background: "var(--admin-surface)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 10,
     padding: 16,
   },
@@ -83,7 +83,7 @@ const styles: Record<string, CSSProperties> = {
   templateBlurb: { fontSize: 10.5, color: "var(--admin-muted)", marginTop: 4 },
   ghostBtn: {
     background: "transparent",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     color: "var(--admin-muted)",
     borderRadius: 8,
     padding: "6px 10px",
@@ -104,7 +104,7 @@ const styles: Record<string, CSSProperties> = {
   },
   dangerBtn: {
     background: "transparent",
-    border: "1px solid #C53030",
+    border: "1px solid var(--admin-clay)",
     color: "var(--admin-clay)",
     borderRadius: 8,
     padding: "8px 14px",
@@ -115,7 +115,7 @@ const styles: Record<string, CSSProperties> = {
   imagePreview: {
     aspectRatio: "16/9",
     background: "var(--admin-bg)",
-    border: "1px dashed #1E2535",
+    border: "1px dashed var(--admin-border)",
     borderRadius: 8,
     overflow: "hidden",
     display: "flex",
@@ -129,7 +129,7 @@ const styles: Record<string, CSSProperties> = {
     gap: 10,
     justifyContent: "flex-end",
     paddingTop: 12,
-    borderTop: "1px solid #1E2535",
+    borderTop: "1px solid var(--admin-border)",
   },
 };
 

@@ -22,7 +22,7 @@ const styles: Record<string, CSSProperties> = {
   },
   search: {
     background: "var(--admin-bg)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "8px 12px",
     fontSize: 12,
@@ -36,7 +36,7 @@ const styles: Record<string, CSSProperties> = {
     width: "100%",
     borderCollapse: "collapse",
     background: "var(--admin-surface)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 10,
     overflow: "hidden",
   },
@@ -48,13 +48,13 @@ const styles: Record<string, CSSProperties> = {
     letterSpacing: "0.12em",
     color: "var(--admin-muted)",
     background: "var(--admin-bg)",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
   },
   td: {
     padding: "12px 14px",
     fontSize: 12.5,
     color: "var(--admin-text)",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     verticalAlign: "middle" as const,
   },
   productCell: { display: "flex", alignItems: "center", gap: 10 },
@@ -71,7 +71,7 @@ const styles: Record<string, CSSProperties> = {
   rowActions: { display: "flex", gap: 8, justifyContent: "flex-end" },
   iconBtn: {
     background: "var(--admin-border)",
-    border: "1px solid #2A3448",
+    border: "1px solid var(--admin-border)",
     color: "var(--admin-muted)",
     borderRadius: 6,
     padding: 6,
@@ -83,7 +83,7 @@ const styles: Record<string, CSSProperties> = {
   },
   iconBtnDanger: {
     background: "color-mix(in oklab, var(--admin-clay) 22%, var(--admin-bg))",
-    border: "1px solid #5A2A2A",
+    border: "1px solid var(--admin-clay)",
     color: "var(--admin-clay)",
     borderRadius: 6,
     padding: 6,
@@ -95,7 +95,7 @@ const styles: Record<string, CSSProperties> = {
   },
   emptyState: {
     background: "var(--admin-surface)",
-    border: "1px dashed #1E2535",
+    border: "1px dashed var(--admin-border)",
     borderRadius: 10,
     padding: 40,
     textAlign: "center",
@@ -267,7 +267,7 @@ function AdminProductsPage() {
                     {p.image ? (
                       <img src={p.image} alt="" style={styles.thumb} />
                     ) : (
-                      <div style={{ ...styles.thumb, border: "1px dashed #1E2535" }} />
+                      <div style={{ ...styles.thumb, border: "1px dashed var(--admin-border)" }} />
                     )}
                     <div>
                       <div style={styles.productName}>{p.name}</div>

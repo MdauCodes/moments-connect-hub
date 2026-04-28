@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_adminAuth/admin/products/$id")({
   },
   notFoundComponent: () => (
     <AdminLayout title="Product not found">
-      <p style={{ color: "#8896A8", fontSize: 13 }}>This product no longer exists.</p>
+      <p style={{ color: "var(--admin-muted)", fontSize: 13 }}>This product no longer exists.</p>
     </AdminLayout>
   ),
   component: EditProductPage,

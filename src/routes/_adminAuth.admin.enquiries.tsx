@@ -61,7 +61,7 @@ const STATUS_STYLES: Record<
 > = {
   NEW: { bg: "color-mix(in oklab, var(--admin-clay) 24%, var(--admin-surface))", color: "var(--admin-clay)", border: "var(--admin-clay)", dot: "var(--admin-clay)", label: "New" },
   IN_PROGRESS: { bg: "color-mix(in oklab, var(--admin-kraft) 18%, var(--admin-surface))", color: "var(--admin-kraft)", border: "var(--admin-kraft)", dot: "var(--admin-kraft)", label: "In progress" },
-  CLOSED: { bg: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))", color: "#68D391", border: "var(--admin-accent)", dot: "#68D391", label: "Closed" },
+  CLOSED: { bg: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))", color: "var(--cream)", border: "var(--admin-accent)", dot: "var(--cream)", label: "Closed" },
 };
 
 const styles: Record<string, CSSProperties> = {
@@ -73,13 +73,13 @@ const styles: Record<string, CSSProperties> = {
   },
   statCard: {
     background: "var(--admin-surface)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 10,
     padding: "14px 16px",
   },
   statCardHighlight: {
-    background: "#0D1F14",
-    border: "1px solid #2D5A3D",
+    background: "color-mix(in oklab, var(--admin-accent) 24%, var(--admin-bg))",
+    border: "1px solid var(--admin-accent)",
     borderRadius: 10,
     padding: "14px 16px",
   },
@@ -106,7 +106,7 @@ const styles: Record<string, CSSProperties> = {
   },
   filterBtn: {
     background: "var(--admin-border)",
-    border: "1px solid #2A3448",
+    border: "1px solid var(--admin-border)",
     color: "var(--admin-muted)",
     borderRadius: 7,
     padding: "5px 12px",
@@ -116,7 +116,7 @@ const styles: Record<string, CSSProperties> = {
   },
   filterBtnActive: {
     background: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))",
-    border: "1px solid #2D5A3D",
+    border: "1px solid var(--admin-accent)",
     color: "var(--admin-accent-hover)",
     borderRadius: 7,
     padding: "5px 12px",
@@ -127,7 +127,7 @@ const styles: Record<string, CSSProperties> = {
   exportBtn: {
     marginLeft: "auto",
     background: "transparent",
-    border: "1px solid #2A3448",
+    border: "1px solid var(--admin-border)",
     color: "var(--admin-muted)",
     borderRadius: 7,
     padding: "5px 12px",
@@ -137,7 +137,7 @@ const styles: Record<string, CSSProperties> = {
   },
   tableWrap: {
     background: "var(--admin-surface)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 12,
     overflow: "hidden",
   },
@@ -147,7 +147,7 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     gap: 12,
     padding: "10px 16px",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     fontSize: 10.5,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
@@ -159,14 +159,14 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     gap: 12,
     padding: "11px 16px",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     cursor: "pointer",
     transition: "background 120ms",
   },
   checkbox: {
     width: 14,
     height: 14,
-    border: "1px solid #2A3448",
+    border: "1px solid var(--admin-border)",
     background: "var(--admin-bg)",
     borderRadius: 3,
     display: "block",
@@ -198,7 +198,7 @@ const styles: Record<string, CSSProperties> = {
   statusDot: { width: 5, height: 5, borderRadius: "50%", display: "inline-block" },
   viewBtn: {
     background: "var(--admin-border)",
-    border: "1px solid #2A3448",
+    border: "1px solid var(--admin-border)",
     color: "var(--admin-muted)",
     borderRadius: 6,
     padding: "4px 10px",
@@ -228,7 +228,7 @@ const styles: Record<string, CSSProperties> = {
     width: 28,
     height: 28,
     background: "var(--admin-border)",
-    border: "1px solid #2A3448",
+    border: "1px solid var(--admin-border)",
     color: "var(--admin-muted)",
     borderRadius: 6,
     fontSize: 11,
@@ -242,7 +242,7 @@ const styles: Record<string, CSSProperties> = {
     width: 28,
     height: 28,
     background: "var(--admin-accent)",
-    border: "1px solid #2D5A3D",
+    border: "1px solid var(--admin-accent)",
     color: "var(--cream)",
     borderRadius: 6,
     fontSize: 11,
@@ -258,7 +258,7 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     gap: 12,
     padding: "11px 16px",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
   },
   skeletonBlock: {
     height: 14,
@@ -531,7 +531,7 @@ function AdminEnquiriesPage() {
         <div style={styles.statCardHighlight}>
           <div style={styles.statLabel}>New today</div>
           <div style={{ ...styles.statValue, color: "var(--admin-accent-hover)" }}>{stats.newToday}</div>
-          <div style={{ ...styles.statDelta, color: "#48BB78" }}>
+          <div style={{ ...styles.statDelta, color: "var(--admin-accent-hover)" }}>
             +{stats.newYesterday} from yesterday
           </div>
         </div>
@@ -628,20 +628,20 @@ function AdminEnquiriesPage() {
                   ...styles.typeBadge,
                   background: "color-mix(in oklab, var(--admin-kraft) 18%, var(--admin-surface))",
                   color: "var(--admin-kraft)",
-                  border: "1px solid #2C4A63",
+                  border: "1px solid var(--admin-kraft)",
                 }
               : {
                   ...styles.typeBadge,
                   background: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))",
-                  color: "#68D391",
-                  border: "1px solid #2D5A3D",
+                  color: "var(--cream)",
+                  border: "1px solid var(--admin-accent)",
                 };
           const isLast = idx === pageRows.length - 1;
           const rowStyle: CSSProperties = {
             ...styles.row,
             ...(isLast ? { borderBottom: "none" } : {}),
             ...(!e.isRead
-              ? { borderLeft: "3px solid #4CAF72", paddingLeft: 13 }
+              ? { borderLeft: "3px solid var(--admin-accent-hover)", paddingLeft: 13 }
               : {}),
           };
           const firstProduct = e.products[0];

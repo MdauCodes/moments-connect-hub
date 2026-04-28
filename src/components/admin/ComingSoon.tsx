@@ -9,7 +9,7 @@ const styles: Record<string, CSSProperties> = {
     flexDirection: "column",
     gap: 8,
     color: "var(--admin-muted)",
-    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    fontFamily: "var(--font-sans)",
   },
   title: { fontSize: 16, fontWeight: 600, color: "var(--admin-text)" },
   sub: { fontSize: 12, color: "var(--admin-muted)" },

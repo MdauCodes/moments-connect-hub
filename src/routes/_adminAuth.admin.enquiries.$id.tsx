@@ -56,7 +56,7 @@ const STATUS_STYLES: Record<
 > = {
   NEW: { bg: "color-mix(in oklab, var(--admin-clay) 24%, var(--admin-surface))", color: "var(--admin-clay)", border: "var(--admin-clay)", label: "New" },
   IN_PROGRESS: { bg: "color-mix(in oklab, var(--admin-kraft) 18%, var(--admin-surface))", color: "var(--admin-kraft)", border: "var(--admin-kraft)", label: "In progress" },
-  CLOSED: { bg: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))", color: "#68D391", border: "var(--admin-accent)", label: "Closed" },
+  CLOSED: { bg: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))", color: "var(--cream)", border: "var(--admin-accent)", label: "Closed" },
 };
 
 const styles: Record<string, CSSProperties> = {
@@ -79,7 +79,7 @@ const styles: Record<string, CSSProperties> = {
   },
   card: {
     background: "var(--admin-surface)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 12,
     padding: 20,
   },
@@ -106,7 +106,7 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "8px 0",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     gap: 12,
   },
   infoLabel: { fontSize: 11, color: "var(--admin-muted)" },
@@ -120,7 +120,7 @@ const styles: Record<string, CSSProperties> = {
   },
   msgBox: {
     background: "var(--admin-bg)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: 12,
     fontSize: 12,
@@ -142,13 +142,13 @@ const styles: Record<string, CSSProperties> = {
     letterSpacing: "0.08em",
     color: "var(--admin-muted)",
     paddingBottom: 8,
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     textAlign: "left",
     fontWeight: 500,
   },
   td: {
     padding: "10px 0",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     fontSize: 12,
   },
   statusGrid: {
@@ -158,7 +158,7 @@ const styles: Record<string, CSSProperties> = {
   },
   statusBtn: {
     background: "var(--admin-border)",
-    border: "1px solid #2A3448",
+    border: "1px solid var(--admin-border)",
     color: "var(--admin-muted)",
     borderRadius: 7,
     padding: 6,
@@ -178,7 +178,7 @@ const styles: Record<string, CSSProperties> = {
   input: {
     width: "100%",
     background: "var(--admin-bg)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "8px 12px",
     color: "var(--admin-text)",
@@ -190,7 +190,7 @@ const styles: Record<string, CSSProperties> = {
   waBtn: {
     width: "100%",
     background: "color-mix(in oklab, var(--admin-accent) 28%, var(--admin-bg))",
-    border: "1px solid #2D5A3D",
+    border: "1px solid var(--admin-accent)",
     color: "var(--admin-accent-hover)",
     borderRadius: 8,
     padding: 10,
@@ -206,7 +206,7 @@ const styles: Record<string, CSSProperties> = {
   copyBtn: {
     width: "100%",
     background: "var(--admin-border)",
-    border: "1px solid #2A3448",
+    border: "1px solid var(--admin-border)",
     color: "var(--admin-muted)",
     borderRadius: 8,
     padding: 10,
@@ -224,7 +224,7 @@ const styles: Record<string, CSSProperties> = {
   textarea: {
     width: "100%",
     background: "var(--admin-bg)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "10px 12px",
     color: "var(--admin-text)",
@@ -257,13 +257,13 @@ const styles: Record<string, CSSProperties> = {
     bottom: 24,
     right: 24,
     background: "var(--admin-surface)",
-    border: "1px solid #1E2535",
+    border: "1px solid var(--admin-border)",
     borderRadius: 10,
     padding: "10px 16px",
     fontSize: 12,
     color: "var(--admin-text)",
     zIndex: 9999,
-    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+    boxShadow: "0 8px 24px oklch(0 0 0 / 0.4)",
     fontFamily: "inherit",
   },
   loading: {
@@ -291,14 +291,14 @@ function typeBadgeStyle(t: CustomerType): CSSProperties {
       ...styles.typeBadge,
       background: "color-mix(in oklab, var(--admin-kraft) 18%, var(--admin-surface))",
       color: "var(--admin-kraft)",
-      border: "1px solid #2C4A63",
+      border: "1px solid var(--admin-kraft)",
     };
   }
   return {
     ...styles.typeBadge,
     background: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))",
-    color: "#68D391",
-    border: "1px solid #2D5A3D",
+    color: "var(--cream)",
+    border: "1px solid var(--admin-accent)",
   };
 }
 
