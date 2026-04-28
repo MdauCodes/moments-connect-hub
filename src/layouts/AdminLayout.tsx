@@ -246,14 +246,14 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       style={{ ...styles.navItem, ...(active ? styles.navItemActive : {}) }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.background = "#1E2535";
-          e.currentTarget.style.color = "#E2E8F0";
+          e.currentTarget.style.background = "var(--admin-surface-2)";
+          e.currentTarget.style.color = "var(--admin-text)";
         }
       }}
       onMouseLeave={(e) => {
         if (!active) {
           e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "#8896A8";
+          e.currentTarget.style.color = "var(--admin-muted)";
         }
       }}
     >
@@ -267,7 +267,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
 }
 
 export function AdminLayout({ title, actionLabel, onAction, children }: AdminLayoutProps) {
-  const { user } = useAdminAuth();
+  const { user, logout } = useAdminAuth();
   const location = useLocation();
   const pathname = location.pathname;
 
@@ -282,7 +282,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
   const displayRole = user?.role === "ADMIN" ? "Administrator" : user?.role === "STAFF" ? "Staff" : "Signed in";
 
   return (
-    <div style={styles.root}>
+    <div className="admin-shell" style={styles.root}>
       <aside style={styles.sidebar}>
         <div style={styles.sidebarTop}>
           <div style={styles.logoMark}>m</div>
@@ -315,14 +315,20 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
         <div style={styles.sidebarBottom}>
           <div
             style={styles.userPill}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#1E2535")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             <div style={styles.avatar}>{getInitials(displayName)}</div>
             <div style={{ minWidth: 0 }}>
               <div style={styles.userName}>{displayName}</div>
               <div style={styles.userRole}>{displayRole}</div>
             </div>
+            <button
+              type="button"
+              onClick={logout}
+              aria-label="Logout"
+              style={{ marginLeft: "auto", background: "transparent", border: "none", color: "var(--admin-muted)", cursor: "pointer", padding: 4 }}
+            >
+              <LogOut size={14} />
+            </button>
           </div>
         </div>
       </aside>
