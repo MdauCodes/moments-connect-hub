@@ -3,6 +3,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { MessageCircle, Copy } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { apiUrl } from "@/config/api";
 
 export const Route = createFileRoute("/_adminAuth/admin/enquiries/$id")({
   component: AdminEnquiryDetailPage,
@@ -362,7 +363,6 @@ function AdminEnquiryDetailPage() {
   const { user } = useAdminAuth();
   const navigate = useNavigate();
 
-  const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
   const token = user?.token;
   const authHeaders: HeadersInit = {
     "Content-Type": "application/json",
@@ -390,7 +390,7 @@ function AdminEnquiryDetailPage() {
       setLoading(true);
       setLoadError(null);
       try {
-        const res = await fetch(`${apiUrl}/api/admin/enquiries/${id}`, {
+        const res = await fetch(apiUrl(`/api/admin/enquiries/${id}`), {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         if (!res.ok) throw new Error(`Failed to load enquiry (${res.status})`);
@@ -410,7 +410,7 @@ function AdminEnquiryDetailPage() {
     void run();
 
     // Mark as read — fire and forget
-    void fetch(`${apiUrl}/api/admin/enquiries/${id}/read`, {
+    void fetch(apiUrl(`/api/admin/enquiries/${id}/read`), {
       method: "PATCH",
       headers: authHeaders,
     }).catch(() => {
@@ -425,7 +425,7 @@ function AdminEnquiryDetailPage() {
 
   const patch = async (path: string, body: Record<string, unknown>): Promise<boolean> => {
     try {
-      const res = await fetch(`${apiUrl}/api/admin/enquiries/${id}/${path}`, {
+      const res = await fetch(apiUrl(`/api/admin/enquiries/${id}/${path}`), {
         method: "PATCH",
         headers: authHeaders,
         body: JSON.stringify(body),

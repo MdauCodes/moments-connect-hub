@@ -49,11 +49,12 @@ bun run build
 Environment variables go in `.env.local` (see `.env.example`):
 
 ```
-VITE_API_URL=https://api.momentspackaging.com   # Spring Boot base URL once live
+VITE_API_BASE_URL=https://api.momentspackaging.com   # Spring Boot base URL once live
 VITE_USE_MOCK_DATA=false                        # true only for offline demos
 ```
 
-For local backend testing, use `VITE_API_URL=http://localhost:8080` and keep
+If `VITE_API_BASE_URL` is not set, the frontend defaults to
+`http://localhost:8080`. For local backend testing, keep
 `VITE_USE_MOCK_DATA=false` so catalogue/admin data comes from Spring Boot.
 
 ---
@@ -248,9 +249,8 @@ the same matrix — UI guards are convenience only. See `backendSpec.md` §2.1.
 
 ### 5.2 Adding an API call
 
-1. Add the method to `src/services/api.ts` with a `// TODO: <METHOD> /api/v1/…`
-   comment matching `backendSpec.md`.
-2. Return mock data of the correct shape for now.
+1. Import `apiUrl` from `src/config/api.ts` and call `fetch(apiUrl("/api/…"))`.
+2. Never hardcode backend hosts or call relative API paths directly.
 3. Update `backendSpec.md` if the endpoint isn't documented yet.
 
 ### 5.3 Adding a feature flag

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { apiUrl } from "@/config/api";
 
 export interface AdminUser {
   id?: string;
@@ -38,8 +39,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
-    const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
-    const res = await fetch(`${apiUrl}/api/v1/auth/login`, {
+    const res = await fetch(apiUrl("/api/v1/auth/login"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

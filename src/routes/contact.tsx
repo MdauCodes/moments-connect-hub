@@ -5,6 +5,7 @@ import { WHATSAPP_NUMBER, whatsappLink } from "@/data/products";
 import { Check, Loader2, MessageCircle, X } from "lucide-react";
 import { usePersona } from "@/contexts/PersonaContext";
 import { useBasket, type BasketItem } from "@/contexts/BasketContext";
+import { apiUrl } from "@/config/api";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -82,8 +83,7 @@ function ContactPage() {
     };
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${apiUrl}/api/enquiries`, {
+      const response = await fetch(apiUrl("/api/enquiries"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

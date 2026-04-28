@@ -1,14 +1,14 @@
 // ----------------------------------------------------------------------------
-// Product store — uses the Spring Boot admin API when VITE_API_URL is present.
+// Product store — uses the Spring Boot admin API via VITE_API_BASE_URL.
 // Mock localStorage data is disabled by default and only used when
 // VITE_USE_MOCK_DATA=true or no API URL is configured.
 // ----------------------------------------------------------------------------
 
 import { products as seedProducts, type Product } from "@/data/products";
+import { API_BASE_URL, apiUrl } from "@/config/api";
 
 const STORAGE_KEY = "moments_products_v1";
-const API_URL = import.meta.env.VITE_API_URL ?? "";
-const USE_MOCKS = import.meta.env.VITE_USE_MOCK_DATA === "true" || !API_URL;
+const USE_MOCKS = import.meta.env.VITE_USE_MOCK_DATA === "true" || !API_BASE_URL;
 
 type PageResponse<T> = { content: T[] };
 
@@ -69,7 +69,7 @@ function normalizeProduct(
 }
 
 async function adminJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}/api/v1/admin${path}`, {
+  const res = await fetch(apiUrl(`/api/v1/admin${path}`), {
     ...init,
     headers: { ...authHeaders(), ...init?.headers },
   });
