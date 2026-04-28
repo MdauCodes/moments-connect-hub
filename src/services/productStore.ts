@@ -4,7 +4,7 @@
 // VITE_USE_MOCK_DATA=true or no API URL is configured.
 // ----------------------------------------------------------------------------
 
-import { products as seedProducts, type Product } from "@/data/products";
+import { industries, products as seedProducts, type Product } from "@/data/products";
 import { API_BASE_URL } from "@/config/api";
 import { adminFetch } from "@/services/adminApi";
 
@@ -12,6 +12,14 @@ const STORAGE_KEY = "moments_products_v1";
 const USE_MOCKS = import.meta.env.VITE_USE_MOCK_DATA === "true" || !API_BASE_URL;
 
 type PageResponse<T> = { content: T[] };
+type ProductApiDto = Partial<Product> & {
+  id: string;
+  slug: string;
+  name: string;
+  primaryImageUrl?: string;
+  imageUrls?: string[];
+  industries?: Array<{ id?: string | number; displayId?: string | number; slug?: string }>;
+};
 
 function toBackendPayload(input: Partial<ProductDraft>) {
   return {
@@ -35,9 +43,15 @@ function toBackendPayload(input: Partial<ProductDraft>) {
   };
 }
 
-function normalizeProduct(
-  p: Partial<Product> & { id: string; slug: string; name: string; primaryImageUrl?: string; imageUrls?: string[] },
-): Product {
+function normalizeIndustryIds(p: ProductApiDto): string[] {
+  if (p.industryIds?.length) return p.industryIds.map(String);
+  return (p.industries ?? [])
+    .map((industry) => industry.id ?? industry.displayId ?? industries.find((i) => i.slug === industry.slug)?.id)
+    .filter((id): id is string | number => id !== undefined && id !== null)
+    .map(String);
+}
+
+function normalizeProduct(p: ProductApiDto): Product {
   const image = p.image ?? p.primaryImageUrl ?? p.imageUrls?.[0] ?? "";
   return {
     ...p,
@@ -51,7 +65,7 @@ function normalizeProduct(
     isFastMoving: p.isFastMoving ?? false,
     tags: p.tags ?? [],
     sizes: p.sizes ?? [],
-    industryIds: p.industryIds ?? [],
+    industryIds: normalizeIndustryIds(p),
     totalClicks: p.totalClicks ?? 0,
     monthlyClicks: p.monthlyClicks ?? 0,
     totalEnquiries: p.totalEnquiries ?? 0,
