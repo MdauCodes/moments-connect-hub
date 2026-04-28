@@ -113,7 +113,7 @@ function normalizeUser(user: AdminUserDto): StaffUser {
 
   return {
     id: String(user.id ?? user.email ?? crypto.randomUUID()),
-    name: user.name ?? fullName || user.email ?? "Unnamed user",
+    name: user.name ?? (fullName || user.email) ?? "Unnamed user",
     email: user.email ?? "—",
     role: normalizeRole(user),
     status: isActive ? "Active" : "Disabled",
