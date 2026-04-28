@@ -43,21 +43,21 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 14,
   },
   search: {
-    background: "#0F1117",
+    background: "var(--admin-bg)",
     border: "1px solid #1E2535",
     borderRadius: 8,
     padding: "8px 12px",
     fontSize: 12,
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     width: 280,
     outline: "none",
     fontFamily: "inherit",
   },
-  count: { marginLeft: "auto", fontSize: 11.5, color: "#4A5568" },
+  count: { marginLeft: "auto", fontSize: 11.5, color: "var(--admin-muted)" },
   table: {
     width: "100%",
     borderCollapse: "collapse",
-    background: "#161B27",
+    background: "var(--admin-surface)",
     border: "1px solid #1E2535",
     borderRadius: 10,
     overflow: "hidden",
@@ -68,18 +68,18 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 10.5,
     textTransform: "uppercase",
     letterSpacing: "0.12em",
-    color: "#4A5568",
-    background: "#0F1117",
+    color: "var(--admin-muted)",
+    background: "var(--admin-bg)",
     borderBottom: "1px solid #1E2535",
   },
   td: {
     padding: "12px 14px",
     fontSize: 12.5,
-    color: "#CBD5E0",
+    color: "var(--admin-text)",
     borderBottom: "1px solid #1E2535",
   },
-  primary: { color: "#E2E8F0", fontWeight: 600, lineHeight: 1.3 },
-  secondary: { color: "#4A5568", fontSize: 11, marginTop: 2 },
+  primary: { color: "var(--admin-text)", fontWeight: 600, lineHeight: 1.3 },
+  secondary: { color: "var(--admin-muted)", fontSize: 11, marginTop: 2 },
   badge: {
     display: "inline-flex",
     borderRadius: 999,
@@ -88,12 +88,12 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: 700,
   },
   empty: {
-    background: "#161B27",
+    background: "var(--admin-surface)",
     border: "1px dashed #1E2535",
     borderRadius: 10,
     padding: 40,
     textAlign: "center",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     fontSize: 13,
   },
 };
@@ -214,8 +214,8 @@ function AdminStaffPage() {
                   <span
                     style={{
                       ...styles.badge,
-                      background: row.role === "ADMIN" ? "#2D1F4A" : "#1E2535",
-                      color: row.role === "ADMIN" ? "#B794F4" : "#8896A8",
+                      background: row.role === "ADMIN" ? "color-mix(in oklab, var(--admin-clay) 24%, var(--admin-surface))" : "var(--admin-border)",
+                      color: row.role === "ADMIN" ? "var(--admin-clay)" : "var(--admin-muted)",
                     }}
                   >
                     {row.role}
@@ -225,8 +225,8 @@ function AdminStaffPage() {
                   <span
                     style={{
                       ...styles.badge,
-                      background: row.status === "Active" ? "#1E3A2A" : "#3A1E1E",
-                      color: row.status === "Active" ? "#9AE6B4" : "#FC8181",
+                      background: row.status === "Active" ? "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))" : "color-mix(in oklab, var(--admin-clay) 18%, var(--admin-bg))",
+                      color: row.status === "Active" ? "var(--cream)" : "var(--admin-clay)",
                     }}
                   >
                     {row.status}

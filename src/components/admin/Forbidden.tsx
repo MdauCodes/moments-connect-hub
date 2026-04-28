@@ -9,7 +9,7 @@ const wrap: CSSProperties = {
   justifyContent: "center",
   padding: "4rem 2rem",
   textAlign: "center",
-  color: "#8896A8",
+  color: "var(--admin-muted)",
   gap: 14,
 };
 
@@ -17,21 +17,21 @@ const iconWrap: CSSProperties = {
   width: 56,
   height: 56,
   borderRadius: "50%",
-  background: "#2D1F1F",
+  background: "color-mix(in oklab, var(--admin-clay) 20%, var(--admin-surface))",
   border: "1px solid #4A2A2A",
-  color: "#FC8181",
+  color: "var(--admin-clay)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
 };
 
-const title: CSSProperties = { fontSize: 16, fontWeight: 600, color: "#E2E8F0" };
-const sub: CSSProperties = { fontSize: 12.5, color: "#4A5568", maxWidth: 380 };
+const title: CSSProperties = { fontSize: 16, fontWeight: 600, color: "var(--admin-text)" };
+const sub: CSSProperties = { fontSize: 12.5, color: "var(--admin-muted)", maxWidth: 380 };
 const back: CSSProperties = {
   marginTop: 8,
-  background: "#1E2535",
+  background: "var(--admin-border)",
   border: "1px solid #2A3448",
-  color: "#CBD5E0",
+  color: "var(--admin-text)",
   borderRadius: 8,
   padding: "8px 14px",
   fontSize: 12,

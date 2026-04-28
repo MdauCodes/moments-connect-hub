@@ -15,8 +15,8 @@ const badgeStyle = (tone: "ok" | "muted"): CSSProperties => ({
   borderRadius: 999,
   fontSize: 10.5,
   fontWeight: 600,
-  background: tone === "ok" ? "#1E3A2A" : "#1E2535",
-  color: tone === "ok" ? "#9AE6B4" : "#8896A8",
+  background: tone === "ok" ? "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))" : "var(--admin-border)",
+  color: tone === "ok" ? "var(--cream)" : "var(--admin-muted)",
 });
 
 const styles: Record<string, CSSProperties> = {
@@ -27,12 +27,12 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 14,
   },
   search: {
-    background: "#0F1117",
+    background: "var(--admin-bg)",
     border: "1px solid #1E2535",
     borderRadius: 8,
     padding: "8px 12px",
     fontSize: 12,
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     width: 260,
     outline: "none",
     fontFamily: "inherit",
@@ -40,7 +40,7 @@ const styles: Record<string, CSSProperties> = {
   table: {
     width: "100%",
     borderCollapse: "collapse",
-    background: "#161B27",
+    background: "var(--admin-surface)",
     border: "1px solid #1E2535",
     borderRadius: 10,
     overflow: "hidden",
@@ -51,24 +51,24 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 10.5,
     textTransform: "uppercase",
     letterSpacing: "0.12em",
-    color: "#4A5568",
-    background: "#0F1117",
+    color: "var(--admin-muted)",
+    background: "var(--admin-bg)",
     borderBottom: "1px solid #1E2535",
   },
   td: {
     padding: "12px 14px",
     fontSize: 12.5,
-    color: "#CBD5E0",
+    color: "var(--admin-text)",
     borderBottom: "1px solid #1E2535",
   },
-  link: { color: "#9AE6B4", textDecoration: "none", fontWeight: 500 },
+  link: { color: "var(--cream)", textDecoration: "none", fontWeight: 500 },
   emptyState: {
-    background: "#161B27",
+    background: "var(--admin-surface)",
     border: "1px dashed #1E2535",
     borderRadius: 10,
     padding: 40,
     textAlign: "center",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     fontSize: 13,
   },
 };
@@ -107,7 +107,7 @@ function AdminBlogsPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <span style={{ fontSize: 11.5, color: "#4A5568" }}>
+        <span style={{ fontSize: 11.5, color: "var(--admin-muted)" }}>
           {blogs ? `${blogs.length} total` : "Loading…"}
         </span>
       </div>
@@ -133,8 +133,8 @@ function AdminBlogsPage() {
             {filtered.map((b) => (
               <tr key={b.id}>
                 <td style={styles.td}>
-                  <div style={{ fontWeight: 500, color: "#E2E8F0" }}>{b.title}</div>
-                  <div style={{ fontSize: 11, color: "#4A5568", marginTop: 2 }}>/{b.slug}</div>
+                  <div style={{ fontWeight: 500, color: "var(--admin-text)" }}>{b.title}</div>
+                  <div style={{ fontSize: 11, color: "var(--admin-muted)", marginTop: 2 }}>/{b.slug}</div>
                 </td>
                 <td style={styles.td}>{TEMPLATE_META[b.template].label}</td>
                 <td style={styles.td}>
