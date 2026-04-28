@@ -59,9 +59,9 @@ const STATUS_STYLES: Record<
   EnquiryStatus,
   { bg: string; color: string; border: string; dot: string; label: string }
 > = {
-  NEW: { bg: "#2D1F4A", color: "#B794F4", border: "#44337A", dot: "#B794F4", label: "New" },
-  IN_PROGRESS: { bg: "#1A2E40", color: "#63B3ED", border: "#2C4A63", dot: "#63B3ED", label: "In progress" },
-  CLOSED: { bg: "#1E3A2A", color: "#68D391", border: "#2D5A3D", dot: "#68D391", label: "Closed" },
+  NEW: { bg: "color-mix(in oklab, var(--admin-clay) 24%, var(--admin-surface))", color: "var(--admin-clay)", border: "var(--admin-clay)", dot: "var(--admin-clay)", label: "New" },
+  IN_PROGRESS: { bg: "color-mix(in oklab, var(--admin-kraft) 18%, var(--admin-surface))", color: "var(--admin-kraft)", border: "var(--admin-kraft)", dot: "var(--admin-kraft)", label: "In progress" },
+  CLOSED: { bg: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))", color: "var(--cream)", border: "var(--admin-accent)", dot: "var(--cream)", label: "Closed" },
 };
 
 const styles: Record<string, CSSProperties> = {
@@ -72,14 +72,14 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 20,
   },
   statCard: {
-    background: "#161B27",
-    border: "1px solid #1E2535",
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 10,
     padding: "14px 16px",
   },
   statCardHighlight: {
-    background: "#0D1F14",
-    border: "1px solid #2D5A3D",
+    background: "color-mix(in oklab, var(--admin-accent) 24%, var(--admin-bg))",
+    border: "1px solid var(--admin-accent)",
     borderRadius: 10,
     padding: "14px 16px",
   },
@@ -87,12 +87,12 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 11,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
   },
   statValue: {
     fontSize: 26,
     fontWeight: 700,
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     marginTop: 6,
     lineHeight: 1.1,
   },
@@ -105,9 +105,9 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 16,
   },
   filterBtn: {
-    background: "#1E2535",
-    border: "1px solid #2A3448",
-    color: "#8896A8",
+    background: "var(--admin-border)",
+    border: "1px solid var(--admin-border)",
+    color: "var(--admin-muted)",
     borderRadius: 7,
     padding: "5px 12px",
     fontSize: 11.5,
@@ -115,9 +115,9 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   filterBtnActive: {
-    background: "#1E3A2A",
-    border: "1px solid #2D5A3D",
-    color: "#4CAF72",
+    background: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))",
+    border: "1px solid var(--admin-accent)",
+    color: "var(--admin-accent-hover)",
     borderRadius: 7,
     padding: "5px 12px",
     fontSize: 11.5,
@@ -127,8 +127,8 @@ const styles: Record<string, CSSProperties> = {
   exportBtn: {
     marginLeft: "auto",
     background: "transparent",
-    border: "1px solid #2A3448",
-    color: "#8896A8",
+    border: "1px solid var(--admin-border)",
+    color: "var(--admin-muted)",
     borderRadius: 7,
     padding: "5px 12px",
     fontSize: 11.5,
@@ -136,8 +136,8 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   tableWrap: {
-    background: "#161B27",
-    border: "1px solid #1E2535",
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 12,
     overflow: "hidden",
   },
@@ -147,11 +147,11 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     gap: 12,
     padding: "10px 16px",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     fontSize: 10.5,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
   },
   row: {
     display: "grid",
@@ -159,20 +159,20 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     gap: 12,
     padding: "11px 16px",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     cursor: "pointer",
     transition: "background 120ms",
   },
   checkbox: {
     width: 14,
     height: 14,
-    border: "1px solid #2A3448",
-    background: "#0F1117",
+    border: "1px solid var(--admin-border)",
+    background: "var(--admin-bg)",
     borderRadius: 3,
     display: "block",
   },
-  customerPrimary: { fontSize: 13, fontWeight: 500, color: "#E2E8F0", lineHeight: 1.3 },
-  customerSecondary: { fontSize: 11, color: "#4A5568", marginTop: 2 },
+  customerPrimary: { fontSize: 13, fontWeight: 500, color: "var(--admin-text)", lineHeight: 1.3 },
+  customerSecondary: { fontSize: 11, color: "var(--admin-muted)", marginTop: 2 },
   typeBadge: {
     display: "inline-flex",
     alignItems: "center",
@@ -181,10 +181,10 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: 600,
     padding: "3px 9px",
   },
-  productMain: { fontSize: 11.5, color: "#8896A8", lineHeight: 1.3 },
-  productMore: { fontSize: 10.5, color: "#4A5568", marginTop: 2 },
-  dateMain: { fontSize: 11, color: "#8896A8", lineHeight: 1.3 },
-  dateSub: { fontSize: 10.5, color: "#4A5568", marginTop: 2 },
+  productMain: { fontSize: 11.5, color: "var(--admin-muted)", lineHeight: 1.3 },
+  productMore: { fontSize: 10.5, color: "var(--admin-muted)", marginTop: 2 },
+  dateMain: { fontSize: 11, color: "var(--admin-muted)", lineHeight: 1.3 },
+  dateSub: { fontSize: 10.5, color: "var(--admin-muted)", marginTop: 2 },
   statusBadge: {
     display: "inline-flex",
     alignItems: "center",
@@ -197,9 +197,9 @@ const styles: Record<string, CSSProperties> = {
   },
   statusDot: { width: 5, height: 5, borderRadius: "50%", display: "inline-block" },
   viewBtn: {
-    background: "#1E2535",
-    border: "1px solid #2A3448",
-    color: "#8896A8",
+    background: "var(--admin-border)",
+    border: "1px solid var(--admin-border)",
+    color: "var(--admin-muted)",
     borderRadius: 6,
     padding: "4px 10px",
     fontSize: 11,
@@ -214,22 +214,22 @@ const styles: Record<string, CSSProperties> = {
     padding: "3rem",
     gap: 8,
   },
-  emptyText: { fontSize: 14, color: "#4A5568" },
-  emptySub: { fontSize: 12, color: "#2A3448" },
+  emptyText: { fontSize: 14, color: "var(--admin-muted)" },
+  emptySub: { fontSize: 12, color: "var(--admin-border)" },
   pagination: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     paddingTop: 12,
   },
-  paginationInfo: { fontSize: 11, color: "#4A5568" },
+  paginationInfo: { fontSize: 11, color: "var(--admin-muted)" },
   paginationControls: { display: "flex", gap: 6 },
   pageBtn: {
     width: 28,
     height: 28,
-    background: "#1E2535",
-    border: "1px solid #2A3448",
-    color: "#8896A8",
+    background: "var(--admin-border)",
+    border: "1px solid var(--admin-border)",
+    color: "var(--admin-muted)",
     borderRadius: 6,
     fontSize: 11,
     cursor: "pointer",
@@ -241,9 +241,9 @@ const styles: Record<string, CSSProperties> = {
   pageBtnActive: {
     width: 28,
     height: 28,
-    background: "#2D5A3D",
-    border: "1px solid #2D5A3D",
-    color: "#9AE6B4",
+    background: "var(--admin-accent)",
+    border: "1px solid var(--admin-accent)",
+    color: "var(--cream)",
     borderRadius: 6,
     fontSize: 11,
     cursor: "pointer",
@@ -258,11 +258,11 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     gap: 12,
     padding: "11px 16px",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
   },
   skeletonBlock: {
     height: 14,
-    background: "#1E2535",
+    background: "var(--admin-border)",
     borderRadius: 4,
     animation: "adminPulse 1.4s ease-in-out infinite",
   },
@@ -274,10 +274,10 @@ const styles: Record<string, CSSProperties> = {
     padding: "3rem",
     gap: 12,
   },
-  errorText: { fontSize: 13, color: "#FC8181" },
+  errorText: { fontSize: 13, color: "var(--admin-clay)" },
   retryBtn: {
-    background: "#2D5A3D",
-    color: "#9AE6B4",
+    background: "var(--admin-accent)",
+    color: "var(--cream)",
     border: "none",
     borderRadius: 8,
     padding: "8px 16px",
@@ -530,8 +530,8 @@ function AdminEnquiriesPage() {
       <div style={styles.statsGrid}>
         <div style={styles.statCardHighlight}>
           <div style={styles.statLabel}>New today</div>
-          <div style={{ ...styles.statValue, color: "#4CAF72" }}>{stats.newToday}</div>
-          <div style={{ ...styles.statDelta, color: "#48BB78" }}>
+          <div style={{ ...styles.statValue, color: "var(--admin-accent-hover)" }}>{stats.newToday}</div>
+          <div style={{ ...styles.statDelta, color: "var(--admin-accent-hover)" }}>
             +{stats.newYesterday} from yesterday
           </div>
         </div>
@@ -539,7 +539,7 @@ function AdminEnquiriesPage() {
           <div style={styles.statLabel}>Pending quote</div>
           <div style={styles.statValue}>{stats.pending}</div>
           {stats.overdue > 0 && (
-            <div style={{ ...styles.statDelta, color: "#FC8181" }}>
+            <div style={{ ...styles.statDelta, color: "var(--admin-clay)" }}>
               {stats.overdue} overdue &gt;24h
             </div>
           )}
@@ -550,7 +550,7 @@ function AdminEnquiriesPage() {
         </div>
         <div style={styles.statCard}>
           <div style={styles.statLabel}>Avg. response time</div>
-          <div style={{ ...styles.statValue, color: "#4A5568" }}>—</div>
+          <div style={{ ...styles.statValue, color: "var(--admin-muted)" }}>—</div>
         </div>
       </div>
 
@@ -613,7 +613,7 @@ function AdminEnquiriesPage() {
 
         {!loading && !error && pageRows.length === 0 && (
           <div style={styles.empty}>
-            <Inbox size={32} color="#2A3448" />
+            <Inbox size={32} color="var(--admin-border)" />
             <div style={styles.emptyText}>No enquiries found</div>
             <div style={styles.emptySub}>Try adjusting your filters</div>
           </div>
@@ -626,22 +626,22 @@ function AdminEnquiriesPage() {
             e.customerType === "SME"
               ? {
                   ...styles.typeBadge,
-                  background: "#1A2E40",
-                  color: "#63B3ED",
-                  border: "1px solid #2C4A63",
+                  background: "color-mix(in oklab, var(--admin-kraft) 18%, var(--admin-surface))",
+                  color: "var(--admin-kraft)",
+                  border: "1px solid var(--admin-kraft)",
                 }
               : {
                   ...styles.typeBadge,
-                  background: "#1E3A2A",
-                  color: "#68D391",
-                  border: "1px solid #2D5A3D",
+                  background: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))",
+                  color: "var(--cream)",
+                  border: "1px solid var(--admin-accent)",
                 };
           const isLast = idx === pageRows.length - 1;
           const rowStyle: CSSProperties = {
             ...styles.row,
             ...(isLast ? { borderBottom: "none" } : {}),
             ...(!e.isRead
-              ? { borderLeft: "3px solid #4CAF72", paddingLeft: 13 }
+              ? { borderLeft: "3px solid var(--admin-accent-hover)", paddingLeft: 13 }
               : {}),
           };
           const firstProduct = e.products[0];
@@ -652,7 +652,7 @@ function AdminEnquiriesPage() {
               key={e.id}
               style={rowStyle}
               onClick={() => handleRowClick(e.id)}
-              onMouseEnter={(ev) => (ev.currentTarget.style.background = "#1A2030")}
+              onMouseEnter={(ev) => (ev.currentTarget.style.background = "var(--admin-surface-2)")}
               onMouseLeave={(ev) => (ev.currentTarget.style.background = "transparent")}
             >
               <div onClick={(ev) => ev.stopPropagation()}>
@@ -702,14 +702,14 @@ function AdminEnquiriesPage() {
                   style={styles.viewBtn}
                   onClick={() => handleRowClick(e.id)}
                   onMouseEnter={(ev) => {
-                    ev.currentTarget.style.background = "#2D5A3D";
-                    ev.currentTarget.style.borderColor = "#2D5A3D";
-                    ev.currentTarget.style.color = "#9AE6B4";
+                    ev.currentTarget.style.background = "var(--admin-accent)";
+                    ev.currentTarget.style.borderColor = "var(--admin-accent)";
+                    ev.currentTarget.style.color = "var(--cream)";
                   }}
                   onMouseLeave={(ev) => {
-                    ev.currentTarget.style.background = "#1E2535";
-                    ev.currentTarget.style.borderColor = "#2A3448";
-                    ev.currentTarget.style.color = "#8896A8";
+                    ev.currentTarget.style.background = "var(--admin-border)";
+                    ev.currentTarget.style.borderColor = "var(--admin-border)";
+                    ev.currentTarget.style.color = "var(--admin-muted)";
                   }}
                 >
                   View →

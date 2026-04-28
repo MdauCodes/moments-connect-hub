@@ -54,16 +54,16 @@ const STATUS_STYLES: Record<
   EnquiryStatus,
   { bg: string; color: string; border: string; label: string }
 > = {
-  NEW: { bg: "#2D1F4A", color: "#B794F4", border: "#44337A", label: "New" },
-  IN_PROGRESS: { bg: "#1A2E40", color: "#63B3ED", border: "#2C4A63", label: "In progress" },
-  CLOSED: { bg: "#1E3A2A", color: "#68D391", border: "#2D5A3D", label: "Closed" },
+  NEW: { bg: "color-mix(in oklab, var(--admin-clay) 24%, var(--admin-surface))", color: "var(--admin-clay)", border: "var(--admin-clay)", label: "New" },
+  IN_PROGRESS: { bg: "color-mix(in oklab, var(--admin-kraft) 18%, var(--admin-surface))", color: "var(--admin-kraft)", border: "var(--admin-kraft)", label: "In progress" },
+  CLOSED: { bg: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))", color: "var(--cream)", border: "var(--admin-accent)", label: "Closed" },
 };
 
 const styles: Record<string, CSSProperties> = {
   back: {
     display: "inline-block",
     fontSize: 12,
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     cursor: "pointer",
     marginBottom: 20,
     background: "transparent",
@@ -78,8 +78,8 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "start",
   },
   card: {
-    background: "#161B27",
-    border: "1px solid #1E2535",
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 12,
     padding: 20,
   },
@@ -87,11 +87,11 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 10,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     marginBottom: 12,
   },
   customerHead: { display: "flex", alignItems: "center", flexWrap: "wrap" },
-  customerName: { fontSize: 16, fontWeight: 600, color: "#E2E8F0" },
+  customerName: { fontSize: 16, fontWeight: 600, color: "var(--admin-text)" },
   typeBadge: {
     display: "inline-flex",
     alignItems: "center",
@@ -106,32 +106,32 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "8px 0",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     gap: 12,
   },
-  infoLabel: { fontSize: 11, color: "#4A5568" },
-  infoValue: { fontSize: 12, color: "#CBD5E0", textAlign: "right", wordBreak: "break-word" },
+  infoLabel: { fontSize: 11, color: "var(--admin-muted)" },
+  infoValue: { fontSize: 12, color: "var(--admin-text)", textAlign: "right", wordBreak: "break-word" },
   msgLabel: {
     fontSize: 10,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     marginTop: 16,
   },
   msgBox: {
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: 12,
     fontSize: 12,
-    color: "#8896A8",
+    color: "var(--admin-muted)",
     lineHeight: 1.6,
     marginTop: 8,
     whiteSpace: "pre-wrap",
   },
   divider: {
     height: 1,
-    background: "#1E2535",
+    background: "var(--admin-border)",
     border: "none",
     margin: "20px 0",
   },
@@ -140,15 +140,15 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 10,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     paddingBottom: 8,
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     textAlign: "left",
     fontWeight: 500,
   },
   td: {
     padding: "10px 0",
-    borderBottom: "1px solid #1E2535",
+    borderBottom: "1px solid var(--admin-border)",
     fontSize: 12,
   },
   statusGrid: {
@@ -157,9 +157,9 @@ const styles: Record<string, CSSProperties> = {
     gap: 6,
   },
   statusBtn: {
-    background: "#1E2535",
-    border: "1px solid #2A3448",
-    color: "#4A5568",
+    background: "var(--admin-border)",
+    border: "1px solid var(--admin-border)",
+    color: "var(--admin-muted)",
     borderRadius: 7,
     padding: 6,
     fontSize: 11,
@@ -171,17 +171,17 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 10,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     marginBottom: 6,
     display: "block",
   },
   input: {
     width: "100%",
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "8px 12px",
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     fontSize: 12,
     outline: "none",
     fontFamily: "inherit",
@@ -189,9 +189,9 @@ const styles: Record<string, CSSProperties> = {
   },
   waBtn: {
     width: "100%",
-    background: "#1A3A24",
-    border: "1px solid #2D5A3D",
-    color: "#4CAF72",
+    background: "color-mix(in oklab, var(--admin-accent) 28%, var(--admin-bg))",
+    border: "1px solid var(--admin-accent)",
+    color: "var(--admin-accent-hover)",
     borderRadius: 8,
     padding: 10,
     fontSize: 12,
@@ -205,9 +205,9 @@ const styles: Record<string, CSSProperties> = {
   },
   copyBtn: {
     width: "100%",
-    background: "#1E2535",
-    border: "1px solid #2A3448",
-    color: "#8896A8",
+    background: "var(--admin-border)",
+    border: "1px solid var(--admin-border)",
+    color: "var(--admin-muted)",
     borderRadius: 8,
     padding: 10,
     fontSize: 12,
@@ -220,14 +220,14 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "center",
     gap: 8,
   },
-  notesSub: { fontSize: 10, color: "#4A5568", marginBottom: 8 },
+  notesSub: { fontSize: 10, color: "var(--admin-muted)", marginBottom: 8 },
   textarea: {
     width: "100%",
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "10px 12px",
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     fontSize: 12,
     fontFamily: "inherit",
     outline: "none",
@@ -237,8 +237,8 @@ const styles: Record<string, CSSProperties> = {
   saveBtn: {
     marginTop: 8,
     width: "100%",
-    background: "#2D5A3D",
-    color: "#9AE6B4",
+    background: "var(--admin-accent)",
+    color: "var(--cream)",
     border: "none",
     borderRadius: 8,
     padding: 8,
@@ -248,7 +248,7 @@ const styles: Record<string, CSSProperties> = {
   },
   saveFeedback: {
     fontSize: 11,
-    color: "#4CAF72",
+    color: "var(--admin-accent-hover)",
     marginTop: 6,
     minHeight: 14,
   },
@@ -256,31 +256,31 @@ const styles: Record<string, CSSProperties> = {
     position: "fixed",
     bottom: 24,
     right: 24,
-    background: "#161B27",
-    border: "1px solid #1E2535",
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 10,
     padding: "10px 16px",
     fontSize: 12,
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     zIndex: 9999,
-    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+    boxShadow: "0 8px 24px oklch(0 0 0 / 0.4)",
     fontFamily: "inherit",
   },
   loading: {
     padding: 40,
     textAlign: "center",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     fontSize: 13,
   },
   errorWrap: {
     padding: 40,
     textAlign: "center",
-    color: "#FC8181",
+    color: "var(--admin-clay)",
     fontSize: 13,
   },
   artworkLink: {
     fontSize: 12,
-    color: "#63B3ED",
+    color: "var(--admin-kraft)",
     textDecoration: "none",
   },
 };
@@ -289,16 +289,16 @@ function typeBadgeStyle(t: CustomerType): CSSProperties {
   if (t === "SME") {
     return {
       ...styles.typeBadge,
-      background: "#1A2E40",
-      color: "#63B3ED",
-      border: "1px solid #2C4A63",
+      background: "color-mix(in oklab, var(--admin-kraft) 18%, var(--admin-surface))",
+      color: "var(--admin-kraft)",
+      border: "1px solid var(--admin-kraft)",
     };
   }
   return {
     ...styles.typeBadge,
-    background: "#1E3A2A",
-    color: "#68D391",
-    border: "1px solid #2D5A3D",
+    background: "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))",
+    color: "var(--cream)",
+    border: "1px solid var(--admin-accent)",
   };
 }
 
@@ -542,8 +542,8 @@ function AdminEnquiryDetailPage() {
         type="button"
         style={styles.back}
         onClick={() => navigate({ to: "/admin/enquiries" })}
-        onMouseEnter={(e) => (e.currentTarget.style.color = "#8896A8")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "#4A5568")}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--admin-muted)")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--admin-muted)")}
       >
         ← Back to enquiries
       </button>
@@ -627,10 +627,10 @@ function AdminEnquiryDetailPage() {
               <tbody>
                 {enquiry.products.map((p, i) => (
                   <tr key={`${p.productId}-${i}`}>
-                    <td style={{ ...styles.td, color: "#E2E8F0" }}>{p.name}</td>
-                    <td style={{ ...styles.td, color: "#8896A8" }}>{p.qty}</td>
-                    <td style={{ ...styles.td, color: "#8896A8" }}>{p.size || "—"}</td>
-                    <td style={{ ...styles.td, color: "#8896A8" }}>{p.finish || "—"}</td>
+                    <td style={{ ...styles.td, color: "var(--admin-text)" }}>{p.name}</td>
+                    <td style={{ ...styles.td, color: "var(--admin-muted)" }}>{p.qty}</td>
+                    <td style={{ ...styles.td, color: "var(--admin-muted)" }}>{p.size || "—"}</td>
+                    <td style={{ ...styles.td, color: "var(--admin-muted)" }}>{p.finish || "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -668,8 +668,8 @@ function AdminEnquiryDetailPage() {
                 placeholder="Assign to staff member"
                 style={styles.input}
                 onBlur={(e) => void handleAssignedBlur(e.target.value)}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#2D5A3D")}
-                onBlurCapture={(e) => (e.currentTarget.style.borderColor = "#1E2535")}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--admin-accent)")}
+                onBlurCapture={(e) => (e.currentTarget.style.borderColor = "var(--admin-border)")}
               />
 
               <div style={{ height: 12 }} />
@@ -681,8 +681,8 @@ function AdminEnquiryDetailPage() {
                 defaultValue={enquiry.followUpDate ?? ""}
                 style={styles.input}
                 onBlur={(e) => void handleFollowupBlur(e.target.value)}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#2D5A3D")}
-                onBlurCapture={(e) => (e.currentTarget.style.borderColor = "#1E2535")}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--admin-accent)")}
+                onBlurCapture={(e) => (e.currentTarget.style.borderColor = "var(--admin-border)")}
               />
             </div>
 
@@ -712,8 +712,8 @@ function AdminEnquiryDetailPage() {
                 onChange={(e) => setNotesDraft(e.target.value)}
                 placeholder="Add notes for the team..."
                 style={styles.textarea}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#2D5A3D")}
-                onBlur={(e) => (e.currentTarget.style.borderColor = "#1E2535")}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--admin-accent)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "var(--admin-border)")}
               />
               <button type="button" style={styles.saveBtn} onClick={() => void handleSaveNotes()}>
                 Save notes

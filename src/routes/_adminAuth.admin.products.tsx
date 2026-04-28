@@ -21,12 +21,12 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 14,
   },
   search: {
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "8px 12px",
     fontSize: 12,
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     width: 260,
     outline: "none",
     fontFamily: "inherit",
@@ -35,8 +35,8 @@ const styles: Record<string, CSSProperties> = {
   table: {
     width: "100%",
     borderCollapse: "collapse",
-    background: "#161B27",
-    border: "1px solid #1E2535",
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 10,
     overflow: "hidden",
   },
@@ -46,15 +46,15 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 10.5,
     textTransform: "uppercase",
     letterSpacing: "0.12em",
-    color: "#4A5568",
-    background: "#0F1117",
-    borderBottom: "1px solid #1E2535",
+    color: "var(--admin-muted)",
+    background: "var(--admin-bg)",
+    borderBottom: "1px solid var(--admin-border)",
   },
   td: {
     padding: "12px 14px",
     fontSize: 12.5,
-    color: "#CBD5E0",
-    borderBottom: "1px solid #1E2535",
+    color: "var(--admin-text)",
+    borderBottom: "1px solid var(--admin-border)",
     verticalAlign: "middle" as const,
   },
   productCell: { display: "flex", alignItems: "center", gap: 10 },
@@ -63,16 +63,16 @@ const styles: Record<string, CSSProperties> = {
     height: 40,
     borderRadius: 6,
     objectFit: "cover" as const,
-    background: "#0F1117",
+    background: "var(--admin-bg)",
   },
-  productName: { fontSize: 13, fontWeight: 500, color: "#E2E8F0" },
-  productSlug: { fontSize: 11, color: "#4A5568", marginTop: 2 },
+  productName: { fontSize: 13, fontWeight: 500, color: "var(--admin-text)" },
+  productSlug: { fontSize: 11, color: "var(--admin-muted)", marginTop: 2 },
   flagRow: { display: "flex", gap: 6 },
   rowActions: { display: "flex", gap: 8, justifyContent: "flex-end" },
   iconBtn: {
-    background: "#1E2535",
-    border: "1px solid #2A3448",
-    color: "#8896A8",
+    background: "var(--admin-border)",
+    border: "1px solid var(--admin-border)",
+    color: "var(--admin-muted)",
     borderRadius: 6,
     padding: 6,
     cursor: "pointer",
@@ -82,9 +82,9 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   iconBtnDanger: {
-    background: "#3A1A1A",
-    border: "1px solid #5A2A2A",
-    color: "#FC8181",
+    background: "color-mix(in oklab, var(--admin-clay) 22%, var(--admin-bg))",
+    border: "1px solid var(--admin-clay)",
+    color: "var(--admin-clay)",
     borderRadius: 6,
     padding: 6,
     cursor: "pointer",
@@ -94,12 +94,12 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   emptyState: {
-    background: "#161B27",
-    border: "1px dashed #1E2535",
+    background: "var(--admin-surface)",
+    border: "1px dashed var(--admin-border)",
     borderRadius: 10,
     padding: 40,
     textAlign: "center",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     fontSize: 13,
   },
   emptyCta: {
@@ -107,8 +107,8 @@ const styles: Record<string, CSSProperties> = {
     display: "inline-flex",
     alignItems: "center",
     gap: 6,
-    background: "#2D5A3D",
-    color: "#9AE6B4",
+    background: "var(--admin-accent)",
+    color: "var(--cream)",
     border: "none",
     borderRadius: 8,
     padding: "8px 14px",
@@ -121,9 +121,9 @@ const styles: Record<string, CSSProperties> = {
 
 function chipStyle(active: boolean): CSSProperties {
   return {
-    border: `1px solid ${active ? "#2D5A3D" : "#2A3448"}`,
-    background: active ? "#1E3A2A" : "#1E2535",
-    color: active ? "#4CAF72" : "#8896A8",
+    border: `1px solid ${active ? "var(--admin-accent)" : "var(--admin-border)"}`,
+    background: active ? "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))" : "var(--admin-border)",
+    color: active ? "var(--admin-accent-hover)" : "var(--admin-muted)",
     borderRadius: 999,
     padding: "5px 12px",
     fontSize: 11.5,
@@ -203,7 +203,7 @@ function AdminProductsPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <span style={{ fontSize: 11.5, color: "#4A5568" }}>
+        <span style={{ fontSize: 11.5, color: "var(--admin-muted)" }}>
           {products ? `${filtered.length} of ${products.length}` : "Loading…"}
         </span>
       </div>
@@ -267,7 +267,7 @@ function AdminProductsPage() {
                     {p.image ? (
                       <img src={p.image} alt="" style={styles.thumb} />
                     ) : (
-                      <div style={{ ...styles.thumb, border: "1px dashed #1E2535" }} />
+                      <div style={{ ...styles.thumb, border: "1px dashed var(--admin-border)" }} />
                     )}
                     <div>
                       <div style={styles.productName}>{p.name}</div>
@@ -280,17 +280,17 @@ function AdminProductsPage() {
                 <td style={styles.td}>
                   <div style={styles.flagRow}>
                     {p.isDiscount && (
-                      <span style={flagStyle("#FC8181", "#3A1A1A")}>
+                      <span style={flagStyle("var(--admin-clay)", "color-mix(in oklab, var(--admin-clay) 22%, var(--admin-bg))")}>
                         <Tag size={10} /> -{p.discountPercent ?? 0}%
                       </span>
                     )}
                     {p.isNewArrival && (
-                      <span style={flagStyle("#B794F4", "#2D1F4A")}>
+                      <span style={flagStyle("var(--admin-clay)", "color-mix(in oklab, var(--admin-clay) 24%, var(--admin-surface))")}>
                         <Sparkles size={10} /> New
                       </span>
                     )}
                     {p.isFastMoving && (
-                      <span style={flagStyle("#F6C453", "#2D2A1A")}>
+                      <span style={flagStyle("var(--admin-kraft)", "color-mix(in oklab, var(--admin-kraft) 18%, var(--admin-bg))")}>
                         <Flame size={10} /> Fast
                       </span>
                     )}

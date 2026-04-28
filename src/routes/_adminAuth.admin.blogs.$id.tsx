@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_adminAuth/admin/blogs/$id")({
   },
   notFoundComponent: () => (
     <AdminLayout title="Blog not found">
-      <p style={{ color: "#8896A8", fontSize: 13 }}>This blog no longer exists.</p>
+      <p style={{ color: "var(--admin-muted)", fontSize: 13 }}>This blog no longer exists.</p>
     </AdminLayout>
   ),
   component: EditBlogPage,

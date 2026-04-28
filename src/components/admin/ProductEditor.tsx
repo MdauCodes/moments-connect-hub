@@ -92,7 +92,7 @@ export function productToFormValues(p: Product): ProductFormValues {
 // ---------------------------------------------------------------------------
 
 const styles: Record<string, CSSProperties> = {
-  wrap: { maxWidth: 920, display: "flex", flexDirection: "column", gap: 18 },
+  wrap: { maxWidth: 1180, display: "grid", gridTemplateColumns: "minmax(0, 65fr) minmax(280px, 35fr)", gap: 18, alignItems: "start" },
   row: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" },
   rowThree: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr 1fr" },
   field: { display: "flex", flexDirection: "column", gap: 6 },
@@ -100,25 +100,25 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 11,
     textTransform: "uppercase",
     letterSpacing: "0.12em",
-    color: "#8896A8",
+    color: "var(--admin-muted)",
   },
-  helper: { fontSize: 11, color: "#4A5568" },
+  helper: { fontSize: 11, color: "var(--admin-muted)" },
   input: {
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "9px 12px",
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     fontSize: 13,
     fontFamily: "inherit",
     outline: "none",
   },
   textarea: {
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "10px 12px",
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     fontSize: 13,
     fontFamily: "inherit",
     outline: "none",
@@ -126,18 +126,18 @@ const styles: Record<string, CSSProperties> = {
     minHeight: 90,
   },
   select: {
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "9px 12px",
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     fontSize: 13,
     fontFamily: "inherit",
     outline: "none",
   },
   card: {
-    background: "#161B27",
-    border: "1px solid #1E2535",
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 10,
     padding: 16,
   },
@@ -147,14 +147,16 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     marginBottom: 12,
   },
-  cardTitle: { fontSize: 13, fontWeight: 600, color: "#E2E8F0" },
+  cardTitle: { fontSize: 16, fontWeight: 600, color: "var(--admin-text)", fontFamily: "var(--font-display)" },
+  mainColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
+  sideColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
   chipRow: { display: "flex", flexWrap: "wrap", gap: 8 },
   imagePreview: {
     width: "100%",
     maxWidth: 280,
     aspectRatio: "4 / 3",
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 10,
     objectFit: "cover" as const,
   },
@@ -162,19 +164,19 @@ const styles: Record<string, CSSProperties> = {
     width: "100%",
     maxWidth: 280,
     aspectRatio: "4 / 3",
-    background: "#0F1117",
-    border: "1px dashed #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px dashed var(--admin-border)",
     borderRadius: 10,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     fontSize: 12,
   },
   fileBtn: {
-    background: "#1E2535",
-    border: "1px solid #2A3448",
-    color: "#CBD5E0",
+    background: "var(--admin-border)",
+    border: "1px solid var(--admin-border)",
+    color: "var(--admin-text)",
     borderRadius: 8,
     padding: "8px 12px",
     fontSize: 12,
@@ -183,8 +185,8 @@ const styles: Record<string, CSSProperties> = {
   },
   ghostBtn: {
     background: "transparent",
-    border: "1px solid #1E2535",
-    color: "#8896A8",
+    border: "1px solid var(--admin-border)",
+    color: "var(--admin-muted)",
     borderRadius: 8,
     padding: "6px 10px",
     fontSize: 11.5,
@@ -192,8 +194,8 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   primaryBtn: {
-    background: "#2D5A3D",
-    color: "#9AE6B4",
+    background: "var(--admin-accent)",
+    color: "var(--cream)",
     border: "none",
     borderRadius: 8,
     padding: "9px 16px",
@@ -203,9 +205,9 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   dangerBtn: {
-    background: "#3A1A1A",
-    color: "#FC8181",
-    border: "1px solid #5A2A2A",
+    background: "color-mix(in oklab, var(--admin-clay) 22%, var(--admin-bg))",
+    color: "var(--admin-clay)",
+    border: "1px solid var(--admin-clay)",
     borderRadius: 8,
     padding: "9px 14px",
     fontSize: 12.5,
@@ -223,41 +225,41 @@ const styles: Record<string, CSSProperties> = {
     display: "inline-flex",
     alignItems: "center",
     gap: 6,
-    background: "#1E2535",
-    border: "1px solid #2A3448",
+    background: "var(--admin-border)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 999,
     padding: "4px 10px",
     fontSize: 11,
-    color: "#CBD5E0",
+    color: "var(--admin-text)",
   },
   removeX: {
     background: "transparent",
     border: "none",
-    color: "#FC8181",
+    color: "var(--admin-clay)",
     cursor: "pointer",
     fontSize: 12,
     padding: 0,
     lineHeight: 1,
   },
   inlineRow: { display: "flex", gap: 8, alignItems: "center" },
-  errorText: { fontSize: 12, color: "#FC8181" },
+  errorText: { fontSize: 12, color: "var(--admin-clay)" },
   switchRow: {
     display: "flex",
     alignItems: "center",
     gap: 10,
     padding: "10px 12px",
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
   },
-  switchLabel: { fontSize: 12.5, color: "#CBD5E0", flex: 1 },
+  switchLabel: { fontSize: 12.5, color: "var(--admin-text)", flex: 1 },
 };
 
 function chipStyle(active: boolean): CSSProperties {
   return {
-    border: `1px solid ${active ? "#4CAF72" : "#1E2535"}`,
-    background: active ? "#1E3A2A" : "#0F1117",
-    color: active ? "#9AE6B4" : "#8896A8",
+    border: `1px solid ${active ? "var(--admin-accent-hover)" : "var(--admin-border)"}`,
+    background: active ? "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))" : "var(--admin-bg)",
+    color: active ? "var(--cream)" : "var(--admin-muted)",
     borderRadius: 999,
     padding: "5px 12px",
     fontSize: 11.5,
@@ -482,12 +484,13 @@ export function ProductEditor({
 
   return (
     <form style={styles.wrap} onSubmit={handleSubmit}>
-      {/* Core */}
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <div style={styles.cardTitle}>Core details</div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={styles.mainColumn}>
+        {/* Core */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <div style={styles.cardTitle}>Core details</div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={styles.row}>
             <div style={styles.field}>
               <label style={styles.label}>Name</label>
@@ -547,16 +550,19 @@ export function ProductEditor({
               placeholder="Short product summary shown on the catalogue + detail page."
             />
           </div>
+          </div>
+        </div>
+
+        {/* Image */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <div style={styles.cardTitle}>Product image</div>
+          </div>
+          <ImagePicker value={values.image} onChange={(url) => set("image", url)} />
         </div>
       </div>
 
-      {/* Image */}
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <div style={styles.cardTitle}>Product image</div>
-        </div>
-        <ImagePicker value={values.image} onChange={(url) => set("image", url)} />
-      </div>
+      <div style={styles.sideColumn}>
 
       {/* Sizes & material */}
       <div style={styles.card}>
@@ -755,6 +761,7 @@ export function ProductEditor({
             {busy ? "Saving…" : submitLabel}
           </button>
         </div>
+      </div>
       </div>
     </form>
   );

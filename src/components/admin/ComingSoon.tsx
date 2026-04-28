@@ -8,11 +8,11 @@ const styles: Record<string, CSSProperties> = {
     minHeight: "60vh",
     flexDirection: "column",
     gap: 8,
-    color: "#8896A8",
-    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    color: "var(--admin-muted)",
+    fontFamily: "var(--font-sans)",
   },
-  title: { fontSize: 16, fontWeight: 600, color: "#E2E8F0" },
-  sub: { fontSize: 12, color: "#4A5568" },
+  title: { fontSize: 16, fontWeight: 600, color: "var(--admin-text)" },
+  sub: { fontSize: 12, color: "var(--admin-muted)" },
 };
 
 export function ComingSoon({ label }: { label: string }) {

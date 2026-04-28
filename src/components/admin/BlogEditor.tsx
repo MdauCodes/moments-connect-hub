@@ -18,42 +18,42 @@ import { TEMPLATE_META } from "@/data/blogs";
 // Spring Boot backend will need to accept on POST/PUT /api/admin/blogs.
 
 const templateBtnStyle = (active: boolean): CSSProperties => ({
-  background: active ? "#1E3A2A" : "#0F1117",
-  border: `1px solid ${active ? "#4CAF72" : "#1E2535"}`,
+  background: active ? "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))" : "var(--admin-bg)",
+  border: `1px solid ${active ? "var(--admin-accent-hover)" : "var(--admin-border)"}`,
   borderRadius: 10,
   padding: 12,
   textAlign: "left",
   cursor: "pointer",
-  color: active ? "#9AE6B4" : "#CBD5E0",
+  color: active ? "var(--cream)" : "var(--admin-text)",
   fontFamily: "inherit",
 });
 
 const styles: Record<string, CSSProperties> = {
-  wrap: { maxWidth: 880, display: "flex", flexDirection: "column", gap: 18 },
+  wrap: { maxWidth: 1180, display: "grid", gridTemplateColumns: "minmax(0, 65fr) minmax(280px, 35fr)", gap: 18, alignItems: "start" },
   row: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" },
   field: { display: "flex", flexDirection: "column", gap: 6 },
   label: {
     fontSize: 11,
     textTransform: "uppercase",
     letterSpacing: "0.12em",
-    color: "#8896A8",
+    color: "var(--admin-muted)",
   },
   input: {
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "9px 12px",
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     fontSize: 13,
     fontFamily: "inherit",
     outline: "none",
   },
   textarea: {
-    background: "#0F1117",
-    border: "1px solid #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "10px 12px",
-    color: "#E2E8F0",
+    color: "var(--admin-text)",
     fontSize: 13,
     fontFamily: "inherit",
     outline: "none",
@@ -61,8 +61,8 @@ const styles: Record<string, CSSProperties> = {
     minHeight: 80,
   },
   card: {
-    background: "#161B27",
-    border: "1px solid #1E2535",
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
     borderRadius: 10,
     padding: 16,
   },
@@ -72,19 +72,21 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     marginBottom: 10,
   },
-  cardTitle: { fontSize: 13, fontWeight: 600, color: "#E2E8F0" },
-  helper: { fontSize: 11, color: "#4A5568" },
+  cardTitle: { fontSize: 16, fontWeight: 600, color: "var(--admin-text)", fontFamily: "var(--font-display)" },
+  mainColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
+  sideColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
+  helper: { fontSize: 11, color: "var(--admin-muted)" },
   templateGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
     gap: 10,
   },
   templateLabel: { fontSize: 12.5, fontWeight: 600 },
-  templateBlurb: { fontSize: 10.5, color: "#4A5568", marginTop: 4 },
+  templateBlurb: { fontSize: 10.5, color: "var(--admin-muted)", marginTop: 4 },
   ghostBtn: {
     background: "transparent",
-    border: "1px solid #1E2535",
-    color: "#8896A8",
+    border: "1px solid var(--admin-border)",
+    color: "var(--admin-muted)",
     borderRadius: 8,
     padding: "6px 10px",
     fontSize: 11.5,
@@ -92,8 +94,8 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   primaryBtn: {
-    background: "#2D5A3D",
-    color: "#9AE6B4",
+    background: "var(--admin-accent)",
+    color: "var(--cream)",
     border: "none",
     borderRadius: 8,
     padding: "9px 16px",
@@ -104,8 +106,8 @@ const styles: Record<string, CSSProperties> = {
   },
   dangerBtn: {
     background: "transparent",
-    border: "1px solid #C53030",
-    color: "#FC8181",
+    border: "1px solid var(--admin-clay)",
+    color: "var(--admin-clay)",
     borderRadius: 8,
     padding: "8px 14px",
     fontSize: 12,
@@ -114,14 +116,14 @@ const styles: Record<string, CSSProperties> = {
   },
   imagePreview: {
     aspectRatio: "16/9",
-    background: "#0F1117",
-    border: "1px dashed #1E2535",
+    background: "var(--admin-bg)",
+    border: "1px dashed var(--admin-border)",
     borderRadius: 8,
     overflow: "hidden",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#4A5568",
+    color: "var(--admin-muted)",
     fontSize: 11,
   },
   actionsBar: {
@@ -129,7 +131,7 @@ const styles: Record<string, CSSProperties> = {
     gap: 10,
     justifyContent: "flex-end",
     paddingTop: 12,
-    borderTop: "1px solid #1E2535",
+    borderTop: "1px solid var(--admin-border)",
   },
 };
 
@@ -266,8 +268,9 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
 
   return (
     <div style={styles.wrap}>
-      {/* Meta */}
-      <div style={styles.card}>
+      <div style={styles.mainColumn}>
+        {/* Meta */}
+        <div style={styles.card}>
         <div style={styles.cardHeader}>
           <span style={styles.cardTitle}>Article basics</span>
           <span style={styles.helper}>Required for every template</span>
@@ -313,31 +316,10 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Template picker */}
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <span style={styles.cardTitle}>Template</span>
-          <span style={styles.helper}>Choosing a template clears the body fields</span>
         </div>
-        <div style={styles.templateGrid}>
-          {(Object.keys(TEMPLATE_META) as BlogTemplate[]).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => changeTemplate(t)}
-              style={templateBtnStyle(values.template === t)}
-            >
-              <div style={styles.templateLabel}>{TEMPLATE_META[t].label}</div>
-              <div style={styles.templateBlurb}>{TEMPLATE_META[t].blurb}</div>
-            </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Images */}
-      <div style={styles.card}>
+        {/* Images */}
+        <div style={styles.card}>
         <div style={styles.cardHeader}>
           <span style={styles.cardTitle}>Images</span>
           <span style={styles.helper}>Cover required · Secondary optional</span>
@@ -374,14 +356,37 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
         </div>
       </div>
 
-      {/* Body fields per template */}
-      <div style={styles.card}>
+        {/* Body fields per template */}
+        <div style={styles.card}>
         <div style={styles.cardHeader}>
           <span style={styles.cardTitle}>{TEMPLATE_META[values.template].label} content</span>
           <span style={styles.helper}>{TEMPLATE_META[values.template].blurb}</span>
         </div>
         <BodyFields body={values.body} onChange={(body) => patch("body", body)} />
       </div>
+      </div>
+
+      <div style={styles.sideColumn}>
+        {/* Template picker */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <span style={styles.cardTitle}>Template</span>
+            <span style={styles.helper}>Choosing a template clears the body fields</span>
+          </div>
+          <div style={styles.templateGrid}>
+            {(Object.keys(TEMPLATE_META) as BlogTemplate[]).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => changeTemplate(t)}
+                style={templateBtnStyle(values.template === t)}
+              >
+                <div style={styles.templateLabel}>{TEMPLATE_META[t].label}</div>
+                <div style={styles.templateBlurb}>{TEMPLATE_META[t].blurb}</div>
+              </button>
+            ))}
+          </div>
+        </div>
 
       <div style={styles.actionsBar}>
         {onDelete && (
@@ -403,6 +408,7 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
         >
           {busy ? "Saving…" : submitLabel}
         </button>
+      </div>
       </div>
     </div>
   );
