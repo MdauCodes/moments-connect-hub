@@ -24,10 +24,15 @@ async function getJson<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-function normalizeProduct(p: Product & { primaryImageUrl?: string; imageUrls?: string[] }): Product {
+function normalizeProduct(
+  p: Partial<Product> & { id: string; slug: string; name: string; primaryImageUrl?: string; imageUrls?: string[] },
+): Product {
   const image = p.image ?? p.primaryImageUrl ?? p.imageUrls?.[0] ?? "";
   return {
     ...p,
+    category: p.category ?? "bags",
+    description: p.description ?? "",
+    moq: p.moq ?? 1,
     image,
     images: p.images ?? p.imageUrls ?? (image ? [image] : []),
     tags: p.tags ?? [],
