@@ -349,6 +349,53 @@ function digitsOnly(phone: string): string {
   return phone.replace(/[^\d]/g, "");
 }
 
+type EnquiryApiItem = {
+  productId?: string;
+  productName?: string;
+  name?: string;
+  quantity?: number;
+  qty?: number;
+  size?: string;
+  finish?: string;
+};
+
+type EnquiryApiDto = Partial<Omit<EnquiryDetail, "products" | "name" | "phone" | "customerType">> & {
+  id: string;
+  persona?: string;
+  contact?: { name?: string; email?: string; phone?: string; company?: string };
+  companyName?: string;
+  phone?: string;
+  products?: EnquiryApiItem[];
+  items?: EnquiryApiItem[];
+};
+
+function normalizeEnquiryDetail(e: EnquiryApiDto): EnquiryDetail {
+  const items = e.items ?? e.products ?? [];
+  return {
+    id: e.id,
+    customerType: e.persona === "CORPORATE" ? "CORPORATE" : "SME",
+    name: e.contact?.name ?? "Unknown customer",
+    companyName: e.contact?.company ?? e.companyName,
+    email: e.contact?.email ?? e.email,
+    phone: e.contact?.phone ?? e.phone ?? "",
+    message: e.message,
+    referralSource: e.source,
+    status: e.status ?? "NEW",
+    isRead: e.isRead ?? true,
+    createdAt: e.createdAt ?? new Date().toISOString(),
+    products: items.map((item) => ({
+      productId: item.productId ?? item.name ?? item.productName ?? "",
+      name: item.productName ?? item.name ?? "Product",
+      qty: item.quantity ?? item.qty ?? 1,
+      size: item.size,
+      finish: item.finish,
+    })),
+    internalNotes: e.internalNotes,
+    assignedTo: e.assignedTo,
+    followUpDate: e.followUpDate,
+  };
+}
+
 function AdminEnquiryDetailPage() {
   const { id } = Route.useParams();
   const { user } = useAdminAuth();
