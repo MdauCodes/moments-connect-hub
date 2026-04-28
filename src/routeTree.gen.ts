@@ -119,9 +119,9 @@ const AdminAuthAdminAnalyticsRoute = AdminAuthAdminAnalyticsRouteImport.update({
 } as any)
 const AdminAuthAdminProductsNewRoute =
   AdminAuthAdminProductsNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AdminAuthAdminProductsRoute,
+    id: '/admin/products/new',
+    path: '/admin/products/new',
+    getParentRoute: () => AdminAuthRoute,
   } as any)
 const AdminAuthAdminProductsIdRoute =
   AdminAuthAdminProductsIdRouteImport.update({
@@ -131,9 +131,9 @@ const AdminAuthAdminProductsIdRoute =
   } as any)
 const AdminAuthAdminEnquiriesNewRoute =
   AdminAuthAdminEnquiriesNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AdminAuthAdminEnquiriesRoute,
+    id: '/admin/enquiries/new',
+    path: '/admin/enquiries/new',
+    getParentRoute: () => AdminAuthRoute,
   } as any)
 const AdminAuthAdminEnquiriesIdRoute =
   AdminAuthAdminEnquiriesIdRouteImport.update({
@@ -438,10 +438,10 @@ declare module '@tanstack/react-router' {
     }
     '/_adminAuth/admin/products/new': {
       id: '/_adminAuth/admin/products/new'
-      path: '/new'
+      path: '/admin/products/new'
       fullPath: '/admin/products/new'
       preLoaderRoute: typeof AdminAuthAdminProductsNewRouteImport
-      parentRoute: typeof AdminAuthAdminProductsRoute
+      parentRoute: typeof AdminAuthRoute
     }
     '/_adminAuth/admin/products/$id': {
       id: '/_adminAuth/admin/products/$id'
@@ -452,10 +452,10 @@ declare module '@tanstack/react-router' {
     }
     '/_adminAuth/admin/enquiries/new': {
       id: '/_adminAuth/admin/enquiries/new'
-      path: '/new'
+      path: '/admin/enquiries/new'
       fullPath: '/admin/enquiries/new'
       preLoaderRoute: typeof AdminAuthAdminEnquiriesNewRouteImport
-      parentRoute: typeof AdminAuthAdminEnquiriesRoute
+      parentRoute: typeof AdminAuthRoute
     }
     '/_adminAuth/admin/enquiries/$id': {
       id: '/_adminAuth/admin/enquiries/$id'
@@ -496,13 +496,11 @@ const AdminAuthAdminBlogsRouteWithChildren =
 
 interface AdminAuthAdminEnquiriesRouteChildren {
   AdminAuthAdminEnquiriesIdRoute: typeof AdminAuthAdminEnquiriesIdRoute
-  AdminAuthAdminEnquiriesNewRoute: typeof AdminAuthAdminEnquiriesNewRoute
 }
 
 const AdminAuthAdminEnquiriesRouteChildren: AdminAuthAdminEnquiriesRouteChildren =
   {
     AdminAuthAdminEnquiriesIdRoute: AdminAuthAdminEnquiriesIdRoute,
-    AdminAuthAdminEnquiriesNewRoute: AdminAuthAdminEnquiriesNewRoute,
   }
 
 const AdminAuthAdminEnquiriesRouteWithChildren =
@@ -512,13 +510,11 @@ const AdminAuthAdminEnquiriesRouteWithChildren =
 
 interface AdminAuthAdminProductsRouteChildren {
   AdminAuthAdminProductsIdRoute: typeof AdminAuthAdminProductsIdRoute
-  AdminAuthAdminProductsNewRoute: typeof AdminAuthAdminProductsNewRoute
 }
 
 const AdminAuthAdminProductsRouteChildren: AdminAuthAdminProductsRouteChildren =
   {
     AdminAuthAdminProductsIdRoute: AdminAuthAdminProductsIdRoute,
-    AdminAuthAdminProductsNewRoute: AdminAuthAdminProductsNewRoute,
   }
 
 const AdminAuthAdminProductsRouteWithChildren =
@@ -529,7 +525,9 @@ const AdminAuthAdminProductsRouteWithChildren =
 interface AdminAuthRouteChildren {
   AdminAuthAdminAnalyticsRoute: typeof AdminAuthAdminAnalyticsRoute
   AdminAuthAdminBlogsRoute: typeof AdminAuthAdminBlogsRouteWithChildren
+  AdminAuthAdminEnquiriesNewRoute: typeof AdminAuthAdminEnquiriesNewRoute
   AdminAuthAdminEnquiriesRoute: typeof AdminAuthAdminEnquiriesRouteWithChildren
+  AdminAuthAdminProductsNewRoute: typeof AdminAuthAdminProductsNewRoute
   AdminAuthAdminProductsRoute: typeof AdminAuthAdminProductsRouteWithChildren
   AdminAuthAdminSettingsRoute: typeof AdminAuthAdminSettingsRoute
   AdminAuthAdminStaffRoute: typeof AdminAuthAdminStaffRoute
@@ -538,7 +536,9 @@ interface AdminAuthRouteChildren {
 const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminAnalyticsRoute: AdminAuthAdminAnalyticsRoute,
   AdminAuthAdminBlogsRoute: AdminAuthAdminBlogsRouteWithChildren,
+  AdminAuthAdminEnquiriesNewRoute: AdminAuthAdminEnquiriesNewRoute,
   AdminAuthAdminEnquiriesRoute: AdminAuthAdminEnquiriesRouteWithChildren,
+  AdminAuthAdminProductsNewRoute: AdminAuthAdminProductsNewRoute,
   AdminAuthAdminProductsRoute: AdminAuthAdminProductsRouteWithChildren,
   AdminAuthAdminSettingsRoute: AdminAuthAdminSettingsRoute,
   AdminAuthAdminStaffRoute: AdminAuthAdminStaffRoute,
