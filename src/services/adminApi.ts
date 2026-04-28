@@ -102,7 +102,7 @@ export function normalizeAdminSession(
   const lastName = data.user?.lastName?.trim() ?? "";
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
 
-  if (!token || !email) {
+  if (!token || !email || !hasCompactJwtShape(token)) {
     throw new Error("Authentication response was missing required session details");
   }
 
@@ -160,16 +160,14 @@ export function clearAdminSession(): void {
 async function validateAdminSession(session: AdminSession): Promise<AdminSession | null> {
   if (verifiedSession?.token === session.token) return verifiedSession;
 
-  const res = await fetch(apiUrl("/api/v1/auth/me"), {
+  const res = await fetch(apiUrl("/api/v1/admin/enquiries?size=1"), {
     headers: { Authorization: `Bearer ${session.token}` },
   });
 
   if (!res.ok) return null;
 
-  const next = normalizeAdminSession((await res.json()) as AuthResponse, session);
-  verifiedSession = next;
-  writeAdminSession(next);
-  return next;
+  verifiedSession = session;
+  return session;
 }
 
 export async function refreshAdminSession(
@@ -221,8 +219,8 @@ export async function adminFetch(path: string, init?: RequestInit): Promise<Resp
       ...init,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
         ...init?.headers,
+        Authorization: `Bearer ${token}`,
       },
     });
 
