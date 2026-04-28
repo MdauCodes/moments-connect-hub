@@ -279,6 +279,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
   };
 
   const displayName = user?.name ?? "Admin User";
+  const displayEmail = user?.email ?? displayRole;
   const displayRole = user?.role === "ADMIN" ? "Administrator" : user?.role === "STAFF" ? "Staff" : "Signed in";
 
   return (
@@ -319,7 +320,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
             <div style={styles.avatar}>{getInitials(displayName)}</div>
             <div style={{ minWidth: 0 }}>
               <div style={styles.userName}>{displayName}</div>
-              <div style={styles.userRole}>{displayRole}</div>
+              <div style={styles.userRole}>{displayEmail}</div>
             </div>
             <button
               type="button"
