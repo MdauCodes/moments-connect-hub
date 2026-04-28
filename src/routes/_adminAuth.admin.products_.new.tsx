@@ -6,7 +6,7 @@ import { productStore } from "@/services/productStore";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can } from "@/lib/permissions";
 
-export const Route = createFileRoute("/_adminAuth/admin/products/new")({
+export const Route = createFileRoute("/_adminAuth/admin/products_/new")({
   component: NewProductPage,
 });
 
