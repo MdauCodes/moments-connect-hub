@@ -12,7 +12,9 @@ export const Route = createFileRoute("/_adminAuth/admin/products/new")({
 
 function NewProductPage() {
   const navigate = useNavigate();
-  const { user } = useAdminAuth();
+  const { user, isCheckingSession } = useAdminAuth();
+
+  if (isCheckingSession) return <div>Loading...</div>;
 
   if (!can(user?.role, "product:create")) {
     return (

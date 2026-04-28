@@ -131,6 +131,7 @@ export function readAdminSession(): AdminSession | null {
       window.localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
       return null;
     }
+    console.log("readAdminSession parsed:", parsed);
     if (!isAdminRole(parsed.role)) return null;
     return parsed;
   } catch {
