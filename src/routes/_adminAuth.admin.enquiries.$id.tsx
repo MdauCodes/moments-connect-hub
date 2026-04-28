@@ -365,6 +365,7 @@ type EnquiryApiDto = Partial<Omit<EnquiryDetail, "products" | "name" | "phone" |
   contact?: { name?: string; email?: string; phone?: string; company?: string };
   companyName?: string;
   phone?: string;
+  source?: string;
   products?: EnquiryApiItem[];
   items?: EnquiryApiItem[];
 };
