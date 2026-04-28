@@ -268,8 +268,9 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
 
   return (
     <div style={styles.wrap}>
-      {/* Meta */}
-      <div style={styles.card}>
+      <div style={styles.mainColumn}>
+        {/* Meta */}
+        <div style={styles.card}>
         <div style={styles.cardHeader}>
           <span style={styles.cardTitle}>Article basics</span>
           <span style={styles.helper}>Required for every template</span>
@@ -315,31 +316,15 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
-      {/* Template picker */}
-      <div style={styles.card}>
+        {/* Images */}
+        <div style={styles.card}>
         <div style={styles.cardHeader}>
-          <span style={styles.cardTitle}>Template</span>
-          <span style={styles.helper}>Choosing a template clears the body fields</span>
+          <span style={styles.cardTitle}>Images</span>
+          <span style={styles.helper}>Cover required · Secondary optional</span>
         </div>
-        <div style={styles.templateGrid}>
-          {(Object.keys(TEMPLATE_META) as BlogTemplate[]).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => changeTemplate(t)}
-              style={templateBtnStyle(values.template === t)}
-            >
-              <div style={styles.templateLabel}>{TEMPLATE_META[t].label}</div>
-              <div style={styles.templateBlurb}>{TEMPLATE_META[t].blurb}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Images */}
-      <div style={styles.card}>
+        <div style={styles.row}>
         <div style={styles.cardHeader}>
           <span style={styles.cardTitle}>Images</span>
           <span style={styles.helper}>Cover required · Secondary optional</span>
@@ -374,16 +359,40 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
             onClear={() => patch("secondaryImage", undefined)}
           />
         </div>
+        </div>
       </div>
 
-      {/* Body fields per template */}
-      <div style={styles.card}>
+        {/* Body fields per template */}
+        <div style={styles.card}>
         <div style={styles.cardHeader}>
           <span style={styles.cardTitle}>{TEMPLATE_META[values.template].label} content</span>
           <span style={styles.helper}>{TEMPLATE_META[values.template].blurb}</span>
         </div>
         <BodyFields body={values.body} onChange={(body) => patch("body", body)} />
       </div>
+      </div>
+
+      <div style={styles.sideColumn}>
+        {/* Template picker */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <span style={styles.cardTitle}>Template</span>
+            <span style={styles.helper}>Choosing a template clears the body fields</span>
+          </div>
+          <div style={styles.templateGrid}>
+            {(Object.keys(TEMPLATE_META) as BlogTemplate[]).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => changeTemplate(t)}
+                style={templateBtnStyle(values.template === t)}
+              >
+                <div style={styles.templateLabel}>{TEMPLATE_META[t].label}</div>
+                <div style={styles.templateBlurb}>{TEMPLATE_META[t].blurb}</div>
+              </button>
+            ))}
+          </div>
+        </div>
 
       <div style={styles.actionsBar}>
         {onDelete && (
@@ -405,6 +414,7 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
         >
           {busy ? "Saving…" : submitLabel}
         </button>
+      </div>
       </div>
     </div>
   );
