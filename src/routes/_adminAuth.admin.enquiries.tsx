@@ -385,6 +385,7 @@ type EnquiryApiDto = Partial<Omit<Enquiry, "products" | "name" | "phone" | "cust
   persona?: string;
   contact?: { name?: string; email?: string; phone?: string; company?: string };
   companyName?: string;
+  phone?: string;
   products?: EnquiryApiItem[];
   items?: EnquiryApiItem[];
 };
@@ -429,15 +430,16 @@ function AdminEnquiriesPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(apiUrl("/api/admin/enquiries"), {
+        const res = await fetch(apiUrl("/api/v1/admin/enquiries?size=100"), {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
         if (!res.ok) {
           throw new Error(`Failed to load enquiries (${res.status})`);
         }
-        const data = (await res.json()) as Enquiry[];
+        const data = (await res.json()) as { content?: EnquiryApiDto[] } | EnquiryApiDto[];
         if (!cancelled) {
-          setEnquiries(Array.isArray(data) ? data : []);
+          const rows = Array.isArray(data) ? data : data.content ?? [];
+          setEnquiries(rows.map(normalizeEnquiry));
         }
       } catch (err) {
         if (!cancelled) {
@@ -466,9 +468,8 @@ function AdminEnquiriesPage() {
         case "CORPORATE":
           return e.customerType === "CORPORATE";
         case "NEW":
-        case "REVIEWING":
-        case "QUOTED":
-        case "CONFIRMED":
+        case "IN_PROGRESS":
+        case "CLOSED":
           return e.status === filter;
         default:
           return true;
@@ -497,11 +498,11 @@ function AdminEnquiriesPage() {
       const created = new Date(e.createdAt);
       if (e.status === "NEW" && isSameDay(created, now)) newToday++;
       if (e.status === "NEW" && isSameDay(created, yesterday)) newYesterday++;
-      if (e.status === "NEW" || e.status === "REVIEWING") {
+      if (e.status === "NEW" || e.status === "IN_PROGRESS") {
         pending++;
         if (now.getTime() - created.getTime() > dayMs) overdue++;
       }
-      if (e.status === "CONFIRMED" && isSameMonth(created, now)) confirmedThisMonth++;
+      if (e.status === "CLOSED" && isSameMonth(created, now)) confirmedThisMonth++;
     }
 
     return { newToday, newYesterday, pending, overdue, confirmedThisMonth };
