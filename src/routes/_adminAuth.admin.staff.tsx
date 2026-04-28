@@ -110,10 +110,11 @@ function normalizeUser(user: AdminUserDto): StaffUser {
   const lastName = user.lastName?.trim() ?? "";
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
   const isActive = user.enabled ?? user.active ?? true;
+  const name = user.name ?? fullName;
 
   return {
     id: String(user.id ?? user.email ?? crypto.randomUUID()),
-    name: user.name ?? (fullName || user.email) ?? "Unnamed user",
+    name: name || user.email || "Unnamed user",
     email: user.email ?? "—",
     role: normalizeRole(user),
     status: isActive ? "Active" : "Disabled",
