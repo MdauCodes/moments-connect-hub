@@ -11,11 +11,8 @@ export const Route = createFileRoute("/_adminAuth/admin/enquiries")({
 
 type EnquiryStatus =
   | "NEW"
-  | "REVIEWING"
-  | "QUOTED"
-  | "CONFIRMED"
-  | "IN_PRODUCTION"
-  | "DELIVERED";
+  | "IN_PROGRESS"
+  | "CLOSED";
 
 type CustomerType = "SME" | "CORPORATE";
 
@@ -54,9 +51,8 @@ const PAGE_SIZE = 15;
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "ALL", label: "All" },
   { key: "NEW", label: "New" },
-  { key: "REVIEWING", label: "Reviewing" },
-  { key: "QUOTED", label: "Quoted" },
-  { key: "CONFIRMED", label: "Confirmed" },
+  { key: "REVIEWING", label: "In progress" },
+  { key: "QUOTED", label: "Closed" },
   { key: "SME", label: "SME only" },
   { key: "CORPORATE", label: "Corporate only" },
 ];
@@ -66,11 +62,8 @@ const STATUS_STYLES: Record<
   { bg: string; color: string; border: string; dot: string; label: string }
 > = {
   NEW: { bg: "#2D1F4A", color: "#B794F4", border: "#44337A", dot: "#B794F4", label: "New" },
-  REVIEWING: { bg: "#1A2E40", color: "#63B3ED", border: "#2C4A63", dot: "#63B3ED", label: "Reviewing" },
-  QUOTED: { bg: "#2D3A1A", color: "#A3C96E", border: "#4A6B2A", dot: "#A3C96E", label: "Quoted" },
-  CONFIRMED: { bg: "#1E3A2A", color: "#68D391", border: "#2D5A3D", dot: "#68D391", label: "Confirmed" },
-  IN_PRODUCTION: { bg: "#2D2A1A", color: "#F6C453", border: "#6B5A2A", dot: "#F6C453", label: "In production" },
-  DELIVERED: { bg: "#1A2030", color: "#4A5568", border: "#2A3448", dot: "#4A5568", label: "Delivered" },
+  IN_PROGRESS: { bg: "#1A2E40", color: "#63B3ED", border: "#2C4A63", dot: "#63B3ED", label: "In progress" },
+  CLOSED: { bg: "#1E3A2A", color: "#68D391", border: "#2D5A3D", dot: "#68D391", label: "Closed" },
 };
 
 const styles: Record<string, CSSProperties> = {
