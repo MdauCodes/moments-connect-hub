@@ -165,7 +165,12 @@ const styles: Record<string, CSSProperties> = {
     padding: "0 20px",
     flexShrink: 0,
   },
-  topbarTitle: { fontSize: 14, fontWeight: 600, color: "var(--foreground)", fontFamily: "var(--font-display)" },
+  topbarTitle: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: "var(--foreground)",
+    fontFamily: "var(--font-display)",
+  },
   topbarRight: { display: "flex", alignItems: "center", gap: 12 },
   searchWrap: { position: "relative", display: "flex", alignItems: "center" },
   searchIcon: {
@@ -255,9 +260,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
     >
       <Icon size={16} />
       <span>{item.label}</span>
-      {item.badge !== undefined && item.badge > 0 && (
-        <span style={styles.badge}>{item.badge}</span>
-      )}
+      {item.badge !== undefined && item.badge > 0 && <span style={styles.badge}>{item.badge}</span>}
     </Link>
   );
 }
@@ -275,7 +278,8 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
   };
 
   const displayName = user?.name ?? "Admin User";
-  const displayRole = user?.role === "ADMIN" ? "Administrator" : user?.role === "STAFF" ? "Staff" : "Signed in";
+  const displayRole =
+    user?.role === "ADMIN" ? "Administrator" : user?.role === "STAFF" ? "Staff" : "Signed in";
 
   return (
     <div style={styles.root}>
@@ -323,7 +327,13 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
               type="button"
               aria-label="Sign out"
               onClick={logout}
-              style={{ marginLeft: "auto", border: 0, background: "transparent", color: "var(--muted-foreground)", cursor: "pointer" }}
+              style={{
+                marginLeft: "auto",
+                border: 0,
+                background: "transparent",
+                color: "var(--muted-foreground)",
+                cursor: "pointer",
+              }}
             >
               <LogOut size={15} />
             </button>
@@ -337,11 +347,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
           <div style={styles.topbarRight}>
             <div style={styles.searchWrap}>
               <Search size={14} style={styles.searchIcon} />
-              <input
-                type="text"
-                placeholder="Search enquiries..."
-                style={styles.searchInput}
-              />
+              <input type="text" placeholder="Search enquiries..." style={styles.searchInput} />
             </div>
             <button type="button" style={styles.bellBtn} aria-label="Notifications">
               <Bell size={15} />

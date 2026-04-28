@@ -16,9 +16,17 @@ export function AdminProtectedRoute() {
     }
 
     void ensureValidSession().then((session) => {
-      if (!session) void navigate({ to: "/admin/login", search: { redirect: location.href }, replace: true });
+      if (!session)
+        void navigate({ to: "/admin/login", search: { redirect: location.href }, replace: true });
     });
-  }, [ensureValidSession, isAuthenticated, isCheckingSession, location.href, navigate, user?.token]);
+  }, [
+    ensureValidSession,
+    isAuthenticated,
+    isCheckingSession,
+    location.href,
+    navigate,
+    user?.token,
+  ]);
 
   if (isCheckingSession || !isAuthenticated) return null;
   return <Outlet />;

@@ -4,7 +4,10 @@ import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
 export const Route = createFileRoute("/admin/login")({
   validateSearch: (search) => ({
-    redirect: typeof search.redirect === "string" && search.redirect.startsWith("/admin/") ? search.redirect : "/admin/enquiries",
+    redirect:
+      typeof search.redirect === "string" && search.redirect.startsWith("/admin/")
+        ? search.redirect
+        : "/admin/enquiries",
   }),
   component: AdminLoginPage,
 });
@@ -134,7 +137,9 @@ function AdminLoginPage() {
 
         <form style={styles.form} onSubmit={handleSubmit}>
           <div style={styles.field}>
-            <label style={styles.label} htmlFor="admin-email">Email</label>
+            <label style={styles.label} htmlFor="admin-email">
+              Email
+            </label>
             <input
               id="admin-email"
               type="email"
@@ -150,7 +155,9 @@ function AdminLoginPage() {
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label} htmlFor="admin-password">Password</label>
+            <label style={styles.label} htmlFor="admin-password">
+              Password
+            </label>
             <input
               id="admin-password"
               type="password"
