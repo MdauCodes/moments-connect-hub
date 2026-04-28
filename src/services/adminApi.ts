@@ -92,7 +92,8 @@ function normalizeRole(data: AuthResponse, fallback?: AdminRole): AdminRole | nu
 }
 
 export function normalizeAdminSession(data: AuthResponse, fallback?: Partial<AdminSession>): AdminSession {
-  const token = data.accessToken ?? data.token ?? fallback?.token;
+  const token = (data.accessToken ?? data.token ?? fallback?.token)?.replace(/^Bearer\s+/i, "");
+  const refreshToken = (data.refreshToken ?? fallback?.refreshToken)?.replace(/^Bearer\s+/i, "");
   const email = data.user?.email ?? data.email ?? fallback?.email;
   const firstName = data.user?.firstName?.trim() ?? "";
   const lastName = data.user?.lastName?.trim() ?? "";
@@ -110,7 +111,7 @@ export function normalizeAdminSession(data: AuthResponse, fallback?: Partial<Adm
   const session: AdminSession = {
     id: data.user?.id ?? fallback?.id,
     token,
-    refreshToken: data.refreshToken ?? fallback?.refreshToken,
+    refreshToken,
     name: data.user?.name ?? (fullName || undefined) ?? data.name ?? fallback?.name ?? email,
     email,
     role,
