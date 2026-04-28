@@ -5,7 +5,7 @@ import { useAdminAuth } from "@/contexts/AdminAuthContext";
 export const Route = createFileRoute("/admin/login")({
   validateSearch: (search) => ({
     redirect:
-      typeof search.redirect === "string" && search.redirect.startsWith("/admin/")
+      typeof search.redirect === "string" && search.redirect.startsWith("/admin/") && search.redirect !== "/admin/login"
         ? search.redirect
         : "/admin/enquiries",
   }),
