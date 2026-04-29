@@ -3,7 +3,6 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutList,
   Package,
-  BarChart2,
   Users,
   Settings,
   Bell,
