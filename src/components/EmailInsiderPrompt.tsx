@@ -21,7 +21,12 @@ const SCROLL_THRESHOLD = 0.5;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function shouldShow(): boolean {
-  return typeof window !== "undefined";
+  if (typeof window === "undefined") return false;
+  try {
+    return window.sessionStorage.getItem(STORAGE_KEY) === null;
+  } catch {
+    return true;
+  }
 }
 
 export function EmailInsiderPrompt() {
