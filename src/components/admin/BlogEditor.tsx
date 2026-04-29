@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ChangeEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent } from "react";
 import type {
   Blog,
   BlogBody,
@@ -12,6 +12,7 @@ import type {
   AnnouncementBody,
 } from "@/data/blogs";
 import { TEMPLATE_META } from "@/data/blogs";
+import { blogSlugify } from "@/services/blogStore";
 
 // Admin-side editor styled to match AdminLayout's dark surface.
 // Renders a different field set per template — these are the same fields the
@@ -177,9 +178,13 @@ function emptyBody(template: BlogTemplate): BlogBody {
 
 export interface BlogFormValues {
   title: string;
+  slug?: string;
   excerpt: string;
+  seoTitle?: string;
+  seoDescription?: string;
   template: BlogTemplate;
   status: BlogStatus;
+  scheduledAt?: string | null;
   coverImage: BlogImage;
   secondaryImage?: BlogImage;
   body: BlogBody;
@@ -190,9 +195,13 @@ export interface BlogFormValues {
 export function blogToFormValues(blog: Blog): BlogFormValues {
   return {
     title: blog.title,
+    slug: blog.slug,
     excerpt: blog.excerpt,
+    seoTitle: blog.seoTitle ?? "",
+    seoDescription: blog.seoDescription ?? "",
     template: blog.template,
     status: blog.status,
+    scheduledAt: blog.scheduledAt ?? null,
     coverImage: blog.coverImage,
     secondaryImage: blog.secondaryImage,
     body: blog.body,
@@ -204,9 +213,13 @@ export function blogToFormValues(blog: Blog): BlogFormValues {
 export function emptyFormValues(): BlogFormValues {
   return {
     title: "",
+    slug: "",
     excerpt: "",
+    seoTitle: "",
+    seoDescription: "",
     template: "educative",
     status: "draft",
+    scheduledAt: null,
     coverImage: { url: "", alt: "" },
     body: emptyBody("educative"),
     author: "Moments Packaging Director",
