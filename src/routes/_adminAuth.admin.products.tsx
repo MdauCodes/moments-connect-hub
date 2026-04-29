@@ -188,6 +188,7 @@ function AdminProductsPage() {
   const [products, setProducts] = useState<Product[] | null>(null);
   const [q, setQ] = useState("");
   const [activeCat, setActiveCat] = useState<string | "ALL">("ALL");
+  const [flagFilter, setFlagFilter] = useState<"ALL" | "NEW" | "FAST" | "DISCOUNT">("ALL");
 
   const refresh = async () => {
     const all = await productStore.list();
@@ -202,15 +203,33 @@ function AdminProductsPage() {
     if (!products) return [];
     return products.filter((p) => {
       if (activeCat !== "ALL" && p.category !== activeCat) return false;
+      if (flagFilter === "NEW" && !p.isNewArrival) return false;
+      if (flagFilter === "FAST" && !p.isFastMoving) return false;
+      if (flagFilter === "DISCOUNT" && !p.isDiscount) return false;
       if (!q) return true;
       const needle = q.toLowerCase();
       return (
         p.name.toLowerCase().includes(needle) ||
         p.slug.toLowerCase().includes(needle) ||
-        p.description.toLowerCase().includes(needle)
+        p.description.toLowerCase().includes(needle) ||
+        categoryName(p.category).toLowerCase().includes(needle) ||
+        (p.material ?? "").toLowerCase().includes(needle) ||
+        (p.finish ?? "").toLowerCase().includes(needle) ||
+        (p.keywords ?? []).join(" ").toLowerCase().includes(needle)
       );
     });
-  }, [products, activeCat, q]);
+  }, [products, activeCat, flagFilter, q]);
+
+  const productStats = useMemo(() => {
+    const rows = products ?? [];
+    return {
+      total: rows.length,
+      newArrival: rows.filter((p) => p.isNewArrival).length,
+      fastMoving: rows.filter((p) => p.isFastMoving).length,
+      discounted: rows.filter((p) => p.isDiscount).length,
+      clicks: rows.reduce((sum, p) => sum + p.monthlyClicks, 0),
+    };
+  }, [products]);
 
   const handleDelete = async (p: Product) => {
     if (!canDelete) return;
