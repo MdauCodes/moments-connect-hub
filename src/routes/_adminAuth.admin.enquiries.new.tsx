@@ -87,7 +87,7 @@ function NewEnquiryPage() {
         <div style={styles.card}>
           <div style={styles.title}>Customer details</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={styles.row}>
+            <div style={styles.row} data-admin-row>
               <label style={styles.field}>
                 <span style={styles.label}>Customer type</span>
                 <select style={styles.input} value={customerType} onChange={(e) => setCustomerType(e.target.value as "SME" | "CORPORATE")}>
@@ -100,7 +100,7 @@ function NewEnquiryPage() {
                 <input style={styles.input} value={name} onChange={(e) => setName(e.target.value)} required />
               </label>
             </div>
-            <div style={styles.row}>
+            <div style={styles.row} data-admin-row>
               <label style={styles.field}>
                 <span style={styles.label}>Company</span>
                 <input style={styles.input} value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
@@ -120,7 +120,7 @@ function NewEnquiryPage() {
         <div style={styles.card}>
           <div style={styles.title}>Product requested</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={styles.row}>
+            <div style={styles.row} data-admin-row>
               <label style={styles.field}>
                 <span style={styles.label}>Catalogue product</span>
                 <select style={styles.input} value={productId} onChange={(e) => setProductId(e.target.value)}>
@@ -147,7 +147,7 @@ function NewEnquiryPage() {
         </div>
 
         {error && <div style={styles.error}>{error}</div>}
-        <div style={styles.actions}>
+        <div style={styles.actions} data-admin-actions>
           <button type="button" style={styles.ghostBtn} onClick={() => navigate({ to: "/admin/enquiries" })} disabled={busy}>Cancel</button>
           <button type="submit" style={styles.primaryBtn} disabled={busy}>{busy ? "Creating…" : "Create enquiry"}</button>
         </div>
