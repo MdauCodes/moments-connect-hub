@@ -626,20 +626,37 @@ function AdminEnquiriesPage() {
       </div>
 
       {/* Filter row */}
-      <div style={styles.filterRow} data-admin-toolbar>
-        {FILTERS.map((f) => (
-          <button
-            key={f.key}
-            type="button"
-            style={filter === f.key ? styles.filterBtnActive : styles.filterBtn}
-            onClick={() => setFilter(f.key)}
-          >
-            {f.label}
+      <div style={styles.controlsCard}>
+        <div style={styles.filterRow} data-admin-toolbar>
+          <div style={styles.searchWrap}>
+            <Search size={15} style={styles.searchIcon} />
+            <input
+              style={styles.searchInput}
+              data-admin-search-input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search name, company, phone, product…"
+            />
+          </div>
+          <select style={styles.select} value={dateFilter} onChange={(event) => setDateFilter(event.target.value as DateFilterKey)}>
+            {DATE_FILTERS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
+          </select>
+          <button type="button" style={styles.exportBtn} onClick={handleExport}>
+            ↓ Export CSV
           </button>
-        ))}
-        <button type="button" style={styles.exportBtn} onClick={handleExport}>
-          ↓ Export CSV
-        </button>
+        </div>
+        <div style={{ ...styles.filterRow, marginBottom: 0 }} data-admin-toolbar>
+          {FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              style={filter === f.key ? styles.filterBtnActive : styles.filterBtn}
+              onClick={() => setFilter(f.key)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Table */}
