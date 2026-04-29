@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { Plus, Pencil, Trash2, Tag, Sparkles, Flame } from "lucide-react";
+import { Plus, Pencil, Trash2, Tag, Sparkles, Flame, Search } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { productStore } from "@/services/productStore";
 import { categories } from "@/data/products";
@@ -13,6 +13,21 @@ export const Route = createFileRoute("/_adminAuth/admin/products")({
 });
 
 const styles: Record<string, CSSProperties> = {
+  statsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    gap: 14,
+    marginBottom: 18,
+  },
+  statCard: {
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
+    borderRadius: 14,
+    padding: 16,
+    boxShadow: "var(--admin-shadow)",
+  },
+  statLabel: { fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--admin-muted)" },
+  statValue: { fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 650, color: "var(--admin-text)", marginTop: 8 },
   toolbar: {
     display: "flex",
     alignItems: "center",
@@ -20,14 +35,26 @@ const styles: Record<string, CSSProperties> = {
     gap: 12,
     marginBottom: 18,
   },
+  searchWrap: { position: "relative", flex: "1 1 280px", maxWidth: 420 },
+  searchIcon: { position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--admin-muted)", pointerEvents: "none" },
   search: {
     background: "color-mix(in oklab, var(--admin-bg) 84%, var(--admin-surface) 16%)",
     border: "1px solid var(--admin-border)",
     borderRadius: 10,
-    padding: "10px 12px",
+    padding: "10px 12px 10px 36px",
     fontSize: 13,
     color: "var(--admin-text)",
-    width: 260,
+    width: "100%",
+    outline: "none",
+    fontFamily: "inherit",
+  },
+  select: {
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
+    borderRadius: 10,
+    padding: "10px 12px",
+    color: "var(--admin-text)",
+    fontSize: 12,
     outline: "none",
     fontFamily: "inherit",
   },
