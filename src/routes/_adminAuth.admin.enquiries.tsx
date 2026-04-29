@@ -530,7 +530,7 @@ function AdminEnquiriesPage() {
       <style>{`@keyframes adminPulse { 0%,100% { opacity: 1 } 50% { opacity: 0.45 } }`}</style>
 
       {/* Stat cards */}
-      <div style={styles.statsGrid}>
+      <div style={styles.statsGrid} data-admin-stats>
         <div style={styles.statCardHighlight}>
           <div style={styles.statLabel}>New today</div>
           <div style={{ ...styles.statValue, color: "var(--admin-accent-hover)" }}>{stats.newToday}</div>
@@ -558,7 +558,7 @@ function AdminEnquiriesPage() {
       </div>
 
       {/* Filter row */}
-      <div style={styles.filterRow}>
+      <div style={styles.filterRow} data-admin-toolbar>
         {FILTERS.map((f) => (
           <button
             key={f.key}
@@ -575,9 +575,9 @@ function AdminEnquiriesPage() {
       </div>
 
       {/* Table */}
-      <div style={styles.tableWrap}>
-        <div style={styles.tableHeader}>
-          <div />
+      <div style={styles.tableWrap} data-admin-table-scroll>
+        <div style={styles.tableHeader} data-admin-enquiry-head>
+          <div data-admin-enquiry-check />
           <div>Customer</div>
           <div>Type</div>
           <div>Products</div>
@@ -589,8 +589,8 @@ function AdminEnquiriesPage() {
         {loading && (
           <>
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} style={{ ...styles.skeletonRow, ...(i === 3 ? { borderBottom: "none" } : {}) }}>
-                <div style={{ ...styles.skeletonBlock, width: 14, height: 14, borderRadius: 3 }} />
+              <div key={i} style={{ ...styles.skeletonRow, ...(i === 3 ? { borderBottom: "none" } : {}) }} data-admin-enquiry-skeleton>
+                <div style={{ ...styles.skeletonBlock, width: 14, height: 14, borderRadius: 3 }} data-admin-enquiry-check />
                 <div>
                   <div style={{ ...styles.skeletonBlock, width: "70%" }} />
                   <div style={{ ...styles.skeletonBlock, width: "45%", marginTop: 6, height: 10 }} />
@@ -654,11 +654,12 @@ function AdminEnquiriesPage() {
             <div
               key={e.id}
               style={rowStyle}
+              data-admin-enquiry-row
               onClick={() => handleRowClick(e.id)}
               onMouseEnter={(ev) => (ev.currentTarget.style.background = "var(--admin-surface-2)")}
               onMouseLeave={(ev) => (ev.currentTarget.style.background = "transparent")}
             >
-              <div onClick={(ev) => ev.stopPropagation()}>
+              <div onClick={(ev) => ev.stopPropagation()} data-admin-enquiry-check>
                 <span style={styles.checkbox} />
               </div>
               <div>
@@ -699,7 +700,7 @@ function AdminEnquiriesPage() {
                   {status.label}
                 </span>
               </div>
-              <div onClick={(ev) => ev.stopPropagation()}>
+              <div onClick={(ev) => ev.stopPropagation()} data-admin-enquiry-action>
                 <button
                   type="button"
                   style={styles.viewBtn}
@@ -725,7 +726,7 @@ function AdminEnquiriesPage() {
 
       {/* Pagination */}
       {!loading && !error && filteredEnquiries.length > 0 && (
-        <div style={styles.pagination}>
+        <div style={styles.pagination} data-admin-pagination>
           <div style={styles.paginationInfo}>
             Showing {start}–{end} of {filteredEnquiries.length} enquiries
           </div>
