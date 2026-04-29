@@ -480,6 +480,19 @@ export function ProductEditor({
   const [values, setValues] = useState<ProductFormValues>(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const isDirty = useMemo(() => JSON.stringify(values) !== JSON.stringify(initial), [initial, values]);
+  const validationIssues = useMemo(() => validateProduct(values), [values]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [isDirty]);
 
   const set = <K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) => {
     setValues((v) => ({ ...v, [key]: value }));
@@ -505,24 +518,9 @@ export function ProductEditor({
     e.preventDefault();
     setError(null);
 
-    if (!values.name.trim()) {
-      setError("Product name is required.");
-      return;
-    }
-    if (!values.image) {
-      setError("Please add a product image.");
-      return;
-    }
-    if (!values.category) {
-      setError("Please pick a category.");
-      return;
-    }
-    if (values.moq < 1) {
-      setError("MOQ must be at least 1.");
-      return;
-    }
-    if (values.isDiscount && (!values.discountPercent || values.discountPercent <= 0)) {
-      setError("Set a discount percentage when 'Discounted' is on.");
+    setSubmitted(true);
+    if (validationIssues.length) {
+      setError("Please resolve the highlighted fields before saving.");
       return;
     }
 
@@ -530,7 +528,7 @@ export function ProductEditor({
     try {
       // Mirror the main image into images[] if not already there.
       const images = values.images.length ? values.images : [values.image];
-      await onSubmit({ ...values, images });
+      await onSubmit({ ...values, slug: values.slug || slugifyDraft(values.name), images });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save product.");
     } finally {
@@ -810,7 +808,10 @@ export function ProductEditor({
           </button>
         )}
         <div style={styles.actionsRight}>
-          <button type="button" style={styles.ghostBtn} onClick={onCancel} disabled={busy}>
+          <button type="button" style={styles.ghostBtn} onClick={() => {
+            if (isDirty && !confirm("Discard unsaved product changes?")) return;
+            onCancel();
+          }} disabled={busy}>
             Cancel
           </button>
           <button type="submit" style={styles.primaryBtn} disabled={busy}>
