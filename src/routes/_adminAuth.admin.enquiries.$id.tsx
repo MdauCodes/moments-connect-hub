@@ -553,7 +553,7 @@ function AdminEnquiryDetailPage() {
       {!loading && loadError && <div style={styles.errorWrap}>{loadError}</div>}
 
       {!loading && !loadError && enquiry && (
-        <div style={styles.grid}>
+        <div style={styles.grid} data-admin-grid>
           {/* LEFT */}
           <div style={styles.card}>
             <div style={styles.sectionLabel}>Customer</div>
@@ -616,6 +616,7 @@ function AdminEnquiryDetailPage() {
             <hr style={styles.divider} />
 
             <div style={styles.sectionLabel}>Products</div>
+            <div data-admin-table-scroll>
             <table style={styles.table}>
               <thead>
                 <tr>
@@ -636,6 +637,7 @@ function AdminEnquiryDetailPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* RIGHT */}
