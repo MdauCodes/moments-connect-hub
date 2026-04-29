@@ -250,14 +250,14 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       style={{ ...styles.navItem, ...(active ? styles.navItemActive : {}) }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.background = "var(--admin-surface-2)";
-          e.currentTarget.style.color = "var(--admin-text)";
+          e.currentTarget.style.background = "var(--admin-sidebar-surface)";
+          e.currentTarget.style.color = "var(--admin-sidebar-text)";
         }
       }}
       onMouseLeave={(e) => {
         if (!active) {
           e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "var(--admin-muted)";
+          e.currentTarget.style.color = "var(--admin-sidebar-muted)";
         }
       }}
     >
@@ -292,11 +292,13 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
       {sidebarOpen && <button className="admin-sidebar-scrim" aria-label="Close menu" onClick={() => setSidebarOpen(false)} />}
       <aside className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`} style={styles.sidebar}>
         <div style={styles.sidebarTop}>
-          <div style={styles.logoMark}>m</div>
-          <div>
-            <div style={styles.brandName}>Moments</div>
-            <div style={styles.brandSub}>Admin Panel</div>
-          </div>
+          <Link to="/" style={styles.brandLink} aria-label="Back to Moments website">
+            <div style={styles.logoMark}>m</div>
+            <div>
+              <div style={styles.brandName}>Moments</div>
+              <div style={styles.brandSub}>Back to website</div>
+            </div>
+          </Link>
           <button type="button" className="admin-sidebar-close" aria-label="Close menu" onClick={() => setSidebarOpen(false)}>
             <X size={16} />
           </button>
@@ -335,7 +337,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
               type="button"
               onClick={logout}
               aria-label="Logout"
-              style={{ marginLeft: "auto", background: "transparent", border: "none", color: "var(--admin-muted)", cursor: "pointer", padding: 4 }}
+              style={{ marginLeft: "auto", background: "transparent", border: "none", color: "var(--admin-sidebar-muted)", cursor: "pointer", padding: 4 }}
             >
               <LogOut size={14} />
             </button>
