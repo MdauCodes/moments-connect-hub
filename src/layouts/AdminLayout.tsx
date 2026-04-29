@@ -34,7 +34,7 @@ interface NavItem {
 }
 
 const mainNav: NavItem[] = [
-  { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
+  { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Enquiries", to: "/admin/enquiries", icon: LayoutList, badge: 7 },
   { label: "Products", to: "/admin/products", icon: Package },
   { label: "Blogs", to: "/admin/blogs", icon: FileText },
@@ -279,6 +279,9 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isActive = (to: string): boolean => {
+    if (to === "/admin/dashboard") {
+      return pathname === "/admin" || pathname === "/admin/" || pathname === to;
+    }
     if (to === "/admin/enquiries") {
       return pathname === to || pathname.startsWith("/admin/enquiries/");
     }

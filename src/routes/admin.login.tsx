@@ -1,12 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
-import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { useAuth } from "@/contexts/AdminAuthContext";
+import { ApiError } from "@/services/adminApi";
 
 export const Route = createFileRoute("/admin/login")({
   validateSearch: (search) => ({
     redirect: typeof search.redirect === "string" ? search.redirect : undefined,
   }),
-  component: AdminLoginPage,
+  component: AdminLoginRoute,
 });
 
 const styles: Record<string, CSSProperties> = {
@@ -71,6 +72,7 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   error: { fontSize: 13, color: "var(--admin-clay)", minHeight: 20 },
+  fieldError: { fontSize: 11.5, color: "var(--admin-clay)", minHeight: 16 },
   submit: {
     width: "100%",
     background: "var(--admin-accent)",
@@ -86,15 +88,20 @@ const styles: Record<string, CSSProperties> = {
   submitDisabled: { opacity: 0.6, cursor: "not-allowed" },
 };
 
-function AdminLoginPage() {
-  const { login, isAuthenticated } = useAdminAuth();
-  const navigate = useNavigate();
+function AdminLoginRoute() {
   const { redirect } = Route.useSearch();
+  return <AdminLoginPage redirect={redirect} />;
+}
+
+export function AdminLoginPage({ redirect }: { redirect?: string }) {
+  const { login, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const safeRedirect = redirect && !redirect.startsWith("/admin/login") ? redirect : "/admin/enquiries";
+  const safeRedirect = redirect && !redirect.startsWith("/admin/login") ? redirect : "/admin/dashboard";
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -105,11 +112,13 @@ function AdminLoginPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
     setLoading(true);
     try {
       await login(email, password);
       navigate({ to: safeRedirect });
     } catch (err) {
+      if (err instanceof ApiError && err.fields) setFieldErrors(err.fields);
       const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
     } finally {
@@ -140,14 +149,18 @@ function AdminLoginPage() {
               id="admin-email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setFieldErrors((current) => ({ ...current, email: "" }));
+              }}
               placeholder="admin@momentspackaging.com"
-              style={styles.input}
+              style={{ ...styles.input, ...(fieldErrors.email ? { borderColor: "var(--admin-clay)" } : {}) }}
               onFocus={handleFocus}
               onBlur={handleBlur}
               required
               autoComplete="email"
             />
+            <div style={styles.fieldError}>{fieldErrors.email}</div>
           </div>
 
           <div style={styles.field}>
@@ -156,14 +169,18 @@ function AdminLoginPage() {
               id="admin-password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setFieldErrors((current) => ({ ...current, password: "" }));
+              }}
               placeholder="••••••••"
-              style={styles.input}
+              style={{ ...styles.input, ...(fieldErrors.password ? { borderColor: "var(--admin-clay)" } : {}) }}
               onFocus={handleFocus}
               onBlur={handleBlur}
               required
               autoComplete="current-password"
             />
+            <div style={styles.fieldError}>{fieldErrors.password}</div>
           </div>
 
           <div style={styles.error}>{error}</div>

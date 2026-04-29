@@ -1,13 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { apiUrl } from "@/config/api";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
+  ADMIN_LOGOUT_EVENT,
+  ADMIN_REFRESH_INTERVAL_MS,
   ADMIN_SESSION_CHANGED_EVENT,
-  clearAdminSession,
-  getJwtExpiresAt,
   getValidAdminSession,
-  normalizeAdminSession,
+  loginAdmin,
+  logoutAdmin,
   readAdminSession,
-  writeAdminSession,
   type AdminSession,
 } from "@/services/adminApi";
 
@@ -17,6 +16,8 @@ interface AdminAuthContextValue {
   user: AdminUser | null;
   isAuthenticated: boolean;
   isCheckingSession: boolean;
+  isAdmin: boolean;
+  isStaff: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   ensureValidSession: () => Promise<AdminUser | null>;
@@ -39,7 +40,9 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     setUser(readAdminSession());
 
     const syncSession = () => setUser(readAdminSession());
+    const syncLogout = () => setUser(null);
     window.addEventListener(ADMIN_SESSION_CHANGED_EVENT, syncSession);
+    window.addEventListener(ADMIN_LOGOUT_EVENT, syncLogout);
     window.addEventListener("storage", syncSession);
 
     void getValidAdminSession().then((session) => {
@@ -49,59 +52,47 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       window.removeEventListener(ADMIN_SESSION_CHANGED_EVENT, syncSession);
+      window.removeEventListener(ADMIN_LOGOUT_EVENT, syncLogout);
       window.removeEventListener("storage", syncSession);
     };
   }, []);
 
   useEffect(() => {
-    if (!user?.token) return;
-    const expiresAt = getJwtExpiresAt(user.token);
-    if (!expiresAt) return;
-
-    const timeout = window.setTimeout(() => {
+    if (!user?.refreshToken) return;
+    const interval = window.setInterval(() => {
       void ensureValidSession();
-    }, Math.max(expiresAt - Date.now() - 30_000, 0));
-
-    return () => window.clearTimeout(timeout);
-  }, [ensureValidSession, user?.token]);
+    }, ADMIN_REFRESH_INTERVAL_MS);
+    return () => window.clearInterval(interval);
+  }, [ensureValidSession, user?.refreshToken]);
 
   const login = async (email: string, password: string): Promise<void> => {
-    const res = await fetch(apiUrl("/api/v1/auth/login"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!res.ok) {
-      let message = "Login failed";
-      try {
-        const data = (await res.json()) as { message?: string; error?: string };
-        message = data.message ?? data.error ?? message;
-      } catch {
-        // ignore
-      }
-      throw new Error(message);
-    }
-
-    const next = normalizeAdminSession(await res.json(), { email });
+    const next = await loginAdmin(email, password);
     setUser(next);
-    writeAdminSession(next);
   };
 
   const logout = (): void => {
     setUser(null);
-    clearAdminSession();
+    void logoutAdmin();
   };
 
-  return (
-    <AdminAuthContext.Provider value={{ user, isAuthenticated: !!user, isCheckingSession, login, logout, ensureValidSession }}>
-      {children}
-    </AdminAuthContext.Provider>
-  );
+  const value = useMemo<AdminAuthContextValue>(() => ({
+    user,
+    isAuthenticated: !!user,
+    isCheckingSession,
+    isAdmin: !!user?.roles.includes("ROLE_ADMIN"),
+    isStaff: !!user?.roles.includes("ROLE_STAFF"),
+    login,
+    logout,
+    ensureValidSession,
+  }), [ensureValidSession, isCheckingSession, user]);
+
+  return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;
 }
 
-export function useAdminAuth(): AdminAuthContextValue {
+export function useAuth(): AdminAuthContextValue {
   const ctx = useContext(AdminAuthContext);
-  if (!ctx) throw new Error("useAdminAuth must be used within AdminAuthProvider");
+  if (!ctx) throw new Error("useAuth must be used within AdminAuthProvider");
   return ctx;
 }
+
+export const useAdminAuth = useAuth;

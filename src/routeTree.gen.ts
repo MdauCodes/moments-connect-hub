@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndustriesRouteImport } from './routes/industries'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
@@ -24,6 +25,7 @@ import { Route as AdminAuthAdminStaffRouteImport } from './routes/_adminAuth.adm
 import { Route as AdminAuthAdminSettingsRouteImport } from './routes/_adminAuth.admin.settings'
 import { Route as AdminAuthAdminProductsRouteImport } from './routes/_adminAuth.admin.products'
 import { Route as AdminAuthAdminEnquiriesRouteImport } from './routes/_adminAuth.admin.enquiries'
+import { Route as AdminAuthAdminDashboardRouteImport } from './routes/_adminAuth.admin.dashboard'
 import { Route as AdminAuthAdminBlogsRouteImport } from './routes/_adminAuth.admin.blogs'
 import { Route as AdminAuthAdminAnalyticsRouteImport } from './routes/_adminAuth.admin.analytics'
 import { Route as AdminAuthAdminProductsNewRouteImport } from './routes/_adminAuth.admin.products_.new'
@@ -36,6 +38,11 @@ import { Route as AdminAuthAdminBlogsIdRouteImport } from './routes/_adminAuth.a
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndustriesRoute = IndustriesRouteImport.update({
@@ -107,6 +114,11 @@ const AdminAuthAdminEnquiriesRoute = AdminAuthAdminEnquiriesRouteImport.update({
   path: '/admin/enquiries',
   getParentRoute: () => AdminAuthRoute,
 } as any)
+const AdminAuthAdminDashboardRoute = AdminAuthAdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => AdminAuthRoute,
+} as any)
 const AdminAuthAdminBlogsRoute = AdminAuthAdminBlogsRouteImport.update({
   id: '/admin/blogs',
   path: '/admin/blogs',
@@ -157,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/industries': typeof IndustriesRoute
+  '/login': typeof LoginRoute
   '/products': typeof ProductsRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -164,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
   '/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
@@ -181,6 +195,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/industries': typeof IndustriesRoute
+  '/login': typeof LoginRoute
   '/products': typeof ProductsRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -188,6 +203,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
   '/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
@@ -207,6 +223,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/industries': typeof IndustriesRoute
+  '/login': typeof LoginRoute
   '/products': typeof ProductsRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -214,6 +231,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/_adminAuth/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/_adminAuth/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/_adminAuth/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/_adminAuth/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
   '/_adminAuth/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/_adminAuth/admin/settings': typeof AdminAuthAdminSettingsRoute
@@ -233,6 +251,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/industries'
+    | '/login'
     | '/products'
     | '/admin/login'
     | '/blog/$slug'
@@ -240,6 +259,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/admin/analytics'
     | '/admin/blogs'
+    | '/admin/dashboard'
     | '/admin/enquiries'
     | '/admin/products'
     | '/admin/settings'
@@ -257,6 +277,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/industries'
+    | '/login'
     | '/products'
     | '/admin/login'
     | '/blog/$slug'
@@ -264,6 +285,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/admin/analytics'
     | '/admin/blogs'
+    | '/admin/dashboard'
     | '/admin/enquiries'
     | '/admin/products'
     | '/admin/settings'
@@ -282,6 +304,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/industries'
+    | '/login'
     | '/products'
     | '/admin/login'
     | '/blog/$slug'
@@ -289,6 +312,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/_adminAuth/admin/analytics'
     | '/_adminAuth/admin/blogs'
+    | '/_adminAuth/admin/dashboard'
     | '/_adminAuth/admin/enquiries'
     | '/_adminAuth/admin/products'
     | '/_adminAuth/admin/settings'
@@ -308,6 +332,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   IndustriesRoute: typeof IndustriesRoute
+  LoginRoute: typeof LoginRoute
   ProductsRoute: typeof ProductsRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -321,6 +346,13 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/industries': {
@@ -419,6 +451,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/enquiries'
       fullPath: '/admin/enquiries'
       preLoaderRoute: typeof AdminAuthAdminEnquiriesRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
+    '/_adminAuth/admin/dashboard': {
+      id: '/_adminAuth/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminAuthAdminDashboardRouteImport
       parentRoute: typeof AdminAuthRoute
     }
     '/_adminAuth/admin/blogs': {
@@ -526,6 +565,7 @@ const AdminAuthAdminProductsRouteWithChildren =
 interface AdminAuthRouteChildren {
   AdminAuthAdminAnalyticsRoute: typeof AdminAuthAdminAnalyticsRoute
   AdminAuthAdminBlogsRoute: typeof AdminAuthAdminBlogsRouteWithChildren
+  AdminAuthAdminDashboardRoute: typeof AdminAuthAdminDashboardRoute
   AdminAuthAdminEnquiriesRoute: typeof AdminAuthAdminEnquiriesRouteWithChildren
   AdminAuthAdminProductsRoute: typeof AdminAuthAdminProductsRouteWithChildren
   AdminAuthAdminSettingsRoute: typeof AdminAuthAdminSettingsRoute
@@ -537,6 +577,7 @@ interface AdminAuthRouteChildren {
 const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminAnalyticsRoute: AdminAuthAdminAnalyticsRoute,
   AdminAuthAdminBlogsRoute: AdminAuthAdminBlogsRouteWithChildren,
+  AdminAuthAdminDashboardRoute: AdminAuthAdminDashboardRoute,
   AdminAuthAdminEnquiriesRoute: AdminAuthAdminEnquiriesRouteWithChildren,
   AdminAuthAdminProductsRoute: AdminAuthAdminProductsRouteWithChildren,
   AdminAuthAdminSettingsRoute: AdminAuthAdminSettingsRoute,
@@ -567,6 +608,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   IndustriesRoute: IndustriesRoute,
+  LoginRoute: LoginRoute,
   ProductsRoute: ProductsRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   BlogSlugRoute: BlogSlugRoute,
