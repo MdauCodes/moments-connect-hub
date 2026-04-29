@@ -560,7 +560,7 @@ export function ProductEditor({
               <label style={styles.label}>URL slug</label>
               <input
                 style={styles.input}
-                value={values.slug}
+                value={values.slug || slugifyDraft(values.name)}
                 onChange={(e) => set("slug", e.target.value)}
                 placeholder="auto-generated from name"
               />
@@ -794,7 +794,34 @@ export function ProductEditor({
         </div>
       </div>
 
-      {error && <div style={styles.errorText}>{error}</div>}
+      <div style={styles.previewCard}>
+        {values.image ? (
+          <img src={values.image} alt="" style={styles.previewImage} />
+        ) : (
+          <div style={{ ...styles.imagePlaceholder, maxWidth: "none", borderRadius: 0 }}>Preview image</div>
+        )}
+        <div style={styles.previewBody}>
+          <div style={styles.previewMeta}>{categoryName(values.category)} · MOQ {Math.max(values.moq, 0).toLocaleString()}</div>
+          <h3 style={styles.previewTitle}>{values.name || "Product name"}</h3>
+          <p style={styles.previewDescription}>{values.description || "Product description preview appears here as the catalogue card will read."}</p>
+          <div style={styles.chipRow}>
+            {values.isNewArrival && <span style={styles.badge}>New arrival</span>}
+            {values.isFastMoving && <span style={styles.badge}>Fast moving</span>}
+            {values.isDiscount && <span style={styles.badge}>-{values.discountPercent ?? 0}%</span>}
+          </div>
+        </div>
+      </div>
+
+      {(error || (submitted && validationIssues.length > 0)) && (
+        <div style={styles.errorText}>
+          {error && <div>{error}</div>}
+          {submitted && validationIssues.length > 0 && (
+            <ul style={styles.validationList}>
+              {validationIssues.map((issue) => <li key={issue}>{issue}</li>)}
+            </ul>
+          )}
+        </div>
+      )}
 
       <div style={styles.actionsBar} data-admin-actions>
         {onDelete && (
