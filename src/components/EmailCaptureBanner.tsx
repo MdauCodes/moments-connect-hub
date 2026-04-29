@@ -1,34 +1,10 @@
 import { useEffect, useState } from "react";
 import { EMAIL_CAPTURE_ENABLED } from "@/config/features";
 import { usePersona } from "@/contexts/PersonaContext";
+import { whatsappLink } from "@/data/products";
 import { api } from "@/services/api";
 
-const STORAGE_KEY = "moments_email_banner";
-const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-type DismissedRecord = { value: "dismissed"; dismissedAt: number };
-
-function readStoredState(): "hidden" | "show" {
-  if (typeof window === "undefined") return "hidden";
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return "show";
-    if (raw === "submitted") return "hidden";
-    // Try JSON dismissed record
-    try {
-      const parsed = JSON.parse(raw) as DismissedRecord;
-      if (parsed?.value === "dismissed" && typeof parsed.dismissedAt === "number") {
-        if (Date.now() - parsed.dismissedAt < SEVEN_DAYS_MS) return "hidden";
-      }
-    } catch {
-      // legacy / unknown — treat as show
-    }
-    return "show";
-  } catch {
-    return "show";
-  }
-}
 
 interface EmailCaptureBannerProps {
   onVisibilityChange?: (visible: boolean) => void;
@@ -44,7 +20,7 @@ export function EmailCaptureBanner({ onVisibilityChange }: EmailCaptureBannerPro
 
   useEffect(() => {
     if (!EMAIL_CAPTURE_ENABLED) return;
-    setVisible(readStoredState() === "show");
+    setVisible(true);
   }, []);
 
   useEffect(() => {
@@ -71,11 +47,6 @@ export function EmailCaptureBanner({ onVisibilityChange }: EmailCaptureBannerPro
     setLoading(true);
     try {
       await api.submitLead(trimmed, persona ?? "unknown");
-      try {
-        window.localStorage.setItem(STORAGE_KEY, "submitted");
-      } catch {
-        // ignore
-      }
       setSubmitted(true);
     } catch {
       setError("Something went wrong. Please try again.");
@@ -85,14 +56,10 @@ export function EmailCaptureBanner({ onVisibilityChange }: EmailCaptureBannerPro
   };
 
   const handleDismiss = () => {
-    try {
-      const record: DismissedRecord = { value: "dismissed", dismissedAt: Date.now() };
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
-    } catch {
-      // ignore
-    }
     setVisible(false);
   };
+
+  const whatsappHref = whatsappLink("Hi Moments Packaging, I'd like help choosing packaging.");
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-wrap items-center justify-between gap-4 bg-primary px-5 py-3 text-primary-foreground">
@@ -126,6 +93,14 @@ export function EmailCaptureBanner({ onVisibilityChange }: EmailCaptureBannerPro
               {loading ? "..." : "Subscribe"}
             </button>
           </form>
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full border border-primary-foreground/30 px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-foreground/10"
+          >
+            WhatsApp us
+          </a>
           <button
             type="button"
             onClick={handleDismiss}
