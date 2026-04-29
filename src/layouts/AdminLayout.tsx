@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutList,
@@ -10,6 +10,8 @@ import {
   Search,
   FileText,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can, type Permission } from "@/lib/permissions";
@@ -270,6 +272,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
   const { user, logout } = useAdminAuth();
   const location = useLocation();
   const pathname = location.pathname;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isActive = (to: string): boolean => {
     if (to === "/admin/enquiries") {
@@ -284,13 +287,17 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
 
   return (
     <div className="admin-shell" style={styles.root}>
-      <aside style={styles.sidebar}>
+      {sidebarOpen && <button className="admin-sidebar-scrim" aria-label="Close menu" onClick={() => setSidebarOpen(false)} />}
+      <aside className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`} style={styles.sidebar}>
         <div style={styles.sidebarTop}>
           <div style={styles.logoMark}>m</div>
           <div>
             <div style={styles.brandName}>Moments</div>
             <div style={styles.brandSub}>Admin Panel</div>
           </div>
+          <button type="button" className="admin-sidebar-close" aria-label="Close menu" onClick={() => setSidebarOpen(false)}>
+            <X size={16} />
+          </button>
         </div>
 
         <nav style={styles.nav}>
@@ -336,7 +343,12 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
 
       <div style={styles.main}>
         <div style={styles.topbar}>
-          <div style={styles.topbarTitle}>{title}</div>
+          <div className="admin-topbar-left">
+            <button type="button" className="admin-menu-btn" aria-label="Open menu" onClick={() => setSidebarOpen(true)}>
+              <Menu size={18} />
+            </button>
+            <div style={styles.topbarTitle}>{title}</div>
+          </div>
           <div style={styles.topbarRight}>
             <div style={styles.searchWrap}>
               <Search size={14} style={styles.searchIcon} />
