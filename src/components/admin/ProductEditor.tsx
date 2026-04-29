@@ -484,7 +484,7 @@ export function ProductEditor({
   };
 
   return (
-    <form style={styles.wrap} onSubmit={handleSubmit}>
+    <form style={styles.wrap} onSubmit={handleSubmit} data-admin-editor-grid>
       <div style={styles.mainColumn}>
         {/* Core */}
         <div style={styles.card}>
@@ -492,7 +492,7 @@ export function ProductEditor({
             <div style={styles.cardTitle}>Core details</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={styles.row}>
+          <div style={styles.row} data-admin-row>
             <div style={styles.field}>
               <label style={styles.label}>Name</label>
               <input
@@ -515,7 +515,7 @@ export function ProductEditor({
             </div>
           </div>
 
-          <div style={styles.row}>
+          <div style={styles.row} data-admin-row>
             <div style={styles.field}>
               <label style={styles.label}>Category</label>
               <select
@@ -579,7 +579,7 @@ export function ProductEditor({
               placeholder='e.g. Small (200×100×250mm), 8oz, A5…'
             />
           </div>
-          <div style={styles.row}>
+          <div style={styles.row} data-admin-row>
             <div style={styles.field}>
               <label style={styles.label}>Material</label>
               <input
@@ -705,7 +705,7 @@ export function ProductEditor({
             <span style={styles.switchLabel}>Fast-moving (appears in "Trending")</span>
           </label>
 
-          <div style={styles.rowThree}>
+          <div style={styles.rowThree} data-admin-row>
             <div style={styles.field}>
               <label style={styles.label}>Monthly clicks</label>
               <input
@@ -743,7 +743,7 @@ export function ProductEditor({
 
       {error && <div style={styles.errorText}>{error}</div>}
 
-      <div style={styles.actionsBar}>
+      <div style={styles.actionsBar} data-admin-actions>
         {onDelete && (
           <button
             type="button"
