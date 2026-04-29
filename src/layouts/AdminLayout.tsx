@@ -10,6 +10,7 @@ import {
   Search,
   FileText,
   LayoutDashboard,
+  Factory,
   LogOut,
   Menu,
   X,
@@ -35,14 +36,14 @@ interface NavItem {
 
 const mainNav: NavItem[] = [
   { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Enquiries", to: "/admin/enquiries", icon: LayoutList, badge: 7 },
   { label: "Products", to: "/admin/products", icon: Package },
   { label: "Blogs", to: "/admin/blogs", icon: FileText },
-  { label: "Analytics", to: "/admin/analytics", icon: BarChart2 },
+  { label: "Enquiries", to: "/admin/enquiries", icon: LayoutList },
+  { label: "Industries", to: "/admin/industries", icon: Factory },
 ];
 
 const manageNav: NavItem[] = [
-  { label: "Staff", to: "/admin/staff", icon: Users, requires: "staff:manage" },
+  { label: "Users", to: "/admin/users", icon: Users, requires: "staff:manage" },
   { label: "Settings", to: "/admin/settings", icon: Settings, requires: "settings:manage" },
 ];
 
