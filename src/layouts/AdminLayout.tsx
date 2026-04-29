@@ -350,8 +350,8 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
             </button>
             <div style={styles.topbarTitle}>{title}</div>
           </div>
-          <div style={styles.topbarRight}>
-            <div style={styles.searchWrap}>
+          <div style={styles.topbarRight} data-admin-topbar-right>
+            <div style={styles.searchWrap} data-admin-search>
               <Search size={14} style={styles.searchIcon} />
               <input
                 type="text"
