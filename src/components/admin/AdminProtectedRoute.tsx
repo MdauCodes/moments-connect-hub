@@ -16,7 +16,7 @@ export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
 
   const redirectToLogin = () => {
     const redirect = location.pathname.startsWith("/admin/login") ? "/admin/dashboard" : location.href;
-    void navigate({ to: "/admin/login", search: { redirect } });
+    void navigate({ to: "/login", search: { redirect } });
   };
 
   useEffect(() => {
