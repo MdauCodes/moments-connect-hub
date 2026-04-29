@@ -4,7 +4,7 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { BlogBodyRenderer, BlogCard } from "@/components/blog/BlogTemplates";
 import { api } from "@/services/api";
 import { TEMPLATE_META } from "@/data/blogs";
-import type { Blog } from "@/data/blogs";
+import type { Blog, BlogTemplate } from "@/data/blogs";
 import { BLOGS_ENABLED } from "@/config/features";
 import { ArrowLeft } from "lucide-react";
 
@@ -68,7 +68,7 @@ export const Route = createFileRoute("/blog/$slug")({
 
 function BlogDetailPage() {
   const { blog } = Route.useLoaderData();
-  const meta = TEMPLATE_META[blog.template];
+  const meta = TEMPLATE_META[blog.template as BlogTemplate];
   const [related, setRelated] = useState<Blog[] | null>(null);
 
   useEffect(() => {
@@ -153,7 +153,7 @@ function BlogDetailPage() {
 
           {blog.tags.length > 0 && (
             <div className="mt-12 flex flex-wrap gap-2 border-t border-border pt-6">
-              {blog.tags.map((t) => (
+              {blog.tags.map((t: string) => (
                 <span
                   key={t}
                   className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
