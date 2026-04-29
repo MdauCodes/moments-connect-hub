@@ -198,9 +198,10 @@ function AdminProductsPage() {
       actionLabel={canCreate ? "+ New product" : undefined}
       onAction={canCreate ? () => navigate({ to: "/admin/products/new" }) : undefined}
     >
-      <div style={styles.toolbar}>
+      <div style={styles.toolbar} data-admin-toolbar>
         <input
           style={styles.search}
+          data-admin-search-input
           placeholder="Search by name, slug or description…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -250,6 +251,7 @@ function AdminProductsPage() {
           )}
         </div>
       ) : (
+        <div data-admin-table-scroll>
         <table style={styles.table}>
           <thead>
             <tr>
@@ -325,6 +327,7 @@ function AdminProductsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </AdminLayout>
   );
