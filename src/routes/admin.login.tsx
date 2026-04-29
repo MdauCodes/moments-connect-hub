@@ -7,7 +7,7 @@ export const Route = createFileRoute("/admin/login")({
   validateSearch: (search) => ({
     redirect: typeof search.redirect === "string" ? search.redirect : undefined,
   }),
-  component: AdminLoginPage,
+  component: AdminLoginRoute,
 });
 
 const styles: Record<string, CSSProperties> = {
@@ -88,10 +88,14 @@ const styles: Record<string, CSSProperties> = {
   submitDisabled: { opacity: 0.6, cursor: "not-allowed" },
 };
 
-function AdminLoginPage() {
+function AdminLoginRoute() {
+  const { redirect } = Route.useSearch();
+  return <AdminLoginPage redirect={redirect} />;
+}
+
+export function AdminLoginPage({ redirect }: { redirect?: string }) {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const { redirect } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
