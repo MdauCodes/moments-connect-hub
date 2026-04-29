@@ -128,9 +128,7 @@ function PersonaCard({
       : variant === "sme"
         ? ""
         : "bg-foreground text-background hover:bg-foreground/90";
-  const ctaStyle = isSme
-    ? { backgroundColor: "#C49A6C", color: "#1F1F1F" }
-    : undefined;
+  const ctaStyle = isSme ? { backgroundColor: "#C49A6C", color: "#1F1F1F" } : undefined;
 
   return (
     <button
@@ -179,7 +177,8 @@ function PersonaCard({
         className={`mt-6 inline-flex w-fit items-center rounded-full px-0 py-1 text-sm font-semibold transition-all duration-300 group-hover:gap-2 sm:mt-auto sm:text-base ${ctaClass}`}
         style={ctaStyle}
       >
-        {ctaLabel} <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>
+        {ctaLabel}{" "}
+        <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>
       </span>
     </button>
   );
