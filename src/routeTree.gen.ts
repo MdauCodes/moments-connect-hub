@@ -24,6 +24,7 @@ import { Route as AdminAuthAdminStaffRouteImport } from './routes/_adminAuth.adm
 import { Route as AdminAuthAdminSettingsRouteImport } from './routes/_adminAuth.admin.settings'
 import { Route as AdminAuthAdminProductsRouteImport } from './routes/_adminAuth.admin.products'
 import { Route as AdminAuthAdminEnquiriesRouteImport } from './routes/_adminAuth.admin.enquiries'
+import { Route as AdminAuthAdminDashboardRouteImport } from './routes/_adminAuth.admin.dashboard'
 import { Route as AdminAuthAdminBlogsRouteImport } from './routes/_adminAuth.admin.blogs'
 import { Route as AdminAuthAdminAnalyticsRouteImport } from './routes/_adminAuth.admin.analytics'
 import { Route as AdminAuthAdminProductsNewRouteImport } from './routes/_adminAuth.admin.products_.new'
@@ -107,6 +108,11 @@ const AdminAuthAdminEnquiriesRoute = AdminAuthAdminEnquiriesRouteImport.update({
   path: '/admin/enquiries',
   getParentRoute: () => AdminAuthRoute,
 } as any)
+const AdminAuthAdminDashboardRoute = AdminAuthAdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => AdminAuthRoute,
+} as any)
 const AdminAuthAdminBlogsRoute = AdminAuthAdminBlogsRouteImport.update({
   id: '/admin/blogs',
   path: '/admin/blogs',
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
   '/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
   '/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/_adminAuth/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/_adminAuth/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/_adminAuth/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/_adminAuth/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
   '/_adminAuth/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/_adminAuth/admin/settings': typeof AdminAuthAdminSettingsRoute
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/admin/analytics'
     | '/admin/blogs'
+    | '/admin/dashboard'
     | '/admin/enquiries'
     | '/admin/products'
     | '/admin/settings'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/admin/analytics'
     | '/admin/blogs'
+    | '/admin/dashboard'
     | '/admin/enquiries'
     | '/admin/products'
     | '/admin/settings'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/_adminAuth/admin/analytics'
     | '/_adminAuth/admin/blogs'
+    | '/_adminAuth/admin/dashboard'
     | '/_adminAuth/admin/enquiries'
     | '/_adminAuth/admin/products'
     | '/_adminAuth/admin/settings'
@@ -421,6 +433,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuthAdminEnquiriesRouteImport
       parentRoute: typeof AdminAuthRoute
     }
+    '/_adminAuth/admin/dashboard': {
+      id: '/_adminAuth/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminAuthAdminDashboardRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
     '/_adminAuth/admin/blogs': {
       id: '/_adminAuth/admin/blogs'
       path: '/admin/blogs'
@@ -526,6 +545,7 @@ const AdminAuthAdminProductsRouteWithChildren =
 interface AdminAuthRouteChildren {
   AdminAuthAdminAnalyticsRoute: typeof AdminAuthAdminAnalyticsRoute
   AdminAuthAdminBlogsRoute: typeof AdminAuthAdminBlogsRouteWithChildren
+  AdminAuthAdminDashboardRoute: typeof AdminAuthAdminDashboardRoute
   AdminAuthAdminEnquiriesRoute: typeof AdminAuthAdminEnquiriesRouteWithChildren
   AdminAuthAdminProductsRoute: typeof AdminAuthAdminProductsRouteWithChildren
   AdminAuthAdminSettingsRoute: typeof AdminAuthAdminSettingsRoute
@@ -537,6 +557,7 @@ interface AdminAuthRouteChildren {
 const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminAnalyticsRoute: AdminAuthAdminAnalyticsRoute,
   AdminAuthAdminBlogsRoute: AdminAuthAdminBlogsRouteWithChildren,
+  AdminAuthAdminDashboardRoute: AdminAuthAdminDashboardRoute,
   AdminAuthAdminEnquiriesRoute: AdminAuthAdminEnquiriesRouteWithChildren,
   AdminAuthAdminProductsRoute: AdminAuthAdminProductsRouteWithChildren,
   AdminAuthAdminSettingsRoute: AdminAuthAdminSettingsRoute,
