@@ -251,6 +251,36 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
   const [values, setValues] = useState<BlogFormValues>(initial);
   const [tagsInput, setTagsInput] = useState(initial.tags.join(", "));
   const [busy, setBusy] = useState(false);
+  const [lastAutosavedAt, setLastAutosavedAt] = useState<string | null>(null);
+  const autosaveKey = useMemo(() => `moments_blog_autosave_${initial.slug || "new"}`, [initial.slug]);
+  const autoSlug = blogSlugify(values.title);
+  const effectiveSlug = values.slug || autoSlug;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem(autosaveKey);
+    if (!raw) return;
+    try {
+      const draft = JSON.parse(raw) as { values: BlogFormValues; tagsInput: string; savedAt: string };
+      if (confirm("Restore your autosaved blog draft?")) {
+        setValues(draft.values);
+        setTagsInput(draft.tagsInput);
+        setLastAutosavedAt(draft.savedAt);
+      }
+    } catch {
+      localStorage.removeItem(autosaveKey);
+    }
+  }, [autosaveKey]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const timer = window.setTimeout(() => {
+      const savedAt = new Date().toISOString();
+      localStorage.setItem(autosaveKey, JSON.stringify({ values, tagsInput, savedAt }));
+      setLastAutosavedAt(savedAt);
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, [autosaveKey, tagsInput, values]);
 
   function patch<K extends keyof BlogFormValues>(key: K, val: BlogFormValues[K]) {
     setValues((v) => ({ ...v, [key]: val }));
@@ -281,12 +311,14 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
     try {
       await onSubmit({
         ...values,
+        slug: effectiveSlug,
         status,
         tags: tagsInput
           .split(",")
           .map((t) => t.trim())
           .filter(Boolean),
       });
+      if (typeof window !== "undefined") localStorage.removeItem(autosaveKey);
     } finally {
       setBusy(false);
     }
