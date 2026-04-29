@@ -101,9 +101,9 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: 8,
     padding: "9px 16px",
     fontSize: 12.5,
-    fontWeight: 600,
+    fontWeight: 650,
     cursor: "pointer",
-    fontFamily: "inherit",
+    fontFamily: "var(--font-display)",
   },
   dangerBtn: {
     background: "transparent",
@@ -268,7 +268,7 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
   }
 
   return (
-    <div style={styles.wrap}>
+    <div style={styles.wrap} data-admin-editor-grid>
       <div style={styles.mainColumn}>
         {/* Meta */}
         <div style={styles.card}>
@@ -297,7 +297,7 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
               rows={2}
             />
           </div>
-          <div style={styles.row}>
+          <div style={styles.row} data-admin-row>
             <div style={styles.field}>
               <label style={styles.label}>Author</label>
               <input
@@ -325,7 +325,7 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
           <span style={styles.cardTitle}>Images</span>
           <span style={styles.helper}>Cover required · Secondary optional</span>
         </div>
-        <div style={styles.row}>
+        <div style={styles.row} data-admin-row>
           <ImageSlot
             label="Cover image"
             image={values.coverImage}
@@ -389,7 +389,7 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
           </div>
         </div>
 
-      <div style={styles.actionsBar}>
+      <div style={styles.actionsBar} data-admin-actions>
         {onDelete && (
           <button type="button" style={styles.dangerBtn} onClick={() => void onDelete()} disabled={busy}>
             Delete
