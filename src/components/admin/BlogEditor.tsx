@@ -344,6 +344,27 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
               maxLength={120}
             />
           </div>
+          <div style={styles.row} data-admin-row>
+            <div style={styles.field}>
+              <label style={styles.label}>URL slug</label>
+              <input
+                style={styles.input}
+                value={effectiveSlug}
+                onChange={(e) => patch("slug", e.target.value)}
+                placeholder="auto-generated from title"
+                maxLength={90}
+              />
+            </div>
+            <div style={styles.field}>
+              <label style={styles.label}>Publish schedule</label>
+              <input
+                type="datetime-local"
+                style={styles.input}
+                value={values.scheduledAt ? values.scheduledAt.slice(0, 16) : ""}
+                onChange={(e) => patch("scheduledAt", e.target.value ? new Date(e.target.value).toISOString() : null)}
+              />
+            </div>
+          </div>
           <div style={styles.field}>
             <label style={styles.label}>Excerpt (1–2 sentences shown on cards)</label>
             <textarea
@@ -353,6 +374,31 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
               maxLength={240}
               rows={2}
             />
+          </div>
+          <div style={styles.row} data-admin-row>
+            <div style={styles.field}>
+              <label style={styles.label}>SEO title</label>
+              <input
+                style={styles.input}
+                value={values.seoTitle ?? ""}
+                onChange={(e) => patch("seoTitle", e.target.value)}
+                placeholder="Defaults to article title"
+                maxLength={60}
+              />
+              <span style={styles.helper}>{(values.seoTitle || values.title).length}/60 characters</span>
+            </div>
+            <div style={styles.field}>
+              <label style={styles.label}>SEO description</label>
+              <textarea
+                style={{ ...styles.textarea, minHeight: 68 }}
+                value={values.seoDescription ?? ""}
+                onChange={(e) => patch("seoDescription", e.target.value)}
+                placeholder="Defaults to excerpt"
+                maxLength={160}
+                rows={2}
+              />
+              <span style={styles.helper}>{(values.seoDescription || values.excerpt).length}/160 characters</span>
+            </div>
           </div>
           <div style={styles.row} data-admin-row>
             <div style={styles.field}>
