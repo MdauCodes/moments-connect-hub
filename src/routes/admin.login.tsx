@@ -108,11 +108,13 @@ function AdminLoginPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
     setLoading(true);
     try {
       await login(email, password);
       navigate({ to: safeRedirect });
     } catch (err) {
+      if (err instanceof ApiError && err.fields) setFieldErrors(err.fields);
       const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
     } finally {
@@ -143,14 +145,18 @@ function AdminLoginPage() {
               id="admin-email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setFieldErrors((current) => ({ ...current, email: "" }));
+              }}
               placeholder="admin@momentspackaging.com"
-              style={styles.input}
+              style={{ ...styles.input, ...(fieldErrors.email ? { borderColor: "var(--admin-clay)" } : {}) }}
               onFocus={handleFocus}
               onBlur={handleBlur}
               required
               autoComplete="email"
             />
+            <div style={styles.fieldError}>{fieldErrors.email}</div>
           </div>
 
           <div style={styles.field}>
@@ -159,14 +165,18 @@ function AdminLoginPage() {
               id="admin-password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setFieldErrors((current) => ({ ...current, password: "" }));
+              }}
               placeholder="••••••••"
-              style={styles.input}
+              style={{ ...styles.input, ...(fieldErrors.password ? { borderColor: "var(--admin-clay)" } : {}) }}
               onFocus={handleFocus}
               onBlur={handleBlur}
               required
               autoComplete="current-password"
             />
+            <div style={styles.fieldError}>{fieldErrors.password}</div>
           </div>
 
           <div style={styles.error}>{error}</div>
