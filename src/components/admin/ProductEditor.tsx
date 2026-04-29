@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
 import type { Product, ProductTag } from "@/data/products";
 import { categories, industries } from "@/data/products";
 
@@ -174,6 +174,23 @@ const styles: Record<string, CSSProperties> = {
     color: "var(--admin-muted)",
     fontSize: 12,
   },
+  previewCard: {
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
+    borderRadius: 14,
+    overflow: "hidden",
+    boxShadow: "var(--admin-shadow)",
+  },
+  previewImage: {
+    width: "100%",
+    aspectRatio: "4 / 3",
+    objectFit: "cover" as const,
+    background: "var(--admin-bg)",
+  },
+  previewBody: { padding: 16, display: "flex", flexDirection: "column", gap: 10 },
+  previewTitle: { color: "var(--admin-text)", fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 650, lineHeight: 1.1, margin: 0 },
+  previewMeta: { color: "var(--admin-muted)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em" },
+  previewDescription: { color: "var(--admin-muted)", fontSize: 12.5, lineHeight: 1.55, margin: 0 },
   fileBtn: {
     background: "var(--admin-border)",
     border: "1px solid var(--admin-border)",
@@ -244,6 +261,13 @@ const styles: Record<string, CSSProperties> = {
   },
   inlineRow: { display: "flex", gap: 8, alignItems: "center" },
   errorText: { fontSize: 12, color: "var(--admin-clay)" },
+  validationList: {
+    margin: 0,
+    paddingLeft: 18,
+    color: "var(--admin-clay)",
+    fontSize: 12,
+    lineHeight: 1.7,
+  },
   switchRow: {
     display: "flex",
     alignItems: "center",
