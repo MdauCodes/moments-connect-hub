@@ -32,9 +32,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export const WHATSAPP_NUMBER = "254700000000"; // placeholder — replace with client number
+export const WHATSAPP_NUMBER = "254119556688";
 export const COMPANY_EMAIL = "sales@momentspackaging.co.ke";
-export const COMPANY_PHONE = "+254 700 000 000";
+export const COMPANY_PHONE = "0119 556 688";
 
 export type ProductTag = "Trending" | "New" | "Discounted" | "Featured";
 
