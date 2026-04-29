@@ -86,17 +86,17 @@ function PersonaCard({
 
   const cardStyle =
     variant === "individual"
-      ? { backgroundColor: "#FDF8F0" }
+      ? { backgroundColor: "#FFF8ED" }
       : variant === "sme"
         ? { backgroundColor: "#2D4A35" }
         : undefined;
 
   const cardClass =
     variant === "corporate"
-      ? "border border-border bg-white"
+      ? "border border-border bg-white hover:border-primary/35 hover:shadow-[0_22px_55px_-34px_var(--primary)]"
       : variant === "individual"
-        ? "border border-border"
-        : "";
+        ? "border border-border hover:border-accent/45 hover:shadow-[0_22px_55px_-34px_var(--accent)]"
+        : "border border-transparent hover:border-white/20 hover:shadow-[0_22px_55px_-34px_rgba(45,74,53,0.9)]";
 
   const titleClass = isSme ? "" : "text-foreground";
   const titleStyle = isSme ? { color: "#F5EDE0" } : undefined;
@@ -128,35 +128,32 @@ function PersonaCard({
       : variant === "sme"
         ? ""
         : "bg-foreground text-background hover:bg-foreground/90";
-  const ctaStyle = isSme
-    ? { backgroundColor: "#C49A6C", color: "#1F1F1F" }
-    : undefined;
+  const ctaStyle = isSme ? { backgroundColor: "#C49A6C", color: "#1F1F1F" } : undefined;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`group flex w-full cursor-pointer flex-col rounded-2xl p-3 text-left transition-all hover:scale-[1.01] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-6 ${cardClass}`}
+      className={`group flex w-full cursor-pointer flex-col rounded-[1.35rem] p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:scale-[1.015] active:translate-y-0 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-[360px] sm:p-7 md:p-8 ${cardClass}`}
       style={cardStyle}
     >
-      {/* Mobile: horizontal layout. Desktop: vertical */}
-      <div className="flex items-start gap-3 sm:block">
+      <div className="flex items-start gap-4 sm:block">
         <span
-          className={`inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full sm:h-11 sm:w-11 ${iconWrapClass}`}
+          className={`inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-2deg] sm:h-16 sm:w-16 ${iconWrapClass}`}
           style={iconWrapStyle}
         >
           {icon}
         </span>
 
-        <div className="min-w-0 flex-1 sm:mt-4">
+        <div className="min-w-0 flex-1 sm:mt-7">
           <h2
-            className={`font-display text-sm font-semibold leading-snug sm:text-lg md:text-xl ${titleClass}`}
+            className={`font-display text-xl font-semibold leading-tight sm:text-2xl md:text-[1.7rem] ${titleClass}`}
             style={titleStyle}
           >
             {title}
           </h2>
           <p
-            className={`mt-1 text-xs leading-relaxed sm:mt-2 sm:text-sm ${descClass}`}
+            className={`mt-2 max-w-[18rem] text-sm leading-relaxed sm:mt-4 sm:text-[15px] ${descClass}`}
             style={descStyle}
           >
             {description}
@@ -164,11 +161,11 @@ function PersonaCard({
         </div>
       </div>
 
-      <div className="mt-2.5 flex flex-wrap gap-1 sm:mt-4 sm:gap-1.5">
+      <div className="mt-5 flex flex-wrap gap-1.5 sm:mt-7 sm:gap-2">
         {pills.map((p) => (
           <span
             key={p}
-            className={`rounded-full px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1 ${pillClass}`}
+            className={`rounded-full px-2.5 py-1 text-[11px] leading-none opacity-85 transition-opacity group-hover:opacity-100 sm:px-3 sm:text-xs ${pillClass}`}
             style={pillStyle}
           >
             {p}
@@ -177,10 +174,11 @@ function PersonaCard({
       </div>
 
       <span
-        className={`mt-3 inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition-colors sm:mt-5 sm:text-sm ${ctaClass}`}
+        className={`mt-6 inline-flex w-fit items-center rounded-full px-0 py-1 text-sm font-semibold transition-all duration-300 group-hover:gap-2 sm:mt-auto sm:text-base ${ctaClass}`}
         style={ctaStyle}
       >
-        {ctaLabel} <span className="ml-1">→</span>
+        {ctaLabel}{" "}
+        <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>
       </span>
     </button>
   );
@@ -209,43 +207,43 @@ export function PersonaGate() {
             </span>
           </div>
 
-          <h1 className="mt-3 font-display text-lg font-semibold leading-tight text-foreground sm:mt-8 sm:text-3xl md:text-4xl">
+          <h1 className="mt-3 font-display text-xl font-semibold leading-tight text-foreground sm:mt-8 sm:text-3xl md:text-4xl">
             Which one explains you better?
           </h1>
-          <p className="mt-1 max-w-md text-[11px] text-muted-foreground sm:mt-3 sm:text-base">
-            Tap the option that fits — we&apos;ll tailor what you see.
+          <p className="mt-1 max-w-md text-sm text-muted-foreground sm:mt-3 sm:text-base">
+            Who are you shopping for today?
           </p>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-2.5 sm:mt-10 sm:grid-cols-3 sm:gap-3">
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:mt-10 sm:grid-cols-3 sm:gap-4 lg:gap-5">
           <PersonaCard
             variant="individual"
             onClick={() => setPersona("individual")}
-            icon={<GiftIcon className="h-5 w-5 sm:h-6 sm:w-6" />}
-            title="I'm an individual looking for packaging"
-            description="For a wedding, birthday, event or personal order — no minimums, no pressure."
+            icon={<GiftIcon className="h-6 w-6 sm:h-8 sm:w-8" />}
+            title="Just me — personal order"
+            description="For gifts, parties, weddings or a one-off idea you want packaged beautifully."
             pills={["Wedding", "Birthday", "Event", "One-off"]}
-            ctaLabel="Show me what's available"
+            ctaLabel="Browse personal options"
           />
 
           <PersonaCard
             variant="sme"
             onClick={() => setPersona("sme")}
-            icon={<StorefrontIcon className="h-5 w-5 sm:h-6 sm:w-6" />}
+            icon={<StorefrontIcon className="h-6 w-6 sm:h-8 sm:w-8" />}
             title="I run a small business or shop"
-            description="Restaurant, café, retail or brand — quality packaging fast, without the runaround."
+            description="For cafés, shops, brands and takeaway teams that need packaging ready to move."
             pills={["Food & beverage", "Retail", "Takeaway", "Gifting"]}
-            ctaLabel="Let's go"
+            ctaLabel="Find business packaging"
           />
 
           <PersonaCard
             variant="corporate"
             onClick={() => setPersona("corporate")}
-            icon={<BuildingIcon className="h-5 w-5 sm:h-6 sm:w-6" />}
-            title="We're a company or large operation"
-            description="Volume orders, contracts and procurement — with a dedicated contact and formal quotes."
+            icon={<BuildingIcon className="h-6 w-6 sm:h-8 sm:w-8" />}
+            title="My company needs bulk orders"
+            description="For repeat supply, high-volume packaging, procurement and formal quote requests."
             pills={["10,000+ units", "National brands", "Procurement"]}
-            ctaLabel="Talk to our team"
+            ctaLabel="Start a bulk request"
           />
         </div>
 
