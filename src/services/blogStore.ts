@@ -56,6 +56,10 @@ function estimateReadingTime(body: Blog["body"]): number {
   return Math.max(1, Math.round(words / 220));
 }
 
+export function blogSlugify(input: string): string {
+  return slugify(input);
+}
+
 // Public API ------------------------------------------------------------------
 
 export const blogStore = {
@@ -100,7 +104,7 @@ export const blogStore = {
       readingTimeMin: estimateReadingTime(input.body),
       createdAt: nowIso,
       updatedAt: nowIso,
-      publishedAt: input.status === "published" ? input.publishedAt ?? nowIso : null,
+      publishedAt: input.status === "published" ? (input.publishedAt ?? nowIso) : null,
     };
     writeAll([blog, ...all]);
     return blog;

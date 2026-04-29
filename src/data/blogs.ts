@@ -6,10 +6,10 @@
 // The shape here is the single source of truth — keep BACKEND.md in sync.
 
 export type BlogTemplate =
-  | "educative"   // explainer: what it is, why it matters, key points
+  | "educative" // explainer: what it is, why it matters, key points
   | "explanatory" // problem → mechanism → takeaway (technical-light)
-  | "scenario"   // "imagine you run a juice bar in Westlands…"
-  | "storyline"  // first-person Nairobi narrative
+  | "scenario" // "imagine you run a juice bar in Westlands…"
+  | "storyline" // first-person Nairobi narrative
   | "announcement"; // short news / launch / offer
 
 export type BlogStatus = "draft" | "published";
@@ -35,21 +35,21 @@ export interface ExplanatoryBody {
 }
 
 export interface ScenarioBody {
-  setup: string;          // "You run a small bakery in Kilimani…"
-  challenge: string;      // the packaging problem they hit
-  resolution: string;     // what they did, what to learn
-  callout?: string;       // optional pull quote / tip
+  setup: string; // "You run a small bakery in Kilimani…"
+  challenge: string; // the packaging problem they hit
+  resolution: string; // what they did, what to learn
+  callout?: string; // optional pull quote / tip
 }
 
 export interface StorylineBody {
-  hook: string;           // first paragraph in narrative voice
+  hook: string; // first paragraph in narrative voice
   chapters: { title: string; body: string }[];
   closing: string;
 }
 
 export interface AnnouncementBody {
-  headline: string;       // short bolded line
-  body: string;           // 1–3 short paragraphs
+  headline: string; // short bolded line
+  body: string; // 1–3 short paragraphs
   ctaLabel?: string;
   ctaHref?: string;
 }
@@ -68,6 +68,8 @@ export interface Blog {
   slug: string;
   title: string;
   excerpt: string;
+  seoTitle?: string;
+  seoDescription?: string;
   template: BlogTemplate;
   status: BlogStatus;
   coverImage: BlogImage;
@@ -77,15 +79,13 @@ export interface Blog {
   tags: string[];
   readingTimeMin: number;
   publishedAt: string | null; // ISO string, null while draft
+  scheduledAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
 // Pretty labels for templates (used in admin + public chips)
-export const TEMPLATE_META: Record<
-  BlogTemplate,
-  { label: string; blurb: string }
-> = {
+export const TEMPLATE_META: Record<BlogTemplate, { label: string; blurb: string }> = {
   educative: {
     label: "Educative",
     blurb: "Explains a packaging concept in plain language.",
