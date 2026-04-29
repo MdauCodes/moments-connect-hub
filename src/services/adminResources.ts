@@ -1,0 +1,91 @@
+import { adminJson } from "@/services/adminApi";
+
+export type PageResponse<T> = { content?: T[]; totalElements?: number; totalPages?: number; number?: number; size?: number };
+export type BackendRole = "ROLE_ADMIN" | "ROLE_STAFF";
+export type EnquiryStatus = "NEW" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+export type BlogStatus = "DRAFT" | "PUBLISHED";
+
+export type IndustryDto = { id: string; name: string; slug?: string; description?: string; iconUrl?: string };
+export type ProductDto = {
+  id: string; name: string; slug?: string; category?: string; description?: string; moq?: number;
+  sizes?: string[]; tags?: string[]; keywords?: string[]; primaryImageUrl?: string; imageUrls?: string[];
+  isDiscount?: boolean; discountPercent?: number | null; isNewArrival?: boolean; isFastMoving?: boolean;
+  material?: string; finish?: string; industryIds?: string[]; industries?: IndustryDto[]; monthlyClicks?: number; monthlyEnquiries?: number;
+};
+export type ProductRequest = Omit<ProductDto, "id" | "slug" | "industries" | "monthlyClicks" | "monthlyEnquiries">;
+
+export type BlogDto = {
+  id: string; title: string; slug?: string; excerpt?: string; template?: string; status?: BlogStatus | string;
+  coverImageUrl?: string; coverImageAlt?: string; coverImageCaption?: string; secondaryImageUrl?: string;
+  body?: unknown; author?: string; tags?: string[]; publishedAt?: string | null; createdAt?: string; updatedAt?: string;
+};
+export type BlogRequest = Omit<BlogDto, "id" | "slug" | "status" | "publishedAt" | "createdAt" | "updatedAt">;
+
+export type EnquiryDto = {
+  id: string; referenceNumber?: string; reference?: string; status?: EnquiryStatus; assignedTo?: string; internalNotes?: string;
+  name?: string; email?: string; phone?: string; companyName?: string; message?: string; createdAt?: string;
+  contact?: { name?: string; email?: string; phone?: string; company?: string }; products?: Array<Record<string, unknown>>; items?: Array<Record<string, unknown>>;
+};
+
+export type UserDto = { id: string; email: string; firstName?: string; lastName?: string; enabled?: boolean; roles?: BackendRole[]; createdAt?: string; updatedAt?: string };
+export type SettingDto = { id?: string; key: string; value: string; description?: string };
+export type UploadResponse = { url: string; publicId: string };
+
+function unwrap<T>(data: PageResponse<T> | T[]): { rows: T[]; total: number; totalPages: number } {
+  if (Array.isArray(data)) return { rows: data, total: data.length, totalPages: 1 };
+  const rows = data.content ?? [];
+  return { rows, total: data.totalElements ?? rows.length, totalPages: data.totalPages ?? 1 };
+}
+
+function qs(params: Record<string, string | number | boolean | undefined | null>) {
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") search.set(key, String(value));
+  });
+  const query = search.toString();
+  return query ? `?${query}` : "";
+}
+
+export const adminResources = {
+  uploadImage: (file: File, entity: "products" | "blogs" | "general") => {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("entity", entity);
+    return adminJson<UploadResponse>("/api/v1/admin/uploads/image", { method: "POST", body: form });
+  },
+  industries: {
+    list: () => adminJson<IndustryDto[]>("/api/v1/admin/industries"),
+    create: (body: Partial<IndustryDto>) => adminJson<IndustryDto>("/api/v1/admin/industries", { method: "POST", body: JSON.stringify(body) }),
+    update: (id: string, body: Partial<IndustryDto>) => adminJson<IndustryDto>(`/api/v1/admin/industries/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(body) }),
+    remove: (id: string) => adminJson<void>(`/api/v1/admin/industries/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  },
+  products: {
+    list: async (params: Record<string, string | number | boolean | undefined>) => unwrap(await adminJson<PageResponse<ProductDto> | ProductDto[]>(`/api/v1/admin/products${qs(params)}`)),
+    get: (id: string) => adminJson<ProductDto>(`/api/v1/admin/products/${encodeURIComponent(id)}`),
+    create: (body: ProductRequest) => adminJson<ProductDto>("/api/v1/admin/products", { method: "POST", body: JSON.stringify(body) }),
+    update: (id: string, body: Partial<ProductRequest>) => adminJson<ProductDto>(`/api/v1/admin/products/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(body) }),
+    remove: (id: string) => adminJson<void>(`/api/v1/admin/products/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  },
+  blogs: {
+    list: (params: Record<string, string | number | undefined> = {}) => adminJson<BlogDto[]>(`/api/v1/admin/blogs${qs(params)}`),
+    create: (body: BlogRequest) => adminJson<BlogDto>("/api/v1/admin/blogs", { method: "POST", body: JSON.stringify(body) }),
+    update: (id: string, body: Partial<BlogRequest>) => adminJson<BlogDto>(`/api/v1/admin/blogs/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(body) }),
+    publish: (id: string) => adminJson<BlogDto>(`/api/v1/admin/blogs/${encodeURIComponent(id)}/publish`, { method: "POST" }),
+    unpublish: (id: string) => adminJson<BlogDto>(`/api/v1/admin/blogs/${encodeURIComponent(id)}/unpublish`, { method: "POST" }),
+    remove: (id: string) => adminJson<void>(`/api/v1/admin/blogs/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  },
+  enquiries: {
+    list: async (params: Record<string, string | number | undefined>) => unwrap(await adminJson<PageResponse<EnquiryDto> | EnquiryDto[]>(`/api/v1/admin/enquiries${qs(params)}`)),
+    update: (id: string, body: Partial<EnquiryDto>) => adminJson<EnquiryDto>(`/api/v1/admin/enquiries/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }),
+  },
+  users: {
+    list: () => adminJson<UserDto[]>("/api/v1/admin/users"),
+    create: (body: Partial<UserDto> & { password?: string }) => adminJson<UserDto>("/api/v1/admin/users", { method: "POST", body: JSON.stringify(body) }),
+    update: (id: string, body: Partial<UserDto> & { password?: string }) => adminJson<UserDto>(`/api/v1/admin/users/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }),
+    remove: (id: string) => adminJson<void>(`/api/v1/admin/users/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  },
+  settings: {
+    list: () => adminJson<SettingDto[]>("/api/v1/admin/settings"),
+    upsert: (body: SettingDto) => adminJson<SettingDto>("/api/v1/admin/settings", { method: "PUT", body: JSON.stringify(body) }),
+  },
+};
