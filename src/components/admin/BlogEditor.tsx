@@ -472,10 +472,24 @@ export function BlogEditor({ initial, submitLabel, onSubmit, onDelete, onCancel 
 
       <div style={styles.sideColumn}>
         {/* Template picker */}
+        <div style={styles.featuredPreview}>
+          {values.coverImage.url ? (
+            <img src={values.coverImage.url} alt="" style={styles.featuredImage} />
+          ) : (
+            <div style={{ ...styles.imagePreview, borderRadius: 0, border: 0 }}>Featured image preview</div>
+          )}
+          <div style={styles.featuredBody}>
+            <span style={styles.statusPill}>{values.scheduledAt ? "scheduled" : values.status}</span>
+            <h3 style={styles.featuredTitle}>{values.title || "Article title"}</h3>
+            <p style={styles.featuredExcerpt}>{values.excerpt || "Blog card excerpt preview appears here."}</p>
+            <span style={styles.helper}>/{effectiveSlug || "article-slug"}</span>
+          </div>
+        </div>
+
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <span style={styles.cardTitle}>Template</span>
-            <span style={styles.helper}>Choosing a template clears the body fields</span>
+            <span style={styles.helper}>{lastAutosavedAt ? `Autosaved ${new Date(lastAutosavedAt).toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" })}` : "Choosing a template clears the body fields"}</span>
           </div>
           <div style={styles.templateGrid}>
             {(Object.keys(TEMPLATE_META) as BlogTemplate[]).map((t) => (
