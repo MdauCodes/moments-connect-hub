@@ -53,7 +53,7 @@ function ProductsPage() {
 
   const setIndustrySlug = (slug: string | null) => {
     void navigate({
-      search: (prev) => ({ ...prev, industry: slug ?? undefined }),
+      search: (prev: { category?: string; industry?: string; q?: string }) => ({ ...prev, industry: slug ?? undefined }),
     });
   };
 
