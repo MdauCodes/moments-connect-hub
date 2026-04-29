@@ -13,7 +13,7 @@
 // ADMIN: everything.
 // ----------------------------------------------------------------------------
 
-export type Role = "ADMIN" | "STAFF";
+export type Role = "ADMIN" | "STAFF" | "ROLE_ADMIN" | "ROLE_STAFF";
 
 export type Permission =
   // Blogs
@@ -57,8 +57,8 @@ const STAFF_PERMS: Permission[] = [
 ];
 
 export function permissionsFor(role: Role | undefined | null): Permission[] {
-  if (role === "ADMIN") return ADMIN_PERMS;
-  if (role === "STAFF") return STAFF_PERMS;
+  if (role === "ADMIN" || role === "ROLE_ADMIN") return ADMIN_PERMS;
+  if (role === "STAFF" || role === "ROLE_STAFF") return STAFF_PERMS;
   return [];
 }
 
