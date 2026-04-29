@@ -118,10 +118,10 @@ function AdminLoginPage() {
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = "#2D5A3D";
+    e.currentTarget.style.borderColor = "var(--admin-accent)";
   };
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = "#1E2535";
+    e.currentTarget.style.borderColor = "var(--admin-border)";
   };
 
   return (
