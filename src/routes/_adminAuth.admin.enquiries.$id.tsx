@@ -73,15 +73,16 @@ const styles: Record<string, CSSProperties> = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "1fr 340px",
-    gap: 16,
+    gridTemplateColumns: "minmax(0, 1fr) minmax(300px, 360px)",
+    gap: 18,
     alignItems: "start",
   },
   card: {
-    background: "var(--admin-surface)",
+    background: "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 90%, var(--cream) 10%), var(--admin-surface))",
     border: "1px solid var(--admin-border)",
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 20,
+    boxShadow: "var(--admin-shadow)",
   },
   sectionLabel: {
     fontSize: 10,
@@ -91,7 +92,7 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 12,
   },
   customerHead: { display: "flex", alignItems: "center", flexWrap: "wrap" },
-  customerName: { fontSize: 16, fontWeight: 600, color: "var(--admin-text)" },
+  customerName: { fontSize: 22, fontWeight: 650, color: "var(--admin-text)", fontFamily: "var(--font-display)", letterSpacing: 0 },
   typeBadge: {
     display: "inline-flex",
     alignItems: "center",
