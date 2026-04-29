@@ -293,6 +293,37 @@ function chipStyle(active: boolean): CSSProperties {
   };
 }
 
+function slugifyDraft(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 80);
+}
+
+function categoryName(slug: string): string {
+  return categories.find((c) => c.slug === slug)?.name ?? slug;
+}
+
+function validateProduct(values: ProductFormValues): string[] {
+  const issues: string[] = [];
+  if (!values.name.trim()) issues.push("Product name is required.");
+  if (!values.slug.trim() && !values.name.trim()) issues.push("Add a name so the URL slug can be generated.");
+  if (!values.image) issues.push("Add a product image.");
+  if (!values.category) issues.push("Pick a product category.");
+  if (!values.description.trim()) issues.push("Add a short catalogue description.");
+  if (values.moq < 1) issues.push("MOQ must be at least 1.");
+  if (values.isDiscount && (!values.discountPercent || values.discountPercent <= 0)) {
+    issues.push("Set a discount percentage when Discounted is on.");
+  }
+  if (values.isDiscount && values.discountPercent && values.discountPercent > 90) {
+    issues.push("Discount percentage must be 90% or lower.");
+  }
+  return issues;
+}
+
 // ---------------------------------------------------------------------------
 // Image picker — mirrors BlogEditor (file -> DataURL, or URL paste)
 // ---------------------------------------------------------------------------
