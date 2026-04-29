@@ -16,10 +16,10 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminAuthRouteImport } from './routes/_adminAuth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
-import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminAuthAdminIndexRouteImport } from './routes/_adminAuth.admin.index'
 import { Route as AdminAuthAdminStaffRouteImport } from './routes/_adminAuth.admin.staff'
 import { Route as AdminAuthAdminSettingsRouteImport } from './routes/_adminAuth.admin.settings'
 import { Route as AdminAuthAdminProductsRouteImport } from './routes/_adminAuth.admin.products'
@@ -67,11 +67,6 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
   path: '/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProductsSlugRoute = ProductsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -86,6 +81,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAuthAdminIndexRoute = AdminAuthAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AdminAuthRoute,
 } as any)
 const AdminAuthAdminStaffRoute = AdminAuthAdminStaffRouteImport.update({
   id: '/admin/staff',
@@ -161,7 +161,6 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
-  '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
@@ -169,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/admin/staff': typeof AdminAuthAdminStaffRoute
+  '/admin/': typeof AdminAuthAdminIndexRoute
   '/admin/blogs/$id': typeof AdminAuthAdminBlogsIdRoute
   '/admin/blogs/new': typeof AdminAuthAdminBlogsNewRoute
   '/admin/enquiries/$id': typeof AdminAuthAdminEnquiriesIdRoute
@@ -185,7 +185,6 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
-  '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
@@ -193,6 +192,7 @@ export interface FileRoutesByTo {
   '/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/admin/staff': typeof AdminAuthAdminStaffRoute
+  '/admin': typeof AdminAuthAdminIndexRoute
   '/admin/blogs/$id': typeof AdminAuthAdminBlogsIdRoute
   '/admin/blogs/new': typeof AdminAuthAdminBlogsNewRoute
   '/admin/enquiries/$id': typeof AdminAuthAdminEnquiriesIdRoute
@@ -211,7 +211,6 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
-  '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/_adminAuth/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/_adminAuth/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
@@ -219,6 +218,7 @@ export interface FileRoutesById {
   '/_adminAuth/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/_adminAuth/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/_adminAuth/admin/staff': typeof AdminAuthAdminStaffRoute
+  '/_adminAuth/admin/': typeof AdminAuthAdminIndexRoute
   '/_adminAuth/admin/blogs/$id': typeof AdminAuthAdminBlogsIdRoute
   '/_adminAuth/admin/blogs/new': typeof AdminAuthAdminBlogsNewRoute
   '/_adminAuth/admin/enquiries/$id': typeof AdminAuthAdminEnquiriesIdRoute
@@ -237,7 +237,6 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/blog/$slug'
     | '/products/$slug'
-    | '/admin/'
     | '/blog/'
     | '/admin/analytics'
     | '/admin/blogs'
@@ -245,6 +244,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/settings'
     | '/admin/staff'
+    | '/admin/'
     | '/admin/blogs/$id'
     | '/admin/blogs/new'
     | '/admin/enquiries/$id'
@@ -261,7 +261,6 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/blog/$slug'
     | '/products/$slug'
-    | '/admin'
     | '/blog'
     | '/admin/analytics'
     | '/admin/blogs'
@@ -269,6 +268,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/settings'
     | '/admin/staff'
+    | '/admin'
     | '/admin/blogs/$id'
     | '/admin/blogs/new'
     | '/admin/enquiries/$id'
@@ -286,7 +286,6 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/blog/$slug'
     | '/products/$slug'
-    | '/admin/'
     | '/blog/'
     | '/_adminAuth/admin/analytics'
     | '/_adminAuth/admin/blogs'
@@ -294,6 +293,7 @@ export interface FileRouteTypes {
     | '/_adminAuth/admin/products'
     | '/_adminAuth/admin/settings'
     | '/_adminAuth/admin/staff'
+    | '/_adminAuth/admin/'
     | '/_adminAuth/admin/blogs/$id'
     | '/_adminAuth/admin/blogs/new'
     | '/_adminAuth/admin/enquiries/$id'
@@ -311,7 +311,6 @@ export interface RootRouteChildren {
   ProductsRoute: typeof ProductsRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   BlogSlugRoute: typeof BlogSlugRoute
-  AdminIndexRoute: typeof AdminIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
 }
 
@@ -366,13 +365,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/products/$slug': {
       id: '/products/$slug'
       path: '/$slug'
@@ -393,6 +385,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_adminAuth/admin/': {
+      id: '/_adminAuth/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminAuthAdminIndexRouteImport
+      parentRoute: typeof AdminAuthRoute
     }
     '/_adminAuth/admin/staff': {
       id: '/_adminAuth/admin/staff'
@@ -531,6 +530,7 @@ interface AdminAuthRouteChildren {
   AdminAuthAdminProductsRoute: typeof AdminAuthAdminProductsRouteWithChildren
   AdminAuthAdminSettingsRoute: typeof AdminAuthAdminSettingsRoute
   AdminAuthAdminStaffRoute: typeof AdminAuthAdminStaffRoute
+  AdminAuthAdminIndexRoute: typeof AdminAuthAdminIndexRoute
   AdminAuthAdminProductsNewRoute: typeof AdminAuthAdminProductsNewRoute
 }
 
@@ -541,6 +541,7 @@ const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminProductsRoute: AdminAuthAdminProductsRouteWithChildren,
   AdminAuthAdminSettingsRoute: AdminAuthAdminSettingsRoute,
   AdminAuthAdminStaffRoute: AdminAuthAdminStaffRoute,
+  AdminAuthAdminIndexRoute: AdminAuthAdminIndexRoute,
   AdminAuthAdminProductsNewRoute: AdminAuthAdminProductsNewRoute,
 }
 
@@ -569,7 +570,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsRoute: ProductsRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   BlogSlugRoute: BlogSlugRoute,
-  AdminIndexRoute: AdminIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
 }
 export const routeTree = rootRouteImport
