@@ -21,6 +21,7 @@ import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAuthAdminIndexRouteImport } from './routes/_adminAuth.admin.index'
+import { Route as AdminAuthAdminUsersRouteImport } from './routes/_adminAuth.admin.users'
 import { Route as AdminAuthAdminStaffRouteImport } from './routes/_adminAuth.admin.staff'
 import { Route as AdminAuthAdminSettingsRouteImport } from './routes/_adminAuth.admin.settings'
 import { Route as AdminAuthAdminProductsRouteImport } from './routes/_adminAuth.admin.products'
@@ -93,6 +94,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
 const AdminAuthAdminIndexRoute = AdminAuthAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => AdminAuthRoute,
+} as any)
+const AdminAuthAdminUsersRoute = AdminAuthAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
   getParentRoute: () => AdminAuthRoute,
 } as any)
 const AdminAuthAdminStaffRoute = AdminAuthAdminStaffRouteImport.update({
@@ -190,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/admin/staff': typeof AdminAuthAdminStaffRoute
+  '/admin/users': typeof AdminAuthAdminUsersRoute
   '/admin/': typeof AdminAuthAdminIndexRoute
   '/admin/blogs/$id': typeof AdminAuthAdminBlogsIdRoute
   '/admin/blogs/new': typeof AdminAuthAdminBlogsNewRoute
@@ -217,6 +224,7 @@ export interface FileRoutesByTo {
   '/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/admin/staff': typeof AdminAuthAdminStaffRoute
+  '/admin/users': typeof AdminAuthAdminUsersRoute
   '/admin': typeof AdminAuthAdminIndexRoute
   '/admin/blogs/$id': typeof AdminAuthAdminBlogsIdRoute
   '/admin/blogs/new': typeof AdminAuthAdminBlogsNewRoute
@@ -246,6 +254,7 @@ export interface FileRoutesById {
   '/_adminAuth/admin/products': typeof AdminAuthAdminProductsRouteWithChildren
   '/_adminAuth/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/_adminAuth/admin/staff': typeof AdminAuthAdminStaffRoute
+  '/_adminAuth/admin/users': typeof AdminAuthAdminUsersRoute
   '/_adminAuth/admin/': typeof AdminAuthAdminIndexRoute
   '/_adminAuth/admin/blogs/$id': typeof AdminAuthAdminBlogsIdRoute
   '/_adminAuth/admin/blogs/new': typeof AdminAuthAdminBlogsNewRoute
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/settings'
     | '/admin/staff'
+    | '/admin/users'
     | '/admin/'
     | '/admin/blogs/$id'
     | '/admin/blogs/new'
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/settings'
     | '/admin/staff'
+    | '/admin/users'
     | '/admin'
     | '/admin/blogs/$id'
     | '/admin/blogs/new'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/_adminAuth/admin/products'
     | '/_adminAuth/admin/settings'
     | '/_adminAuth/admin/staff'
+    | '/_adminAuth/admin/users'
     | '/_adminAuth/admin/'
     | '/_adminAuth/admin/blogs/$id'
     | '/_adminAuth/admin/blogs/new'
@@ -436,6 +448,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminAuthAdminIndexRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
+    '/_adminAuth/admin/users': {
+      id: '/_adminAuth/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminAuthAdminUsersRouteImport
       parentRoute: typeof AdminAuthRoute
     }
     '/_adminAuth/admin/staff': {
@@ -591,6 +610,7 @@ interface AdminAuthRouteChildren {
   AdminAuthAdminProductsRoute: typeof AdminAuthAdminProductsRouteWithChildren
   AdminAuthAdminSettingsRoute: typeof AdminAuthAdminSettingsRoute
   AdminAuthAdminStaffRoute: typeof AdminAuthAdminStaffRoute
+  AdminAuthAdminUsersRoute: typeof AdminAuthAdminUsersRoute
   AdminAuthAdminIndexRoute: typeof AdminAuthAdminIndexRoute
   AdminAuthAdminProductsNewRoute: typeof AdminAuthAdminProductsNewRoute
 }
@@ -604,6 +624,7 @@ const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminProductsRoute: AdminAuthAdminProductsRouteWithChildren,
   AdminAuthAdminSettingsRoute: AdminAuthAdminSettingsRoute,
   AdminAuthAdminStaffRoute: AdminAuthAdminStaffRoute,
+  AdminAuthAdminUsersRoute: AdminAuthAdminUsersRoute,
   AdminAuthAdminIndexRoute: AdminAuthAdminIndexRoute,
   AdminAuthAdminProductsNewRoute: AdminAuthAdminProductsNewRoute,
 }
