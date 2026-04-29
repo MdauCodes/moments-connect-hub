@@ -360,6 +360,15 @@ function renderDate(iso: string): { main: string; sub: string } {
   return { main: formatShortDate(d), sub: formatTime(d) };
 }
 
+function matchesDateFilter(iso: string, filter: DateFilterKey): boolean {
+  if (filter === "ALL") return true;
+  const created = new Date(iso);
+  const now = new Date();
+  if (filter === "TODAY") return isSameDay(created, now);
+  const days = filter === "7D" ? 7 : 30;
+  return now.getTime() - created.getTime() <= days * 24 * 60 * 60 * 1000;
+}
+
 function toCsv(rows: Enquiry[]): string {
   const headers = [
     "id",
