@@ -12,42 +12,16 @@ import { api } from "@/services/api";
  *   2. Scroll depth: user scrolls past 50% of page
  *   3. Idle: 30 seconds with no interaction
  *
- * Frequency: shown at most once every 3 days, never after submit.
- * Suppressed when the bottom EmailCaptureBanner has already been submitted,
- * to avoid double-prompting the same email.
+ * Frequency: shown once per active visit after a conversion trigger.
  */
 
 const STORAGE_KEY = "moments_insider_prompt";
-const BANNER_KEY = "moments_email_banner"; // matches EmailCaptureBanner.tsx
-const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 const IDLE_MS = 30_000;
 const SCROLL_THRESHOLD = 0.5;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-type DismissedRecord = { value: "dismissed"; dismissedAt: number };
-
 function shouldShow(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    // If user already submitted via the bottom banner, never show this.
-    const banner = window.localStorage.getItem(BANNER_KEY);
-    if (banner === "submitted") return false;
-
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return true;
-    if (raw === "submitted") return false;
-    try {
-      const parsed = JSON.parse(raw) as DismissedRecord;
-      if (parsed?.value === "dismissed" && typeof parsed.dismissedAt === "number") {
-        if (Date.now() - parsed.dismissedAt < THREE_DAYS_MS) return false;
-      }
-    } catch {
-      // legacy / unknown — allow
-    }
-    return true;
-  } catch {
-    return true;
-  }
+  return typeof window !== "undefined";
 }
 
 export function EmailInsiderPrompt() {
@@ -144,7 +118,7 @@ export function EmailInsiderPrompt() {
     try {
       await api.submitLead(trimmed, persona ?? "unknown");
       try {
-        window.localStorage.setItem(STORAGE_KEY, "submitted");
+        window.sessionStorage.setItem(STORAGE_KEY, "submitted");
       } catch {
         // ignore
       }
@@ -158,8 +132,7 @@ export function EmailInsiderPrompt() {
 
   const handleDismiss = () => {
     try {
-      const record: DismissedRecord = { value: "dismissed", dismissedAt: Date.now() };
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+      window.sessionStorage.setItem(STORAGE_KEY, "dismissed");
     } catch {
       // ignore
     }
