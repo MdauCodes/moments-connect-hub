@@ -1,257 +1,43 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { useEffect, useState, type FormEvent } from "react";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
-import { blogStore } from "@/services/blogStore";
-import type { Blog } from "@/data/blogs";
-import { TEMPLATE_META } from "@/data/blogs";
+import { ImageUploader } from "@/components/admin/ImageUploader";
+import { useAuth } from "@/contexts/AdminAuthContext";
+import { adminResources, type BlogDto, type BlogRequest } from "@/services/adminResources";
 
-export const Route = createFileRoute("/_adminAuth/admin/blogs")({
-  component: AdminBlogsPage,
-});
+export const Route = createFileRoute("/_adminAuth/admin/blogs")({ component: AdminBlogsPage });
+const emptyBlog: BlogRequest = { title: "", excerpt: "", template: "educative", coverImageUrl: "", coverImageAlt: "", coverImageCaption: "", secondaryImageUrl: "", body: { type: "doc", content: [] }, author: "Moments Packaging", tags: [] };
+const templates = ["educative", "explanatory", "scenario", "storyline", "announcement"];
+function split(v: string) { return v.split(",").map((x) => x.trim()).filter(Boolean); }
 
-const badgeStyle = (tone: "ok" | "muted"): CSSProperties => ({
-  display: "inline-block",
-  padding: "2px 8px",
-  borderRadius: 999,
-  fontSize: 10.5,
-  fontWeight: 600,
-  background:
-    tone === "ok"
-      ? "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))"
-      : "var(--admin-border)",
-  color: tone === "ok" ? "var(--cream)" : "var(--admin-muted)",
-});
-
-const styles: Record<string, CSSProperties> = {
-  toolbar: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-    marginBottom: 18,
-  },
-  search: {
-    background: "color-mix(in oklab, var(--admin-bg) 84%, var(--admin-surface) 16%)",
-    border: "1px solid var(--admin-border)",
-    borderRadius: 10,
-    padding: "10px 12px",
-    fontSize: 13,
-    color: "var(--admin-text)",
-    width: 260,
-    outline: "none",
-    fontFamily: "inherit",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    background: "var(--admin-surface)",
-    border: "1px solid var(--admin-border)",
-    borderRadius: 14,
-    overflow: "hidden",
-    boxShadow: "var(--admin-shadow)",
-  },
-  thumb: {
-    width: 44,
-    height: 34,
-    objectFit: "cover" as const,
-    borderRadius: 6,
-    background: "var(--admin-bg)",
-    border: "1px solid var(--admin-border)",
-  },
-  titleCell: { display: "flex", alignItems: "center", gap: 10, minWidth: 240 },
-  seoLine: {
-    fontSize: 11,
-    color: "var(--admin-muted)",
-    marginTop: 4,
-    maxWidth: 360,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  },
-  statsGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: 14,
-    marginBottom: 18,
-  },
-  statCard: {
-    background: "var(--admin-surface)",
-    border: "1px solid var(--admin-border)",
-    borderRadius: 14,
-    padding: 15,
-    boxShadow: "var(--admin-shadow)",
-  },
-  statLabel: {
-    fontSize: 10.5,
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    color: "var(--admin-muted)",
-  },
-  statValue: {
-    fontFamily: "var(--font-display)",
-    color: "var(--admin-text)",
-    fontSize: 26,
-    fontWeight: 650,
-    marginTop: 8,
-  },
-  th: {
-    textAlign: "left",
-    padding: "10px 14px",
-    fontSize: 10.5,
-    textTransform: "uppercase",
-    letterSpacing: "0.12em",
-    color: "var(--admin-muted)",
-    background: "var(--admin-bg)",
-    borderBottom: "1px solid var(--admin-border)",
-  },
-  td: {
-    padding: "12px 14px",
-    fontSize: 12.5,
-    color: "var(--admin-text)",
-    borderBottom: "1px solid var(--admin-border)",
-  },
-  link: { color: "var(--cream)", textDecoration: "none", fontWeight: 500 },
-  emptyState: {
-    background:
-      "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 88%, var(--cream) 12%), var(--admin-surface))",
-    border: "1px dashed var(--admin-border)",
-    borderRadius: 14,
-    padding: 40,
-    textAlign: "center",
-    color: "var(--admin-muted)",
-    fontSize: 14,
-    boxShadow: "var(--admin-shadow)",
-  },
-};
+function BlogModal({ initial, saving, onClose, onSave }: { initial: BlogDto | null; saving: boolean; onClose: () => void; onSave: (body: BlogRequest) => void }) {
+  const [form, setForm] = useState<BlogRequest>(initial ? { title: initial.title, excerpt: initial.excerpt ?? "", template: initial.template ?? "educative", coverImageUrl: initial.coverImageUrl ?? "", coverImageAlt: initial.coverImageAlt ?? "", coverImageCaption: initial.coverImageCaption ?? "", secondaryImageUrl: initial.secondaryImageUrl ?? "", body: initial.body ?? { type: "doc", content: [] }, author: initial.author ?? "", tags: initial.tags ?? [] } : emptyBlog);
+  const [tags, setTags] = useState((initial?.tags ?? []).join(", "));
+  const editor = useEditor({ extensions: [StarterKit], content: form.body as object, immediatelyRender: false, onUpdate: ({ editor }) => setForm((f) => ({ ...f, body: editor.getJSON() })) });
+  const submit = (e: FormEvent) => { e.preventDefault(); onSave({ ...form, tags: split(tags) }); };
+  return <div className="admin-modal-backdrop"><form className="admin-modal" onSubmit={submit}><div className="admin-toolbar"><h2>{initial ? "Edit blog" : "Create blog"}</h2><button type="button" className="admin-btn admin-btn-ghost" onClick={onClose}>Close</button></div><div className="admin-form-grid" data-admin-editor-grid>
+    <label><span className="admin-label">Title</span><input required className="admin-input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
+    <label><span className="admin-label">Template</span><select className="admin-select" value={form.template} onChange={(e) => setForm({ ...form, template: e.target.value })}>{templates.map((t) => <option key={t} value={t}>{t}</option>)}</select></label>
+    <label><span className="admin-label">Author</span><input className="admin-input" value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} /></label>
+    <label><span className="admin-label">Tags</span><input className="admin-input" value={tags} onChange={(e) => setTags(e.target.value)} /></label>
+    <label style={{ gridColumn: "1/-1" }}><span className="admin-label">Excerpt</span><textarea className="admin-textarea" value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} /></label>
+    <ImageUploader label="Cover image" entity="blogs" value={form.coverImageUrl} onChange={(url) => setForm({ ...form, coverImageUrl: url })} />
+    <label><span className="admin-label">Cover alt</span><input className="admin-input" value={form.coverImageAlt} onChange={(e) => setForm({ ...form, coverImageAlt: e.target.value })} /></label>
+    <label style={{ gridColumn: "1/-1" }}><span className="admin-label">Body</span><div className="admin-tiptap"><EditorContent editor={editor} /></div></label>
+  </div><div className="admin-toolbar"><button className="admin-btn admin-btn-primary" disabled={saving}>{saving && <Loader2 size={14} className="animate-spin" />}Save blog</button></div></form></div>;
+}
 
 function AdminBlogsPage() {
-  const [blogs, setBlogs] = useState<Blog[] | null>(null);
-  const [q, setQ] = useState("");
-  const navigate = useNavigate();
-
-  async function refresh() {
-    const all = await blogStore.list();
-    setBlogs(all);
-  }
-
-  useEffect(() => {
-    void refresh();
-  }, []);
-
-  const filtered = (blogs ?? []).filter(
-    (b) =>
-      !q ||
-      b.title.toLowerCase().includes(q.toLowerCase()) ||
-      b.excerpt.toLowerCase().includes(q.toLowerCase()) ||
-      b.slug.toLowerCase().includes(q.toLowerCase()) ||
-      b.tags.some((t) => t.toLowerCase().includes(q.toLowerCase())),
-  );
-
-  const stats = useMemo(() => {
-    const rows = blogs ?? [];
-    return {
-      published: rows.filter((b) => b.status === "published").length,
-      drafts: rows.filter((b) => b.status === "draft").length,
-      scheduled: rows.filter((b) => b.scheduledAt && new Date(b.scheduledAt) > new Date()).length,
-    };
-  }, [blogs]);
-
-  return (
-    <AdminLayout
-      title="Blogs"
-      actionLabel="New blog"
-      onAction={() => navigate({ to: "/admin/blogs/new" })}
-    >
-      <div style={styles.statsGrid} data-admin-stats>
-        <div style={styles.statCard}>
-          <div style={styles.statLabel}>Published</div>
-          <div style={styles.statValue}>{blogs ? stats.published : "—"}</div>
-        </div>
-        <div style={styles.statCard}>
-          <div style={styles.statLabel}>Drafts</div>
-          <div style={styles.statValue}>{blogs ? stats.drafts : "—"}</div>
-        </div>
-        <div style={styles.statCard}>
-          <div style={styles.statLabel}>Scheduled</div>
-          <div style={styles.statValue}>{blogs ? stats.scheduled : "—"}</div>
-        </div>
-      </div>
-
-      <div style={styles.toolbar} data-admin-toolbar>
-        <input
-          style={styles.search}
-          data-admin-search-input
-          placeholder="Search by title or tag…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-        <span style={{ fontSize: 11.5, color: "var(--admin-muted)" }}>
-          {blogs ? `${blogs.length} total` : "Loading…"}
-        </span>
-      </div>
-
-      {blogs === null ? (
-        <div style={styles.emptyState}>Loading blogs…</div>
-      ) : filtered.length === 0 ? (
-        <div style={styles.emptyState}>
-          {q ? "No blogs match that search." : "No blogs yet — click 'New blog' to create one."}
-        </div>
-      ) : (
-        <div data-admin-table-scroll>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Title</th>
-                <th style={styles.th}>Template</th>
-                <th style={styles.th}>Status</th>
-                <th style={styles.th}>Schedule</th>
-                <th style={styles.th}>Updated</th>
-                <th style={styles.th}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((b) => (
-                <tr key={b.id}>
-                  <td style={styles.td}>
-                    <div style={styles.titleCell}>
-                      <img src={b.coverImage.url} alt="" style={styles.thumb} />
-                      <div>
-                        <div style={{ fontWeight: 500, color: "var(--admin-text)" }}>{b.title}</div>
-                        <div style={{ fontSize: 11, color: "var(--admin-muted)", marginTop: 2 }}>
-                          /{b.slug}
-                        </div>
-                        <div style={styles.seoLine}>{b.seoDescription || b.excerpt}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td style={styles.td}>{TEMPLATE_META[b.template].label}</td>
-                  <td style={styles.td}>
-                    <span style={badgeStyle(b.status === "published" ? "ok" : "muted")}>
-                      {b.scheduledAt && new Date(b.scheduledAt) > new Date()
-                        ? "scheduled"
-                        : b.status}
-                    </span>
-                  </td>
-                  <td style={styles.td}>
-                    {b.scheduledAt
-                      ? new Date(b.scheduledAt).toLocaleString("en-KE", {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        })
-                      : "—"}
-                  </td>
-                  <td style={styles.td}>{new Date(b.updatedAt).toLocaleDateString("en-KE")}</td>
-                  <td style={styles.td}>
-                    <Link to="/admin/blogs/$id" params={{ id: b.id }} style={styles.link}>
-                      Edit →
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </AdminLayout>
-  );
+  const { isAdmin } = useAuth();
+  const [blogs, setBlogs] = useState<BlogDto[]>([]); const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false); const [editing, setEditing] = useState<BlogDto | null>(null); const [open, setOpen] = useState(false);
+  const load = async () => { setLoading(true); try { setBlogs(await adminResources.blogs.list({ limit: 100 })); } catch (err) { toast.error(err instanceof Error ? err.message : "Failed to load blogs"); } finally { setLoading(false); } };
+  useEffect(() => { void load(); }, []);
+  const save = async (body: BlogRequest) => { setSaving(true); try { editing ? await adminResources.blogs.update(editing.id, body) : await adminResources.blogs.create(body); toast.success(editing ? "Blog updated" : "Blog created"); setOpen(false); await load(); } catch (err) { toast.error(err instanceof Error ? err.message : "Save failed"); } finally { setSaving(false); } };
+  const toggle = async (b: BlogDto) => { setSaving(true); try { b.status === "PUBLISHED" ? await adminResources.blogs.unpublish(b.id) : await adminResources.blogs.publish(b.id); toast.success("Blog status updated"); await load(); } catch (err) { toast.error(err instanceof Error ? err.message : "Status update failed"); } finally { setSaving(false); } };
+  const remove = async (b: BlogDto) => { if (!isAdmin || !confirm(`Delete ${b.title}?`)) return; setSaving(true); try { await adminResources.blogs.remove(b.id); toast.success("Blog deleted"); await load(); } catch (err) { toast.error(err instanceof Error ? err.message : "Delete failed"); } finally { setSaving(false); } };
+  return <AdminLayout title="Blogs" actionLabel="New blog" onAction={() => { setEditing(null); setOpen(true); }}><div className="admin-page-stack"><div className="admin-panel" data-admin-table-scroll><table className="admin-table"><thead><tr><th>Title</th><th>Status</th><th>Author</th><th>Published</th><th></th></tr></thead><tbody>{loading ? <tr><td colSpan={5}>Loading blogs…</td></tr> : blogs.length === 0 ? <tr><td colSpan={5}><div className="admin-empty">No blogs yet. <button className="admin-btn admin-btn-primary" onClick={() => setOpen(true)}>Create blog</button></div></td></tr> : blogs.map((b) => <tr key={b.id}><td><b>{b.title}</b><div style={{ color: "var(--admin-muted)", fontSize: 11 }}>{b.excerpt}</div></td><td><span className={`admin-badge ${b.status === "PUBLISHED" ? "admin-badge-ok" : "admin-badge-muted"}`}>{b.status ?? "DRAFT"}</span></td><td>{b.author || "—"}</td><td>{b.publishedAt ? new Date(b.publishedAt).toLocaleDateString("en-KE") : "—"}</td><td><button className="admin-btn admin-btn-ghost" onClick={() => { setEditing(b); setOpen(true); }}><Pencil size={14} />Edit</button><button className="admin-btn admin-btn-ghost" disabled={saving} onClick={() => void toggle(b)}>{b.status === "PUBLISHED" ? "Unpublish" : "Publish"}</button>{isAdmin && <button className="admin-btn admin-btn-danger" onClick={() => void remove(b)}><Trash2 size={14} />Delete</button>}</td></tr>)}</tbody></table></div>{open && <BlogModal initial={editing} saving={saving} onClose={() => setOpen(false)} onSave={save} />}</div></AdminLayout>;
 }
