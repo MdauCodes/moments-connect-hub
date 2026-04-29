@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { Plus, Pencil, Trash2, Tag, Sparkles, Flame } from "lucide-react";
+import { Plus, Pencil, Trash2, Tag, Sparkles, Flame, Search } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { productStore } from "@/services/productStore";
 import { categories } from "@/data/products";
@@ -13,6 +13,21 @@ export const Route = createFileRoute("/_adminAuth/admin/products")({
 });
 
 const styles: Record<string, CSSProperties> = {
+  statsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    gap: 14,
+    marginBottom: 18,
+  },
+  statCard: {
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
+    borderRadius: 14,
+    padding: 16,
+    boxShadow: "var(--admin-shadow)",
+  },
+  statLabel: { fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--admin-muted)" },
+  statValue: { fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 650, color: "var(--admin-text)", marginTop: 8 },
   toolbar: {
     display: "flex",
     alignItems: "center",
@@ -20,14 +35,26 @@ const styles: Record<string, CSSProperties> = {
     gap: 12,
     marginBottom: 18,
   },
+  searchWrap: { position: "relative", flex: "1 1 280px", maxWidth: 420 },
+  searchIcon: { position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--admin-muted)", pointerEvents: "none" },
   search: {
     background: "color-mix(in oklab, var(--admin-bg) 84%, var(--admin-surface) 16%)",
     border: "1px solid var(--admin-border)",
     borderRadius: 10,
-    padding: "10px 12px",
+    padding: "10px 12px 10px 36px",
     fontSize: 13,
     color: "var(--admin-text)",
-    width: 260,
+    width: "100%",
+    outline: "none",
+    fontFamily: "inherit",
+  },
+  select: {
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
+    borderRadius: 10,
+    padding: "10px 12px",
+    color: "var(--admin-text)",
+    fontSize: 12,
     outline: "none",
     fontFamily: "inherit",
   },
@@ -161,6 +188,7 @@ function AdminProductsPage() {
   const [products, setProducts] = useState<Product[] | null>(null);
   const [q, setQ] = useState("");
   const [activeCat, setActiveCat] = useState<string | "ALL">("ALL");
+  const [flagFilter, setFlagFilter] = useState<"ALL" | "NEW" | "FAST" | "DISCOUNT">("ALL");
 
   const refresh = async () => {
     const all = await productStore.list();
@@ -175,15 +203,33 @@ function AdminProductsPage() {
     if (!products) return [];
     return products.filter((p) => {
       if (activeCat !== "ALL" && p.category !== activeCat) return false;
+      if (flagFilter === "NEW" && !p.isNewArrival) return false;
+      if (flagFilter === "FAST" && !p.isFastMoving) return false;
+      if (flagFilter === "DISCOUNT" && !p.isDiscount) return false;
       if (!q) return true;
       const needle = q.toLowerCase();
       return (
         p.name.toLowerCase().includes(needle) ||
         p.slug.toLowerCase().includes(needle) ||
-        p.description.toLowerCase().includes(needle)
+        p.description.toLowerCase().includes(needle) ||
+        categoryName(p.category).toLowerCase().includes(needle) ||
+        (p.material ?? "").toLowerCase().includes(needle) ||
+        (p.finish ?? "").toLowerCase().includes(needle) ||
+        (p.keywords ?? []).join(" ").toLowerCase().includes(needle)
       );
     });
-  }, [products, activeCat, q]);
+  }, [products, activeCat, flagFilter, q]);
+
+  const productStats = useMemo(() => {
+    const rows = products ?? [];
+    return {
+      total: rows.length,
+      newArrival: rows.filter((p) => p.isNewArrival).length,
+      fastMoving: rows.filter((p) => p.isFastMoving).length,
+      discounted: rows.filter((p) => p.isDiscount).length,
+      clicks: rows.reduce((sum, p) => sum + p.monthlyClicks, 0),
+    };
+  }, [products]);
 
   const handleDelete = async (p: Product) => {
     if (!canDelete) return;
@@ -198,14 +244,30 @@ function AdminProductsPage() {
       actionLabel={canCreate ? "+ New product" : undefined}
       onAction={canCreate ? () => navigate({ to: "/admin/products/new" }) : undefined}
     >
+      <div style={styles.statsGrid} data-admin-stats>
+        <div style={styles.statCard}><div style={styles.statLabel}>Total products</div><div style={styles.statValue}>{products ? productStats.total : "—"}</div></div>
+        <div style={styles.statCard}><div style={styles.statLabel}>New arrivals</div><div style={styles.statValue}>{products ? productStats.newArrival : "—"}</div></div>
+        <div style={styles.statCard}><div style={styles.statLabel}>Fast moving</div><div style={styles.statValue}>{products ? productStats.fastMoving : "—"}</div></div>
+        <div style={styles.statCard}><div style={styles.statLabel}>Monthly clicks</div><div style={styles.statValue}>{products ? productStats.clicks.toLocaleString() : "—"}</div></div>
+      </div>
+
       <div style={styles.toolbar} data-admin-toolbar>
-        <input
-          style={styles.search}
-          data-admin-search-input
-          placeholder="Search by name, slug or description…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+        <div style={styles.searchWrap}>
+          <Search size={15} style={styles.searchIcon} />
+          <input
+            style={styles.search}
+            data-admin-search-input
+            placeholder="Search products, materials, keywords…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+        <select style={styles.select} value={flagFilter} onChange={(e) => setFlagFilter(e.target.value as typeof flagFilter)}>
+          <option value="ALL">All flags</option>
+          <option value="NEW">New arrivals</option>
+          <option value="FAST">Fast moving</option>
+          <option value="DISCOUNT">Discounted</option>
+        </select>
         <span style={{ fontSize: 11.5, color: "var(--admin-muted)" }}>
           {products ? `${filtered.length} of ${products.length}` : "Loading…"}
         </span>
@@ -235,7 +297,7 @@ function AdminProductsPage() {
         <div style={styles.emptyState}>Loading products…</div>
       ) : filtered.length === 0 ? (
         <div style={styles.emptyState}>
-          {q || activeCat !== "ALL" ? (
+          {q || activeCat !== "ALL" || flagFilter !== "ALL" ? (
             "No products match these filters."
           ) : (
             <>
@@ -258,6 +320,7 @@ function AdminProductsPage() {
               <th style={styles.th}>Product</th>
               <th style={styles.th}>Category</th>
               <th style={styles.th}>MOQ</th>
+              <th style={styles.th}>Enquiries</th>
               <th style={styles.th}>Flags</th>
               <th style={styles.th}>Monthly clicks</th>
               <th style={{ ...styles.th, textAlign: "right" }}>Actions</th>
@@ -281,6 +344,7 @@ function AdminProductsPage() {
                 </td>
                 <td style={styles.td}>{categoryName(p.category)}</td>
                 <td style={styles.td}>{p.moq.toLocaleString()}</td>
+                <td style={styles.td}>{p.monthlyEnquiries.toLocaleString()} / mo.</td>
                 <td style={styles.td}>
                   <div style={styles.flagRow}>
                     {p.isDiscount && (

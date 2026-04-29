@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { Inbox } from "lucide-react";
+import { Inbox, Search } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { adminFetch } from "@/services/adminApi";
 
@@ -44,6 +44,8 @@ type FilterKey =
   | "SME"
   | "CORPORATE";
 
+type DateFilterKey = "ALL" | "TODAY" | "7D" | "30D";
+
 const PAGE_SIZE = 15;
 
 const FILTERS: { key: FilterKey; label: string }[] = [
@@ -53,6 +55,13 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "CLOSED", label: "Closed" },
   { key: "SME", label: "SME only" },
   { key: "CORPORATE", label: "Corporate only" },
+];
+
+const DATE_FILTERS: { key: DateFilterKey; label: string }[] = [
+  { key: "ALL", label: "Any time" },
+  { key: "TODAY", label: "Today" },
+  { key: "7D", label: "Last 7 days" },
+  { key: "30D", label: "Last 30 days" },
 ];
 
 const STATUS_STYLES: Record<
@@ -105,6 +114,37 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     gap: 8,
     marginBottom: 16,
+  },
+  controlsCard: {
+    background: "var(--admin-surface)",
+    border: "1px solid var(--admin-border)",
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+    boxShadow: "var(--admin-shadow)",
+  },
+  searchWrap: { position: "relative", flex: "1 1 260px", minWidth: 220 },
+  searchIcon: { position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--admin-muted)", pointerEvents: "none" },
+  searchInput: {
+    width: "100%",
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
+    borderRadius: 10,
+    padding: "9px 12px 9px 36px",
+    color: "var(--admin-text)",
+    fontSize: 13,
+    outline: "none",
+    fontFamily: "inherit",
+  },
+  select: {
+    background: "var(--admin-bg)",
+    border: "1px solid var(--admin-border)",
+    borderRadius: 10,
+    padding: "9px 12px",
+    color: "var(--admin-text)",
+    fontSize: 12,
+    outline: "none",
+    fontFamily: "inherit",
   },
   filterBtn: {
     background: "var(--admin-border)",
@@ -320,6 +360,15 @@ function renderDate(iso: string): { main: string; sub: string } {
   return { main: formatShortDate(d), sub: formatTime(d) };
 }
 
+function matchesDateFilter(iso: string, filter: DateFilterKey): boolean {
+  if (filter === "ALL") return true;
+  const created = new Date(iso);
+  const now = new Date();
+  if (filter === "TODAY") return isSameDay(created, now);
+  const days = filter === "7D" ? 7 : 30;
+  return now.getTime() - created.getTime() <= days * 24 * 60 * 60 * 1000;
+}
+
 function toCsv(rows: Enquiry[]): string {
   const headers = [
     "id",
@@ -420,6 +469,8 @@ function AdminEnquiriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>("ALL");
+  const [dateFilter, setDateFilter] = useState<DateFilterKey>("ALL");
+  const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -456,7 +507,24 @@ function AdminEnquiriesPage() {
   }, [reloadKey]);
 
   const filteredEnquiries = useMemo(() => {
+    const needle = query.trim().toLowerCase();
     return enquiries.filter((e) => {
+      if (!matchesDateFilter(e.createdAt, dateFilter)) return false;
+      if (needle) {
+        const haystack = [
+          e.name,
+          e.companyName,
+          e.email,
+          e.phone,
+          e.customerType,
+          e.status,
+          ...e.products.map((p) => p.name),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(needle)) return false;
+      }
       switch (filter) {
         case "ALL":
           return true;
@@ -472,12 +540,12 @@ function AdminEnquiriesPage() {
           return true;
       }
     });
-  }, [enquiries, filter]);
+  }, [enquiries, filter, dateFilter, query]);
 
   // Reset page when filter changes
   useEffect(() => {
     setPage(1);
-  }, [filter]);
+  }, [filter, dateFilter, query]);
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -558,20 +626,37 @@ function AdminEnquiriesPage() {
       </div>
 
       {/* Filter row */}
-      <div style={styles.filterRow} data-admin-toolbar>
-        {FILTERS.map((f) => (
-          <button
-            key={f.key}
-            type="button"
-            style={filter === f.key ? styles.filterBtnActive : styles.filterBtn}
-            onClick={() => setFilter(f.key)}
-          >
-            {f.label}
+      <div style={styles.controlsCard}>
+        <div style={styles.filterRow} data-admin-toolbar>
+          <div style={styles.searchWrap}>
+            <Search size={15} style={styles.searchIcon} />
+            <input
+              style={styles.searchInput}
+              data-admin-search-input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search name, company, phone, product…"
+            />
+          </div>
+          <select style={styles.select} value={dateFilter} onChange={(event) => setDateFilter(event.target.value as DateFilterKey)}>
+            {DATE_FILTERS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
+          </select>
+          <button type="button" style={styles.exportBtn} onClick={handleExport}>
+            ↓ Export CSV
           </button>
-        ))}
-        <button type="button" style={styles.exportBtn} onClick={handleExport}>
-          ↓ Export CSV
-        </button>
+        </div>
+        <div style={{ ...styles.filterRow, marginBottom: 0 }} data-admin-toolbar>
+          {FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              style={filter === f.key ? styles.filterBtnActive : styles.filterBtn}
+              onClick={() => setFilter(f.key)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Table */}

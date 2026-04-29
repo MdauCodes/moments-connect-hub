@@ -9,6 +9,7 @@ import {
   Bell,
   Search,
   FileText,
+  LayoutDashboard,
   LogOut,
   Menu,
   X,
@@ -33,6 +34,7 @@ interface NavItem {
 }
 
 const mainNav: NavItem[] = [
+  { label: "Dashboard", to: "/admin", icon: LayoutDashboard },
   { label: "Enquiries", to: "/admin/enquiries", icon: LayoutList, badge: 7 },
   { label: "Products", to: "/admin/products", icon: Package },
   { label: "Blogs", to: "/admin/blogs", icon: FileText },
