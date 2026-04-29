@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import { PersonaProvider } from "@/contexts/PersonaContext";
 import { BasketProvider } from "@/contexts/BasketContext";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 
@@ -159,6 +160,7 @@ function RootComponent() {
       <PersonaProvider>
         <BasketProvider>
           <Outlet />
+          <Toaster />
         </BasketProvider>
       </PersonaProvider>
     </AdminAuthProvider>
