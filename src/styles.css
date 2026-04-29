@@ -245,6 +245,28 @@
   .admin-empty-card {
     box-shadow: var(--admin-shadow);
   }
+  .admin-page-stack { display: grid; gap: 16px; }
+  .admin-panel { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: 14px; box-shadow: var(--admin-shadow); }
+  .admin-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 14px; }
+  .admin-input, .admin-select, .admin-textarea { background: var(--admin-bg); border: 1px solid var(--admin-border); border-radius: 9px; color: var(--admin-text); font: inherit; font-size: 13px; outline: none; padding: 9px 11px; width: 100%; }
+  .admin-textarea { min-height: 96px; resize: vertical; }
+  .admin-label { color: var(--admin-muted); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; }
+  .admin-btn { align-items: center; border: 1px solid var(--admin-border); border-radius: 8px; cursor: pointer; display: inline-flex; font: inherit; font-size: 12px; gap: 6px; justify-content: center; padding: 8px 12px; }
+  .admin-btn-primary { background: var(--admin-accent); border-color: var(--admin-accent); color: var(--cream); }
+  .admin-btn-ghost { background: var(--admin-surface); color: var(--admin-text); }
+  .admin-btn-danger { background: color-mix(in oklab, var(--admin-clay) 16%, var(--admin-surface)); border-color: var(--admin-clay); color: var(--admin-clay); }
+  .admin-table { border-collapse: collapse; width: 100%; }
+  .admin-table th { background: var(--admin-bg); border-bottom: 1px solid var(--admin-border); color: var(--admin-muted); font-size: 10.5px; letter-spacing: .1em; padding: 10px 12px; text-align: left; text-transform: uppercase; }
+  .admin-table td { border-bottom: 1px solid var(--admin-border); color: var(--admin-text); font-size: 12.5px; padding: 11px 12px; vertical-align: middle; }
+  .admin-empty { color: var(--admin-muted); padding: 36px; text-align: center; }
+  .admin-modal-backdrop { align-items: center; background: oklch(0.18 0.02 60 / .5); display: flex; inset: 0; justify-content: center; padding: 18px; position: fixed; z-index: 80; }
+  .admin-modal { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: 16px; box-shadow: var(--admin-shadow); max-height: min(88dvh, 860px); overflow: auto; padding: 18px; width: min(920px, 100%); }
+  .admin-form-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-badge { border-radius: 999px; display: inline-flex; font-size: 10.5px; font-weight: 700; padding: 3px 8px; }
+  .admin-badge-muted { background: var(--admin-border); color: var(--admin-muted); }
+  .admin-badge-ok { background: color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface)); color: var(--admin-accent); }
+  .admin-tiptap { border: 1px solid var(--admin-border); border-radius: 10px; min-height: 180px; padding: 12px; }
+  .admin-tiptap p { margin: 0 0 10px; }
   @media (max-width: 920px) {
     .admin-menu-btn,
     .admin-sidebar-close {
