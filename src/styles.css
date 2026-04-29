@@ -235,6 +235,11 @@
   .admin-sidebar-scrim {
     display: none;
   }
+  .admin-sidebar .admin-sidebar-close {
+    border-color: var(--admin-sidebar-border);
+    background: var(--admin-sidebar-surface);
+    color: var(--admin-sidebar-text);
+  }
   .admin-card,
   .admin-table-card,
   .admin-empty-card {
