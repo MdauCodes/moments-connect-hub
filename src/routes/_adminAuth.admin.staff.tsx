@@ -179,9 +179,10 @@ function AdminStaffPage() {
   }
   return (
     <AdminLayout title="Staff" actionLabel="Refresh" onAction={() => setReloadKey((key) => key + 1)}>
-      <div style={styles.toolbar}>
+      <div style={styles.toolbar} data-admin-toolbar>
         <input
           style={styles.search}
+          data-admin-search-input
           placeholder="Search by name, email, role or status…"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -196,6 +197,7 @@ function AdminStaffPage() {
       ) : filtered.length === 0 ? (
         <div style={styles.empty}>{query ? "No users match that search." : "No staff users found."}</div>
       ) : (
+        <div data-admin-table-scroll>
         <table style={styles.table}>
           <thead>
             <tr>
@@ -239,6 +241,7 @@ function AdminStaffPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </AdminLayout>
   );
