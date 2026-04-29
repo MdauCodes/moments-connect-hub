@@ -82,7 +82,7 @@ function ProductDetail() {
 
         <div>
           <div className="flex flex-wrap gap-2">
-            {product.tags.map((t) => (
+            {product.tags.map((t: string) => (
               <span key={t} className="rounded-full bg-secondary px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground">
                 {t}
               </span>
@@ -105,7 +105,7 @@ function ProductDetail() {
           <div className="mt-8">
             <label className="text-xs uppercase tracking-widest text-muted-foreground">Choose size / variant</label>
             <div className="mt-3 flex flex-wrap gap-2">
-              {product.sizes.map((s) => (
+              {product.sizes.map((s: string) => (
                 <button
                   key={s}
                   onClick={() => setSize(s)}
