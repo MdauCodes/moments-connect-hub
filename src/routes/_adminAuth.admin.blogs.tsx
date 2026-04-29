@@ -103,9 +103,10 @@ function AdminBlogsPage() {
       actionLabel="New blog"
       onAction={() => navigate({ to: "/admin/blogs/new" })}
     >
-      <div style={styles.toolbar}>
+      <div style={styles.toolbar} data-admin-toolbar>
         <input
           style={styles.search}
+          data-admin-search-input
           placeholder="Search by title or tag…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -122,6 +123,7 @@ function AdminBlogsPage() {
           {q ? "No blogs match that search." : "No blogs yet — click 'New blog' to create one."}
         </div>
       ) : (
+        <div data-admin-table-scroll>
         <table style={styles.table}>
           <thead>
             <tr>
@@ -155,6 +157,7 @@ function AdminBlogsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </AdminLayout>
   );
