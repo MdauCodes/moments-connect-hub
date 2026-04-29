@@ -198,6 +198,112 @@
   .admin-shell table tbody tr:hover td {
     background-color: var(--admin-surface-2);
   }
+  .admin-shell button,
+  .admin-shell a,
+  .admin-shell input,
+  .admin-shell textarea,
+  .admin-shell select {
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+  }
+  .admin-shell button:hover,
+  .admin-shell a:hover {
+    transform: translateY(-1px);
+  }
+  .admin-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .admin-menu-btn,
+  .admin-sidebar-close {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--admin-border);
+    background: var(--admin-surface-2);
+    color: var(--admin-text);
+    cursor: pointer;
+  }
+  .admin-sidebar-scrim {
+    display: none;
+  }
+  .admin-card,
+  .admin-table-card,
+  .admin-empty-card {
+    box-shadow: var(--admin-shadow);
+  }
+  @media (max-width: 920px) {
+    .admin-menu-btn,
+    .admin-sidebar-close {
+      display: inline-flex;
+    }
+    .admin-sidebar {
+      position: fixed;
+      z-index: 50;
+      inset: 0 auto 0 0;
+      transform: translateX(-105%);
+      box-shadow: var(--admin-shadow);
+    }
+    .admin-sidebar.is-open {
+      transform: translateX(0);
+    }
+    .admin-sidebar-scrim {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      border: 0;
+      background: oklch(0.08 0.015 60 / 0.58);
+    }
+    .admin-shell main {
+      padding: 16px !important;
+    }
+    .admin-shell [data-admin-topbar-right] {
+      gap: 8px !important;
+    }
+    .admin-shell [data-admin-search] {
+      display: none !important;
+    }
+  }
+  @media (max-width: 760px) {
+    .admin-shell form,
+    .admin-shell [data-admin-grid],
+    .admin-shell [data-admin-row],
+    .admin-shell [data-admin-stats],
+    .admin-shell [data-admin-editor-grid] {
+      grid-template-columns: 1fr !important;
+      max-width: none !important;
+    }
+    .admin-shell [data-admin-toolbar],
+    .admin-shell [data-admin-actions],
+    .admin-shell [data-admin-pagination] {
+      flex-direction: column !important;
+      align-items: stretch !important;
+    }
+    .admin-shell [data-admin-search-input] {
+      width: 100% !important;
+    }
+    .admin-shell [data-admin-table-scroll] {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+    .admin-shell [data-admin-table-scroll] table {
+      min-width: 720px;
+    }
+    .admin-shell [data-admin-enquiry-row],
+    .admin-shell [data-admin-enquiry-head],
+    .admin-shell [data-admin-enquiry-skeleton] {
+      grid-template-columns: minmax(180px, 1.2fr) minmax(120px, 0.8fr) minmax(170px, 1fr) minmax(120px, 0.8fr) minmax(120px, 0.8fr) !important;
+    }
+    .admin-shell [data-admin-enquiry-check],
+    .admin-shell [data-admin-enquiry-action] {
+      display: none !important;
+    }
+  }
   .grain {
     background-image: radial-gradient(circle at 1px 1px, oklch(0.5 0.04 60 / 0.06) 1px, transparent 0);
     background-size: 4px 4px;
