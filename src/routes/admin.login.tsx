@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
-import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { useAuth } from "@/contexts/AdminAuthContext";
+import { ApiError } from "@/services/adminApi";
 
 export const Route = createFileRoute("/admin/login")({
   validateSearch: (search) => ({
@@ -71,6 +72,7 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   error: { fontSize: 13, color: "var(--admin-clay)", minHeight: 20 },
+  fieldError: { fontSize: 11.5, color: "var(--admin-clay)", minHeight: 16 },
   submit: {
     width: "100%",
     background: "var(--admin-accent)",
@@ -87,14 +89,15 @@ const styles: Record<string, CSSProperties> = {
 };
 
 function AdminLoginPage() {
-  const { login, isAuthenticated } = useAdminAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { redirect } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const safeRedirect = redirect && !redirect.startsWith("/admin/login") ? redirect : "/admin/enquiries";
+  const safeRedirect = redirect && !redirect.startsWith("/admin/login") ? redirect : "/admin/dashboard";
 
   useEffect(() => {
     if (isAuthenticated) {
