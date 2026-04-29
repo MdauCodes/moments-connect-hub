@@ -68,6 +68,8 @@ export interface Blog {
   slug: string;
   title: string;
   excerpt: string;
+  seoTitle?: string;
+  seoDescription?: string;
   template: BlogTemplate;
   status: BlogStatus;
   coverImage: BlogImage;
@@ -77,6 +79,7 @@ export interface Blog {
   tags: string[];
   readingTimeMin: number;
   publishedAt: string | null; // ISO string, null while draft
+  scheduledAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
