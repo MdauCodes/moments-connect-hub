@@ -92,7 +92,7 @@ export function productToFormValues(p: Product): ProductFormValues {
 // ---------------------------------------------------------------------------
 
 const styles: Record<string, CSSProperties> = {
-  wrap: { maxWidth: 1180, display: "grid", gridTemplateColumns: "minmax(0, 65fr) minmax(280px, 35fr)", gap: 18, alignItems: "start" },
+  wrap: { maxWidth: 1240, display: "grid", gridTemplateColumns: "minmax(0, 1.35fr) minmax(320px, 0.75fr)", gap: 20, alignItems: "start" },
   row: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" },
   rowThree: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr 1fr" },
   field: { display: "flex", flexDirection: "column", gap: 6 },
@@ -104,7 +104,7 @@ const styles: Record<string, CSSProperties> = {
   },
   helper: { fontSize: 11, color: "var(--admin-muted)" },
   input: {
-    background: "var(--admin-bg)",
+    background: "color-mix(in oklab, var(--admin-bg) 82%, var(--admin-surface) 18%)",
     border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "9px 12px",
@@ -114,7 +114,7 @@ const styles: Record<string, CSSProperties> = {
     outline: "none",
   },
   textarea: {
-    background: "var(--admin-bg)",
+    background: "color-mix(in oklab, var(--admin-bg) 82%, var(--admin-surface) 18%)",
     border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "10px 12px",
@@ -136,10 +136,11 @@ const styles: Record<string, CSSProperties> = {
     outline: "none",
   },
   card: {
-    background: "var(--admin-surface)",
+    background: "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 92%, var(--cream) 8%), var(--admin-surface))",
     border: "1px solid var(--admin-border)",
-    borderRadius: 10,
-    padding: 16,
+    borderRadius: 14,
+    padding: 18,
+    boxShadow: "var(--admin-shadow)",
   },
   cardHeader: {
     display: "flex",
@@ -147,7 +148,7 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     marginBottom: 12,
   },
-  cardTitle: { fontSize: 16, fontWeight: 600, color: "var(--admin-text)", fontFamily: "var(--font-display)" },
+  cardTitle: { fontSize: 18, fontWeight: 650, color: "var(--admin-text)", fontFamily: "var(--font-display)", letterSpacing: 0 },
   mainColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
   sideColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
   chipRow: { display: "flex", flexWrap: "wrap", gap: 8 },
@@ -198,11 +199,11 @@ const styles: Record<string, CSSProperties> = {
     color: "var(--cream)",
     border: "none",
     borderRadius: 8,
-    padding: "9px 16px",
+    padding: "10px 18px",
     fontSize: 12.5,
-    fontWeight: 500,
+    fontWeight: 650,
     cursor: "pointer",
-    fontFamily: "inherit",
+    fontFamily: "var(--font-display)",
   },
   dangerBtn: {
     background: "color-mix(in oklab, var(--admin-clay) 22%, var(--admin-bg))",
@@ -248,9 +249,9 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     gap: 10,
     padding: "10px 12px",
-    background: "var(--admin-bg)",
+    background: "color-mix(in oklab, var(--admin-bg) 74%, var(--admin-surface) 26%)",
     border: "1px solid var(--admin-border)",
-    borderRadius: 8,
+    borderRadius: 10,
   },
   switchLabel: { fontSize: 12.5, color: "var(--admin-text)", flex: 1 },
 };
@@ -483,7 +484,7 @@ export function ProductEditor({
   };
 
   return (
-    <form style={styles.wrap} onSubmit={handleSubmit}>
+    <form style={styles.wrap} onSubmit={handleSubmit} data-admin-editor-grid>
       <div style={styles.mainColumn}>
         {/* Core */}
         <div style={styles.card}>
@@ -491,7 +492,7 @@ export function ProductEditor({
             <div style={styles.cardTitle}>Core details</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={styles.row}>
+          <div style={styles.row} data-admin-row>
             <div style={styles.field}>
               <label style={styles.label}>Name</label>
               <input
@@ -514,7 +515,7 @@ export function ProductEditor({
             </div>
           </div>
 
-          <div style={styles.row}>
+          <div style={styles.row} data-admin-row>
             <div style={styles.field}>
               <label style={styles.label}>Category</label>
               <select
@@ -578,7 +579,7 @@ export function ProductEditor({
               placeholder='e.g. Small (200×100×250mm), 8oz, A5…'
             />
           </div>
-          <div style={styles.row}>
+          <div style={styles.row} data-admin-row>
             <div style={styles.field}>
               <label style={styles.label}>Material</label>
               <input
@@ -704,7 +705,7 @@ export function ProductEditor({
             <span style={styles.switchLabel}>Fast-moving (appears in "Trending")</span>
           </label>
 
-          <div style={styles.rowThree}>
+          <div style={styles.rowThree} data-admin-row>
             <div style={styles.field}>
               <label style={styles.label}>Monthly clicks</label>
               <input
@@ -742,7 +743,7 @@ export function ProductEditor({
 
       {error && <div style={styles.errorText}>{error}</div>}
 
-      <div style={styles.actionsBar}>
+      <div style={styles.actionsBar} data-admin-actions>
         {onDelete && (
           <button
             type="button"

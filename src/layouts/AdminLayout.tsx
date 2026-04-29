@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutList,
@@ -10,6 +10,8 @@ import {
   Search,
   FileText,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can, type Permission } from "@/lib/permissions";
@@ -46,17 +48,18 @@ const styles: Record<string, CSSProperties> = {
   root: {
     display: "flex",
     flexDirection: "row",
-    height: "100vh",
+    minHeight: "100vh",
+    height: "100dvh",
     width: "100vw",
     overflow: "hidden",
-    background: "var(--admin-bg)",
+    background: "var(--admin-bg-texture)",
     color: "var(--admin-text)",
     fontFamily: "var(--font-sans)",
   },
   sidebar: {
-    width: 220,
-    height: "100vh",
-    background: "var(--admin-surface)",
+    width: 248,
+    height: "100dvh",
+    background: "var(--admin-sidebar)",
     borderRight: "1px solid var(--admin-border)",
     display: "flex",
     flexDirection: "column",
@@ -97,11 +100,11 @@ const styles: Record<string, CSSProperties> = {
     display: "flex",
     alignItems: "center",
     gap: 9,
-    padding: "8px 10px",
+    padding: "10px 12px",
     borderRadius: 6,
     borderLeft: "3px solid transparent",
     color: "var(--admin-muted)",
-    fontSize: 12.5,
+    fontSize: 13,
     textDecoration: "none",
     cursor: "pointer",
     transition: "background 120ms, color 120ms",
@@ -160,16 +163,16 @@ const styles: Record<string, CSSProperties> = {
     minWidth: 0,
   },
   topbar: {
-    height: 52,
-    background: "var(--admin-surface)",
+    minHeight: 64,
+    background: "var(--admin-topbar)",
     borderBottom: "1px solid var(--admin-border)",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 20px",
+    padding: "0 24px",
     flexShrink: 0,
   },
-  topbarTitle: { fontSize: 18, fontWeight: 600, color: "var(--admin-text)", fontFamily: "var(--font-display)" },
+  topbarTitle: { fontSize: 24, fontWeight: 650, color: "var(--admin-text)", fontFamily: "var(--font-display)", letterSpacing: 0 },
   topbarRight: { display: "flex", alignItems: "center", gap: 12 },
   searchWrap: { position: "relative", display: "flex", alignItems: "center" },
   searchIcon: {
@@ -226,8 +229,8 @@ const styles: Record<string, CSSProperties> = {
   content: {
     flex: 1,
     overflowY: "auto",
-    padding: 20,
-    background: "var(--admin-bg)",
+    padding: 24,
+    background: "transparent",
   },
 };
 
@@ -270,6 +273,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
   const { user, logout } = useAdminAuth();
   const location = useLocation();
   const pathname = location.pathname;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isActive = (to: string): boolean => {
     if (to === "/admin/enquiries") {
@@ -284,13 +288,17 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
 
   return (
     <div className="admin-shell" style={styles.root}>
-      <aside style={styles.sidebar}>
+      {sidebarOpen && <button className="admin-sidebar-scrim" aria-label="Close menu" onClick={() => setSidebarOpen(false)} />}
+      <aside className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`} style={styles.sidebar}>
         <div style={styles.sidebarTop}>
           <div style={styles.logoMark}>m</div>
           <div>
             <div style={styles.brandName}>Moments</div>
             <div style={styles.brandSub}>Admin Panel</div>
           </div>
+          <button type="button" className="admin-sidebar-close" aria-label="Close menu" onClick={() => setSidebarOpen(false)}>
+            <X size={16} />
+          </button>
         </div>
 
         <nav style={styles.nav}>
@@ -336,9 +344,14 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
 
       <div style={styles.main}>
         <div style={styles.topbar}>
-          <div style={styles.topbarTitle}>{title}</div>
-          <div style={styles.topbarRight}>
-            <div style={styles.searchWrap}>
+          <div className="admin-topbar-left">
+            <button type="button" className="admin-menu-btn" aria-label="Open menu" onClick={() => setSidebarOpen(true)}>
+              <Menu size={18} />
+            </button>
+            <div style={styles.topbarTitle}>{title}</div>
+          </div>
+          <div style={styles.topbarRight} data-admin-topbar-right>
+            <div style={styles.searchWrap} data-admin-search>
               <Search size={14} style={styles.searchIcon} />
               <input
                 type="text"

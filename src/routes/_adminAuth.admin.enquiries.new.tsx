@@ -10,17 +10,17 @@ export const Route = createFileRoute("/_adminAuth/admin/enquiries/new")({
 });
 
 const styles: Record<string, CSSProperties> = {
-  form: { maxWidth: 760, display: "flex", flexDirection: "column", gap: 16 },
-  card: { background: "var(--admin-surface)", border: "1px solid var(--admin-border)", borderRadius: 10, padding: 16 },
-  title: { fontSize: 13, fontWeight: 600, color: "var(--admin-text)", marginBottom: 14 },
+  form: { maxWidth: 860, display: "flex", flexDirection: "column", gap: 18 },
+  card: { background: "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 90%, var(--cream) 10%), var(--admin-surface))", border: "1px solid var(--admin-border)", borderRadius: 14, padding: 18, boxShadow: "var(--admin-shadow)" },
+  title: { fontSize: 18, fontWeight: 650, color: "var(--admin-text)", marginBottom: 16, fontFamily: "var(--font-display)", letterSpacing: 0 },
   row: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 },
   field: { display: "flex", flexDirection: "column", gap: 6 },
   label: { fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--admin-muted)" },
-  input: { background: "var(--admin-bg)", border: "1px solid var(--admin-border)", borderRadius: 8, padding: "9px 12px", color: "var(--admin-text)", fontSize: 13, fontFamily: "inherit", outline: "none" },
-  textarea: { background: "var(--admin-bg)", border: "1px solid var(--admin-border)", borderRadius: 8, padding: "10px 12px", color: "var(--admin-text)", fontSize: 13, fontFamily: "inherit", outline: "none", minHeight: 90, resize: "vertical" },
+  input: { background: "color-mix(in oklab, var(--admin-bg) 82%, var(--admin-surface) 18%)", border: "1px solid var(--admin-border)", borderRadius: 10, padding: "10px 12px", color: "var(--admin-text)", fontSize: 13, fontFamily: "inherit", outline: "none" },
+  textarea: { background: "color-mix(in oklab, var(--admin-bg) 82%, var(--admin-surface) 18%)", border: "1px solid var(--admin-border)", borderRadius: 10, padding: "10px 12px", color: "var(--admin-text)", fontSize: 13, fontFamily: "inherit", outline: "none", minHeight: 110, resize: "vertical" },
   actions: { display: "flex", justifyContent: "flex-end", gap: 10 },
   ghostBtn: { background: "transparent", border: "1px solid var(--admin-border)", color: "var(--admin-muted)", borderRadius: 8, padding: "8px 14px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" },
-  primaryBtn: { background: "var(--admin-accent)", color: "var(--cream)", border: "none", borderRadius: 8, padding: "9px 16px", fontSize: 12.5, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" },
+  primaryBtn: { background: "var(--admin-accent)", color: "var(--cream)", border: "none", borderRadius: 8, padding: "10px 18px", fontSize: 12.5, fontWeight: 650, cursor: "pointer", fontFamily: "var(--font-display)" },
   error: { fontSize: 12, color: "var(--admin-clay)" },
 };
 
@@ -87,7 +87,7 @@ function NewEnquiryPage() {
         <div style={styles.card}>
           <div style={styles.title}>Customer details</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={styles.row}>
+            <div style={styles.row} data-admin-row>
               <label style={styles.field}>
                 <span style={styles.label}>Customer type</span>
                 <select style={styles.input} value={customerType} onChange={(e) => setCustomerType(e.target.value as "SME" | "CORPORATE")}>
@@ -100,7 +100,7 @@ function NewEnquiryPage() {
                 <input style={styles.input} value={name} onChange={(e) => setName(e.target.value)} required />
               </label>
             </div>
-            <div style={styles.row}>
+            <div style={styles.row} data-admin-row>
               <label style={styles.field}>
                 <span style={styles.label}>Company</span>
                 <input style={styles.input} value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
@@ -120,7 +120,7 @@ function NewEnquiryPage() {
         <div style={styles.card}>
           <div style={styles.title}>Product requested</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={styles.row}>
+            <div style={styles.row} data-admin-row>
               <label style={styles.field}>
                 <span style={styles.label}>Catalogue product</span>
                 <select style={styles.input} value={productId} onChange={(e) => setProductId(e.target.value)}>
@@ -147,7 +147,7 @@ function NewEnquiryPage() {
         </div>
 
         {error && <div style={styles.error}>{error}</div>}
-        <div style={styles.actions}>
+        <div style={styles.actions} data-admin-actions>
           <button type="button" style={styles.ghostBtn} onClick={() => navigate({ to: "/admin/enquiries" })} disabled={busy}>Cancel</button>
           <button type="submit" style={styles.primaryBtn} disabled={busy}>{busy ? "Creating…" : "Create enquiry"}</button>
         </div>

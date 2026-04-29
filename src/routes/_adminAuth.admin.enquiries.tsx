@@ -67,21 +67,23 @@ const STATUS_STYLES: Record<
 const styles: Record<string, CSSProperties> = {
   statsGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: 12,
-    marginBottom: 20,
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    gap: 14,
+    marginBottom: 22,
   },
   statCard: {
-    background: "var(--admin-surface)",
+    background: "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 88%, var(--cream) 12%), var(--admin-surface))",
     border: "1px solid var(--admin-border)",
-    borderRadius: 10,
-    padding: "14px 16px",
+    borderRadius: 14,
+    padding: "16px 18px",
+    boxShadow: "var(--admin-shadow)",
   },
   statCardHighlight: {
     background: "color-mix(in oklab, var(--admin-accent) 24%, var(--admin-bg))",
     border: "1px solid var(--admin-accent)",
-    borderRadius: 10,
-    padding: "14px 16px",
+    borderRadius: 14,
+    padding: "16px 18px",
+    boxShadow: "var(--admin-shadow)",
   },
   statLabel: {
     fontSize: 11,
@@ -90,7 +92,7 @@ const styles: Record<string, CSSProperties> = {
     color: "var(--admin-muted)",
   },
   statValue: {
-    fontSize: 26,
+    fontSize: 30,
     fontWeight: 700,
     color: "var(--admin-text)",
     marginTop: 6,
@@ -136,10 +138,11 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   tableWrap: {
-    background: "var(--admin-surface)",
+    background: "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 90%, var(--cream) 10%), var(--admin-surface))",
     border: "1px solid var(--admin-border)",
-    borderRadius: 12,
+    borderRadius: 14,
     overflow: "hidden",
+    boxShadow: "var(--admin-shadow)",
   },
   tableHeader: {
     display: "grid",
@@ -527,7 +530,7 @@ function AdminEnquiriesPage() {
       <style>{`@keyframes adminPulse { 0%,100% { opacity: 1 } 50% { opacity: 0.45 } }`}</style>
 
       {/* Stat cards */}
-      <div style={styles.statsGrid}>
+      <div style={styles.statsGrid} data-admin-stats>
         <div style={styles.statCardHighlight}>
           <div style={styles.statLabel}>New today</div>
           <div style={{ ...styles.statValue, color: "var(--admin-accent-hover)" }}>{stats.newToday}</div>
@@ -555,7 +558,7 @@ function AdminEnquiriesPage() {
       </div>
 
       {/* Filter row */}
-      <div style={styles.filterRow}>
+      <div style={styles.filterRow} data-admin-toolbar>
         {FILTERS.map((f) => (
           <button
             key={f.key}
@@ -572,9 +575,9 @@ function AdminEnquiriesPage() {
       </div>
 
       {/* Table */}
-      <div style={styles.tableWrap}>
-        <div style={styles.tableHeader}>
-          <div />
+      <div style={styles.tableWrap} data-admin-table-scroll>
+        <div style={styles.tableHeader} data-admin-enquiry-head>
+          <div data-admin-enquiry-check />
           <div>Customer</div>
           <div>Type</div>
           <div>Products</div>
@@ -586,8 +589,8 @@ function AdminEnquiriesPage() {
         {loading && (
           <>
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} style={{ ...styles.skeletonRow, ...(i === 3 ? { borderBottom: "none" } : {}) }}>
-                <div style={{ ...styles.skeletonBlock, width: 14, height: 14, borderRadius: 3 }} />
+              <div key={i} style={{ ...styles.skeletonRow, ...(i === 3 ? { borderBottom: "none" } : {}) }} data-admin-enquiry-skeleton>
+                <div style={{ ...styles.skeletonBlock, width: 14, height: 14, borderRadius: 3 }} data-admin-enquiry-check />
                 <div>
                   <div style={{ ...styles.skeletonBlock, width: "70%" }} />
                   <div style={{ ...styles.skeletonBlock, width: "45%", marginTop: 6, height: 10 }} />
@@ -651,11 +654,12 @@ function AdminEnquiriesPage() {
             <div
               key={e.id}
               style={rowStyle}
+              data-admin-enquiry-row
               onClick={() => handleRowClick(e.id)}
               onMouseEnter={(ev) => (ev.currentTarget.style.background = "var(--admin-surface-2)")}
               onMouseLeave={(ev) => (ev.currentTarget.style.background = "transparent")}
             >
-              <div onClick={(ev) => ev.stopPropagation()}>
+              <div onClick={(ev) => ev.stopPropagation()} data-admin-enquiry-check>
                 <span style={styles.checkbox} />
               </div>
               <div>
@@ -696,7 +700,7 @@ function AdminEnquiriesPage() {
                   {status.label}
                 </span>
               </div>
-              <div onClick={(ev) => ev.stopPropagation()}>
+              <div onClick={(ev) => ev.stopPropagation()} data-admin-enquiry-action>
                 <button
                   type="button"
                   style={styles.viewBtn}
@@ -722,7 +726,7 @@ function AdminEnquiriesPage() {
 
       {/* Pagination */}
       {!loading && !error && filteredEnquiries.length > 0 && (
-        <div style={styles.pagination}>
+        <div style={styles.pagination} data-admin-pagination>
           <div style={styles.paginationInfo}>
             Showing {start}–{end} of {filteredEnquiries.length} enquiries
           </div>

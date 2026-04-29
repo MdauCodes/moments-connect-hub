@@ -18,14 +18,14 @@ const styles: Record<string, CSSProperties> = {
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
-    marginBottom: 14,
+    marginBottom: 18,
   },
   search: {
-    background: "var(--admin-bg)",
+    background: "color-mix(in oklab, var(--admin-bg) 84%, var(--admin-surface) 16%)",
     border: "1px solid var(--admin-border)",
-    borderRadius: 8,
-    padding: "8px 12px",
-    fontSize: 12,
+    borderRadius: 10,
+    padding: "10px 12px",
+    fontSize: 13,
     color: "var(--admin-text)",
     width: 260,
     outline: "none",
@@ -37,8 +37,9 @@ const styles: Record<string, CSSProperties> = {
     borderCollapse: "collapse",
     background: "var(--admin-surface)",
     border: "1px solid var(--admin-border)",
-    borderRadius: 10,
+    borderRadius: 14,
     overflow: "hidden",
+    boxShadow: "var(--admin-shadow)",
   },
   th: {
     textAlign: "left",
@@ -94,13 +95,14 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   emptyState: {
-    background: "var(--admin-surface)",
+    background: "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 88%, var(--cream) 12%), var(--admin-surface))",
     border: "1px dashed var(--admin-border)",
-    borderRadius: 10,
+    borderRadius: 14,
     padding: 40,
     textAlign: "center",
     color: "var(--admin-muted)",
-    fontSize: 13,
+    fontSize: 14,
+    boxShadow: "var(--admin-shadow)",
   },
   emptyCta: {
     marginTop: 14,
@@ -196,9 +198,10 @@ function AdminProductsPage() {
       actionLabel={canCreate ? "+ New product" : undefined}
       onAction={canCreate ? () => navigate({ to: "/admin/products/new" }) : undefined}
     >
-      <div style={styles.toolbar}>
+      <div style={styles.toolbar} data-admin-toolbar>
         <input
           style={styles.search}
+          data-admin-search-input
           placeholder="Search by name, slug or description…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -248,6 +251,7 @@ function AdminProductsPage() {
           )}
         </div>
       ) : (
+        <div data-admin-table-scroll>
         <table style={styles.table}>
           <thead>
             <tr>
@@ -323,6 +327,7 @@ function AdminProductsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </AdminLayout>
   );
