@@ -244,14 +244,30 @@ function AdminProductsPage() {
       actionLabel={canCreate ? "+ New product" : undefined}
       onAction={canCreate ? () => navigate({ to: "/admin/products/new" }) : undefined}
     >
+      <div style={styles.statsGrid} data-admin-stats>
+        <div style={styles.statCard}><div style={styles.statLabel}>Total products</div><div style={styles.statValue}>{products ? productStats.total : "—"}</div></div>
+        <div style={styles.statCard}><div style={styles.statLabel}>New arrivals</div><div style={styles.statValue}>{products ? productStats.newArrival : "—"}</div></div>
+        <div style={styles.statCard}><div style={styles.statLabel}>Fast moving</div><div style={styles.statValue}>{products ? productStats.fastMoving : "—"}</div></div>
+        <div style={styles.statCard}><div style={styles.statLabel}>Monthly clicks</div><div style={styles.statValue}>{products ? productStats.clicks.toLocaleString() : "—"}</div></div>
+      </div>
+
       <div style={styles.toolbar} data-admin-toolbar>
-        <input
-          style={styles.search}
-          data-admin-search-input
-          placeholder="Search by name, slug or description…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+        <div style={styles.searchWrap}>
+          <Search size={15} style={styles.searchIcon} />
+          <input
+            style={styles.search}
+            data-admin-search-input
+            placeholder="Search products, materials, keywords…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+        <select style={styles.select} value={flagFilter} onChange={(e) => setFlagFilter(e.target.value as typeof flagFilter)}>
+          <option value="ALL">All flags</option>
+          <option value="NEW">New arrivals</option>
+          <option value="FAST">Fast moving</option>
+          <option value="DISCOUNT">Discounted</option>
+        </select>
         <span style={{ fontSize: 11.5, color: "var(--admin-muted)" }}>
           {products ? `${filtered.length} of ${products.length}` : "Loading…"}
         </span>
@@ -281,7 +297,7 @@ function AdminProductsPage() {
         <div style={styles.emptyState}>Loading products…</div>
       ) : filtered.length === 0 ? (
         <div style={styles.emptyState}>
-          {q || activeCat !== "ALL" ? (
+          {q || activeCat !== "ALL" || flagFilter !== "ALL" ? (
             "No products match these filters."
           ) : (
             <>
@@ -304,6 +320,7 @@ function AdminProductsPage() {
               <th style={styles.th}>Product</th>
               <th style={styles.th}>Category</th>
               <th style={styles.th}>MOQ</th>
+              <th style={styles.th}>Enquiries</th>
               <th style={styles.th}>Flags</th>
               <th style={styles.th}>Monthly clicks</th>
               <th style={{ ...styles.th, textAlign: "right" }}>Actions</th>
@@ -327,6 +344,7 @@ function AdminProductsPage() {
                 </td>
                 <td style={styles.td}>{categoryName(p.category)}</td>
                 <td style={styles.td}>{p.moq.toLocaleString()}</td>
+                <td style={styles.td}>{p.monthlyEnquiries.toLocaleString()} / mo.</td>
                 <td style={styles.td}>
                   <div style={styles.flagRow}>
                     {p.isDiscount && (
