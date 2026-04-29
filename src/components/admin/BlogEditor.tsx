@@ -128,6 +128,18 @@ const styles: Record<string, CSSProperties> = {
     color: "var(--admin-muted)",
     fontSize: 11,
   },
+  featuredPreview: {
+    border: "1px solid var(--admin-border)",
+    background: "var(--admin-surface)",
+    borderRadius: 14,
+    overflow: "hidden",
+    boxShadow: "var(--admin-shadow)",
+  },
+  featuredImage: { width: "100%", aspectRatio: "16 / 9", objectFit: "cover" as const, background: "var(--admin-bg)" },
+  featuredBody: { padding: 16, display: "flex", flexDirection: "column", gap: 8 },
+  featuredTitle: { margin: 0, fontFamily: "var(--font-display)", color: "var(--admin-text)", fontSize: 21, lineHeight: 1.12 },
+  featuredExcerpt: { margin: 0, color: "var(--admin-muted)", fontSize: 12.5, lineHeight: 1.55 },
+  statusPill: { display: "inline-flex", alignSelf: "flex-start", borderRadius: 999, padding: "3px 9px", fontSize: 10.5, color: "var(--cream)", background: "var(--admin-accent)", fontWeight: 650 },
   actionsBar: {
     display: "flex",
     gap: 10,
