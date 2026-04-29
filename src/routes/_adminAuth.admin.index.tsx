@@ -136,7 +136,7 @@ function formatRelativeDate(iso: string): string {
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-function AdminDashboardPage() {
+export function AdminDashboardPage() {
   const navigate = useNavigate();
   const [enquiries, setEnquiries] = useState<EnquirySummary[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
