@@ -10,6 +10,7 @@ export type BackendRole = "ROLE_ADMIN" | "ROLE_STAFF";
 export type ErrorCode =
   | "BAD_CREDENTIALS"
   | "VALIDATION_FAILED"
+  | "INVALID_FILE"
   | "NOT_FOUND"
   | "CONFLICT"
   | "RATE_LIMIT_EXCEEDED"
@@ -160,6 +161,8 @@ export function mapApiErrorMessage(payload: ApiErrorShape, fallback = "Something
       return "Something went wrong, try again";
     case "VALIDATION_FAILED":
       return payload.message || "Please check the highlighted fields";
+    case "INVALID_FILE":
+      return "Only JPEG, PNG or WebP under 5MB allowed";
     default:
       return payload.message || fallback;
   }
@@ -294,14 +297,17 @@ export async function adminFetch(path: string, init?: RequestInit): Promise<Resp
     throw new ApiError({ status: 401, code: "BAD_CREDENTIALS", message: "Admin session expired. Please sign in again." });
   }
 
-  const makeRequest = (token: string) => fetch(apiUrl(path), {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      ...init?.headers,
-    },
-  });
+  const makeRequest = (token: string) => {
+    const isFormData = init?.body instanceof FormData;
+    return fetch(apiUrl(path), {
+      ...init,
+      headers: {
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        Authorization: `Bearer ${token}`,
+        ...init?.headers,
+      },
+    });
+  };
 
   let res = await makeRequest(session.token);
   if (res.status === 401) {
@@ -316,4 +322,11 @@ export async function adminFetch(path: string, init?: RequestInit): Promise<Resp
   }
   if (res.status === 403) throw new ApiError({ status: 403, code: "ACCESS_DENIED" });
   return res;
+}
+
+export async function adminJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await adminFetch(path, init);
+  if (!res.ok) throw await parseApiError(res);
+  if (res.status === 204) return undefined as T;
+  return res.json() as Promise<T>;
 }
