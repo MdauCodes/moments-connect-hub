@@ -2,16 +2,54 @@ import { apiUrl } from "@/config/api";
 
 export const ADMIN_SESSION_STORAGE_KEY = "moments_admin_token";
 export const ADMIN_SESSION_CHANGED_EVENT = "moments-admin-session-changed";
+export const ADMIN_LOGOUT_EVENT = "moments-admin-logout";
+export const ADMIN_REFRESH_INTERVAL_MS = 14 * 60 * 1000;
 
 export type AdminRole = "ADMIN" | "STAFF";
+export type BackendRole = "ROLE_ADMIN" | "ROLE_STAFF";
+export type ErrorCode =
+  | "BAD_CREDENTIALS"
+  | "VALIDATION_FAILED"
+  | "NOT_FOUND"
+  | "CONFLICT"
+  | "RATE_LIMIT_EXCEEDED"
+  | "ACCESS_DENIED"
+  | "INTERNAL_ERROR";
 
 export interface AdminSession {
   id?: string;
   name: string;
   email: string;
   role: AdminRole;
+  roles: BackendRole[];
   token: string;
   refreshToken?: string;
+}
+
+export interface ApiErrorShape {
+  timestamp?: string;
+  status?: number;
+  error?: string;
+  code?: ErrorCode | string;
+  message?: string;
+  fields?: Record<string, string>;
+  traceId?: string;
+}
+
+export class ApiError extends Error {
+  status?: number;
+  code?: string;
+  fields?: Record<string, string>;
+  traceId?: string;
+
+  constructor(payload: ApiErrorShape, fallback = "Something went wrong, try again") {
+    super(mapApiErrorMessage(payload, fallback));
+    this.name = "ApiError";
+    this.status = payload.status;
+    this.code = payload.code;
+    this.fields = payload.fields;
+    this.traceId = payload.traceId;
+  }
 }
 
 type AuthResponse = {
@@ -20,19 +58,21 @@ type AuthResponse = {
   token?: string;
   name?: string;
   email?: string;
-  role?: AdminRole | string;
+  role?: AdminRole | BackendRole | string;
+  roles?: string[];
   user?: {
     id?: string;
     name?: string;
     firstName?: string;
     lastName?: string;
     email?: string;
-    role?: AdminRole | string;
+    role?: AdminRole | BackendRole | string;
     roles?: string[];
   };
 };
 
-const EXPIRY_SKEW_MS = 30_000;
+let accessTokenMemory: string | null = null;
+let refreshPromise: Promise<AdminSession | null> | null = null;
 
 function isBrowser(): boolean {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -43,9 +83,19 @@ function notifySessionChanged(): void {
   window.dispatchEvent(new Event(ADMIN_SESSION_CHANGED_EVENT));
 }
 
+function notifyLoggedOut(): void {
+  if (!isBrowser()) return;
+  window.dispatchEvent(new Event(ADMIN_LOGOUT_EVENT));
+}
+
+function hasCompactJwtShape(token: string): boolean {
+  const periodCount = (token.match(/\./g) ?? []).length;
+  return periodCount === 2 || periodCount === 4;
+}
+
 function decodeJwtPayload(token: string): { exp?: number } | null {
   try {
-    if (!hasCompactJwtShape(token)) return null;
+    if (!hasCompactJwtShape(token) || !isBrowser()) return null;
     const [, payload] = token.split(".");
     if (!payload) return null;
     const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
@@ -56,22 +106,16 @@ function decodeJwtPayload(token: string): { exp?: number } | null {
   }
 }
 
-function hasCompactJwtShape(token: string): boolean {
-  const periodCount = (token.match(/\./g) ?? []).length;
-  return periodCount === 2 || periodCount === 4;
-}
-
-export function isJwtExpired(token: string | undefined, skewMs = EXPIRY_SKEW_MS): boolean {
+export function isJwtExpired(token: string | undefined, skewMs = 30_000): boolean {
   if (!token) return true;
   if (!hasCompactJwtShape(token)) return true;
-  if (!isBrowser()) return false;
   const payload = decodeJwtPayload(token);
   if (!payload?.exp) return false;
   return payload.exp * 1000 <= Date.now() + skewMs;
 }
 
 export function getJwtExpiresAt(token: string | undefined): number | null {
-  if (!token || !isBrowser()) return null;
+  if (!token) return null;
   const payload = decodeJwtPayload(token);
   return payload?.exp ? payload.exp * 1000 : null;
 }
@@ -80,15 +124,54 @@ export function isAdminRole(role: unknown): role is AdminRole {
   return role === "ADMIN" || role === "STAFF";
 }
 
-function normalizeRole(data: AuthResponse, fallback?: AdminRole): AdminRole | null {
-  const direct = String(data.user?.role ?? data.role ?? "").replace(/^ROLE_/, "");
-  if (isAdminRole(direct)) return direct;
+export function toBackendRole(role: AdminRole): BackendRole {
+  return role === "ADMIN" ? "ROLE_ADMIN" : "ROLE_STAFF";
+}
 
-  const roles = data.user?.roles ?? [];
-  if (roles.some((role) => role === "ROLE_ADMIN" || role === "ADMIN")) return "ADMIN";
-  if (roles.some((role) => role === "ROLE_STAFF" || role === "STAFF")) return "STAFF";
+export function normalizeRoleValue(role: unknown): AdminRole | null {
+  const normalized = String(role ?? "").replace(/^ROLE_/, "");
+  return isAdminRole(normalized) ? normalized : null;
+}
 
+function normalizeRoles(data: AuthResponse, fallback?: AdminSession): BackendRole[] {
+  const rawRoles = [data.user?.role, data.role, ...(data.user?.roles ?? []), ...(data.roles ?? []), ...(fallback?.roles ?? [])];
+  const roles = rawRoles
+    .map(normalizeRoleValue)
+    .filter((role): role is AdminRole => !!role)
+    .map(toBackendRole);
+  return Array.from(new Set(roles));
+}
+
+function primaryRole(roles: BackendRole[], fallback?: AdminRole): AdminRole | null {
+  if (roles.includes("ROLE_ADMIN")) return "ADMIN";
+  if (roles.includes("ROLE_STAFF")) return "STAFF";
   return fallback ?? null;
+}
+
+export function mapApiErrorMessage(payload: ApiErrorShape, fallback = "Something went wrong, try again"): string {
+  switch (payload.code) {
+    case "BAD_CREDENTIALS":
+      return "Invalid email or password";
+    case "RATE_LIMIT_EXCEEDED":
+      return "Too many attempts, wait a minute";
+    case "ACCESS_DENIED":
+      return "You don't have permission";
+    case "INTERNAL_ERROR":
+      return "Something went wrong, try again";
+    case "VALIDATION_FAILED":
+      return payload.message || "Please check the highlighted fields";
+    default:
+      return payload.message || fallback;
+  }
+}
+
+async function parseApiError(res: Response): Promise<ApiError> {
+  try {
+    const data = (await res.json()) as ApiErrorShape;
+    return new ApiError({ status: res.status, ...data });
+  } catch {
+    return new ApiError({ status: res.status, message: res.statusText });
+  }
 }
 
 export function normalizeAdminSession(data: AuthResponse, fallback?: Partial<AdminSession>): AdminSession {
@@ -98,26 +181,21 @@ export function normalizeAdminSession(data: AuthResponse, fallback?: Partial<Adm
   const firstName = data.user?.firstName?.trim() ?? "";
   const lastName = data.user?.lastName?.trim() ?? "";
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
+  const roles = normalizeRoles(data, fallback as AdminSession | undefined);
+  const role = primaryRole(roles, fallback?.role);
 
-  if (!token || !email) {
-    throw new Error("Authentication response was missing required session details");
-  }
+  if (!token || !email) throw new Error("Authentication response was missing required session details");
+  if (!role) throw new Error("This account is not authorised for the admin dashboard");
 
-  const role = normalizeRole(data, fallback?.role);
-  if (!role) {
-    throw new Error("This account is not authorised for the admin dashboard");
-  }
-
-  const session: AdminSession = {
+  return {
     id: data.user?.id ?? fallback?.id,
     token,
     refreshToken,
+    roles: roles.length ? roles : [toBackendRole(role)],
     name: data.user?.name ?? (fullName || undefined) ?? data.name ?? fallback?.name ?? email,
     email,
     role,
   };
-
-  return session;
 }
 
 export function readAdminSession(): AdminSession | null {
@@ -126,14 +204,9 @@ export function readAdminSession(): AdminSession | null {
     const raw = window.localStorage.getItem(ADMIN_SESSION_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as AdminSession;
-    const token = parsed?.token;
-    if (!token || token.split(".").length !== 3) {
-      window.localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
-      return null;
-    }
-    console.log("readAdminSession parsed:", parsed);
-    if (!isAdminRole(parsed.role)) return null;
-    return parsed;
+    if (!parsed.refreshToken || !isAdminRole(parsed.role)) return null;
+    if (parsed.token && !accessTokenMemory) accessTokenMemory = parsed.token;
+    return { ...parsed, token: accessTokenMemory ?? parsed.token, roles: parsed.roles ?? [toBackendRole(parsed.role)] };
   } catch {
     clearAdminSession();
     return null;
@@ -141,45 +214,73 @@ export function readAdminSession(): AdminSession | null {
 }
 
 export function writeAdminSession(session: AdminSession): void {
+  accessTokenMemory = session.token;
   if (!isBrowser()) return;
-  window.localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, JSON.stringify(session));
+  const persisted: AdminSession = { ...session, token: "__MEMORY_ONLY__" };
+  window.localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, JSON.stringify(persisted));
   notifySessionChanged();
 }
 
 export function clearAdminSession(): void {
+  accessTokenMemory = null;
   if (!isBrowser()) return;
   window.localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
   notifySessionChanged();
 }
 
+export async function loginAdmin(email: string, password: string): Promise<AdminSession> {
+  const res = await fetch(apiUrl("/api/v1/auth/login"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) throw await parseApiError(res);
+  const next = normalizeAdminSession((await res.json()) as AuthResponse, { email });
+  writeAdminSession(next);
+  return next;
+}
+
 export async function refreshAdminSession(session = readAdminSession()): Promise<AdminSession | null> {
   if (!session?.refreshToken) return null;
+  if (refreshPromise) return refreshPromise;
 
-  for (const path of ["/api/v1/auth/refresh", "/api/v1/auth/refresh-token"]) {
-    const res = await fetch(apiUrl(path), {
+  refreshPromise = (async () => {
+    const res = await fetch(apiUrl("/api/v1/auth/refresh"), {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refreshToken: session.refreshToken }),
     });
+    if (!res.ok) return null;
+    const next = normalizeAdminSession((await res.json()) as AuthResponse, session);
+    writeAdminSession(next);
+    return next;
+  })().finally(() => {
+    refreshPromise = null;
+  });
 
-    if (res.ok) {
-      const next = normalizeAdminSession((await res.json()) as AuthResponse, session);
-      writeAdminSession(next);
-      return next;
+  return refreshPromise;
+}
+
+export async function logoutAdmin(): Promise<void> {
+  const session = readAdminSession();
+  clearAdminSession();
+  if (session?.refreshToken) {
+    try {
+      await fetch(apiUrl("/api/v1/auth/logout"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: session.refreshToken }),
+      });
+    } catch {
+      // ignore network failures during logout
     }
-
-    if (res.status !== 404 && res.status !== 405) return null;
   }
-
-  return null;
 }
 
 export async function getValidAdminSession(): Promise<AdminSession | null> {
   const session = readAdminSession();
   if (!session) return null;
-  if (!isJwtExpired(session.token)) return session;
+  if (accessTokenMemory && !isJwtExpired(accessTokenMemory)) return { ...session, token: accessTokenMemory };
   const refreshed = await refreshAdminSession(session);
   if (!refreshed) clearAdminSession();
   return refreshed;
@@ -187,7 +288,11 @@ export async function getValidAdminSession(): Promise<AdminSession | null> {
 
 export async function adminFetch(path: string, init?: RequestInit): Promise<Response> {
   const session = await getValidAdminSession();
-  if (!session) throw new Error("Admin session expired. Please sign in again.");
+  if (!session) {
+    clearAdminSession();
+    notifyLoggedOut();
+    throw new ApiError({ status: 401, code: "BAD_CREDENTIALS", message: "Admin session expired. Please sign in again." });
+  }
 
   const makeRequest = (token: string) => fetch(apiUrl(path), {
     ...init,
@@ -204,10 +309,11 @@ export async function adminFetch(path: string, init?: RequestInit): Promise<Resp
     if (refreshed) res = await makeRequest(refreshed.token);
   }
 
-  if (res.status === 401 || res.status === 403) {
+  if (res.status === 401) {
     clearAdminSession();
-    throw new Error(res.status === 403 ? "Admin access is not authorised." : "Admin session expired. Please sign in again.");
+    notifyLoggedOut();
+    throw await parseApiError(res);
   }
-
+  if (res.status === 403) throw new ApiError({ status: 403, code: "ACCESS_DENIED" });
   return res;
 }
