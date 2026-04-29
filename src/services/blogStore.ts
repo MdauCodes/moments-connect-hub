@@ -104,7 +104,7 @@ export const blogStore = {
       readingTimeMin: estimateReadingTime(input.body),
       createdAt: nowIso,
       updatedAt: nowIso,
-      publishedAt: input.status === "published" ? input.publishedAt ?? nowIso : null,
+      publishedAt: input.status === "published" ? (input.publishedAt ?? nowIso) : null,
     };
     writeAll([blog, ...all]);
     return blog;

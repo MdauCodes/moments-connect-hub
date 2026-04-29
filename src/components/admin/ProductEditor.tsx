@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import type { Product, ProductTag } from "@/data/products";
 import { categories, industries } from "@/data/products";
 
@@ -92,7 +99,13 @@ export function productToFormValues(p: Product): ProductFormValues {
 // ---------------------------------------------------------------------------
 
 const styles: Record<string, CSSProperties> = {
-  wrap: { maxWidth: 1240, display: "grid", gridTemplateColumns: "minmax(0, 1.35fr) minmax(320px, 0.75fr)", gap: 20, alignItems: "start" },
+  wrap: {
+    maxWidth: 1240,
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1.35fr) minmax(320px, 0.75fr)",
+    gap: 20,
+    alignItems: "start",
+  },
   row: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" },
   rowThree: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr 1fr" },
   field: { display: "flex", flexDirection: "column", gap: 6 },
@@ -136,7 +149,8 @@ const styles: Record<string, CSSProperties> = {
     outline: "none",
   },
   card: {
-    background: "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 92%, var(--cream) 8%), var(--admin-surface))",
+    background:
+      "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 92%, var(--cream) 8%), var(--admin-surface))",
     border: "1px solid var(--admin-border)",
     borderRadius: 14,
     padding: 18,
@@ -148,7 +162,13 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     marginBottom: 12,
   },
-  cardTitle: { fontSize: 18, fontWeight: 650, color: "var(--admin-text)", fontFamily: "var(--font-display)", letterSpacing: 0 },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 650,
+    color: "var(--admin-text)",
+    fontFamily: "var(--font-display)",
+    letterSpacing: 0,
+  },
   mainColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
   sideColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
   chipRow: { display: "flex", flexWrap: "wrap", gap: 8 },
@@ -188,8 +208,20 @@ const styles: Record<string, CSSProperties> = {
     background: "var(--admin-bg)",
   },
   previewBody: { padding: 16, display: "flex", flexDirection: "column", gap: 10 },
-  previewTitle: { color: "var(--admin-text)", fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 650, lineHeight: 1.1, margin: 0 },
-  previewMeta: { color: "var(--admin-muted)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em" },
+  previewTitle: {
+    color: "var(--admin-text)",
+    fontFamily: "var(--font-display)",
+    fontSize: 22,
+    fontWeight: 650,
+    lineHeight: 1.1,
+    margin: 0,
+  },
+  previewMeta: {
+    color: "var(--admin-muted)",
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+  },
   previewDescription: { color: "var(--admin-muted)", fontSize: 12.5, lineHeight: 1.55, margin: 0 },
   fileBtn: {
     background: "var(--admin-border)",
@@ -283,7 +315,9 @@ const styles: Record<string, CSSProperties> = {
 function chipStyle(active: boolean): CSSProperties {
   return {
     border: `1px solid ${active ? "var(--admin-accent-hover)" : "var(--admin-border)"}`,
-    background: active ? "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))" : "var(--admin-bg)",
+    background: active
+      ? "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))"
+      : "var(--admin-bg)",
     color: active ? "var(--cream)" : "var(--admin-muted)",
     borderRadius: 999,
     padding: "5px 12px",
@@ -310,7 +344,8 @@ function categoryName(slug: string): string {
 function validateProduct(values: ProductFormValues): string[] {
   const issues: string[] = [];
   if (!values.name.trim()) issues.push("Product name is required.");
-  if (!values.slug.trim() && !values.name.trim()) issues.push("Add a name so the URL slug can be generated.");
+  if (!values.slug.trim() && !values.name.trim())
+    issues.push("Add a name so the URL slug can be generated.");
   if (!values.image) issues.push("Add a product image.");
   if (!values.category) issues.push("Pick a product category.");
   if (!values.description.trim()) issues.push("Add a short catalogue description.");
@@ -481,7 +516,10 @@ export function ProductEditor({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const isDirty = useMemo(() => JSON.stringify(values) !== JSON.stringify(initial), [initial, values]);
+  const isDirty = useMemo(
+    () => JSON.stringify(values) !== JSON.stringify(initial),
+    [initial, values],
+  );
   const validationIssues = useMemo(() => validateProduct(values), [values]);
 
   useEffect(() => {
@@ -545,65 +583,65 @@ export function ProductEditor({
             <div style={styles.cardTitle}>Core details</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={styles.row} data-admin-row>
-            <div style={styles.field}>
-              <label style={styles.label}>Name</label>
-              <input
-                style={styles.input}
-                value={values.name}
-                onChange={(e) => set("name", e.target.value)}
-                placeholder="e.g. Kraft Twisted-Handle Bag"
-                required
-              />
+            <div style={styles.row} data-admin-row>
+              <div style={styles.field}>
+                <label style={styles.label}>Name</label>
+                <input
+                  style={styles.input}
+                  value={values.name}
+                  onChange={(e) => set("name", e.target.value)}
+                  placeholder="e.g. Kraft Twisted-Handle Bag"
+                  required
+                />
+              </div>
+              <div style={styles.field}>
+                <label style={styles.label}>URL slug</label>
+                <input
+                  style={styles.input}
+                  value={values.slug || slugifyDraft(values.name)}
+                  onChange={(e) => set("slug", e.target.value)}
+                  placeholder="auto-generated from name"
+                />
+                <span style={styles.helper}>Leave blank to auto-generate from the name.</span>
+              </div>
             </div>
-            <div style={styles.field}>
-              <label style={styles.label}>URL slug</label>
-              <input
-                style={styles.input}
-                value={values.slug || slugifyDraft(values.name)}
-                onChange={(e) => set("slug", e.target.value)}
-                placeholder="auto-generated from name"
-              />
-              <span style={styles.helper}>Leave blank to auto-generate from the name.</span>
-            </div>
-          </div>
 
-          <div style={styles.row} data-admin-row>
-            <div style={styles.field}>
-              <label style={styles.label}>Category</label>
-              <select
-                style={styles.select}
-                value={values.category}
-                onChange={(e) => set("category", e.target.value)}
-              >
-                {categories.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+            <div style={styles.row} data-admin-row>
+              <div style={styles.field}>
+                <label style={styles.label}>Category</label>
+                <select
+                  style={styles.select}
+                  value={values.category}
+                  onChange={(e) => set("category", e.target.value)}
+                >
+                  {categories.map((c) => (
+                    <option key={c.slug} value={c.slug}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div style={styles.field}>
+                <label style={styles.label}>MOQ (minimum order quantity)</label>
+                <input
+                  type="number"
+                  min={1}
+                  style={styles.input}
+                  value={values.moq}
+                  onChange={(e) => set("moq", Number(e.target.value) || 0)}
+                />
+              </div>
             </div>
+
             <div style={styles.field}>
-              <label style={styles.label}>MOQ (minimum order quantity)</label>
-              <input
-                type="number"
-                min={1}
-                style={styles.input}
-                value={values.moq}
-                onChange={(e) => set("moq", Number(e.target.value) || 0)}
+              <label style={styles.label}>Description</label>
+              <textarea
+                style={styles.textarea}
+                value={values.description}
+                onChange={(e) => set("description", e.target.value)}
+                placeholder="Short product summary shown on the catalogue + detail page."
               />
             </div>
-          </div>
-
-          <div style={styles.field}>
-            <label style={styles.label}>Description</label>
-            <textarea
-              style={styles.textarea}
-              value={values.description}
-              onChange={(e) => set("description", e.target.value)}
-              placeholder="Short product summary shown on the catalogue + detail page."
-            />
-          </div>
           </div>
         </div>
 
@@ -617,235 +655,252 @@ export function ProductEditor({
       </div>
 
       <div style={styles.sideColumn}>
-
-      {/* Sizes & material */}
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <div style={styles.cardTitle}>Variants & spec</div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={styles.field}>
-            <label style={styles.label}>Available sizes</label>
-            <TokenInput
-              values={values.sizes}
-              onChange={(next) => set("sizes", next)}
-              placeholder='e.g. Small (200×100×250mm), 8oz, A5…'
-            />
+        {/* Sizes & material */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <div style={styles.cardTitle}>Variants & spec</div>
           </div>
-          <div style={styles.row} data-admin-row>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={styles.field}>
-              <label style={styles.label}>Material</label>
-              <input
-                style={styles.input}
-                value={values.material ?? ""}
-                onChange={(e) => set("material", e.target.value)}
-                placeholder="e.g. Kraft 120gsm"
+              <label style={styles.label}>Available sizes</label>
+              <TokenInput
+                values={values.sizes}
+                onChange={(next) => set("sizes", next)}
+                placeholder="e.g. Small (200×100×250mm), 8oz, A5…"
               />
             </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Finish</label>
-              <input
-                style={styles.input}
-                value={values.finish ?? ""}
-                onChange={(e) => set("finish", e.target.value)}
-                placeholder="e.g. Matte, Gloss, Soft-touch"
-              />
+            <div style={styles.row} data-admin-row>
+              <div style={styles.field}>
+                <label style={styles.label}>Material</label>
+                <input
+                  style={styles.input}
+                  value={values.material ?? ""}
+                  onChange={(e) => set("material", e.target.value)}
+                  placeholder="e.g. Kraft 120gsm"
+                />
+              </div>
+              <div style={styles.field}>
+                <label style={styles.label}>Finish</label>
+                <input
+                  style={styles.input}
+                  value={values.finish ?? ""}
+                  onChange={(e) => set("finish", e.target.value)}
+                  placeholder="e.g. Matte, Gloss, Soft-touch"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Industries */}
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <div style={styles.cardTitle}>Industries served</div>
-          <span style={styles.helper}>Pick all that apply — drives industry filters & search.</span>
-        </div>
-        <div style={styles.chipRow}>
-          {industries.map((ind) => {
-            const active = values.industryIds.includes(ind.id);
-            return (
-              <button
-                key={ind.id}
-                type="button"
-                style={chipStyle(active)}
-                onClick={() => toggleIndustry(ind.id)}
-              >
-                {ind.name}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Tags & keywords */}
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <div style={styles.cardTitle}>Tags & search keywords</div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={styles.field}>
-            <label style={styles.label}>Display tags</label>
-            <div style={styles.chipRow}>
-              {TAGS.map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  style={chipStyle(values.tags.includes(t))}
-                  onClick={() => toggleTag(t)}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={styles.field}>
-            <label style={styles.label}>Search keywords</label>
-            <TokenInput
-              values={values.keywords ?? []}
-              onChange={(next) => set("keywords", next)}
-              placeholder="e.g. coffee, takeaway cup, kikombe"
-            />
+        {/* Industries */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <div style={styles.cardTitle}>Industries served</div>
             <span style={styles.helper}>
-              Synonyms, sheng, common misspellings — all boost search recall.
+              Pick all that apply — drives industry filters & search.
             </span>
           </div>
-        </div>
-      </div>
-
-      {/* Carousel flags */}
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <div style={styles.cardTitle}>Homepage carousel & popularity</div>
-          <span style={styles.helper}>Drives the "Picks of the moment" section.</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <label style={styles.switchRow}>
-            <input
-              type="checkbox"
-              checked={values.isDiscount}
-              onChange={(e) => set("isDiscount", e.target.checked)}
-            />
-            <span style={styles.switchLabel}>Discounted (appears in "Deals")</span>
-            {values.isDiscount && (
-              <input
-                type="number"
-                min={1}
-                max={90}
-                value={values.discountPercent ?? ""}
-                placeholder="%"
-                onChange={(e) =>
-                  set("discountPercent", e.target.value ? Number(e.target.value) : undefined)
-                }
-                style={{ ...styles.input, width: 70 }}
-              />
-            )}
-          </label>
-          <label style={styles.switchRow}>
-            <input
-              type="checkbox"
-              checked={values.isNewArrival}
-              onChange={(e) => set("isNewArrival", e.target.checked)}
-            />
-            <span style={styles.switchLabel}>New arrival (appears in "Just landed")</span>
-          </label>
-          <label style={styles.switchRow}>
-            <input
-              type="checkbox"
-              checked={values.isFastMoving}
-              onChange={(e) => set("isFastMoving", e.target.checked)}
-            />
-            <span style={styles.switchLabel}>Fast-moving (appears in "Trending")</span>
-          </label>
-
-          <div style={styles.rowThree} data-admin-row>
-            <div style={styles.field}>
-              <label style={styles.label}>Monthly clicks</label>
-              <input
-                type="number"
-                min={0}
-                style={styles.input}
-                value={values.monthlyClicks}
-                onChange={(e) => set("monthlyClicks", Number(e.target.value) || 0)}
-              />
-              <span style={styles.helper}>Used as the popularity tie-breaker in search.</span>
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Total clicks</label>
-              <input
-                type="number"
-                min={0}
-                style={styles.input}
-                value={values.totalClicks}
-                onChange={(e) => set("totalClicks", Number(e.target.value) || 0)}
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Monthly enquiries</label>
-              <input
-                type="number"
-                min={0}
-                style={styles.input}
-                value={values.monthlyEnquiries}
-                onChange={(e) => set("monthlyEnquiries", Number(e.target.value) || 0)}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style={styles.previewCard}>
-        {values.image ? (
-          <img src={values.image} alt="" style={styles.previewImage} />
-        ) : (
-          <div style={{ ...styles.imagePlaceholder, maxWidth: "none", borderRadius: 0 }}>Preview image</div>
-        )}
-        <div style={styles.previewBody}>
-          <div style={styles.previewMeta}>{categoryName(values.category)} · MOQ {Math.max(values.moq, 0).toLocaleString()}</div>
-          <h3 style={styles.previewTitle}>{values.name || "Product name"}</h3>
-          <p style={styles.previewDescription}>{values.description || "Product description preview appears here as the catalogue card will read."}</p>
           <div style={styles.chipRow}>
-            {values.isNewArrival && <span style={styles.badge}>New arrival</span>}
-            {values.isFastMoving && <span style={styles.badge}>Fast moving</span>}
-            {values.isDiscount && <span style={styles.badge}>-{values.discountPercent ?? 0}%</span>}
+            {industries.map((ind) => {
+              const active = values.industryIds.includes(ind.id);
+              return (
+                <button
+                  key={ind.id}
+                  type="button"
+                  style={chipStyle(active)}
+                  onClick={() => toggleIndustry(ind.id)}
+                >
+                  {ind.name}
+                </button>
+              );
+            })}
           </div>
         </div>
-      </div>
 
-      {(error || (submitted && validationIssues.length > 0)) && (
-        <div style={styles.errorText}>
-          {error && <div>{error}</div>}
-          {submitted && validationIssues.length > 0 && (
-            <ul style={styles.validationList}>
-              {validationIssues.map((issue) => <li key={issue}>{issue}</li>)}
-            </ul>
+        {/* Tags & keywords */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <div style={styles.cardTitle}>Tags & search keywords</div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={styles.field}>
+              <label style={styles.label}>Display tags</label>
+              <div style={styles.chipRow}>
+                {TAGS.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    style={chipStyle(values.tags.includes(t))}
+                    onClick={() => toggleTag(t)}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={styles.field}>
+              <label style={styles.label}>Search keywords</label>
+              <TokenInput
+                values={values.keywords ?? []}
+                onChange={(next) => set("keywords", next)}
+                placeholder="e.g. coffee, takeaway cup, kikombe"
+              />
+              <span style={styles.helper}>
+                Synonyms, sheng, common misspellings — all boost search recall.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Carousel flags */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <div style={styles.cardTitle}>Homepage carousel & popularity</div>
+            <span style={styles.helper}>Drives the "Picks of the moment" section.</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <label style={styles.switchRow}>
+              <input
+                type="checkbox"
+                checked={values.isDiscount}
+                onChange={(e) => set("isDiscount", e.target.checked)}
+              />
+              <span style={styles.switchLabel}>Discounted (appears in "Deals")</span>
+              {values.isDiscount && (
+                <input
+                  type="number"
+                  min={1}
+                  max={90}
+                  value={values.discountPercent ?? ""}
+                  placeholder="%"
+                  onChange={(e) =>
+                    set("discountPercent", e.target.value ? Number(e.target.value) : undefined)
+                  }
+                  style={{ ...styles.input, width: 70 }}
+                />
+              )}
+            </label>
+            <label style={styles.switchRow}>
+              <input
+                type="checkbox"
+                checked={values.isNewArrival}
+                onChange={(e) => set("isNewArrival", e.target.checked)}
+              />
+              <span style={styles.switchLabel}>New arrival (appears in "Just landed")</span>
+            </label>
+            <label style={styles.switchRow}>
+              <input
+                type="checkbox"
+                checked={values.isFastMoving}
+                onChange={(e) => set("isFastMoving", e.target.checked)}
+              />
+              <span style={styles.switchLabel}>Fast-moving (appears in "Trending")</span>
+            </label>
+
+            <div style={styles.rowThree} data-admin-row>
+              <div style={styles.field}>
+                <label style={styles.label}>Monthly clicks</label>
+                <input
+                  type="number"
+                  min={0}
+                  style={styles.input}
+                  value={values.monthlyClicks}
+                  onChange={(e) => set("monthlyClicks", Number(e.target.value) || 0)}
+                />
+                <span style={styles.helper}>Used as the popularity tie-breaker in search.</span>
+              </div>
+              <div style={styles.field}>
+                <label style={styles.label}>Total clicks</label>
+                <input
+                  type="number"
+                  min={0}
+                  style={styles.input}
+                  value={values.totalClicks}
+                  onChange={(e) => set("totalClicks", Number(e.target.value) || 0)}
+                />
+              </div>
+              <div style={styles.field}>
+                <label style={styles.label}>Monthly enquiries</label>
+                <input
+                  type="number"
+                  min={0}
+                  style={styles.input}
+                  value={values.monthlyEnquiries}
+                  onChange={(e) => set("monthlyEnquiries", Number(e.target.value) || 0)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={styles.previewCard}>
+          {values.image ? (
+            <img src={values.image} alt="" style={styles.previewImage} />
+          ) : (
+            <div style={{ ...styles.imagePlaceholder, maxWidth: "none", borderRadius: 0 }}>
+              Preview image
+            </div>
           )}
+          <div style={styles.previewBody}>
+            <div style={styles.previewMeta}>
+              {categoryName(values.category)} · MOQ {Math.max(values.moq, 0).toLocaleString()}
+            </div>
+            <h3 style={styles.previewTitle}>{values.name || "Product name"}</h3>
+            <p style={styles.previewDescription}>
+              {values.description ||
+                "Product description preview appears here as the catalogue card will read."}
+            </p>
+            <div style={styles.chipRow}>
+              {values.isNewArrival && <span style={styles.badge}>New arrival</span>}
+              {values.isFastMoving && <span style={styles.badge}>Fast moving</span>}
+              {values.isDiscount && (
+                <span style={styles.badge}>-{values.discountPercent ?? 0}%</span>
+              )}
+            </div>
+          </div>
         </div>
-      )}
 
-      <div style={styles.actionsBar} data-admin-actions>
-        {onDelete && (
-          <button
-            type="button"
-            style={styles.dangerBtn}
-            onClick={() => void onDelete()}
-            disabled={busy}
-          >
-            Delete product
-          </button>
+        {(error || (submitted && validationIssues.length > 0)) && (
+          <div style={styles.errorText}>
+            {error && <div>{error}</div>}
+            {submitted && validationIssues.length > 0 && (
+              <ul style={styles.validationList}>
+                {validationIssues.map((issue) => (
+                  <li key={issue}>{issue}</li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
-        <div style={styles.actionsRight}>
-          <button type="button" style={styles.ghostBtn} onClick={() => {
-            if (isDirty && !confirm("Discard unsaved product changes?")) return;
-            onCancel();
-          }} disabled={busy}>
-            Cancel
-          </button>
-          <button type="submit" style={styles.primaryBtn} disabled={busy}>
-            {busy ? "Saving…" : submitLabel}
-          </button>
+
+        <div style={styles.actionsBar} data-admin-actions>
+          {onDelete && (
+            <button
+              type="button"
+              style={styles.dangerBtn}
+              onClick={() => void onDelete()}
+              disabled={busy}
+            >
+              Delete product
+            </button>
+          )}
+          <div style={styles.actionsRight}>
+            <button
+              type="button"
+              style={styles.ghostBtn}
+              onClick={() => {
+                if (isDirty && !confirm("Discard unsaved product changes?")) return;
+                onCancel();
+              }}
+              disabled={busy}
+            >
+              Cancel
+            </button>
+            <button type="submit" style={styles.primaryBtn} disabled={busy}>
+              {busy ? "Saving…" : submitLabel}
+            </button>
+          </div>
         </div>
-      </div>
       </div>
     </form>
   );
