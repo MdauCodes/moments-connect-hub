@@ -579,7 +579,7 @@ function AnnouncementFields({ data, onChange }: { data: AnnouncementBody; onChan
         <textarea style={styles.textarea} rows={4} value={data.body}
           onChange={(e) => onChange({ ...data, body: e.target.value })} />
       </Field>
-      <div style={styles.row}>
+      <div style={styles.row} data-admin-row>
         <Field label="CTA label (optional)">
           <input style={styles.input} value={data.ctaLabel ?? ""}
             onChange={(e) => onChange({ ...data, ctaLabel: e.target.value })} />
