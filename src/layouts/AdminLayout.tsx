@@ -60,14 +60,14 @@ const styles: Record<string, CSSProperties> = {
     width: 248,
     height: "100dvh",
     background: "var(--admin-sidebar)",
-    borderRight: "1px solid var(--admin-border)",
+    borderRight: "1px solid var(--admin-sidebar-border)",
     display: "flex",
     flexDirection: "column",
     flexShrink: 0,
   },
   sidebarTop: {
     padding: "18px 16px",
-    borderBottom: "1px solid var(--admin-border)",
+    borderBottom: "1px solid var(--admin-sidebar-border)",
     display: "flex",
     alignItems: "center",
     gap: 10,
@@ -86,14 +86,15 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: 600,
     lineHeight: 1,
   },
-  brandName: { fontSize: 15, fontWeight: 700, color: "var(--admin-accent-hover)", lineHeight: 1.1, fontFamily: "var(--font-display)" },
-  brandSub: { fontSize: 10, color: "var(--admin-muted)", lineHeight: 1.2 },
+  brandLink: { display: "flex", alignItems: "center", gap: 10, textDecoration: "none", minWidth: 0 },
+  brandName: { fontSize: 15, fontWeight: 700, color: "var(--admin-sidebar-text)", lineHeight: 1.1, fontFamily: "var(--font-display)" },
+  brandSub: { fontSize: 10, color: "var(--admin-sidebar-muted)", lineHeight: 1.2 },
   nav: { flex: 1, overflowY: "auto", padding: "10px 8px" },
   sectionLabel: {
     fontSize: 11,
     textTransform: "uppercase",
     letterSpacing: "0.1em",
-    color: "var(--admin-kraft)",
+    color: "var(--admin-sidebar-muted)",
     padding: "10px 16px 4px",
   },
   navItem: {
@@ -103,16 +104,16 @@ const styles: Record<string, CSSProperties> = {
     padding: "10px 12px",
     borderRadius: 6,
     borderLeft: "3px solid transparent",
-    color: "var(--admin-muted)",
+    color: "var(--admin-sidebar-muted)",
     fontSize: 13,
     textDecoration: "none",
     cursor: "pointer",
     transition: "background 120ms, color 120ms",
   },
   navItemActive: {
-    background: "var(--admin-surface-2)",
+    background: "var(--admin-sidebar-surface)",
     borderLeft: "3px solid var(--admin-accent)",
-    color: "var(--admin-text)",
+    color: "var(--admin-sidebar-text)",
   },
   badge: {
     marginLeft: "auto",
@@ -126,7 +127,7 @@ const styles: Record<string, CSSProperties> = {
   },
   sidebarBottom: {
     marginTop: "auto",
-    borderTop: "1px solid var(--admin-border)",
+    borderTop: "1px solid var(--admin-sidebar-border)",
     padding: "12px 8px",
   },
   userPill: {
@@ -135,8 +136,8 @@ const styles: Record<string, CSSProperties> = {
     gap: 8,
     padding: "8px 10px",
     borderRadius: 8,
-    border: "1px solid var(--admin-border)",
-    background: "color-mix(in oklab, var(--admin-surface) 78%, var(--admin-kraft) 22%)",
+    border: "1px solid var(--admin-sidebar-border)",
+    background: "var(--admin-sidebar-surface)",
     cursor: "pointer",
     transition: "background 120ms",
   },
@@ -153,8 +154,8 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "center",
     flexShrink: 0,
   },
-  userName: { fontSize: 12, color: "var(--admin-text)", lineHeight: 1.2 },
-  userRole: { fontSize: 10, color: "var(--admin-muted)", lineHeight: 1.2 },
+  userName: { fontSize: 12, color: "var(--admin-sidebar-text)", lineHeight: 1.2 },
+  userRole: { fontSize: 10, color: "var(--admin-sidebar-muted)", lineHeight: 1.2 },
   main: {
     flex: 1,
     display: "flex",
@@ -249,14 +250,14 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       style={{ ...styles.navItem, ...(active ? styles.navItemActive : {}) }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.background = "var(--admin-surface-2)";
-          e.currentTarget.style.color = "var(--admin-text)";
+          e.currentTarget.style.background = "var(--admin-sidebar-surface)";
+          e.currentTarget.style.color = "var(--admin-sidebar-text)";
         }
       }}
       onMouseLeave={(e) => {
         if (!active) {
           e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "var(--admin-muted)";
+          e.currentTarget.style.color = "var(--admin-sidebar-muted)";
         }
       }}
     >
@@ -291,11 +292,13 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
       {sidebarOpen && <button className="admin-sidebar-scrim" aria-label="Close menu" onClick={() => setSidebarOpen(false)} />}
       <aside className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`} style={styles.sidebar}>
         <div style={styles.sidebarTop}>
-          <div style={styles.logoMark}>m</div>
-          <div>
-            <div style={styles.brandName}>Moments</div>
-            <div style={styles.brandSub}>Admin Panel</div>
-          </div>
+          <Link to="/" style={styles.brandLink} aria-label="Back to Moments website">
+            <div style={styles.logoMark}>m</div>
+            <div>
+              <div style={styles.brandName}>Moments</div>
+              <div style={styles.brandSub}>Back to website</div>
+            </div>
+          </Link>
           <button type="button" className="admin-sidebar-close" aria-label="Close menu" onClick={() => setSidebarOpen(false)}>
             <X size={16} />
           </button>
@@ -334,7 +337,7 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
               type="button"
               onClick={logout}
               aria-label="Logout"
-              style={{ marginLeft: "auto", background: "transparent", border: "none", color: "var(--admin-muted)", cursor: "pointer", padding: 4 }}
+              style={{ marginLeft: "auto", background: "transparent", border: "none", color: "var(--admin-sidebar-muted)", cursor: "pointer", padding: 4 }}
             >
               <LogOut size={14} />
             </button>
