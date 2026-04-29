@@ -67,21 +67,23 @@ const STATUS_STYLES: Record<
 const styles: Record<string, CSSProperties> = {
   statsGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: 12,
-    marginBottom: 20,
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    gap: 14,
+    marginBottom: 22,
   },
   statCard: {
-    background: "var(--admin-surface)",
+    background: "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 88%, var(--cream) 12%), var(--admin-surface))",
     border: "1px solid var(--admin-border)",
-    borderRadius: 10,
-    padding: "14px 16px",
+    borderRadius: 14,
+    padding: "16px 18px",
+    boxShadow: "var(--admin-shadow)",
   },
   statCardHighlight: {
     background: "color-mix(in oklab, var(--admin-accent) 24%, var(--admin-bg))",
     border: "1px solid var(--admin-accent)",
-    borderRadius: 10,
-    padding: "14px 16px",
+    borderRadius: 14,
+    padding: "16px 18px",
+    boxShadow: "var(--admin-shadow)",
   },
   statLabel: {
     fontSize: 11,
@@ -90,7 +92,7 @@ const styles: Record<string, CSSProperties> = {
     color: "var(--admin-muted)",
   },
   statValue: {
-    fontSize: 26,
+    fontSize: 30,
     fontWeight: 700,
     color: "var(--admin-text)",
     marginTop: 6,
@@ -136,10 +138,11 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "inherit",
   },
   tableWrap: {
-    background: "var(--admin-surface)",
+    background: "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 90%, var(--cream) 10%), var(--admin-surface))",
     border: "1px solid var(--admin-border)",
-    borderRadius: 12,
+    borderRadius: 14,
     overflow: "hidden",
+    boxShadow: "var(--admin-shadow)",
   },
   tableHeader: {
     display: "grid",
