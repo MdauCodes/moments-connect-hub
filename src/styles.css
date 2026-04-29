@@ -228,7 +228,7 @@
     height: 36px;
     border-radius: 8px;
     border: 1px solid var(--admin-border);
-    background: var(--admin-surface-2);
+    background: var(--admin-surface);
     color: var(--admin-text);
     cursor: pointer;
   }
@@ -261,7 +261,7 @@
       inset: 0;
       z-index: 40;
       border: 0;
-      background: oklch(0.08 0.015 60 / 0.58);
+      background: oklch(0.18 0.02 60 / 0.42);
     }
     .admin-shell main {
       padding: 16px !important;
