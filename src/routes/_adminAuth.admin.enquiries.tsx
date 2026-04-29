@@ -469,6 +469,8 @@ function AdminEnquiriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>("ALL");
+  const [dateFilter, setDateFilter] = useState<DateFilterKey>("ALL");
+  const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -505,7 +507,24 @@ function AdminEnquiriesPage() {
   }, [reloadKey]);
 
   const filteredEnquiries = useMemo(() => {
+    const needle = query.trim().toLowerCase();
     return enquiries.filter((e) => {
+      if (!matchesDateFilter(e.createdAt, dateFilter)) return false;
+      if (needle) {
+        const haystack = [
+          e.name,
+          e.companyName,
+          e.email,
+          e.phone,
+          e.customerType,
+          e.status,
+          ...e.products.map((p) => p.name),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(needle)) return false;
+      }
       switch (filter) {
         case "ALL":
           return true;
@@ -521,12 +540,12 @@ function AdminEnquiriesPage() {
           return true;
       }
     });
-  }, [enquiries, filter]);
+  }, [enquiries, filter, dateFilter, query]);
 
   // Reset page when filter changes
   useEffect(() => {
     setPage(1);
-  }, [filter]);
+  }, [filter, dateFilter, query]);
 
   const stats = useMemo(() => {
     const now = new Date();
