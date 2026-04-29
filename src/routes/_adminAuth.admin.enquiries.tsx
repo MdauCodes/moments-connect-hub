@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { Inbox } from "lucide-react";
+import { Inbox, Search } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { adminFetch } from "@/services/adminApi";
 
@@ -44,6 +44,8 @@ type FilterKey =
   | "SME"
   | "CORPORATE";
 
+type DateFilterKey = "ALL" | "TODAY" | "7D" | "30D";
+
 const PAGE_SIZE = 15;
 
 const FILTERS: { key: FilterKey; label: string }[] = [
@@ -53,6 +55,13 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "CLOSED", label: "Closed" },
   { key: "SME", label: "SME only" },
   { key: "CORPORATE", label: "Corporate only" },
+];
+
+const DATE_FILTERS: { key: DateFilterKey; label: string }[] = [
+  { key: "ALL", label: "Any time" },
+  { key: "TODAY", label: "Today" },
+  { key: "7D", label: "Last 7 days" },
+  { key: "30D", label: "Last 30 days" },
 ];
 
 const STATUS_STYLES: Record<
