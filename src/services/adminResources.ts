@@ -11,6 +11,8 @@ export type ProductDto = {
   sizes?: string[]; tags?: string[]; keywords?: string[]; primaryImageUrl?: string; imageUrls?: string[];
   isDiscount?: boolean; discountPercent?: number | null; isNewArrival?: boolean; isFastMoving?: boolean;
   material?: string; finish?: string; industryIds?: string[]; industries?: IndustryDto[]; monthlyClicks?: number; monthlyEnquiries?: number;
+  sku?: string; basePrice?: number; compareAtPrice?: number; stock?: number; lowStockThreshold?: number; trackInventory?: boolean;
+  variants?: Array<{ id?: string; label: string; sku?: string; price?: number; stock?: number }>;
 };
 export type ProductRequest = Omit<ProductDto, "id" | "slug" | "industries" | "monthlyClicks" | "monthlyEnquiries">;
 
