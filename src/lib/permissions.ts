@@ -27,6 +27,12 @@ export type Permission =
   // Enquiries
   | "enquiry:view"
   | "enquiry:update"
+  // Orders & payments (e-commerce)
+  | "order:view"
+  | "order:update"
+  | "order:refund"
+  | "payment:view"
+  | "payment:refund"
   // Staff & settings
   | "staff:manage"
   | "settings:manage";
@@ -40,6 +46,11 @@ const ADMIN_PERMS: Permission[] = [
   "product:delete",
   "enquiry:view",
   "enquiry:update",
+  "order:view",
+  "order:update",
+  "order:refund",
+  "payment:view",
+  "payment:refund",
   "staff:manage",
   "settings:manage",
 ];
@@ -53,6 +64,11 @@ const STAFF_PERMS: Permission[] = [
   // NO product:delete
   "enquiry:view",
   "enquiry:update",
+  // Orders/payments: view + update; refunds are admin-only
+  "order:view",
+  "order:update",
+  "payment:view",
+  // NO order:refund, NO payment:refund
   // NO staff:manage, NO settings:manage
 ];
 
