@@ -1,12 +1,14 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, ChevronDown, Search } from "lucide-react";
+import { Menu, X, ChevronDown, Search, ShoppingBag, User } from "lucide-react";
 import logoUrl from "@/assets/moments-logo.png";
 import { categories } from "@/data/products";
 import { SearchCommand } from "@/components/SearchCommand";
+import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 type NavItem = {
-  to: "/" | "/products" | "/industries" | "/blog" | "/about" | "/contact";
+  to: "/" | "/products" | "/industries" | "/blog" | "/about";
   label: string;
   hasDropdown?: boolean;
 };
@@ -17,7 +19,6 @@ const nav: readonly NavItem[] = [
   { to: "/industries", label: "Industries" },
   { to: "/blog", label: "Blog" },
   { to: "/about", label: "About" },
-  { to: "/contact", label: "Get a Quote" },
 ];
 
 export function SiteHeader() {
