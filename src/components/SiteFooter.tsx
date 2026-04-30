@@ -53,16 +53,6 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div>
-          <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">
-            Contact
-          </h4>
-          <ul className="mt-4 space-y-2 text-sm text-primary-foreground/80">
-            <li>{COMPANY_PHONE}</li>
-            <li>{COMPANY_EMAIL}</li>
-            <li>Industrial Area, Nairobi</li>
-          </ul>
-        </div>
       </div>
       <div className="border-t border-primary-foreground/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-5 py-6 text-xs text-primary-foreground/60 sm:flex-row lg:px-8">
