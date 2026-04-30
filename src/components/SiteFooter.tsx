@@ -27,8 +27,30 @@ export function SiteFooter() {
             <li><Link to="/industries" className="hover:text-accent">Industries</Link></li>
             <li><Link to="/blog" className="hover:text-accent">Blog</Link></li>
             <li><Link to="/about" className="hover:text-accent">About</Link></li>
-            <li><Link to="/contact" className="hover:text-accent">Get a Quote</Link></li>
+            <li><Link to="/orders/track" className="hover:text-accent">Track Order</Link></li>
+            <li><Link to="/enterprise-quote" className="hover:text-accent">Enterprise Quote</Link></li>
           </ul>
+        </div>
+
+        <div>
+          <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">
+            Contact
+          </h4>
+          <ul className="mt-4 space-y-2 text-sm text-primary-foreground/80">
+            <li>{COMPANY_PHONE}</li>
+            <li>{COMPANY_EMAIL}</li>
+            <li>Industrial Area, Nairobi</li>
+          </ul>
+          <div className="mt-6">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/50">
+              We accept
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-primary-foreground/70">
+              <span className="rounded-full border border-primary-foreground/20 px-2.5 py-1">M-Pesa</span>
+              <span className="rounded-full border border-primary-foreground/20 px-2.5 py-1">Bank Transfer</span>
+              <span className="rounded-full border border-primary-foreground/20 px-2.5 py-1">Cash on Delivery</span>
+            </div>
+          </div>
         </div>
 
         <div>
