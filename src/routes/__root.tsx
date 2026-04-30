@@ -2,6 +2,9 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import { PersonaProvider } from "@/contexts/PersonaContext";
 import { BasketProvider } from "@/contexts/BasketContext";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
+import { SiteConfigProvider } from "@/contexts/SiteConfigContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
 import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
@@ -156,13 +159,19 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <AdminAuthProvider>
-      <PersonaProvider>
-        <BasketProvider>
-          <Outlet />
-          <Toaster />
-        </BasketProvider>
-      </PersonaProvider>
-    </AdminAuthProvider>
+    <SiteConfigProvider>
+      <AuthProvider>
+        <CartProvider>
+          <AdminAuthProvider>
+            <PersonaProvider>
+              <BasketProvider>
+                <Outlet />
+                <Toaster />
+              </BasketProvider>
+            </PersonaProvider>
+          </AdminAuthProvider>
+        </CartProvider>
+      </AuthProvider>
+    </SiteConfigProvider>
   );
 }
