@@ -152,9 +152,9 @@ function FeaturedProducts() {
                   <h3 className="mt-2 font-display text-base font-semibold text-foreground">
                     {p.name}
                   </h3>
-                  {p.basePrice ? (
+                  {(p as Product & { basePrice?: number }).basePrice ? (
                     <p className="mt-1 text-sm text-primary">
-                      From KES {p.basePrice.toLocaleString()} per unit
+                      From KES {(p as Product & { basePrice?: number }).basePrice!.toLocaleString()} per unit
                     </p>
                   ) : (
                     <p className="mt-1 text-sm text-primary">Pricing on configure</p>
