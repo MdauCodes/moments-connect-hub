@@ -16,6 +16,7 @@ import { apiUrl } from "@/config/api";
  */
 
 const STORAGE_KEY = "moments_insider_prompt";
+const LEAD_KEY = "mpk_lead";
 const IDLE_MS = 30_000;
 const SCROLL_THRESHOLD = 0.5;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -23,6 +24,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function shouldShow(): boolean {
   if (typeof window === "undefined") return false;
   try {
+    if (window.localStorage.getItem(LEAD_KEY)) return false;
     return window.sessionStorage.getItem(STORAGE_KEY) === null;
   } catch {
     return true;
@@ -31,6 +33,7 @@ function shouldShow(): boolean {
 
 export function EmailInsiderPrompt() {
   const { persona } = usePersona();
+  const { emailCaptureEnabled } = useSiteConfig();
   const [eligible, setEligible] = useState(false);
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -39,11 +42,10 @@ export function EmailInsiderPrompt() {
   const [submitted, setSubmitted] = useState(false);
   const firedRef = useRef(false);
 
-  // Eligibility — re-check whenever persona changes (covers banner submit during session).
   useEffect(() => {
-    if (!EMAIL_CAPTURE_ENABLED) return;
+    if (!emailCaptureEnabled) return;
     setEligible(shouldShow());
-  }, [persona]);
+  }, [persona, emailCaptureEnabled]);
 
   // Trigger setup
   useEffect(() => {
