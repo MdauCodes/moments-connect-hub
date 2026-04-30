@@ -165,7 +165,7 @@ export type Product = {
   materials?: string[];
   primaryImageUrl?: string;
   imageUrls?: string[];
-  industries?: Array<{ id: string; name: string; slug: string }>;
+  industries?: Array<{ id?: string | number; displayId?: string | number; name?: string; slug?: string }>;
   pricingTiers?: Array<{ minQty: number; maxQty?: number; pricePerUnit: number }>;
 };
 
