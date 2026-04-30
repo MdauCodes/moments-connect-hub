@@ -40,6 +40,13 @@ function toBackendPayload(input: Partial<ProductDraft>) {
     finish: input.finish,
     keywords: input.keywords ?? [],
     industryIds: input.industryIds ?? [],
+    sku: input.sku,
+    basePrice: input.basePrice,
+    compareAtPrice: input.compareAtPrice,
+    stock: input.stock,
+    lowStockThreshold: input.lowStockThreshold,
+    trackInventory: input.trackInventory,
+    variants: input.variants ?? [],
   };
 }
 

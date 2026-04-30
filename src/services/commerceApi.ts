@@ -158,3 +158,50 @@ export async function getDashboardStats(): Promise<DashboardResult> {
   if (live) return { ...live, source: "live" };
   return { ...dashboardStatsMock(), source: "mock" };
 }
+
+// ---------- Customers ----------
+
+import {
+  listCustomersMock,
+  getCustomerMock,
+  type CustomerRecord,
+} from "@/services/commerceMock";
+
+export interface ListCustomersParams {
+  q?: string;
+  status?: string;
+  segment?: string;
+  page?: number;
+  size?: number;
+}
+
+export interface ListCustomersResult {
+  rows: CustomerRecord[];
+  total: number;
+  totalPages: number;
+  source: Source;
+}
+
+export async function listCustomers(params: ListCustomersParams = {}): Promise<ListCustomersResult> {
+  const live = await tryLive<{ content?: CustomerRecord[]; totalElements?: number; totalPages?: number } | CustomerRecord[]>(
+    "customers",
+    `/api/v1/admin/customers${qs(params as Record<string, unknown>)}`,
+  );
+  if (live) {
+    const rows = Array.isArray(live) ? live : live.content ?? [];
+    const total = Array.isArray(live) ? rows.length : live.totalElements ?? rows.length;
+    const totalPages = Array.isArray(live) ? 1 : live.totalPages ?? 1;
+    return { rows, total, totalPages, source: "live" };
+  }
+  return { ...listCustomersMock(params), source: "mock" };
+}
+
+export async function getCustomer(id: string): Promise<{ customer: CustomerRecord | undefined; orders: OrderRecord[]; source: Source }> {
+  const live = await tryLive<{ customer: CustomerRecord; orders: OrderRecord[] }>(
+    "customers",
+    `/api/v1/admin/customers/${encodeURIComponent(id)}`,
+  );
+  if (live) return { customer: live.customer, orders: live.orders ?? [], source: "live" };
+  const mock = getCustomerMock(id);
+  return { ...mock, source: "mock" };
+}

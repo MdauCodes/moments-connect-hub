@@ -162,6 +162,12 @@ export type Product = {
   keywords?: string[]; // free-form synonyms / sheng / common misspellings
   /** Backend-only enrichments (Phase C). UI must handle absence gracefully. */
   basePrice?: number;
+  compareAtPrice?: number;
+  sku?: string;
+  stock?: number;
+  lowStockThreshold?: number;
+  trackInventory?: boolean;
+  variants?: Array<{ id?: string; label: string; sku?: string; price?: number; stock?: number }>;
   materials?: string[];
   primaryImageUrl?: string;
   imageUrls?: string[];
