@@ -103,7 +103,7 @@ export function SiteHeader() {
               alt="Moments Packaging Kenya logo"
               width={160}
               height={40}
-              className="h-8 w-auto sm:h-9 lg:h-10"
+              className="h-5 w-auto sm:h-6 lg:h-7"
             />
           </Link>
 
