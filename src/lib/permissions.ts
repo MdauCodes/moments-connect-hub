@@ -72,7 +72,8 @@ const STAFF_PERMS: Permission[] = [
   "order:view",
   "order:update",
   "payment:view",
-  // NO order:refund, NO payment:refund
+  "customer:view",
+  // NO order:refund, NO payment:refund, NO customer:edit
   // NO staff:manage, NO settings:manage
 ];
 
