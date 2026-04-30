@@ -58,6 +58,10 @@ function AdminProductsPage() {
       <label><span className="admin-label">Name</span><input required className="admin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
       <label><span className="admin-label">Category</span><input className="admin-input" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></label>
       <label><span className="admin-label">MOQ</span><input type="number" min={1} className="admin-input" value={form.moq} onChange={(e) => setForm({ ...form, moq: Number(e.target.value) })} /></label>
+      <label><span className="admin-label">SKU</span><input className="admin-input" value={form.sku ?? ""} onChange={(e) => setForm({ ...form, sku: e.target.value })} placeholder="KRB-MD-001" /></label>
+      <label><span className="admin-label">Base price (KES)</span><input type="number" min={0} className="admin-input" value={form.basePrice ?? ""} onChange={(e) => setForm({ ...form, basePrice: e.target.value ? Number(e.target.value) : undefined })} /></label>
+      <label><span className="admin-label">Stock</span><input type="number" min={0} className="admin-input" value={form.stock ?? 0} onChange={(e) => setForm({ ...form, stock: Number(e.target.value) || 0 })} /></label>
+      <label><span className="admin-label">Low-stock threshold</span><input type="number" min={0} className="admin-input" value={form.lowStockThreshold ?? 50} onChange={(e) => setForm({ ...form, lowStockThreshold: Number(e.target.value) || 0 })} /></label>
       <label><span className="admin-label">Discount %</span><input type="number" className="admin-input" value={form.discountPercent ?? ""} onChange={(e) => setForm({ ...form, discountPercent: Number(e.target.value) })} /></label>
       <label><span className="admin-label">Material</span><input className="admin-input" value={form.material} onChange={(e) => setForm({ ...form, material: e.target.value })} /></label>
       <label><span className="admin-label">Finish</span><input className="admin-input" value={form.finish} onChange={(e) => setForm({ ...form, finish: e.target.value })} /></label>
