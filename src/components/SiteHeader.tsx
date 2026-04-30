@@ -101,9 +101,9 @@ export function SiteHeader() {
             <img
               src={logoUrl}
               alt="Moments Packaging Kenya logo"
-              width={192}
-              height={60}
-              className="h-11 w-auto sm:h-12 lg:h-[52px]"
+              width={160}
+              height={40}
+              className="h-8 w-auto sm:h-9 lg:h-10"
             />
           </Link>
 
