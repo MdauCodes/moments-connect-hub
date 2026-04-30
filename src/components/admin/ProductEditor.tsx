@@ -18,6 +18,14 @@ import { categories, industries } from "@/data/products";
 
 const TAGS: ProductTag[] = ["Trending", "New", "Discounted", "Featured"];
 
+export interface ProductVariant {
+  id?: string;
+  label: string;       // e.g. "Small / Kraft"
+  sku?: string;
+  price?: number;      // unit price KES
+  stock?: number;
+}
+
 export interface ProductFormValues {
   name: string;
   slug: string;
@@ -40,6 +48,14 @@ export interface ProductFormValues {
   material?: string;
   finish?: string;
   keywords?: string[];
+  // Inventory (Phase 2)
+  sku?: string;
+  basePrice?: number;        // KES
+  compareAtPrice?: number;   // KES — strike-through reference
+  stock?: number;
+  lowStockThreshold?: number;
+  trackInventory?: boolean;
+  variants?: ProductVariant[];
 }
 
 export function emptyProductValues(): ProductFormValues {
@@ -65,6 +81,13 @@ export function emptyProductValues(): ProductFormValues {
     material: "",
     finish: "",
     keywords: [],
+    sku: "",
+    basePrice: undefined,
+    compareAtPrice: undefined,
+    stock: 0,
+    lowStockThreshold: 50,
+    trackInventory: true,
+    variants: [],
   };
 }
 
@@ -91,6 +114,15 @@ export function productToFormValues(p: Product): ProductFormValues {
     material: p.material ?? "",
     finish: p.finish ?? "",
     keywords: p.keywords ? [...p.keywords] : [],
+    sku: (p as Product & { sku?: string }).sku ?? "",
+    basePrice: p.basePrice,
+    compareAtPrice: (p as Product & { compareAtPrice?: number }).compareAtPrice,
+    stock: (p as Product & { stock?: number }).stock ?? 0,
+    lowStockThreshold: (p as Product & { lowStockThreshold?: number }).lowStockThreshold ?? 50,
+    trackInventory: (p as Product & { trackInventory?: boolean }).trackInventory ?? true,
+    variants: (p as Product & { variants?: ProductVariant[] }).variants
+      ? [...((p as Product & { variants?: ProductVariant[] }).variants ?? [])]
+      : [],
   };
 }
 
