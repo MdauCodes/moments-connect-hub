@@ -37,7 +37,7 @@ export function IndustriesStrip() {
               <li key={ind.id}>
                 <Link
                   to="/products"
-                  search={{ industry: ind.slug }}
+                  search={{ industry: ind.slug, industryId: ind.id }}
                   className="group flex h-full flex-col rounded-2xl border border-border bg-background p-5 transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-md"
                 >
                   <div className="flex items-start justify-between gap-3">
