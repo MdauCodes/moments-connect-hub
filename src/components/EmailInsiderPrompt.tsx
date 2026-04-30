@@ -110,7 +110,7 @@ export function EmailInsiderPrompt() {
     return () => clearTimeout(t);
   }, [submitted]);
 
-  if (!EMAIL_CAPTURE_ENABLED) return null;
+  if (!emailCaptureEnabled) return null;
   if (!open) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,8 +123,13 @@ export function EmailInsiderPrompt() {
     setError(null);
     setLoading(true);
     try {
-      await api.submitLead(trimmed, persona ?? "unknown");
+      await fetch(apiUrl("/api/v1/public/leads"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed, source: "popup", trigger: "newsletter" }),
+      });
       try {
+        window.localStorage.setItem(LEAD_KEY, "1");
         window.sessionStorage.setItem(STORAGE_KEY, "submitted");
       } catch {
         // ignore
