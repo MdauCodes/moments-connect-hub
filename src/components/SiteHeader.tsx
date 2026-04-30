@@ -97,19 +97,14 @@ export function SiteHeader() {
     <>
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-4 lg:gap-5 lg:px-8">
-          <Link to="/" className="group flex shrink-0 items-center gap-2.5" aria-label="Moments Packaging Kenya — Home">
+          <Link to="/" className="group flex shrink-0 items-center" aria-label="Moments Packaging Kenya — Home">
             <img
               src={logoUrl}
               alt="Moments Packaging Kenya logo"
-              width={140}
-              height={32}
-              className="h-8 w-auto sm:h-9"
+              width={192}
+              height={60}
+              className="h-11 w-auto sm:h-12 lg:h-[52px]"
             />
-            <span className="hidden leading-tight xl:block">
-              <span className="block text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                Packaging (K) Limited
-              </span>
-            </span>
           </Link>
 
           {/* Desktop search bar (lg+). Acts as a trigger for the overlay. */}
