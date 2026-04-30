@@ -114,22 +114,52 @@ export const api = {
   // GET /api/v1/public/products
   getProducts: async (params?: {
     industryId?: string;
+    industryIds?: string[];
     isDiscount?: boolean;
     isNewArrival?: boolean;
     isFastMoving?: boolean;
+    category?: string;
+    page?: number;
+    size?: number;
+    sort?: string;
   }) => {
     if (!USE_MOCKS && API_BASE_URL) {
+      const flat: Record<string, string | number | boolean | undefined> = {
+        industryId: params?.industryId,
+        isDiscount: params?.isDiscount,
+        isNewArrival: params?.isNewArrival,
+        isFastMoving: params?.isFastMoving,
+        category: params?.category,
+        page: params?.page ?? 0,
+        size: params?.size ?? 20,
+        sort: params?.sort ?? "createdAt,desc",
+      };
+      // Multi-industry support: backend accepts repeated industryId params
+      const search = new URLSearchParams();
+      Object.entries(flat).forEach(([k, v]) => {
+        if (v !== undefined && v !== "") search.set(k, String(v));
+      });
+      if (params?.industryIds?.length) {
+        params.industryIds.forEach((id) => search.append("industryId", id));
+      }
       const data = await getJson<PageResponse<Product> | Product[]>(
-        `/api/v1/public/products${qs({ ...params, size: 100 })}`,
+        `/api/v1/public/products?${search.toString()}`,
       );
       return (Array.isArray(data) ? data : data.content).map(normalizeProduct);
     }
     let result = [...products];
-    if (params?.industryId)
-      result = result.filter((p) => p.industryIds.includes(params.industryId!));
+    if (params?.industryId) result = result.filter((p) => p.industryIds.includes(params.industryId!));
+    if (params?.industryIds?.length) {
+      const set = new Set(params.industryIds);
+      result = result.filter((p) => p.industryIds.some((id) => set.has(id)));
+    }
     if (params?.isDiscount) result = result.filter((p) => p.isDiscount);
     if (params?.isNewArrival) result = result.filter((p) => p.isNewArrival);
     if (params?.isFastMoving) result = result.filter((p) => p.isFastMoving);
+    if (params?.category) {
+      const c = params.category.toLowerCase();
+      result = result.filter((p) => p.category.toLowerCase().includes(c));
+    }
     return result;
   },
 
