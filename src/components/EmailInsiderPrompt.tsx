@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Sparkles, X, Gift, Bell, Tag } from "lucide-react";
-import { EMAIL_CAPTURE_ENABLED } from "@/config/features";
 import { usePersona } from "@/contexts/PersonaContext";
-import { api } from "@/services/api";
+import { useSiteConfig } from "@/contexts/SiteConfigContext";
+import { apiUrl } from "@/config/api";
 
 /**
  * Proactive insider-led email capture.
