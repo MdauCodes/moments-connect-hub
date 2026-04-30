@@ -1,16 +1,15 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { PackagingCloud } from "@/components/PackagingCloud";
 import { IndustriesStrip } from "@/components/IndustriesStrip";
 import { LatestBlogsStrip } from "@/components/blog/LatestBlogsStrip";
 import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
+import { ProductCard } from "@/components/ProductCard";
+import { ConfiguratorModal } from "@/components/ConfiguratorModal";
 import { ArrowRight, ShoppingCart, Smartphone, Truck, Pencil, Grid, Phone, Truck as TruckIcon } from "lucide-react";
 import { api } from "@/services/api";
 import type { Product } from "@/data/products";
-import { useCart } from "@/contexts/CartContext";
-import { apiUrl } from "@/config/api";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
