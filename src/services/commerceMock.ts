@@ -339,3 +339,100 @@ export function updateOrderStatusMock(id: string, status: OrderStatus): OrderRec
   if (status === "REFUNDED") o.paymentStatus = "REFUNDED";
   return o;
 }
+
+// ---------------------------------------------------------------------------
+// Customers (Phase 2) — derived from existing orders so totals stay coherent.
+// ---------------------------------------------------------------------------
+
+export interface CustomerRecord {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  defaultAddress: string;
+  ordersCount: number;
+  lifetimeValue: number;
+  averageOrderValue: number;
+  lastOrderAt: string | null;
+  firstOrderAt: string | null;
+  status: "ACTIVE" | "AT_RISK" | "DORMANT" | "VIP";
+  segment: "RETAIL" | "WHOLESALE" | "ENTERPRISE";
+  notes?: string;
+}
+
+function buildCustomers(): CustomerRecord[] {
+  const byEmail = new Map<string, CustomerRecord & { _orderDates: number[] }>();
+  ORDERS.forEach((o) => {
+    const key = o.customerEmail;
+    const t = new Date(o.createdAt).getTime();
+    const cur = byEmail.get(key);
+    if (cur) {
+      cur.ordersCount += 1;
+      cur.lifetimeValue += o.total;
+      cur._orderDates.push(t);
+    } else {
+      byEmail.set(key, {
+        id: `cust-${byEmail.size + 1}`,
+        name: o.customerName,
+        email: o.customerEmail,
+        phone: o.customerPhone,
+        city: o.city,
+        defaultAddress: o.shippingAddress,
+        ordersCount: 1,
+        lifetimeValue: o.total,
+        averageOrderValue: 0,
+        lastOrderAt: null,
+        firstOrderAt: null,
+        status: "ACTIVE",
+        segment: o.customerEmail.match(/restaurant|hub|bakery|coffee|java|pizza|sweet|coast/i) ? "WHOLESALE" : "RETAIL",
+        _orderDates: [t],
+      });
+    }
+  });
+  const now = Date.now();
+  return Array.from(byEmail.values()).map((c) => {
+    const dates = c._orderDates.sort((a, b) => a - b);
+    const lastOrderAt = new Date(dates[dates.length - 1]).toISOString();
+    const firstOrderAt = new Date(dates[0]).toISOString();
+    const ageDays = (now - dates[dates.length - 1]) / 86_400_000;
+    const status: CustomerRecord["status"] =
+      c.lifetimeValue > 100_000 ? "VIP" : ageDays > 21 ? "DORMANT" : ageDays > 10 ? "AT_RISK" : "ACTIVE";
+    const segment: CustomerRecord["segment"] = c.lifetimeValue > 250_000 ? "ENTERPRISE" : c.segment;
+    const { _orderDates, ...rest } = c;
+    void _orderDates;
+    return {
+      ...rest,
+      averageOrderValue: Math.round(c.lifetimeValue / c.ordersCount),
+      lastOrderAt,
+      firstOrderAt,
+      status,
+      segment,
+    };
+  }).sort((a, b) => b.lifetimeValue - a.lifetimeValue);
+}
+
+const CUSTOMERS_DERIVED = buildCustomers();
+
+export function listCustomersMock(params: { q?: string; status?: string; segment?: string; page?: number; size?: number } = {}) {
+  const page = params.page ?? 0;
+  const size = params.size ?? 20;
+  let rows = CUSTOMERS_DERIVED;
+  if (params.status && params.status !== "ALL") rows = rows.filter((c) => c.status === params.status);
+  if (params.segment && params.segment !== "ALL") rows = rows.filter((c) => c.segment === params.segment);
+  if (params.q) {
+    const q = params.q.toLowerCase();
+    rows = rows.filter((c) => c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.phone.includes(q));
+  }
+  const total = rows.length;
+  const slice = rows.slice(page * size, page * size + size);
+  return { rows: slice, total, totalPages: Math.max(1, Math.ceil(total / size)) };
+}
+
+export function getCustomerMock(id: string): { customer: CustomerRecord | undefined; orders: OrderRecord[] } {
+  const customer = CUSTOMERS_DERIVED.find((c) => c.id === id || c.email === id);
+  if (!customer) return { customer: undefined, orders: [] };
+  const orders = ORDERS.filter((o) => o.customerEmail === customer.email)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  return { customer, orders };
+}
