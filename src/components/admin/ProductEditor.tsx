@@ -684,6 +684,166 @@ export function ProductEditor({
           </div>
           <ImagePicker value={values.image} onChange={(url) => set("image", url)} />
         </div>
+
+        {/* Pricing & Inventory */}
+        <div style={styles.card}>
+          <div style={styles.cardHeader}>
+            <div style={styles.cardTitle}>Pricing & inventory</div>
+            <span style={styles.helper}>All prices in KES. Stock drives low-stock alerts.</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={styles.rowThree} data-admin-row>
+              <div style={styles.field}>
+                <label style={styles.label}>SKU</label>
+                <input
+                  style={styles.input}
+                  value={values.sku ?? ""}
+                  onChange={(e) => set("sku", e.target.value)}
+                  placeholder="e.g. KRB-MD-001"
+                />
+              </div>
+              <div style={styles.field}>
+                <label style={styles.label}>Base price (KES)</label>
+                <input
+                  type="number"
+                  min={0}
+                  style={styles.input}
+                  value={values.basePrice ?? ""}
+                  onChange={(e) => set("basePrice", e.target.value ? Number(e.target.value) : undefined)}
+                  placeholder="0"
+                />
+              </div>
+              <div style={styles.field}>
+                <label style={styles.label}>Compare-at price</label>
+                <input
+                  type="number"
+                  min={0}
+                  style={styles.input}
+                  value={values.compareAtPrice ?? ""}
+                  onChange={(e) => set("compareAtPrice", e.target.value ? Number(e.target.value) : undefined)}
+                  placeholder="optional strike-through"
+                />
+              </div>
+            </div>
+
+            <label style={styles.switchRow}>
+              <input
+                type="checkbox"
+                checked={values.trackInventory ?? true}
+                onChange={(e) => set("trackInventory", e.target.checked)}
+              />
+              <span style={styles.switchLabel}>Track inventory levels for this product</span>
+            </label>
+
+            {(values.trackInventory ?? true) && (
+              <div style={styles.row} data-admin-row>
+                <div style={styles.field}>
+                  <label style={styles.label}>Stock on hand (units)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    style={styles.input}
+                    value={values.stock ?? 0}
+                    onChange={(e) => set("stock", Number(e.target.value) || 0)}
+                  />
+                </div>
+                <div style={styles.field}>
+                  <label style={styles.label}>Low-stock threshold</label>
+                  <input
+                    type="number"
+                    min={0}
+                    style={styles.input}
+                    value={values.lowStockThreshold ?? 50}
+                    onChange={(e) => set("lowStockThreshold", Number(e.target.value) || 0)}
+                  />
+                  <span style={styles.helper}>Alert when stock drops below this number.</span>
+                </div>
+              </div>
+            )}
+
+            <div style={styles.field}>
+              <label style={styles.label}>Variants (size / material combinations)</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {(values.variants ?? []).map((variant, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1.4fr 0.9fr 0.7fr 0.7fr auto",
+                      gap: 6,
+                      alignItems: "center",
+                    }}
+                  >
+                    <input
+                      style={styles.input}
+                      placeholder="Label (e.g. Small / Kraft)"
+                      value={variant.label}
+                      onChange={(e) => {
+                        const next = [...(values.variants ?? [])];
+                        next[idx] = { ...variant, label: e.target.value };
+                        set("variants", next);
+                      }}
+                    />
+                    <input
+                      style={styles.input}
+                      placeholder="SKU"
+                      value={variant.sku ?? ""}
+                      onChange={(e) => {
+                        const next = [...(values.variants ?? [])];
+                        next[idx] = { ...variant, sku: e.target.value };
+                        set("variants", next);
+                      }}
+                    />
+                    <input
+                      type="number"
+                      min={0}
+                      style={styles.input}
+                      placeholder="Price"
+                      value={variant.price ?? ""}
+                      onChange={(e) => {
+                        const next = [...(values.variants ?? [])];
+                        next[idx] = { ...variant, price: e.target.value ? Number(e.target.value) : undefined };
+                        set("variants", next);
+                      }}
+                    />
+                    <input
+                      type="number"
+                      min={0}
+                      style={styles.input}
+                      placeholder="Stock"
+                      value={variant.stock ?? ""}
+                      onChange={(e) => {
+                        const next = [...(values.variants ?? [])];
+                        next[idx] = { ...variant, stock: e.target.value ? Number(e.target.value) : undefined };
+                        set("variants", next);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      style={styles.removeX}
+                      onClick={() => set("variants", (values.variants ?? []).filter((_, i) => i !== idx))}
+                      aria-label="Remove variant"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  style={styles.ghostBtn}
+                  onClick={() =>
+                    set("variants", [...(values.variants ?? []), { label: "", sku: "", price: undefined, stock: undefined }])
+                  }
+                >
+                  + Add variant
+                </button>
+              </div>
+              <span style={styles.helper}>
+                Leave empty for a single-SKU product — base price + stock above will be used.
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div style={styles.sideColumn}>
