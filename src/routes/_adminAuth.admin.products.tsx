@@ -9,7 +9,7 @@ import { adminResources, type IndustryDto, type ProductDto, type ProductRequest 
 
 export const Route = createFileRoute("/_adminAuth/admin/products")({ component: AdminProductsPage });
 
-const emptyProduct: ProductRequest = { name: "", category: "", description: "", moq: 1, sizes: [], tags: [], keywords: [], primaryImageUrl: "", imageUrls: [], isDiscount: false, discountPercent: undefined, isNewArrival: false, isFastMoving: false, material: "", finish: "", industryIds: [] };
+const emptyProduct: ProductRequest = { name: "", category: "", description: "", moq: 1, sizes: [], tags: [], keywords: [], primaryImageUrl: "", imageUrls: [], isDiscount: false, discountPercent: undefined, isNewArrival: false, isFastMoving: false, material: "", finish: "", industryIds: [], sku: "", basePrice: undefined, compareAtPrice: undefined, stock: 0, lowStockThreshold: 50, trackInventory: true, variants: [] };
 function csv(v?: string[]) { return (v ?? []).join(", "); }
 function split(v: string) { return v.split(",").map((x) => x.trim()).filter(Boolean); }
 
