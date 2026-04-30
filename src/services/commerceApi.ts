@@ -82,7 +82,7 @@ export interface ListOrdersResult {
 export async function listOrders(params: ListOrdersParams = {}): Promise<ListOrdersResult> {
   const live = await tryLive<{ content?: OrderRecord[]; totalElements?: number; totalPages?: number } | OrderRecord[]>(
     "orders",
-    `/api/v1/admin/orders${qs(params)}`,
+    `/api/v1/admin/orders${qs(params as Record<string, unknown>)}`,
   );
   if (live) {
     const rows = Array.isArray(live) ? live : live.content ?? [];
@@ -136,7 +136,7 @@ export interface ListPaymentsResult {
 export async function listPayments(params: ListPaymentsParams = {}): Promise<ListPaymentsResult> {
   const live = await tryLive<{ content?: PaymentRecord[]; totalElements?: number; totalPages?: number } | PaymentRecord[]>(
     "payments",
-    `/api/v1/admin/payments${qs(params)}`,
+    `/api/v1/admin/payments${qs(params as Record<string, unknown>)}`,
   );
   if (live) {
     const rows = Array.isArray(live) ? live : live.content ?? [];
