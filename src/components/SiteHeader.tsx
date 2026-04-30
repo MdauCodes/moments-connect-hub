@@ -127,7 +127,7 @@ export function SiteHeader() {
           </button>
 
           <nav className="ml-auto hidden items-center gap-1 md:flex">
-            {nav.slice(0, -1).map((n) => {
+            {nav.map((n) => {
               if (n.hasDropdown) {
                 return (
                   <div
@@ -194,12 +194,79 @@ export function SiteHeader() {
                 </Link>
               );
             })}
-            <Link
-              to="/contact"
-              className="ml-2 inline-flex items-center rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md lg:px-5"
-            >
-              Get a Quote
-            </Link>
+            <div className="ml-2 flex items-center gap-1">
+              <Link
+                to="/cart"
+                aria-label="Cart"
+                className="relative grid h-10 w-10 place-items-center rounded-full text-foreground/80 transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                <ShoppingBag className="h-5 w-5" />
+                {itemCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 grid min-w-[18px] h-[18px] place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                    {itemCount > 99 ? "99+" : itemCount}
+                  </span>
+                )}
+              </Link>
+
+              <div ref={accountRef} className="relative">
+                <button
+                  type="button"
+                  aria-label="Account"
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      navigate({ to: "/account/login" });
+                    } else {
+                      setAccountOpen((v) => !v);
+                    }
+                  }}
+                  className="grid h-10 w-10 place-items-center rounded-full text-foreground/80 transition-colors hover:bg-secondary hover:text-foreground"
+                >
+                  <User className="h-5 w-5" />
+                </button>
+                {isAuthenticated && accountOpen && (
+                  <div className="absolute right-0 top-full z-50 w-56 pt-2">
+                    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-xl ring-1 ring-black/5">
+                      <div className="border-b border-border px-4 py-3 font-display text-sm text-foreground">
+                        Hi {user?.firstName ?? "there"}
+                      </div>
+                      <Link
+                        to="/account/orders"
+                        onClick={() => setAccountOpen(false)}
+                        className="block px-4 py-2.5 text-sm text-foreground/80 hover:bg-secondary hover:text-foreground"
+                      >
+                        My Orders
+                      </Link>
+                      <Link
+                        to="/account/profile"
+                        onClick={() => setAccountOpen(false)}
+                        className="block px-4 py-2.5 text-sm text-foreground/80 hover:bg-secondary hover:text-foreground"
+                      >
+                        Profile
+                      </Link>
+                      <Link
+                        to="/account/wishlist"
+                        onClick={() => setAccountOpen(false)}
+                        className="block px-4 py-2.5 text-sm text-foreground/80 hover:bg-secondary hover:text-foreground"
+                      >
+                        Wishlist
+                      </Link>
+                      <div className="border-t border-border" />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          setAccountOpen(false);
+                          await logout();
+                          navigate({ to: "/" });
+                        }}
+                        className="block w-full px-4 py-2.5 text-left text-sm font-medium text-accent hover:bg-secondary"
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </nav>
 
           {/* Tablet/mobile search icon (shown below lg, where the full search bar is hidden) */}
