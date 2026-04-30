@@ -33,14 +33,11 @@ export function AppSplash() {
           <img
             src={logoUrl}
             alt=""
-            width={180}
-            height={52}
-            className="h-12 w-auto sm:h-14"
+            width={320}
+            height={100}
+            className="h-20 w-auto sm:h-24"
             draggable={false}
           />
-        </span>
-        <span className="splash-tagline text-[10px] font-medium uppercase tracking-[0.32em] sm:text-xs">
-          Packaging (K) Limited
         </span>
       </div>
     </div>
