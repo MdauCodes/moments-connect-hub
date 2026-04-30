@@ -53,6 +53,10 @@ export function IndustriesStrip() {
                   <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                     {ind.tagline ?? ind.description}
                   </p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-accent">
+                    Shop {ind.name.toLowerCase()} packaging
+                    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                  </span>
                 </Link>
               </li>
             );

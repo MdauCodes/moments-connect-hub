@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Sparkles, X, Gift, Bell, Tag } from "lucide-react";
-import { EMAIL_CAPTURE_ENABLED } from "@/config/features";
 import { usePersona } from "@/contexts/PersonaContext";
-import { api } from "@/services/api";
+import { useSiteConfig } from "@/contexts/SiteConfigContext";
+import { apiUrl } from "@/config/api";
 
 /**
  * Proactive insider-led email capture.
@@ -16,6 +16,7 @@ import { api } from "@/services/api";
  */
 
 const STORAGE_KEY = "moments_insider_prompt";
+const LEAD_KEY = "mpk_lead";
 const IDLE_MS = 30_000;
 const SCROLL_THRESHOLD = 0.5;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -23,6 +24,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function shouldShow(): boolean {
   if (typeof window === "undefined") return false;
   try {
+    if (window.localStorage.getItem(LEAD_KEY)) return false;
     return window.sessionStorage.getItem(STORAGE_KEY) === null;
   } catch {
     return true;
@@ -31,6 +33,7 @@ function shouldShow(): boolean {
 
 export function EmailInsiderPrompt() {
   const { persona } = usePersona();
+  const { emailCaptureEnabled } = useSiteConfig();
   const [eligible, setEligible] = useState(false);
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -39,11 +42,10 @@ export function EmailInsiderPrompt() {
   const [submitted, setSubmitted] = useState(false);
   const firedRef = useRef(false);
 
-  // Eligibility — re-check whenever persona changes (covers banner submit during session).
   useEffect(() => {
-    if (!EMAIL_CAPTURE_ENABLED) return;
+    if (!emailCaptureEnabled) return;
     setEligible(shouldShow());
-  }, [persona]);
+  }, [persona, emailCaptureEnabled]);
 
   // Trigger setup
   useEffect(() => {
@@ -108,7 +110,7 @@ export function EmailInsiderPrompt() {
     return () => clearTimeout(t);
   }, [submitted]);
 
-  if (!EMAIL_CAPTURE_ENABLED) return null;
+  if (!emailCaptureEnabled) return null;
   if (!open) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -121,8 +123,13 @@ export function EmailInsiderPrompt() {
     setError(null);
     setLoading(true);
     try {
-      await api.submitLead(trimmed, persona ?? "unknown");
+      await fetch(apiUrl("/api/v1/public/leads"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed, source: "popup", trigger: "newsletter" }),
+      });
       try {
+        window.localStorage.setItem(LEAD_KEY, "1");
         window.sessionStorage.setItem(STORAGE_KEY, "submitted");
       } catch {
         // ignore
