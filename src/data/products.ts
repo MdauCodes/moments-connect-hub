@@ -160,6 +160,13 @@ export type Product = {
   material?: string; // e.g. "Kraft 120gsm", "PE-lined paper"
   finish?: string;   // e.g. "Matte", "Gloss", "Soft-touch"
   keywords?: string[]; // free-form synonyms / sheng / common misspellings
+  /** Backend-only enrichments (Phase C). UI must handle absence gracefully. */
+  basePrice?: number;
+  materials?: string[];
+  primaryImageUrl?: string;
+  imageUrls?: string[];
+  industries?: Array<{ id: string; name: string; slug: string }>;
+  pricingTiers?: Array<{ minQty: number; maxQty?: number; pricePerUnit: number }>;
 };
 
 export const categories = [
