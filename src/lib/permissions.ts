@@ -33,6 +33,8 @@ export type Permission =
   | "order:refund"
   | "payment:view"
   | "payment:refund"
+  | "customer:view"
+  | "customer:edit"
   // Staff & settings
   | "staff:manage"
   | "settings:manage";
@@ -51,6 +53,8 @@ const ADMIN_PERMS: Permission[] = [
   "order:refund",
   "payment:view",
   "payment:refund",
+  "customer:view",
+  "customer:edit",
   "staff:manage",
   "settings:manage",
 ];
