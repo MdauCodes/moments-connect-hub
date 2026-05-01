@@ -82,31 +82,33 @@ function FeaturedProducts() {
   }, []);
 
   return (
-    <section className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-24">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Curated highlights</p>
-          <h2 className="mt-3 font-display text-3xl font-medium text-foreground sm:text-4xl">
-            Picks of the moment
-          </h2>
+    <section className="bg-forest text-forest-foreground">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8 lg:py-24">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Curated highlights</p>
+            <h2 className="mt-3 font-display text-3xl font-medium text-forest-foreground sm:text-4xl">
+              Picks of the moment
+            </h2>
+          </div>
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 text-sm font-medium text-forest-foreground hover:text-accent"
+          >
+            Browse all products <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
-        <Link
-          to="/products"
-          className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent"
-        >
-          Browse all products <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
 
-      <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-        {products === null
-          ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-          : products.map((p) => (
-              <ProductCard key={p.id} product={p} onConfigure={setConfiguring} />
-            ))}
-      </div>
+        <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+          {products === null
+            ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
+            : products.map((p) => (
+                <ProductCard key={p.id} product={p} onConfigure={setConfiguring} />
+              ))}
+        </div>
 
-      <ConfiguratorModal product={configuring} onClose={() => setConfiguring(null)} />
+        <ConfiguratorModal product={configuring} onClose={() => setConfiguring(null)} />
+      </div>
     </section>
   );
 }
