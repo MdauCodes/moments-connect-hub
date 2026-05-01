@@ -113,6 +113,18 @@ function ProductDetail() {
   }, [product]);
   const [activeImage, setActiveImage] = useState(allImages[0]);
 
+  // Variants take precedence — when present, drive price/sku/stock.
+  const variants = product.variants ?? [];
+  const [variantId, setVariantId] = useState<string | undefined>(
+    variants[0]?.id ?? variants[0]?.label,
+  );
+  const activeVariant = useMemo(
+    () =>
+      variants.find((v) => (v.id ?? v.label) === variantId) ??
+      (variants.length > 0 ? variants[0] : undefined),
+    [variants, variantId],
+  );
+
   // Configurator state
   const [size, setSize] = useState(product.sizes?.[0] ?? "");
   const [material, setMaterial] = useState(
@@ -137,8 +149,15 @@ function ProductDetail() {
       ) ?? tiers[tiers.length - 1],
     [tiers, qty],
   );
-  const unitPrice = activeTier?.pricePerUnit ?? product.basePrice ?? 0;
+  // Variant price overrides tier price when present.
+  const unitPrice =
+    activeVariant?.price ?? activeTier?.pricePerUnit ?? product.basePrice ?? 0;
   const lineTotal = qty * unitPrice;
+
+  const stock = useMemo(
+    () => getStockInfo(product, activeVariant, qty),
+    [product, activeVariant, qty],
+  );
 
   // Click tracking on mount
   useEffect(() => {
