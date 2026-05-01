@@ -170,7 +170,7 @@ function HeroProductTile({ product }: { product: Product }) {
       params={{ slug: product.slug }}
       className="group flex flex-col overflow-hidden rounded-xl border border-border bg-background transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="aspect-square overflow-hidden bg-secondary">
+      <div className="aspect-[4/3] overflow-hidden bg-secondary">
         <img
           src={image}
           alt={product.name}
@@ -208,15 +208,15 @@ function HeroProductTile({ product }: { product: Product }) {
 function HeroProductsGrid({ products }: { products: Product[] | null }) {
   if (products === null) {
     return (
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="ml-auto grid w-full max-w-md grid-cols-2 gap-2.5 sm:gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="aspect-[3/4] animate-pulse rounded-xl bg-secondary/60" />
+          <div key={i} className="aspect-[4/3] animate-pulse rounded-xl bg-secondary/60" />
         ))}
       </div>
     );
   }
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+    <div className="ml-auto grid w-full max-w-md grid-cols-2 gap-2.5 sm:gap-3">
       {products.slice(0, 4).map((p) => (
         <HeroProductTile key={p.id} product={p} />
       ))}
@@ -350,7 +350,7 @@ function HomePage() {
           opacity={0.05}
         />
         <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:py-16 lg:grid-cols-12 lg:gap-12 lg:px-8 lg:py-20">
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-7">
             <p className="text-[11px] uppercase tracking-[0.25em] text-accent">
               Premium paper packaging
             </p>
@@ -394,7 +394,7 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="relative lg:col-span-6">
+          <div className="relative lg:col-span-5">
             <CornerLines className="-right-2 -top-2 rotate-180" opacity={0.12} />
             <CornerLines className="-bottom-2 -left-2" opacity={0.12} />
             <HeroProductsGrid products={heroProducts} />
