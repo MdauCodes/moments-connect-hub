@@ -1374,3 +1374,248 @@ assume:
    to the bucket / Cloudflare.
 
 Everything else in this document is intentionally prescriptive.
+
+---
+
+## 21. Storefront customer endpoints (added Phases 4–5)
+
+> **Context:** the React storefront ships as a "mock-live hybrid". Every
+> call below is attempted against the Spring Boot backend first; on any
+> failure it falls back to deterministic `localStorage` so the UI flow keeps
+> working in demos. Once the backend implements these endpoints with the
+> exact paths, methods, and JSON shapes below, the frontend starts using
+> live data with **no client changes required**.
+>
+> All paths are versioned under `/api/v1`. JSON only, camelCase fields,
+> ISO-8601 UTC timestamps, KES currency.
+>
+> A new role **`ROLE_CUSTOMER`** is required for the customer self-service
+> endpoints under `/customer/**`. Add it to the `Role` enum and seed it on
+> registration (§21.2).
+
+### 21.1 Public — `/api/v1/public` (no auth)
+
+| Method | Path | Body / Query | Returns | Notes |
+| --- | --- | --- | --- | --- |
+| POST | `/orders` | `OrderCreateRequest` (§21.6) | `CustomerOrder` (§21.7) | Guest checkout allowed. `paymentMethod` is `MPESA` for v1. Server generates `reference` (`MP-#####`). |
+| POST | `/payments/mpesa/stk` | `{ orderReference, phone }` | `{ success: boolean }` | Triggers Daraja STK push. Idempotent on `orderReference`. |
+| GET  | `/orders/{reference}?contact=` | `contact` = email or phone (E.164) | `CustomerOrder` | Guest order lookup; verify `contact` matches the order or 404. |
+| GET  | `/payments/{reference}/status` | — | `{ paymentStatus, status }` | Polled every ~3 s by `/checkout/processing`. |
+
+### 21.2 Auth — `/api/v1/auth` (extends §4)
+
+| Method | Path | Body | Returns | Notes |
+| --- | --- | --- | --- | --- |
+| POST | `/register` | `{ firstName, lastName, email, phone, password }` | `LoginResponse` | Creates user with `ROLE_CUSTOMER`, sends verification email, returns access + refresh tokens. |
+| POST | `/forgot-password` | `{ email }` | `204` | Always returns 204 (don't leak account existence). Sends reset email if account exists. |
+| POST | `/reset-password` | `{ token, password }` | `204` | `token` is the one-time JWT/uuid sent in the reset email. |
+| POST | `/verify` | `{ token }` | `204` | Marks the account `emailVerified=true`. |
+
+### 21.3 Customer — `/api/v1/customer` (Bearer required, `ROLE_CUSTOMER`)
+
+| Method | Path | Body | Returns | Notes |
+| --- | --- | --- | --- | --- |
+| GET    | `/orders` | — | `Page<CustomerOrder>` or `CustomerOrder[]` | Authed list of the caller's orders. |
+| GET    | `/orders/{reference}` | — | `CustomerOrder` | 404 if order does not belong to caller. |
+| GET    | `/profile` | — | `CustomerProfile` (§21.8) | |
+| PUT    | `/profile` | `CustomerProfile` | `CustomerProfile` | Replaces profile + addresses. Server enforces only one `isDefault=true` address. |
+| GET    | `/wishlist` | — | `string[]` (productIds) **or** `{ productIds: string[] }` | Both shapes accepted by the client. |
+| POST   | `/wishlist/{productId}` | — | `204` | Idempotent add. |
+| DELETE | `/wishlist/{productId}` | — | `204` | Idempotent remove. |
+
+### 21.4 Webhooks — `/api/v1/webhooks` (no client auth; HMAC-verified)
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| POST | `/mpesa/callback` | Safaricom Daraja STK callback. Verify shortcode, update `payments` row, set order `paymentStatus`/`status`, append a tracking event, optionally trigger receipt email. |
+
+### 21.5 Order lifecycle (must mirror frontend literals)
+
+`status` (enum, exact strings):
+`AWAITING_PAYMENT`, `PAID`, `PROCESSING`, `PACKED`, `SHIPPED`, `DELIVERED`,
+`CANCELLED`, `REFUNDED`, `PAYMENT_FAILED`.
+
+`paymentStatus` (enum): `PENDING`, `SUCCESS`, `FAILED`, `CANCELLED`.
+
+`paymentMethod` (enum): `MPESA` (v1), `CARD`, `BANK` (future).
+
+State machine the backend must enforce:
+```
+AWAITING_PAYMENT ──pay success──▶ PAID ──ack──▶ PROCESSING ──pack──▶ PACKED
+                                                                       │
+                                                                       ▼
+                                                                    SHIPPED ──deliver──▶ DELIVERED
+AWAITING_PAYMENT ──pay fail / timeout──▶ PAYMENT_FAILED
+PAID/PROCESSING ──admin cancel──▶ CANCELLED
+DELIVERED ──admin refund──▶ REFUNDED
+```
+
+### 21.6 `OrderCreateRequest`
+
+```json
+{
+  "items": [
+    {
+      "productId": "uuid",
+      "quantity": 2,
+      "size": "M",            // optional
+      "material": "Kraft",    // optional
+      "finish": "Matte",      // optional
+      "variantId": "uuid"     // optional — wins over size/material/finish if present
+    }
+  ],
+  "customer": {
+    "name": "Jane Wanjiru",
+    "email": "jane@example.com",
+    "phone": "254712345678",       // E.164 (no leading +)
+    "address": "House 12, Riverside Drive",
+    "city": "Nairobi",
+    "notes": "Call before delivery"  // optional
+  },
+  "shippingFee": 350,                // KES; client computes per §21.10, server MUST recompute and reject mismatches > 1 KES
+  "paymentMethod": "MPESA"
+}
+```
+
+Validation:
+- `items`: 1..50, each `quantity` 1..1000.
+- `phone`: `^254[71]\d{8}$`.
+- `email`: RFC-compliant, ≤ 255.
+- `address`: 5..255; `city`: 2..80; `notes`: ≤ 500.
+- Reject items where the product / variant is `out_of_stock` AND backorder is disabled.
+
+### 21.7 `CustomerOrder` (response shape)
+
+```json
+{
+  "reference": "MP-12345",
+  "status": "AWAITING_PAYMENT",
+  "paymentStatus": "PENDING",
+  "paymentMethod": "MPESA",
+  "paymentReference": "QABCDEF1234",   // present once SUCCESS
+  "failureReason": "User cancelled STK push",  // present once FAILED/CANCELLED
+  "customerName": "Jane Wanjiru",
+  "customerEmail": "jane@example.com",
+  "customerPhone": "254712345678",
+  "shippingAddress": "House 12, Riverside Drive",
+  "city": "Nairobi",
+  "notes": "Call before delivery",
+  "items": [
+    {
+      "productId": "uuid",
+      "productName": "Kraft Mailer Box (Medium)",
+      "primaryImageUrl": "https://cdn.../box.webp",
+      "size": "M",
+      "material": "Kraft",
+      "finish": "Matte",
+      "quantity": 2,
+      "unitPrice": 450,
+      "lineTotal": 900,
+      "variantLabel": "Medium · Kraft · Matte",  // optional, denormalised
+      "sku": "KMB-M-KRA-MAT",                     // optional
+      "isBackorder": false                         // true if order accepted while stock < quantity
+    }
+  ],
+  "subtotal": 900,
+  "shippingFee": 350,
+  "total": 1250,
+  "currency": "KES",
+  "createdAt": "2026-05-01T10:15:30Z",
+  "updatedAt": "2026-05-01T10:15:30Z",
+  "trackingNumber": "POSTA-NRB-90211",   // optional, set when SHIPPED
+  "trackingEvents": [
+    { "at": "2026-05-01T10:15:30Z", "label": "Order placed", "description": "Awaiting payment confirmation" },
+    { "at": "2026-05-01T10:16:02Z", "label": "Payment confirmed", "description": "M-Pesa QABCDEF1234" }
+  ]
+}
+```
+
+### 21.8 `CustomerProfile`
+
+```json
+{
+  "firstName": "Jane",
+  "lastName": "Wanjiru",
+  "email": "jane@example.com",
+  "phone": "254712345678",
+  "addresses": [
+    {
+      "id": "uuid",
+      "label": "Home",
+      "recipient": "Jane Wanjiru",
+      "phone": "254712345678",
+      "line1": "House 12, Riverside Drive",
+      "city": "Nairobi",
+      "isDefault": true
+    }
+  ]
+}
+```
+
+Server invariants:
+- At most one address with `isDefault=true`.
+- Deleting the default address auto-promotes the next one.
+- `email` is read-only here; changes go through a dedicated re-verification flow (future).
+
+### 21.9 Stock & variants (client expectations)
+
+The `/products/{slug}` payload SHOULD include:
+- `basePrice`, optional `compareAtPrice`
+- `pricingTiers: [{ minQty, unitPrice }]`
+- `stock: number | null` (null = untracked), `lowStockThreshold: number`
+- `variants: [{ id, label, sku, price?, stock?, attributes: { size?, material?, finish? } }]`
+- `allowBackorder: boolean` (default `true` for MVP)
+
+The frontend renders stock state via `src/lib/stock.ts`:
+- `stock <= 0` → "Out of stock" (still purchasable as backorder if allowed)
+- `0 < stock <= lowStockThreshold` → "Low stock"
+- Otherwise "In stock"
+
+### 21.10 Shipping fee rule (must match client)
+
+```
+SHIPPING_THRESHOLD_KES = 5000
+SHIPPING_FLAT_KES      = 350
+shippingFee = subtotal >= 5000 ? 0 : 350
+```
+
+Source: `src/services/orderStore.ts` → `computeShippingFee`. The backend MUST
+recompute server-side and reject `OrderCreateRequest` if the client-supplied
+`shippingFee` differs by more than 1 KES.
+
+### 21.11 Database additions (Flyway `V004__customer_commerce.sql`)
+
+Tables required (column list — agent should generate full DDL):
+
+- `customers` (id, email UNIQUE, phone, password_hash, first_name, last_name, email_verified, created_at, updated_at)
+- `customer_addresses` (id, customer_id FK, label, recipient, phone, line1, city, is_default, created_at)
+- `customer_wishlist` (customer_id FK, product_id FK, created_at, PRIMARY KEY (customer_id, product_id))
+- `orders` (id, reference UNIQUE, customer_id FK NULL (guest), status, payment_status, payment_method, payment_reference, failure_reason, customer_name, customer_email, customer_phone, shipping_address, city, notes, subtotal, shipping_fee, total, currency, tracking_number, created_at, updated_at)
+- `order_items` (id, order_id FK, product_id, variant_id NULL, product_name, primary_image_url, size, material, finish, variant_label, sku, quantity, unit_price, line_total, is_backorder)
+- `order_events` (id, order_id FK, at, label, description)
+- `payments` (id, order_id FK, method, status, provider_ref, raw_callback JSONB, created_at, updated_at)
+- `password_reset_tokens` (token PK, customer_id FK, expires_at, used_at)
+- `email_verification_tokens` (token PK, customer_id FK, expires_at, used_at)
+
+Add `ROLE_CUSTOMER` to the `Role` enum and to a new `customer_roles` join (or reuse `user_roles` if customers and staff share a single principal table — recommended **separate** tables: `users` for staff, `customers` for shoppers).
+
+### 21.12 Mapping to the React frontend (Phases 4–5 additions)
+
+| Frontend call | Backend endpoint | File |
+| --- | --- | --- |
+| `orderStore.placeOrder()` | `POST /public/orders` | `src/services/orderStore.ts` |
+| `orderStore.startMpesaStk()` | `POST /public/payments/mpesa/stk` | `src/services/orderStore.ts` |
+| `orderStore.getStatus()` | `GET  /public/orders/{ref}` | `src/services/orderStore.ts` |
+| `orderStore.lookup()` | `GET  /public/orders/{ref}?contact=` | `src/services/orderStore.ts` |
+| `orderStore.listMine()` | `GET  /customer/orders` | `src/services/orderStore.ts` |
+| `orderStore.getMine()` | `GET  /customer/orders/{ref}` | `src/services/orderStore.ts` |
+| `profileStore.get/save()` | `GET/PUT /customer/profile` | `src/services/profileStore.ts` |
+| `WishlistContext` hydrate / toggle | `GET/POST/DELETE /customer/wishlist[/id]` | `src/contexts/WishlistContext.tsx` |
+| `passwordStore.requestReset()` | `POST /auth/forgot-password` | `src/services/passwordStore.ts` |
+| `passwordStore.reset()` | `POST /auth/reset-password` | `src/services/passwordStore.ts` |
+| `passwordStore.verifyEmail()` | `POST /auth/verify` | `src/services/passwordStore.ts` |
+| `register` form | `POST /auth/register` | `src/routes/account.register.tsx` |
+
+When the backend goes live, **no frontend changes are required** — the
+hybrid stores detect the live response and stop falling back to localStorage
+automatically.
