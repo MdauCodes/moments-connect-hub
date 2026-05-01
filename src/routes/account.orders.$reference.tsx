@@ -1,10 +1,12 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Package, MapPin, Phone, Mail, RotateCcw, ShoppingBag, CheckCircle2, Clock, Truck, AlertCircle } from "lucide-react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { ArrowLeft, Package, MapPin, Phone, Mail, RotateCcw, ShoppingBag, CheckCircle2, Clock, Truck, AlertCircle, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { PrintReceipt } from "@/components/PrintReceipt";
 import { orderStore, type CustomerOrder } from "@/services/orderStore";
+import { refundStore, refundEligibility, type RefundRequest, type RefundDesiredAction } from "@/services/refundStore";
 import { useCart } from "@/contexts/CartContext";
 
 export const Route = createFileRoute("/account/orders/$reference")({
@@ -39,12 +41,16 @@ function OrderDetailPage() {
   const { reference } = Route.useParams();
   const { addItem } = useCart();
   const [order, setOrder] = useState<CustomerOrder | null | undefined>(undefined);
+  const [refund, setRefund] = useState<RefundRequest | null>(null);
+  const [showRefundForm, setShowRefundForm] = useState(false);
 
   useEffect(() => {
     orderStore.getMine(reference).then((res) => setOrder(res.order));
+    refundStore.getForOrder(reference).then(setRefund);
   }, [reference]);
 
   const StatusIcon = useMemo(() => statusIcon(order?.status ?? ""), [order?.status]);
+  const eligibility = useMemo(() => order ? refundEligibility(order) : { eligible: false }, [order]);
 
   if (order === undefined) {
     return (
@@ -90,15 +96,44 @@ function OrderDetailPage() {
               Placed {new Date(order.createdAt).toLocaleString("en-KE")}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${statusTone(order.status)}`}>
               <StatusIcon className="h-3.5 w-3.5" /> {order.status.replace(/_/g, " ")}
             </span>
+            <PrintReceipt order={order} />
+            {eligibility.eligible && !refund && (
+              <button onClick={() => setShowRefundForm(true)} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary">
+                <Undo2 className="h-3.5 w-3.5" /> Request refund
+              </button>
+            )}
             <button onClick={handleReorder} className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
               <RotateCcw className="h-3.5 w-3.5" /> Re-order
             </button>
           </div>
         </div>
+
+        {refund && (
+          <div className="mt-4 rounded-xl border border-border bg-card p-4 text-sm">
+            <p className="font-semibold">Refund request: {refund.status}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Reason: {refund.reason}</p>
+            <p className="text-xs text-muted-foreground">Action: {refund.desiredAction.replace(/_/g, " ")}</p>
+            {refund.adminNote && <p className="mt-2 text-xs">Admin note: {refund.adminNote}</p>}
+          </div>
+        )}
+
+        {showRefundForm && (
+          <RefundForm
+            onCancel={() => setShowRefundForm(false)}
+            onSubmit={async (reason, desiredAction) => {
+              if (!order) return;
+              const { request } = await refundStore.submit(order, { reason, desiredAction });
+              setRefund(request);
+              setShowRefundForm(false);
+              toast.success("Refund request submitted — we'll respond within 2 business days.");
+            }}
+            daysRemaining={eligibility.daysRemaining ?? 14}
+          />
+        )}
 
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
@@ -176,5 +211,74 @@ function OrderDetailPage() {
         </div>
       </section>
     </SiteLayout>
+  );
+}
+
+function RefundForm({
+  onCancel,
+  onSubmit,
+  daysRemaining,
+}: {
+  onCancel: () => void;
+  onSubmit: (reason: string, desiredAction: RefundDesiredAction) => Promise<void>;
+  daysRemaining: number;
+}) {
+  const [reason, setReason] = useState("");
+  const [desiredAction, setDesiredAction] = useState<RefundDesiredAction>("REFUND");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (reason.trim().length < 10) {
+      toast.error("Please describe the issue (at least 10 characters)");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await onSubmit(reason.trim(), desiredAction);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-4 rounded-2xl border border-border bg-card p-5">
+      <p className="font-display text-lg">Request a refund or replacement</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        You have {daysRemaining} day{daysRemaining === 1 ? "" : "s"} left in the 14-day return window.
+      </p>
+      <div className="mt-4 grid gap-3">
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Preferred resolution</label>
+        <div className="flex flex-wrap gap-2">
+          {(["REFUND", "REPLACE", "STORE_CREDIT"] as const).map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => setDesiredAction(opt)}
+              className={`rounded-full border px-4 py-1.5 text-xs ${
+                desiredAction === opt ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:bg-secondary"
+              }`}
+            >
+              {opt === "REFUND" ? "Refund" : opt === "REPLACE" ? "Replacement" : "Store credit"}
+            </button>
+          ))}
+        </div>
+        <textarea
+          required
+          rows={4}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          maxLength={1000}
+          placeholder="Tell us what went wrong (damaged, wrong item, late delivery, …)"
+          className="mt-1 w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+        />
+      </div>
+      <div className="mt-4 flex justify-end gap-2">
+        <button type="button" onClick={onCancel} className="rounded-full border border-border px-4 py-2 text-xs hover:bg-secondary">Cancel</button>
+        <button type="submit" disabled={submitting} className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+          {submitting ? "Submitting…" : "Submit request"}
+        </button>
+      </div>
+    </form>
   );
 }

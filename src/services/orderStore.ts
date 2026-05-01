@@ -34,6 +34,9 @@ export interface CustomerOrderItem {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  variantLabel?: string;
+  sku?: string;
+  isBackorder?: boolean;
 }
 
 export interface CustomerOrder {
@@ -130,6 +133,9 @@ function buildOrderFromInput(input: PlaceOrderInput): CustomerOrder {
       quantity: it.quantity,
       unitPrice: it.unitPrice,
       lineTotal: it.lineTotal,
+      variantLabel: it.variantLabel,
+      sku: it.sku,
+      isBackorder: it.isBackorder,
     })),
     subtotal,
     shippingFee: input.shippingFee,

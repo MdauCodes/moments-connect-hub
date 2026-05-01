@@ -434,3 +434,19 @@
     [style*="marquee-x"] { animation: none !important; }
   }
 }
+
+/* ---- Print receipts (Phase 6) ----
+   When printing, hide everything except .mpk-print-area so the PrintReceipt
+   block IS the printed page. The component stays display:none on screen and
+   becomes block when @media print kicks in. */
+@media print {
+  body * { visibility: hidden !important; }
+  .mpk-print-area, .mpk-print-area * { visibility: visible !important; }
+  .mpk-print-area {
+    position: absolute !important;
+    inset: 0 !important;
+    background: #ffffff !important;
+    color: #000 !important;
+    padding: 24px !important;
+  }
+}

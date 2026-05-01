@@ -6,28 +6,37 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton";
 import { ProductCard } from "@/components/ProductCard";
 import { ConfiguratorModal } from "@/components/ConfiguratorModal";
+import { ProductReviews } from "@/components/ProductReviews";
 import type { Product } from "@/data/products";
 import { api } from "@/services/api";
 import { apiUrl } from "@/config/api";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { getStockInfo } from "@/lib/stock";
+import { reviewStore } from "@/services/reviewStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/products/$slug")({
   loader: async ({ params }) => {
     const product = await api.getProductBySlug(params.slug);
     if (!product) throw notFound();
-    return { product };
+    // Best-effort review summary for AggregateRating JSON-LD; never blocks rendering.
+    let reviewSummary: { count: number; average: number } | null = null;
+    try {
+      const { summary } = await reviewStore.listForProduct(product.id);
+      if (summary.count > 0) reviewSummary = { count: summary.count, average: summary.average };
+    } catch { /* ignore */ }
+    return { product, reviewSummary };
   },
   head: ({ loaderData }) => {
     const p = loaderData?.product;
+    const reviewSummary = loaderData?.reviewSummary;
     if (!p) return { meta: [{ title: "Product — Moments Packaging" }] };
     const image = p.primaryImageUrl ?? p.image;
     const url = `https://www.momentspackaging.com/products/${p.slug}`;
     const tracked = p.trackInventory ?? typeof p.stock === "number";
     const inStock = !tracked || (p.stock ?? 0) > 0;
-    const ld = {
+    const ld: Record<string, unknown> = {
       "@context": "https://schema.org",
       "@type": "Product",
       name: p.name,
@@ -49,6 +58,15 @@ export const Route = createFileRoute("/products/$slug")({
           }
         : undefined,
     };
+    if (reviewSummary && reviewSummary.count > 0) {
+      ld.aggregateRating = {
+        "@type": "AggregateRating",
+        ratingValue: reviewSummary.average,
+        reviewCount: reviewSummary.count,
+        bestRating: 5,
+        worstRating: 1,
+      };
+    }
     const breadcrumbLd = {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -595,19 +613,7 @@ function ProductDetail() {
           </TabsContent>
 
           <TabsContent value="reviews" className="mt-6">
-            <div className="rounded-xl border border-dashed border-border p-10 text-center">
-              <div className="flex justify-center gap-1 text-foreground/30">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <Star key={i} className="h-5 w-5" />
-                ))}
-              </div>
-              <p className="mt-3 font-display text-lg text-foreground">
-                No reviews yet
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Be the first after your order arrives.
-              </p>
-            </div>
+            <ProductReviews productId={product.id} productName={product.name} />
           </TabsContent>
         </Tabs>
       </section>

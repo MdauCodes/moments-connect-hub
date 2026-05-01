@@ -35,6 +35,8 @@ export type Permission =
   | "payment:refund"
   | "customer:view"
   | "customer:edit"
+  // Reviews (Phase 6)
+  | "review:moderate"
   // Staff & settings
   | "staff:manage"
   | "settings:manage";
@@ -55,6 +57,7 @@ const ADMIN_PERMS: Permission[] = [
   "payment:refund",
   "customer:view",
   "customer:edit",
+  "review:moderate",
   "staff:manage",
   "settings:manage",
 ];
@@ -73,6 +76,7 @@ const STAFF_PERMS: Permission[] = [
   "order:update",
   "payment:view",
   "customer:view",
+  "review:moderate",
   // NO order:refund, NO payment:refund, NO customer:edit
   // NO staff:manage, NO settings:manage
 ];
