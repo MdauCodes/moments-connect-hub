@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { MockBanner, formatKes, formatDateShort } from "@/components/admin/commerceUi";
-import { listCustomers, type ListCustomersResult } from "@/services/commerceApi";
+import { listCustomers, exportCustomers, type ListCustomersResult } from "@/services/commerceApi";
+import { downloadCsv, toCsv } from "@/lib/csv";
+import { Download } from "lucide-react";
 import type { CustomerRecord } from "@/services/commerceMock";
 
 export const Route = createFileRoute("/_adminAuth/admin/customers")({
