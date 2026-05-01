@@ -350,7 +350,7 @@ function HomePage() {
           opacity={0.05}
         />
         <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:py-16 lg:grid-cols-12 lg:gap-12 lg:px-8 lg:py-20">
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-7">
             <p className="text-[11px] uppercase tracking-[0.25em] text-accent">
               Premium paper packaging
             </p>
