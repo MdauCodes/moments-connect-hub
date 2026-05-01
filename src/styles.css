@@ -74,7 +74,7 @@
 :root {
   --radius: 0.5rem;
   /* Brand palette: warm cream, kraft brown, deep forest, clay accent */
-  --cream: oklch(0.975 0.018 85);
+  --cream: oklch(0.952 0.028 83);
   --kraft: oklch(0.62 0.09 60);
   --kraft-foreground: oklch(0.99 0.01 85);
   --forest: oklch(0.32 0.045 155);
