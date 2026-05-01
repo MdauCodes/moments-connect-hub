@@ -41,6 +41,7 @@ const mainNav: NavItem[] = [
   { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
   { label: "Payments", to: "/admin/payments", icon: CreditCard },
+  { label: "Reviews", to: "/admin/reviews", icon: Star, requires: "review:moderate" },
   { label: "Customers", to: "/admin/customers", icon: Users, requires: "customer:view" },
   { label: "Products", to: "/admin/products", icon: Package },
   { label: "Blogs", to: "/admin/blogs", icon: FileText },
