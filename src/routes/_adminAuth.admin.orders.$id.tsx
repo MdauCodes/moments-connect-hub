@@ -183,6 +183,66 @@ function AdminOrderDetailPage() {
                 <button className="admin-btn admin-btn-danger" disabled={saving} onClick={() => handleStatusChange("REFUNDED")}>Refund</button>
               </div>
             </div>
+
+            {/* Refund / return request — only when the customer has opened one */}
+            {refund && (
+              <div className="admin-panel" style={{ padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                  <div className="admin-label">Refund / return request</div>
+                  <span className={`n ${
+                    refund.status === "PENDING" ? "n-muted" :
+                    refund.status === "REJECTED" ? "n-muted" : "n-ok"
+                  }`}>{refund.status}</span>
+                </div>
+                <div style={{ marginTop: 8, fontSize: 13 }}>
+                  <div><b>Wants:</b> {refund.desiredAction.replace("_", " ")}</div>
+                  <div style={{ marginTop: 6 }}><b>Reason:</b></div>
+                  <p style={{ whiteSpace: "pre-wrap", margin: "4px 0", color: "var(--admin-muted)" }}>{refund.reason}</p>
+                  <div style={{ color: "var(--admin-muted)", fontSize: 11 }}>
+                    Submitted {new Date(refund.createdAt).toLocaleString("en-KE")}
+                    {refund.updatedAt !== refund.createdAt && ` · updated ${new Date(refund.updatedAt).toLocaleString("en-KE")}`}
+                  </div>
+                </div>
+
+                <label style={{ display: "block", marginTop: 12 }}>
+                  <span className="admin-label">Admin note (optional, shown to customer)</span>
+                  <textarea
+                    className="admin-textarea"
+                    rows={3}
+                    value={refundNote}
+                    onChange={(e) => setRefundNote(e.target.value)}
+                    placeholder="e.g. Approved — replacement dispatched via Sendy."
+                  />
+                </label>
+
+                <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                  <button
+                    className="admin-btn admin-btn-primary"
+                    disabled={refundBusy || refund.status === "APPROVED"}
+                    onClick={() => void updateRefund("APPROVED")}
+                  >
+                    {refundBusy && <Loader2 size={14} className="animate-spin" />}Approve
+                  </button>
+                  <button
+                    className="admin-btn admin-btn-ghost"
+                    disabled={refundBusy || refund.status === "REJECTED"}
+                    onClick={() => void updateRefund("REJECTED")}
+                  >
+                    Reject
+                  </button>
+                  <button
+                    className="admin-btn admin-btn-ghost"
+                    disabled={refundBusy || refund.status === "RESOLVED"}
+                    onClick={() => void updateRefund("RESOLVED")}
+                  >
+                    Mark resolved
+                  </button>
+                </div>
+                <p style={{ color: "var(--admin-muted)", fontSize: 11, marginTop: 10 }}>
+                  Tip: if you issue a money refund, also set the order status above to <b>REFUNDED</b>.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
