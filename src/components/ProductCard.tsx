@@ -55,6 +55,16 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               Hot
             </span>
           )}
+          {stock.state === "out_of_stock" && (
+            <span className="rounded-full bg-destructive px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-destructive-foreground">
+              Backorder
+            </span>
+          )}
+          {stock.state === "low_stock" && (
+            <span className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-foreground">
+              Low stock
+            </span>
+          )}
         </div>
       </div>
       <div className="flex flex-1 flex-col p-4">
