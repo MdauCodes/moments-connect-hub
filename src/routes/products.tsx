@@ -427,12 +427,58 @@ function ProductsPage() {
           </div>
         )}
 
+        {/* Subtle banner: API unreachable / 404 → showing mock catalogue. */}
+        {!searchResults && loadState === "fallback" && !isLoading && (
+          <div className="mt-6 rounded-lg border border-border/60 bg-muted/40 px-4 py-2.5 text-xs text-muted-foreground">
+            Showing sample products — connect to backend to see live catalogue.
+          </div>
+        )}
+
         {/* Grid */}
         {isLoading ? (
           <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
+          </div>
+        ) : !searchResults && loadState === "unauthorized" ? (
+          <div className="mt-16 rounded-2xl border border-dashed border-border p-16 text-center">
+            <h3 className="font-display text-2xl text-foreground">Sign in to view products.</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              This catalogue is only visible to signed-in customers.
+            </p>
+            <Link
+              to="/account/login"
+              className="mt-5 inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Sign in
+            </Link>
+          </div>
+        ) : !searchResults && loadState === "server_error" ? (
+          <div className="mt-16 rounded-2xl border border-dashed border-border p-16 text-center">
+            <h3 className="font-display text-2xl text-foreground">
+              Something went wrong on our end. Please try again.
+            </h3>
+            <button
+              type="button"
+              onClick={() => setRetryTick((n) => n + 1)}
+              className="mt-5 inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Retry
+            </button>
+          </div>
+        ) : !searchResults && loadState === "empty" ? (
+          <div className="mt-16 rounded-2xl border border-dashed border-border p-16 text-center">
+            <h3 className="font-display text-2xl text-foreground">No products listed yet</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Our catalogue is being prepared. Reach out and we&apos;ll help you directly.
+            </p>
+            <Link
+              to="/contact"
+              className="mt-5 inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Contact the team
+            </Link>
           </div>
         ) : grid.length === 0 ? (
           <div className="mt-16 rounded-2xl border border-dashed border-border p-16 text-center">
