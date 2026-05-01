@@ -170,7 +170,7 @@ function HeroProductTile({ product }: { product: Product }) {
       params={{ slug: product.slug }}
       className="group flex flex-col overflow-hidden rounded-xl border border-border bg-background transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="aspect-square overflow-hidden bg-secondary">
+      <div className="aspect-[4/3] overflow-hidden bg-secondary">
         <img
           src={image}
           alt={product.name}
