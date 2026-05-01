@@ -276,8 +276,10 @@ function FeaturedProducts() {
 function PersonaSegmentPicker() {
   const { persona, setPersona } = usePersona();
   return (
-    <section className="bg-cream">
-      <div className="mx-auto max-w-5xl px-5 py-14 text-center sm:py-16 lg:px-8">
+    <section className="relative overflow-hidden bg-cream">
+      <DotGrid opacity={0.06} size={28} />
+      <ArcStroke className="-right-24 top-1/2 h-72 w-72 -translate-y-1/2" color="kraft" opacity={0.15} />
+      <div className="relative mx-auto max-w-5xl px-5 py-14 text-center sm:py-16 lg:px-8">
         <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Optional</p>
         <h2 className="mt-2 font-display text-2xl font-medium text-foreground sm:text-3xl">
           Who are you ordering for?
