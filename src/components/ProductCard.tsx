@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { Product } from "@/data/products";
 import { apiUrl } from "@/config/api";
+import { getStockInfo } from "@/lib/stock";
 
 interface ProductCardProps {
   product: Product;
