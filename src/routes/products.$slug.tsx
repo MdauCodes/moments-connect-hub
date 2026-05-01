@@ -36,7 +36,7 @@ export const Route = createFileRoute("/products/$slug")({
     const url = `https://www.momentspackaging.com/products/${p.slug}`;
     const tracked = p.trackInventory ?? typeof p.stock === "number";
     const inStock = !tracked || (p.stock ?? 0) > 0;
-    const ld = {
+    const ld: Record<string, unknown> = {
       "@context": "https://schema.org",
       "@type": "Product",
       name: p.name,
@@ -58,6 +58,15 @@ export const Route = createFileRoute("/products/$slug")({
           }
         : undefined,
     };
+    if (reviewSummary && reviewSummary.count > 0) {
+      ld.aggregateRating = {
+        "@type": "AggregateRating",
+        ratingValue: reviewSummary.average,
+        reviewCount: reviewSummary.count,
+        bestRating: 5,
+        worstRating: 1,
+      };
+    }
     const breadcrumbLd = {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
