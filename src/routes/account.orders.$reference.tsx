@@ -96,15 +96,44 @@ function OrderDetailPage() {
               Placed {new Date(order.createdAt).toLocaleString("en-KE")}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${statusTone(order.status)}`}>
               <StatusIcon className="h-3.5 w-3.5" /> {order.status.replace(/_/g, " ")}
             </span>
+            <PrintReceipt order={order} />
+            {eligibility.eligible && !refund && (
+              <button onClick={() => setShowRefundForm(true)} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary">
+                <Undo2 className="h-3.5 w-3.5" /> Request refund
+              </button>
+            )}
             <button onClick={handleReorder} className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
               <RotateCcw className="h-3.5 w-3.5" /> Re-order
             </button>
           </div>
         </div>
+
+        {refund && (
+          <div className="mt-4 rounded-xl border border-border bg-card p-4 text-sm">
+            <p className="font-semibold">Refund request: {refund.status}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Reason: {refund.reason}</p>
+            <p className="text-xs text-muted-foreground">Action: {refund.desiredAction.replace(/_/g, " ")}</p>
+            {refund.adminNote && <p className="mt-2 text-xs">Admin note: {refund.adminNote}</p>}
+          </div>
+        )}
+
+        {showRefundForm && (
+          <RefundForm
+            onCancel={() => setShowRefundForm(false)}
+            onSubmit={async (reason, desiredAction) => {
+              if (!order) return;
+              const { request } = await refundStore.submit(order, { reason, desiredAction });
+              setRefund(request);
+              setShowRefundForm(false);
+              toast.success("Refund request submitted — we'll respond within 2 business days.");
+            }}
+            daysRemaining={eligibility.daysRemaining ?? 14}
+          />
+        )}
 
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
