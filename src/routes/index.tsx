@@ -1,6 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
+import {
+  DotGrid,
+  PaperTexture,
+  ArcStroke,
+  UnderlineStroke,
+  CornerLines,
+  SignatureDivider,
+} from "@/components/BrandDecor";
 import { LatestBlogsStrip } from "@/components/blog/LatestBlogsStrip";
 import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { ProductCard } from "@/components/ProductCard";
