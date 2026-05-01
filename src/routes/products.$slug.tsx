@@ -6,12 +6,14 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton";
 import { ProductCard } from "@/components/ProductCard";
 import { ConfiguratorModal } from "@/components/ConfiguratorModal";
+import { ProductReviews } from "@/components/ProductReviews";
 import type { Product } from "@/data/products";
 import { api } from "@/services/api";
 import { apiUrl } from "@/config/api";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { getStockInfo } from "@/lib/stock";
+import { reviewStore } from "@/services/reviewStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/products/$slug")({
