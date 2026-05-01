@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import {
@@ -12,6 +13,7 @@ import {
   formatKes,
 } from "@/components/admin/commerceUi";
 import { getOrder, updateOrderStatus } from "@/services/commerceApi";
+import { refundStore, type RefundRequest, type RefundRequestStatus } from "@/services/refundStore";
 import type { OrderRecord, OrderStatus } from "@/services/commerceMock";
 
 export const Route = createFileRoute("/_adminAuth/admin/orders/$id")({
@@ -25,6 +27,9 @@ function AdminOrderDetailPage() {
   const [source, setSource] = useState<"live" | "mock">("mock");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [refund, setRefund] = useState<RefundRequest | null>(null);
+  const [refundNote, setRefundNote] = useState("");
+  const [refundBusy, setRefundBusy] = useState(false);
 
   useEffect(() => { document.title = `Order ${id} · Moments admin`; }, [id]);
 
@@ -37,6 +42,32 @@ function AdminOrderDetailPage() {
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [id]);
+
+  // Load refund request (if any) for this order — keyed by reference, not id.
+  useEffect(() => {
+    if (!order?.reference) return;
+    let cancelled = false;
+    refundStore.getAdminForOrder(order.reference)
+      .then((r) => { if (!cancelled) { setRefund(r); setRefundNote(r?.adminNote ?? ""); } })
+      .catch(() => { /* silent — refunds are optional */ });
+    return () => { cancelled = true; };
+  }, [order?.reference]);
+
+  const updateRefund = async (status: RefundRequestStatus) => {
+    if (!refund) return;
+    setRefundBusy(true);
+    try {
+      const next = await refundStore.updateStatus(refund.id, status, refundNote.trim() || undefined);
+      if (next) {
+        setRefund(next);
+        toast.success(`Refund request ${status.toLowerCase()}`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update refund");
+    } finally {
+      setRefundBusy(false);
+    }
+  };
 
   const handleStatusChange = async (status: OrderStatus) => {
     if (!order) return;
@@ -152,6 +183,66 @@ function AdminOrderDetailPage() {
                 <button className="admin-btn admin-btn-danger" disabled={saving} onClick={() => handleStatusChange("REFUNDED")}>Refund</button>
               </div>
             </div>
+
+            {/* Refund / return request — only when the customer has opened one */}
+            {refund && (
+              <div className="admin-panel" style={{ padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                  <div className="admin-label">Refund / return request</div>
+                  <span className={`n ${
+                    refund.status === "PENDING" ? "n-muted" :
+                    refund.status === "REJECTED" ? "n-muted" : "n-ok"
+                  }`}>{refund.status}</span>
+                </div>
+                <div style={{ marginTop: 8, fontSize: 13 }}>
+                  <div><b>Wants:</b> {refund.desiredAction.replace("_", " ")}</div>
+                  <div style={{ marginTop: 6 }}><b>Reason:</b></div>
+                  <p style={{ whiteSpace: "pre-wrap", margin: "4px 0", color: "var(--admin-muted)" }}>{refund.reason}</p>
+                  <div style={{ color: "var(--admin-muted)", fontSize: 11 }}>
+                    Submitted {new Date(refund.createdAt).toLocaleString("en-KE")}
+                    {refund.updatedAt !== refund.createdAt && ` · updated ${new Date(refund.updatedAt).toLocaleString("en-KE")}`}
+                  </div>
+                </div>
+
+                <label style={{ display: "block", marginTop: 12 }}>
+                  <span className="admin-label">Admin note (optional, shown to customer)</span>
+                  <textarea
+                    className="admin-textarea"
+                    rows={3}
+                    value={refundNote}
+                    onChange={(e) => setRefundNote(e.target.value)}
+                    placeholder="e.g. Approved — replacement dispatched via Sendy."
+                  />
+                </label>
+
+                <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                  <button
+                    className="admin-btn admin-btn-primary"
+                    disabled={refundBusy || refund.status === "APPROVED"}
+                    onClick={() => void updateRefund("APPROVED")}
+                  >
+                    {refundBusy && <Loader2 size={14} className="animate-spin" />}Approve
+                  </button>
+                  <button
+                    className="admin-btn admin-btn-ghost"
+                    disabled={refundBusy || refund.status === "REJECTED"}
+                    onClick={() => void updateRefund("REJECTED")}
+                  >
+                    Reject
+                  </button>
+                  <button
+                    className="admin-btn admin-btn-ghost"
+                    disabled={refundBusy || refund.status === "RESOLVED"}
+                    onClick={() => void updateRefund("RESOLVED")}
+                  >
+                    Mark resolved
+                  </button>
+                </div>
+                <p style={{ color: "var(--admin-muted)", fontSize: 11, marginTop: 10 }}>
+                  Tip: if you issue a money refund, also set the order status above to <b>REFUNDED</b>.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
