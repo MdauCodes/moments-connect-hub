@@ -79,8 +79,14 @@ function CartPage() {
                       <div>
                         <h3 className="font-display text-base text-foreground">{it.productName}</h3>
                         <p className="mt-0.5 text-xs text-muted-foreground">
-                          {[it.size, it.material, it.finish].filter(Boolean).join(" · ")}
+                          {[it.variantLabel, it.size, it.material, it.finish].filter(Boolean).join(" · ")}
+                          {it.sku && <span className="ml-2 text-foreground/40">SKU {it.sku}</span>}
                         </p>
+                        {it.isBackorder && (
+                          <p className="mt-1 inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent">
+                            Backorder · ~21 days
+                          </p>
+                        )}
                         <p className="mt-1 text-xs text-muted-foreground">
                           {fmt(it.unitPrice)} / unit
                         </p>

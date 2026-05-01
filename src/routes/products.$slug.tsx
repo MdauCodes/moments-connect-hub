@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Heart, Share2, Star } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Heart, Share2, Star } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton";
@@ -11,6 +11,7 @@ import { api } from "@/services/api";
 import { apiUrl } from "@/config/api";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { getStockInfo } from "@/lib/stock";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/products/$slug")({
@@ -23,6 +24,40 @@ export const Route = createFileRoute("/products/$slug")({
     const p = loaderData?.product;
     if (!p) return { meta: [{ title: "Product — Moments Packaging" }] };
     const image = p.primaryImageUrl ?? p.image;
+    const url = `https://www.momentspackaging.com/products/${p.slug}`;
+    const tracked = p.trackInventory ?? typeof p.stock === "number";
+    const inStock = !tracked || (p.stock ?? 0) > 0;
+    const ld = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: p.name,
+      description: p.description,
+      image: [image],
+      sku: p.sku ?? p.id,
+      brand: { "@type": "Brand", name: "Moments Packaging" },
+      category: p.category,
+      offers: p.basePrice
+        ? {
+            "@type": "Offer",
+            url,
+            priceCurrency: "KES",
+            price: p.basePrice,
+            availability: inStock
+              ? "https://schema.org/InStock"
+              : "https://schema.org/BackOrder",
+            itemCondition: "https://schema.org/NewCondition",
+          }
+        : undefined,
+    };
+    const breadcrumbLd = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://www.momentspackaging.com/" },
+        { "@type": "ListItem", position: 2, name: "Products", item: "https://www.momentspackaging.com/products" },
+        { "@type": "ListItem", position: 3, name: p.name, item: url },
+      ],
+    };
     return {
       meta: [
         { title: `${p.name} — Moments Packaging Kenya` },
@@ -30,6 +65,11 @@ export const Route = createFileRoute("/products/$slug")({
         { property: "og:title", content: `${p.name} — Moments Packaging Kenya` },
         { property: "og:description", content: p.description },
         { property: "og:image", content: image },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(ld) },
+        { type: "application/ld+json", children: JSON.stringify(breadcrumbLd) },
       ],
     };
   },
@@ -73,6 +113,18 @@ function ProductDetail() {
   }, [product]);
   const [activeImage, setActiveImage] = useState(allImages[0]);
 
+  // Variants take precedence — when present, drive price/sku/stock.
+  const variants = product.variants ?? [];
+  const [variantId, setVariantId] = useState<string | undefined>(
+    variants[0]?.id ?? variants[0]?.label,
+  );
+  const activeVariant = useMemo(
+    () =>
+      variants.find((v) => (v.id ?? v.label) === variantId) ??
+      (variants.length > 0 ? variants[0] : undefined),
+    [variants, variantId],
+  );
+
   // Configurator state
   const [size, setSize] = useState(product.sizes?.[0] ?? "");
   const [material, setMaterial] = useState(
@@ -97,8 +149,15 @@ function ProductDetail() {
       ) ?? tiers[tiers.length - 1],
     [tiers, qty],
   );
-  const unitPrice = activeTier?.pricePerUnit ?? product.basePrice ?? 0;
+  // Variant price overrides tier price when present.
+  const unitPrice =
+    activeVariant?.price ?? activeTier?.pricePerUnit ?? product.basePrice ?? 0;
   const lineTotal = qty * unitPrice;
+
+  const stock = useMemo(
+    () => getStockInfo(product, activeVariant, qty),
+    [product, activeVariant, qty],
+  );
 
   // Click tracking on mount
   useEffect(() => {
@@ -149,8 +208,15 @@ function ProductDetail() {
       finish: finish || "Standard",
       quantity: qty,
       unitPrice,
+      variantId: activeVariant?.id ?? activeVariant?.label,
+      variantLabel: activeVariant?.label,
+      sku: activeVariant?.sku ?? product.sku,
+      isBackorder: stock.isBackorder,
     });
-    toast.success("Added to cart", { duration: 2000 });
+    toast.success(
+      stock.isBackorder ? "Added — backorder (extended lead time)" : "Added to cart",
+      { duration: 2400 },
+    );
   };
 
   const handleWishlist = async () => {
@@ -318,6 +384,54 @@ function ProductDetail() {
 
           {/* Configurator */}
           <div className="mt-6 space-y-5 rounded-2xl border border-border bg-card p-5">
+            {/* Stock badge */}
+            <StockBadge state={stock.state} label={stock.label} />
+
+            {variants.length > 0 && (
+              <ConfigField label="Variant" note="(price & stock per variant)">
+                <div className="flex flex-wrap gap-2">
+                  {variants.map((v) => {
+                    const key = v.id ?? v.label;
+                    const active = key === variantId;
+                    const vStock = getStockInfo(product, v, 0);
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setVariantId(key)}
+                        className={`flex flex-col items-start rounded-xl border px-3.5 py-2 text-left transition-colors ${
+                          active
+                            ? "border-primary bg-primary/5"
+                            : "border-foreground/20 bg-cream hover:border-foreground/40"
+                        }`}
+                      >
+                        <span className="text-xs font-semibold text-foreground">{v.label}</span>
+                        <span className="mt-0.5 text-[11px] text-muted-foreground">
+                          {v.price ? `KES ${v.price.toLocaleString()}` : "—"}
+                          {" · "}
+                          <span
+                            className={
+                              vStock.state === "out_of_stock"
+                                ? "text-destructive"
+                                : vStock.state === "low_stock"
+                                  ? "text-accent"
+                                  : "text-foreground/70"
+                            }
+                          >
+                            {vStock.state === "out_of_stock"
+                              ? "Backorder"
+                              : vStock.state === "low_stock"
+                                ? `${vStock.available} left`
+                                : "In stock"}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </ConfigField>
+            )}
+
             {product.sizes && product.sizes.length > 0 && (
               <ConfigField label="Size">
                 <PillGroup options={product.sizes} value={size} onChange={setSize} />
@@ -374,6 +488,17 @@ function ProductDetail() {
               Production: 7–14 business days
             </span>
 
+            {stock.isBackorder && !enterprise && (
+              <div className="flex items-start gap-2 rounded-xl border border-accent/40 bg-accent/5 px-4 py-3 text-xs text-foreground">
+                <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
+                <p>
+                  <strong>Backorder:</strong> requested quantity exceeds current stock.
+                  We'll produce on demand — extended lead time of approx.{" "}
+                  <strong>21 business days</strong>.
+                </p>
+              </div>
+            )}
+
             {enterprise ? (
               <button
                 type="button"
@@ -388,7 +513,7 @@ function ProductDetail() {
                 onClick={handleAddToCart}
                 className="h-[52px] w-full rounded-full bg-accent text-sm font-semibold text-accent-foreground shadow-sm transition-opacity hover:opacity-90"
               >
-                Add to cart
+                {stock.isBackorder ? "Add to cart (backorder)" : "Add to cart"}
               </button>
             )}
 
@@ -570,5 +695,21 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       </dt>
       <dd className="mt-1 text-sm text-foreground">{value}</dd>
     </div>
+  );
+}
+
+function StockBadge({ state, label }: { state: string; label: string }) {
+  const styles =
+    state === "out_of_stock"
+      ? "bg-destructive/10 text-destructive border-destructive/30"
+      : state === "low_stock"
+        ? "bg-accent/10 text-accent border-accent/30"
+        : "bg-primary/10 text-primary border-primary/30";
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider ${styles}`}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-current" /> {label}
+    </span>
   );
 }

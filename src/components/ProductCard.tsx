@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { Product } from "@/data/products";
 import { apiUrl } from "@/config/api";
+import { getStockInfo } from "@/lib/stock";
 
 interface ProductCardProps {
   product: Product;
@@ -18,6 +19,7 @@ function trackClick(id: string) {
 
 export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
   const navigate = useNavigate();
+  const stock = getStockInfo(p, null, 0);
   const image = p.primaryImageUrl ?? p.image;
 
   const handleCardClick = () => {
@@ -51,6 +53,16 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           {p.isFastMoving && (
             <span className="rounded-full bg-kraft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-kraft-foreground">
               Hot
+            </span>
+          )}
+          {stock.state === "out_of_stock" && (
+            <span className="rounded-full bg-destructive px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-destructive-foreground">
+              Backorder
+            </span>
+          )}
+          {stock.state === "low_stock" && (
+            <span className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-foreground">
+              Low stock
             </span>
           )}
         </div>

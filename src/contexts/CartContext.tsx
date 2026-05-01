@@ -11,6 +11,12 @@ export interface CartItem {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  /** Optional variant selection — present when product has variants. */
+  variantId?: string;
+  variantLabel?: string;
+  sku?: string;
+  /** True when the line was placed beyond available stock. */
+  isBackorder?: boolean;
 }
 
 interface CartContextValue {
@@ -72,6 +78,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const idx = prev.findIndex(
         (it) =>
           it.productId === input.productId &&
+          (it.variantId ?? "") === (input.variantId ?? "") &&
           it.size === input.size &&
           it.material === input.material &&
           it.finish === input.finish,
