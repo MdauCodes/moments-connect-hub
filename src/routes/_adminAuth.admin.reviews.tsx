@@ -168,7 +168,7 @@ function AdminReviewsPage() {
                   </td>
                   <td style={{ fontSize: 12 }}>{new Date(r.createdAt).toLocaleString("en-KE")}</td>
                   <td>
-                    <span className={`admin-badge ${r.hidden ? "admin-badge-danger" : "admin-badge-success"}`}>
+                    <span className={`n ${r.hidden ? "n-muted" : "n-ok"}`}>
                       {r.hidden ? "Hidden" : "Visible"}
                     </span>
                   </td>
