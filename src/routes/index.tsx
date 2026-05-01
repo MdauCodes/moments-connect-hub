@@ -420,8 +420,12 @@ function HomePage() {
       </section>
 
       {/* SHOP BY CATEGORY — 4x2 grid on cream */}
-      <section className="bg-cream">
-        <div className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8">
+      <section className="relative overflow-hidden bg-cream">
+        <PaperTexture opacity={0.06} />
+        <CornerLines className="left-4 top-4" opacity={0.25} />
+        <CornerLines className="bottom-4 right-4 rotate-180" opacity={0.25} />
+        <div className="relative mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8">
+          <SignatureDivider className="mb-10" />
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Browse</p>
