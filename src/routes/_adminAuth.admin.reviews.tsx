@@ -154,7 +154,7 @@ function AdminReviewsPage() {
                     <b>{r.customerName}</b>
                     <div style={{ color: "var(--admin-muted)", fontSize: 11 }}>{r.customerEmail ?? "—"}</div>
                     {r.verifiedPurchase && (
-                      <span className="admin-badge admin-badge-muted" style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <span className="n n-muted" style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
                         <ShieldCheck size={11} /> Verified
                       </span>
                     )}
