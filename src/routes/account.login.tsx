@@ -1,6 +1,68 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { StubPage } from "@/components/StubPage";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, type FormEvent } from "react";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { z } from "zod";
+import { SiteLayout } from "@/components/SiteLayout";
+import { useAuth } from "@/contexts/AuthContext";
+
+const searchSchema = z.object({ redirect: z.string().optional() });
 
 export const Route = createFileRoute("/account/login")({
-  component: () => <StubPage title="Sign in" />,
+  validateSearch: searchSchema,
+  head: () => ({ meta: [{ title: "Sign in — Moments Packaging" }, { name: "robots", content: "noindex" }] }),
+  component: LoginPage,
 });
+
+const inputCls = "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50";
+
+function LoginPage() {
+  const { login } = useAuth();
+  const { redirect } = Route.useSearch();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await login(email.trim(), password);
+      toast.success("Signed in");
+      navigate({ to: (redirect ?? "/account/dashboard") as "/account/dashboard" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Sign in failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <SiteLayout>
+      <section className="mx-auto max-w-md px-5 py-16 lg:px-8 lg:py-20">
+        <h1 className="font-display text-3xl">Sign in</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Welcome back.</p>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">Email</label>
+            <input type="email" required className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-sm font-medium">Password</label>
+              <Link to="/account/forgot-password" className="text-xs text-accent hover:underline">Forgot?</Link>
+            </div>
+            <input type="password" required className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
+          </div>
+          <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+            {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Sign in
+          </button>
+        </form>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          New to Moments? <Link to="/account/register" className="text-accent hover:underline">Create an account</Link>
+        </p>
+      </section>
+    </SiteLayout>
+  );
+}
