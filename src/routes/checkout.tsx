@@ -189,7 +189,7 @@ function CheckoutPage() {
                 disabled={submitting}
                 className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 disabled:opacity-60"
               >
-                {submitting ? (<><Loader2 className="h-4 w-4 animate-spin" /> Placing order…</>) : (<>Pay {fmt(total)} with M-Pesa <ArrowRight className="h-4 w-4" /></>)}
+                {submitting ? (<><InlineProgress size="md" /> Placing order…</>) : (<>Pay {fmt(total)} with M-Pesa <ArrowRight className="h-4 w-4" /></>)}
               </button>
               <p className="mt-3 text-[11px] text-muted-foreground">
                 By placing the order you agree to our terms. Free shipping over {fmt(SHIPPING_THRESHOLD_KES)}.
