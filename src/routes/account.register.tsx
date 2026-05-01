@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { InlineProgress } from "@/components/InlineProgress";
 import { useState, type FormEvent } from "react";
-import { Loader2 } from "lucide-react";
+
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { apiUrl } from "@/config/api";
@@ -91,7 +92,7 @@ function RegisterPage() {
             <p className="mt-1 text-xs text-muted-foreground">At least 8 characters.</p>
           </div>
           <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-            {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Create account
+            {submitting && <InlineProgress size="sm" />} Create account
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">

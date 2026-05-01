@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { InlineProgress } from "@/components/InlineProgress";
 import { useEffect, useState } from "react";
-import { Loader2, Smartphone } from "lucide-react";
+import { Smartphone } from "lucide-react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
 import { orderStore, type CustomerOrder } from "@/services/orderStore";
@@ -64,7 +65,7 @@ function ProcessingPage() {
         </p>
 
         <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-secondary/60 px-4 py-2 text-sm text-foreground/80">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <InlineProgress size="sm" />
           Waiting for confirmation… ({Math.floor(elapsed / 1000)}s)
         </div>
 

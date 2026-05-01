@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { InlineProgress } from "@/components/InlineProgress";
 import { useState, type FormEvent } from "react";
-import { Loader2, KeyRound, CheckCircle2, AlertCircle } from "lucide-react";
+import { KeyRound, CheckCircle2, AlertCircle } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -78,7 +79,7 @@ function ResetPasswordPage() {
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
               <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-                {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Update password
+                {submitting && <InlineProgress size="sm" />} Update password
               </button>
             </form>
           </>

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { InlineProgress } from "@/components/InlineProgress";
 import { useState, type FormEvent } from "react";
-import { Loader2, Mail, CheckCircle2 } from "lucide-react";
+import { Mail, CheckCircle2 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { passwordStore } from "@/services/passwordStore";
 
@@ -61,7 +62,7 @@ function ForgotPasswordPage() {
                 />
               </div>
               <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-                {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Send reset link
+                {submitting && <InlineProgress size="sm" />} Send reset link
               </button>
               <p className="text-center text-xs text-muted-foreground">
                 Remember it? <Link to="/account/login" className="text-accent hover:underline">Sign in</Link>
