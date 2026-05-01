@@ -34,6 +34,9 @@ export interface CustomerOrderItem {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  variantLabel?: string;
+  sku?: string;
+  isBackorder?: boolean;
 }
 
 export interface CustomerOrder {
