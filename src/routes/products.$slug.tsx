@@ -384,6 +384,54 @@ function ProductDetail() {
 
           {/* Configurator */}
           <div className="mt-6 space-y-5 rounded-2xl border border-border bg-card p-5">
+            {/* Stock badge */}
+            <StockBadge state={stock.state} label={stock.label} />
+
+            {variants.length > 0 && (
+              <ConfigField label="Variant" note="(price & stock per variant)">
+                <div className="flex flex-wrap gap-2">
+                  {variants.map((v) => {
+                    const key = v.id ?? v.label;
+                    const active = key === variantId;
+                    const vStock = getStockInfo(product, v, 0);
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setVariantId(key)}
+                        className={`flex flex-col items-start rounded-xl border px-3.5 py-2 text-left transition-colors ${
+                          active
+                            ? "border-primary bg-primary/5"
+                            : "border-foreground/20 bg-cream hover:border-foreground/40"
+                        }`}
+                      >
+                        <span className="text-xs font-semibold text-foreground">{v.label}</span>
+                        <span className="mt-0.5 text-[11px] text-muted-foreground">
+                          {v.price ? `KES ${v.price.toLocaleString()}` : "—"}
+                          {" · "}
+                          <span
+                            className={
+                              vStock.state === "out_of_stock"
+                                ? "text-destructive"
+                                : vStock.state === "low_stock"
+                                  ? "text-accent"
+                                  : "text-foreground/70"
+                            }
+                          >
+                            {vStock.state === "out_of_stock"
+                              ? "Backorder"
+                              : vStock.state === "low_stock"
+                                ? `${vStock.available} left`
+                                : "In stock"}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </ConfigField>
+            )}
+
             {product.sizes && product.sizes.length > 0 && (
               <ConfigField label="Size">
                 <PillGroup options={product.sizes} value={size} onChange={setSize} />
