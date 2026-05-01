@@ -697,3 +697,19 @@ function DetailRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function StockBadge({ state, label }: { state: string; label: string }) {
+  const styles =
+    state === "out_of_stock"
+      ? "bg-destructive/10 text-destructive border-destructive/30"
+      : state === "low_stock"
+        ? "bg-accent/10 text-accent border-accent/30"
+        : "bg-primary/10 text-primary border-primary/30";
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider ${styles}`}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-current" /> {label}
+    </span>
+  );
+}
