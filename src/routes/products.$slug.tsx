@@ -613,19 +613,7 @@ function ProductDetail() {
           </TabsContent>
 
           <TabsContent value="reviews" className="mt-6">
-            <div className="rounded-xl border border-dashed border-border p-10 text-center">
-              <div className="flex justify-center gap-1 text-foreground/30">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <Star key={i} className="h-5 w-5" />
-                ))}
-              </div>
-              <p className="mt-3 font-display text-lg text-foreground">
-                No reviews yet
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Be the first after your order arrives.
-              </p>
-            </div>
+            <ProductReviews productId={product.id} productName={product.name} />
           </TabsContent>
         </Tabs>
       </section>
