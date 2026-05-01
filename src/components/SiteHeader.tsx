@@ -7,24 +7,21 @@ import { SearchCommand } from "@/components/SearchCommand";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 
-type NavItem = {
-  to: "/" | "/products" | "/industries" | "/blog" | "/about";
-  label: string;
-  hasDropdown?: boolean;
-};
+/**
+ * Commerce-first nav. Categories live inside the "Shop" dropdown so the
+ * top bar stays uncluttered. Deals & Enterprise sit alongside as siblings.
+ */
+type SimpleNav = { to: "/products" | "/enterprise-quote"; label: string; search?: Record<string, unknown> };
 
-const nav: readonly NavItem[] = [
-  { to: "/", label: "Home" },
-  { to: "/products", label: "Products", hasDropdown: true },
-  { to: "/industries", label: "Industries" },
-  { to: "/blog", label: "Blog" },
-  { to: "/about", label: "About" },
+const simpleNav: readonly SimpleNav[] = [
+  { to: "/products", label: "Deals", search: { deals: true } },
+  { to: "/enterprise-quote", label: "Enterprise" },
 ];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const [productsOpen, setProductsOpen] = useState(false);
-  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
+  const [shopOpen, setShopOpen] = useState(false);
+  const [mobileShopOpen, setMobileShopOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchSeed, setSearchSeed] = useState("");
   const [accountOpen, setAccountOpen] = useState(false);
@@ -46,17 +43,16 @@ export function SiteHeader() {
     return () => document.removeEventListener("mousedown", handler);
   }, [accountOpen]);
 
-  // Close dropdown when clicking outside (for click-to-open on touch)
   useEffect(() => {
-    if (!productsOpen) return;
+    if (!shopOpen) return;
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setProductsOpen(false);
+        setShopOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [productsOpen]);
+  }, [shopOpen]);
 
   // Global keyboard shortcut: ⌘K / Ctrl+K opens search anywhere
   useEffect(() => {
@@ -81,11 +77,11 @@ export function SiteHeader() {
 
   const openDropdown = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    setProductsOpen(true);
+    setShopOpen(true);
   };
   const scheduleClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setProductsOpen(false), 120);
+    closeTimer.current = setTimeout(() => setShopOpen(false), 120);
   };
 
   const openSearch = (seed = "") => {
@@ -122,73 +118,74 @@ export function SiteHeader() {
           </button>
 
           <nav className="ml-auto hidden items-center gap-1 md:flex">
-            {nav.map((n) => {
-              if (n.hasDropdown) {
-                return (
-                  <div
-                    key={n.to}
-                    ref={dropdownRef}
-                    className="relative"
-                    onMouseEnter={openDropdown}
-                    onMouseLeave={scheduleClose}
-                  >
-                    <Link
-                      to={n.to}
-                      className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm text-foreground/75 transition-colors hover:bg-secondary hover:text-foreground lg:px-4"
-                      activeProps={{ className: "bg-secondary text-foreground" }}
-                      onClick={() => setProductsOpen(false)}
-                    >
-                      {n.label}
-                      <ChevronDown
-                        className={`h-3.5 w-3.5 transition-transform ${productsOpen ? "rotate-180" : ""}`}
-                        aria-hidden="true"
-                      />
-                    </Link>
+            {/* Shop dropdown */}
+            <div
+              ref={dropdownRef}
+              className="relative"
+              onMouseEnter={openDropdown}
+              onMouseLeave={scheduleClose}
+            >
+              <Link
+                to="/products"
+                className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-secondary hover:text-foreground lg:px-4"
+                activeProps={{ className: "bg-secondary text-foreground" }}
+                onClick={() => setShopOpen(false)}
+              >
+                Shop
+                <ChevronDown
+                  className={`h-3.5 w-3.5 transition-transform ${shopOpen ? "rotate-180" : ""}`}
+                  aria-hidden="true"
+                />
+              </Link>
 
-                    {productsOpen && (
-                      <div
-                        className="absolute left-1/2 top-full z-50 w-64 -translate-x-1/2 pt-2"
-                        onMouseEnter={openDropdown}
-                        onMouseLeave={scheduleClose}
-                      >
-                        <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-xl ring-1 ring-black/5">
-                          <Link
-                            to="/products"
-                            search={{}}
-                            onClick={() => setProductsOpen(false)}
-                            className="block border-b border-border px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
-                          >
-                            All products
-                          </Link>
-                          {categories.map((c) => (
-                            <Link
-                              key={c.slug}
-                              to="/products"
-                              search={{ category: c.slug }}
-                              onClick={() => setProductsOpen(false)}
-                              className="block border-b border-border/60 px-4 py-3 text-sm text-foreground/80 transition-colors last:border-b-0 hover:bg-secondary hover:text-foreground"
-                            >
-                              {c.name}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-              return (
-                <Link
-                  key={n.to}
-                  to={n.to}
-                  className="rounded-full px-3 py-2 text-sm text-foreground/75 transition-colors hover:bg-secondary hover:text-foreground lg:px-4"
-                  activeProps={{ className: "bg-secondary text-foreground" }}
-                  activeOptions={{ exact: n.to === "/" }}
+              {shopOpen && (
+                <div
+                  className="absolute left-1/2 top-full z-50 w-72 -translate-x-1/2 pt-2"
+                  onMouseEnter={openDropdown}
+                  onMouseLeave={scheduleClose}
                 >
-                  {n.label}
-                </Link>
-              );
-            })}
+                  <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-xl ring-1 ring-black/5">
+                    <Link
+                      to="/products"
+                      search={{}}
+                      onClick={() => setShopOpen(false)}
+                      className="block border-b border-border bg-cream/60 px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+                    >
+                      All products →
+                    </Link>
+                    {categories.map((c) => (
+                      <Link
+                        key={c.slug}
+                        to="/products"
+                        search={{ category: c.slug }}
+                        onClick={() => setShopOpen(false)}
+                        className="block border-b border-border/60 px-4 py-2.5 text-sm text-foreground/80 transition-colors last:border-b-0 hover:bg-secondary hover:text-foreground"
+                      >
+                        {c.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Deals + Enterprise */}
+            {simpleNav.map((n) => (
+              <Link
+                key={n.label}
+                to={n.to}
+                search={n.search as never}
+                className={`rounded-full px-3 py-2 text-sm font-medium transition-colors lg:px-4 ${
+                  n.label === "Deals"
+                    ? "text-accent hover:bg-accent/10"
+                    : "text-foreground/80 hover:bg-secondary hover:text-foreground"
+                }`}
+                activeProps={{ className: "bg-secondary text-foreground" }}
+              >
+                {n.label}
+              </Link>
+            ))}
+
             <div className="ml-2 flex items-center gap-1">
               <Link
                 to="/cart"
@@ -197,7 +194,7 @@ export function SiteHeader() {
               >
                 <ShoppingBag className="h-5 w-5" />
                 {itemCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 grid min-w-[18px] h-[18px] place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                  <span className="absolute -right-0.5 -top-0.5 grid min-w-[18px] h-[18px] place-items-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground">
                     {itemCount > 99 ? "99+" : itemCount}
                   </span>
                 )}
@@ -264,92 +261,119 @@ export function SiteHeader() {
             </div>
           </nav>
 
-          {/* Tablet/mobile search icon (shown below lg, where the full search bar is hidden) */}
+          {/* Tablet/mobile cart + search + menu */}
+          <div className="ml-auto flex items-center gap-1 md:hidden">
+            <Link
+              to="/cart"
+              aria-label="Cart"
+              className="relative grid h-10 w-10 place-items-center rounded-md text-foreground/80 transition-colors hover:bg-secondary"
+            >
+              <ShoppingBag className="h-5 w-5" />
+              {itemCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 grid min-w-[18px] h-[18px] place-items-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground">
+                  {itemCount > 99 ? "99+" : itemCount}
+                </span>
+              )}
+            </Link>
+            <button
+              type="button"
+              onClick={() => openSearch()}
+              aria-label="Search packaging"
+              className="grid h-10 w-10 place-items-center rounded-md border border-border text-foreground/80 transition-colors hover:bg-secondary"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setOpen((v) => !v)}
+              aria-label="Toggle menu"
+              className="grid h-10 w-10 place-items-center rounded-md border border-border"
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+
+          {/* Tablet search trigger between md and lg */}
           <button
             type="button"
             onClick={() => openSearch()}
             aria-label="Search packaging"
-            className="ml-auto grid h-10 w-10 place-items-center rounded-md border border-border text-foreground/80 transition-colors hover:bg-secondary md:ml-2 lg:hidden"
+            className="hidden h-10 w-10 place-items-center rounded-md border border-border text-foreground/80 transition-colors hover:bg-secondary md:grid lg:hidden"
           >
             <Search className="h-5 w-5" />
-          </button>
-
-          {/* Mobile menu toggle */}
-          <button
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
-            className="grid h-10 w-10 place-items-center rounded-md border border-border md:hidden"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
 
         {open && (
           <div className="border-t border-border bg-background md:hidden">
             <div className="flex flex-col px-5 py-3">
-              {nav.map((n) => {
-                if (n.hasDropdown) {
-                  return (
-                    <div key={n.to}>
-                      <div className="flex items-center">
-                        <Link
-                          to={n.to}
-                          onClick={() => setOpen(false)}
-                          className="flex-1 rounded-md px-3 py-3 text-sm text-foreground/80 hover:bg-secondary"
-                          activeProps={{ className: "bg-secondary text-foreground font-medium" }}
-                        >
-                          {n.label}
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => setMobileProductsOpen((v) => !v)}
-                          aria-label="Toggle product categories"
-                          className="grid h-10 w-10 place-items-center rounded-md text-foreground/60 hover:bg-secondary"
-                        >
-                          <ChevronDown
-                            className={`h-4 w-4 transition-transform ${mobileProductsOpen ? "rotate-180" : ""}`}
-                          />
-                        </button>
-                      </div>
-                      {mobileProductsOpen && (
-                        <div className="ml-3 border-l border-border pl-3">
-                          <Link
-                            to="/products"
-                            search={{}}
-                            onClick={() => setOpen(false)}
-                            className="block rounded-md px-3 py-2.5 text-sm text-foreground/70 hover:bg-secondary"
-                          >
-                            All products
-                          </Link>
-                          {categories.map((c) => (
-                            <Link
-                              key={c.slug}
-                              to="/products"
-                              search={{ category: c.slug }}
-                              onClick={() => setOpen(false)}
-                              className="block rounded-md px-3 py-2.5 text-sm text-foreground/70 hover:bg-secondary"
-                            >
-                              {c.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-                return (
+              <div>
+                <div className="flex items-center">
                   <Link
-                    key={n.to}
-                    to={n.to}
+                    to="/products"
                     onClick={() => setOpen(false)}
-                    className="rounded-md px-3 py-3 text-sm text-foreground/80 hover:bg-secondary"
-                    activeProps={{ className: "bg-secondary text-foreground font-medium" }}
-                    activeOptions={{ exact: n.to === "/" }}
+                    className="flex-1 rounded-md px-3 py-3 text-sm font-medium text-foreground/80 hover:bg-secondary"
+                    activeProps={{ className: "bg-secondary text-foreground" }}
                   >
-                    {n.label}
+                    Shop
                   </Link>
-                );
-              })}
+                  <button
+                    type="button"
+                    onClick={() => setMobileShopOpen((v) => !v)}
+                    aria-label="Toggle categories"
+                    className="grid h-10 w-10 place-items-center rounded-md text-foreground/60 hover:bg-secondary"
+                  >
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${mobileShopOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                </div>
+                {mobileShopOpen && (
+                  <div className="ml-3 border-l border-border pl-3">
+                    <Link
+                      to="/products"
+                      search={{}}
+                      onClick={() => setOpen(false)}
+                      className="block rounded-md px-3 py-2.5 text-sm text-foreground/70 hover:bg-secondary"
+                    >
+                      All products
+                    </Link>
+                    {categories.map((c) => (
+                      <Link
+                        key={c.slug}
+                        to="/products"
+                        search={{ category: c.slug }}
+                        onClick={() => setOpen(false)}
+                        className="block rounded-md px-3 py-2.5 text-sm text-foreground/70 hover:bg-secondary"
+                      >
+                        {c.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {simpleNav.map((n) => (
+                <Link
+                  key={n.label}
+                  to={n.to}
+                  search={n.search as never}
+                  onClick={() => setOpen(false)}
+                  className={`rounded-md px-3 py-3 text-sm font-medium hover:bg-secondary ${
+                    n.label === "Deals" ? "text-accent" : "text-foreground/80"
+                  }`}
+                >
+                  {n.label}
+                </Link>
+              ))}
+
+              <Link
+                to={isAuthenticated ? "/account/profile" : "/account/login"}
+                onClick={() => setOpen(false)}
+                className="mt-2 inline-flex items-center gap-2 rounded-md border border-border px-3 py-3 text-sm text-foreground/80 hover:bg-secondary"
+              >
+                <User className="h-4 w-4" />
+                {isAuthenticated ? "My account" : "Sign in"}
+              </Link>
             </div>
           </div>
         )}
