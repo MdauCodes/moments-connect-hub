@@ -41,12 +41,16 @@ function OrderDetailPage() {
   const { reference } = Route.useParams();
   const { addItem } = useCart();
   const [order, setOrder] = useState<CustomerOrder | null | undefined>(undefined);
+  const [refund, setRefund] = useState<RefundRequest | null>(null);
+  const [showRefundForm, setShowRefundForm] = useState(false);
 
   useEffect(() => {
     orderStore.getMine(reference).then((res) => setOrder(res.order));
+    refundStore.getForOrder(reference).then(setRefund);
   }, [reference]);
 
   const StatusIcon = useMemo(() => statusIcon(order?.status ?? ""), [order?.status]);
+  const eligibility = useMemo(() => order ? refundEligibility(order) : { eligible: false }, [order]);
 
   if (order === undefined) {
     return (
