@@ -205,3 +205,32 @@ export async function getCustomer(id: string): Promise<{ customer: CustomerRecor
   const mock = getCustomerMock(id);
   return { ...mock, source: "mock" };
 }
+
+// ---------- Analytics ----------
+
+import { analyticsOverviewMock, type AnalyticsOverview } from "@/services/analyticsMock";
+
+export interface AnalyticsResult extends AnalyticsOverview { source: Source }
+
+export async function getAnalyticsOverview(days = 30): Promise<AnalyticsResult> {
+  const live = await tryLive<AnalyticsOverview>("analytics", `/api/v1/admin/analytics/overview?days=${days}`);
+  if (live) return { ...live, source: "live" };
+  return { ...analyticsOverviewMock(days), source: "mock" };
+}
+
+// ---------- Exports (always sourced from whatever list endpoint returns) ----------
+
+export async function exportOrders(params: ListOrdersParams = {}): Promise<{ rows: OrderRecord[]; source: Source }> {
+  const res = await listOrders({ ...params, size: 1000 });
+  return { rows: res.rows, source: res.source };
+}
+
+export async function exportPayments(params: ListPaymentsParams = {}): Promise<{ rows: PaymentRecord[]; source: Source }> {
+  const res = await listPayments({ ...params, size: 1000 });
+  return { rows: res.rows, source: res.source };
+}
+
+export async function exportCustomers(params: ListCustomersParams = {}): Promise<{ rows: CustomerRecord[]; source: Source }> {
+  const res = await listCustomers({ ...params, size: 1000 });
+  return { rows: res.rows, source: res.source };
+}

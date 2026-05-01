@@ -11,7 +11,9 @@ import {
   formatDate,
   formatKes,
 } from "@/components/admin/commerceUi";
-import { listPayments, type ListPaymentsResult } from "@/services/commerceApi";
+import { listPayments, exportPayments, type ListPaymentsResult } from "@/services/commerceApi";
+import { downloadCsv, toCsv } from "@/lib/csv";
+import { Download } from "lucide-react";
 
 export const Route = createFileRoute("/_adminAuth/admin/payments")({
   component: AdminPaymentsPage,
@@ -95,6 +97,15 @@ function AdminPaymentsPage() {
                 {GATEWAY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
+            <button className="admin-btn admin-btn-ghost" onClick={async () => {
+              const { rows } = await exportPayments({ status, gateway, q });
+              downloadCsv(`payments-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows.map((p) => ({
+                reference: p.reference, orderReference: p.orderReference, gateway: p.gateway, status: p.status,
+                amount: p.amount, customer: p.customerName, phone: p.customerPhone ?? "",
+                gatewayReference: p.gatewayReference ?? "", failureReason: p.failureReason ?? "", createdAt: p.createdAt,
+              }))));
+              toast.success(`Exported ${rows.length} payments`);
+            }}><Download size={14} style={{ marginRight: 6 }} />Export CSV</button>
           </div>
 
           <div data-admin-table-scroll>

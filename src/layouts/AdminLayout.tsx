@@ -15,6 +15,7 @@ import {
   X,
   ShoppingCart,
   CreditCard,
+  BarChart3,
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can, type Permission } from "@/lib/permissions";
@@ -44,6 +45,7 @@ const mainNav: NavItem[] = [
   { label: "Blogs", to: "/admin/blogs", icon: FileText },
   { label: "Enquiries", to: "/admin/enquiries", icon: LayoutList },
   { label: "Industries", to: "/admin/industries", icon: Factory },
+  { label: "Analytics", to: "/admin/analytics", icon: BarChart3 },
 ];
 
 const manageNav: NavItem[] = [

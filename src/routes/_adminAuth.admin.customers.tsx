@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { MockBanner, formatKes, formatDateShort } from "@/components/admin/commerceUi";
-import { listCustomers, type ListCustomersResult } from "@/services/commerceApi";
+import { listCustomers, exportCustomers, type ListCustomersResult } from "@/services/commerceApi";
+import { downloadCsv, toCsv } from "@/lib/csv";
+import { Download } from "lucide-react";
 import type { CustomerRecord } from "@/services/commerceMock";
 
 export const Route = createFileRoute("/_adminAuth/admin/customers")({
@@ -105,6 +107,15 @@ function AdminCustomersPage() {
                 {SEGMENT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
+            <button className="admin-btn admin-btn-ghost" onClick={async () => {
+              const { rows } = await exportCustomers({ q, status, segment });
+              downloadCsv(`customers-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows.map((c) => ({
+                name: c.name, email: c.email, phone: c.phone, city: c.city, segment: c.segment, status: c.status,
+                orders: c.ordersCount, lifetimeValue: c.lifetimeValue, aov: c.averageOrderValue,
+                firstOrder: c.firstOrderAt ?? "", lastOrder: c.lastOrderAt ?? "",
+              }))));
+              toast.success(`Exported ${rows.length} customers`);
+            }}><Download size={14} style={{ marginRight: 6 }} />Export CSV</button>
           </div>
 
           <div data-admin-table-scroll>

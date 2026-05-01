@@ -11,7 +11,9 @@ import {
   formatDateShort,
   formatKes,
 } from "@/components/admin/commerceUi";
-import { listOrders, type ListOrdersResult } from "@/services/commerceApi";
+import { listOrders, exportOrders, type ListOrdersResult } from "@/services/commerceApi";
+import { downloadCsv, toCsv } from "@/lib/csv";
+import { Download } from "lucide-react";
 
 export const Route = createFileRoute("/_adminAuth/admin/orders")({
   component: AdminOrdersPage,
@@ -88,6 +90,19 @@ function AdminOrdersPage() {
                 {ORDER_STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
+            <button
+              className="admin-btn admin-btn-ghost"
+              onClick={async () => {
+                const { rows } = await exportOrders({ status, q });
+                downloadCsv(`orders-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows.map((o) => ({
+                  reference: o.reference, status: o.status, payment: o.paymentStatus, gateway: o.paymentGateway,
+                  customer: o.customerName, email: o.customerEmail, phone: o.customerPhone, city: o.city,
+                  items: o.items.length, subtotal: o.subtotal, shipping: o.shippingFee, total: o.total,
+                  createdAt: o.createdAt, tracking: o.trackingNumber ?? "",
+                }))));
+                toast.success(`Exported ${rows.length} orders`);
+              }}
+            ><Download size={14} style={{ marginRight: 6 }} />Export CSV</button>
           </div>
 
           <div data-admin-table-scroll>
