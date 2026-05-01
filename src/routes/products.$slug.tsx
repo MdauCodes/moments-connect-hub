@@ -10,7 +10,6 @@ import type { Product } from "@/data/products";
 import { api } from "@/services/api";
 import { apiUrl } from "@/config/api";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -62,7 +61,6 @@ function ProductDetail() {
   const { product } = Route.useLoaderData();
   const navigate = useNavigate();
   const { addItem } = useCart();
-  useAuth(); // ensure provider availability for any future gating
   const wishlist = useWishlist();
 
   // Gallery
