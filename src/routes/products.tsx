@@ -7,7 +7,12 @@ import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { ProductCard } from "@/components/ProductCard";
 import { ConfiguratorModal } from "@/components/ConfiguratorModal";
 import { api } from "@/services/api";
+import { categories } from "@/data/products";
 import type { Product, Industry } from "@/data/products";
+import { getStockInfo } from "@/lib/stock";
+
+const sortOptions = ["newest", "price-asc", "price-desc", "popular"] as const;
+type SortKey = (typeof sortOptions)[number];
 
 const searchSchema = z.object({
   category: z.string().optional(),
@@ -16,9 +21,15 @@ const searchSchema = z.object({
   newArrivals: z.boolean().optional(),
   deals: z.boolean().optional(),
   fastMoving: z.boolean().optional(),
+  inStock: z.boolean().optional(),
+  minPrice: z.number().optional(),
+  maxPrice: z.number().optional(),
+  sort: z.enum(sortOptions).optional(),
 });
 
 const PAGE_SIZE = 20;
+const CATEGORY_OPTIONS = categories.map((c) => ({ value: c.slug, label: c.name }));
+const ALL_PRICE_MAX = 500;
 
 export const Route = createFileRoute("/products")({
   validateSearch: searchSchema,
@@ -45,7 +56,18 @@ export const Route = createFileRoute("/products")({
 function ProductsPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { category, industry: industrySlug, q, newArrivals, deals, fastMoving } = search;
+  const {
+    category,
+    industry: industrySlug,
+    q,
+    newArrivals,
+    deals,
+    fastMoving,
+    inStock,
+    minPrice,
+    maxPrice,
+    sort = "newest",
+  } = search;
 
   const [industries, setIndustries] = useState<Industry[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -63,29 +85,37 @@ function ProductsPage() {
     [industries, industrySlug],
   );
 
+  const sortParam = useMemo(() => {
+    switch (sort) {
+      case "price-asc": return "basePrice,asc";
+      case "price-desc": return "basePrice,desc";
+      case "popular": return "monthlyClicks,desc";
+      default: return "createdAt,desc";
+    }
+  }, [sort]);
+
   const anyFilterActive = !!(
-    industrySlug || category || newArrivals || deals || fastMoving || (q && q.length > 1)
+    industrySlug || category || newArrivals || deals || fastMoving ||
+    inStock || minPrice !== undefined || maxPrice !== undefined ||
+    (q && q.length > 1)
   );
 
-  // Load industries once
+  // Industries
   useEffect(() => {
     let cancelled = false;
     void api.getIndustries().then((data) => {
       if (!cancelled) setIndustries(data);
     });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  // Reset pagination when filters change
+  // Reset on filter change
   useEffect(() => {
     setPage(0);
-  }, [industrySlug, category, newArrivals, deals, fastMoving]);
+  }, [industrySlug, category, newArrivals, deals, fastMoving, inStock, minPrice, maxPrice, sort]);
 
-  // Fetch products for current filters/page
+  // Fetch
   useEffect(() => {
-    // Skip when actively searching
     if (searchResults !== null) return;
     let cancelled = false;
     if (page === 0) setIsLoading(true);
@@ -100,37 +130,42 @@ function ProductsPage() {
         isFastMoving: fastMoving || undefined,
         page,
         size: PAGE_SIZE,
-        sort: "createdAt,desc",
+        sort: sortParam,
       })
       .then((data) => {
         if (cancelled) return;
+        // Client-side post-filter for price + inStock (mock-friendly).
+        let filtered = data;
+        if (inStock) {
+          filtered = filtered.filter(
+            (p) => getStockInfo(p, null, 0).state !== "out_of_stock",
+          );
+        }
+        if (minPrice !== undefined) {
+          filtered = filtered.filter((p) => (p.basePrice ?? 0) >= minPrice);
+        }
+        if (maxPrice !== undefined && maxPrice < ALL_PRICE_MAX) {
+          filtered = filtered.filter((p) => (p.basePrice ?? 0) <= maxPrice);
+        }
         setHasMore(data.length === PAGE_SIZE);
-        setProducts((prev) => (page === 0 ? data : [...prev, ...data]));
+        setProducts((prev) => (page === 0 ? filtered : [...prev, ...filtered]));
       })
-      .catch(() => {
-        if (!cancelled && page === 0) setProducts([]);
-      })
+      .catch(() => { if (!cancelled && page === 0) setProducts([]); })
       .finally(() => {
         if (cancelled) return;
         setIsLoading(false);
         setIsLoadingMore(false);
       });
 
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedIndustry, category, newArrivals, deals, fastMoving, page, searchResults]);
+    return () => { cancelled = true; };
+  }, [selectedIndustry, category, newArrivals, deals, fastMoving, inStock, minPrice, maxPrice, sortParam, page, searchResults]);
 
   // Debounced search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       void navigate({ search: (prev) => ({ ...prev, q: query || undefined }) });
-
-      if (query.trim().length < 2) {
-        setSearchResults(null);
-        return;
-      }
+      if (query.trim().length < 2) { setSearchResults(null); return; }
       setIsLoading(true);
       void api
         .searchProducts(query.trim(), 12)
@@ -138,31 +173,22 @@ function ProductsPage() {
         .catch(() => setSearchResults([]))
         .finally(() => setIsLoading(false));
     }, 300);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
+  const setParam = <K extends keyof typeof search>(key: K, value: (typeof search)[K] | undefined) => {
+    void navigate({ search: (prev) => ({ ...prev, [key]: value }) });
+  };
+
   const toggleIndustry = (slug: string) => {
     void navigate({
-      search: (prev) => ({
-        ...prev,
-        industry: prev.industry === slug ? undefined : slug,
-      }),
+      search: (prev) => ({ ...prev, industry: prev.industry === slug ? undefined : slug }),
     });
   };
 
-  const toggle = (key: "newArrivals" | "deals" | "fastMoving") => {
-    void navigate({
-      search: (prev) => ({ ...prev, [key]: prev[key] ? undefined : true }),
-    });
-  };
-
-  const setCategoryParam = (value: string) => {
-    void navigate({
-      search: (prev) => ({ ...prev, category: value || undefined }),
-    });
+  const toggle = (key: "newArrivals" | "deals" | "fastMoving" | "inStock") => {
+    void navigate({ search: (prev) => ({ ...prev, [key]: prev[key] ? undefined : true }) });
   };
 
   const clearAll = () => {
@@ -173,8 +199,44 @@ function ProductsPage() {
 
   const grid = searchResults ?? products;
 
+  // JSON-LD ItemList for the visible page
+  const itemListLd = useMemo(() => {
+    if (!grid.length) return null;
+    return {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      itemListElement: grid.slice(0, 20).map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: `https://www.momentspackaging.com/products/${p.slug}`,
+        name: p.name,
+      })),
+    };
+  }, [grid]);
+
+  // Active filter chips
+  const chips: Array<{ label: string; clear: () => void }> = [];
+  if (selectedIndustry) chips.push({ label: selectedIndustry.name, clear: () => setParam("industry", undefined) });
+  if (category) {
+    const cat = CATEGORY_OPTIONS.find((c) => c.value === category);
+    chips.push({ label: cat?.label ?? category, clear: () => setParam("category", undefined) });
+  }
+  if (newArrivals) chips.push({ label: "New Arrivals", clear: () => setParam("newArrivals", undefined) });
+  if (deals) chips.push({ label: "Deals", clear: () => setParam("deals", undefined) });
+  if (fastMoving) chips.push({ label: "Fast Moving", clear: () => setParam("fastMoving", undefined) });
+  if (inStock) chips.push({ label: "In stock only", clear: () => setParam("inStock", undefined) });
+  if (minPrice !== undefined) chips.push({ label: `Min KES ${minPrice}`, clear: () => setParam("minPrice", undefined) });
+  if (maxPrice !== undefined) chips.push({ label: `Max KES ${maxPrice}`, clear: () => setParam("maxPrice", undefined) });
+
   return (
     <SiteLayout>
+      {itemListLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+        />
+      )}
+
       <section className="bg-cream">
         <div className="mx-auto max-w-7xl px-5 py-10 sm:py-14 lg:px-8 lg:py-16">
           <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Catalogue</p>
@@ -188,13 +250,10 @@ function ProductsPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 pb-20 sm:pb-24 lg:px-8">
-        {/* Search bar */}
+        {/* Search */}
         <div className="pt-6">
           <div className="relative">
-            <Search
-              size={16}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-            />
+            <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
               value={query}
@@ -237,34 +296,90 @@ function ProductsPage() {
 
           <span className="mx-1 h-5 w-px bg-border" aria-hidden />
 
-          <ToggleChip active={!!newArrivals} onClick={() => toggle("newArrivals")}>
-            New Arrivals
-          </ToggleChip>
-          <ToggleChip active={!!deals} onClick={() => toggle("deals")}>
-            Deals
-          </ToggleChip>
-          <ToggleChip active={!!fastMoving} onClick={() => toggle("fastMoving")}>
-            Fast Moving
-          </ToggleChip>
+          <ToggleChip active={!!newArrivals} onClick={() => toggle("newArrivals")}>New Arrivals</ToggleChip>
+          <ToggleChip active={!!deals} onClick={() => toggle("deals")}>Deals</ToggleChip>
+          <ToggleChip active={!!fastMoving} onClick={() => toggle("fastMoving")}>Fast Moving</ToggleChip>
+          <ToggleChip active={!!inStock} onClick={() => toggle("inStock")}>In stock</ToggleChip>
+        </div>
 
-          <input
-            type="text"
-            value={category ?? ""}
-            onChange={(e) => setCategoryParam(e.target.value)}
-            placeholder="Filter by category…"
-            className="ml-1 min-w-[180px] flex-shrink-0 rounded-full border border-foreground/20 bg-cream px-3.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-          />
+        {/* Refinement bar */}
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-4">
+          <label className="flex items-center gap-2 text-xs font-medium text-foreground">
+            Category
+            <select
+              value={category ?? ""}
+              onChange={(e) => setParam("category", e.target.value || undefined)}
+              className="rounded-full border border-foreground/20 bg-background px-3 py-1.5 text-xs"
+            >
+              <option value="">All</option>
+              {CATEGORY_OPTIONS.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="flex items-center gap-2 text-xs font-medium text-foreground">
+            Sort
+            <select
+              value={sort}
+              onChange={(e) => setParam("sort", e.target.value as SortKey)}
+              className="rounded-full border border-foreground/20 bg-background px-3 py-1.5 text-xs"
+            >
+              <option value="newest">Newest</option>
+              <option value="price-asc">Price: low → high</option>
+              <option value="price-desc">Price: high → low</option>
+              <option value="popular">Most popular</option>
+            </select>
+          </label>
+
+          <label className="flex items-center gap-2 text-xs font-medium text-foreground">
+            Price (KES)
+            <input
+              type="number"
+              min={0}
+              placeholder="min"
+              value={minPrice ?? ""}
+              onChange={(e) => setParam("minPrice", e.target.value ? Number(e.target.value) : undefined)}
+              className="w-20 rounded-full border border-foreground/20 bg-background px-3 py-1.5 text-xs"
+            />
+            <span className="text-muted-foreground">–</span>
+            <input
+              type="number"
+              min={0}
+              placeholder="max"
+              value={maxPrice ?? ""}
+              onChange={(e) => setParam("maxPrice", e.target.value ? Number(e.target.value) : undefined)}
+              className="w-20 rounded-full border border-foreground/20 bg-background px-3 py-1.5 text-xs"
+            />
+          </label>
 
           {anyFilterActive && (
             <button
               type="button"
               onClick={clearAll}
-              className="ml-2 whitespace-nowrap text-xs font-medium text-accent hover:underline"
+              className="ml-auto whitespace-nowrap text-xs font-medium text-accent hover:underline"
             >
-              Clear filters
+              Clear all
             </button>
           )}
         </div>
+
+        {/* Active chips */}
+        {chips.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {chips.map((chip, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={chip.clear}
+                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
+              >
+                {chip.label}
+                <X className="h-3 w-3" />
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Grid */}
         {isLoading ? (
