@@ -24,6 +24,40 @@ export const Route = createFileRoute("/products/$slug")({
     const p = loaderData?.product;
     if (!p) return { meta: [{ title: "Product — Moments Packaging" }] };
     const image = p.primaryImageUrl ?? p.image;
+    const url = `https://www.momentspackaging.com/products/${p.slug}`;
+    const tracked = p.trackInventory ?? typeof p.stock === "number";
+    const inStock = !tracked || (p.stock ?? 0) > 0;
+    const ld = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: p.name,
+      description: p.description,
+      image: [image],
+      sku: p.sku ?? p.id,
+      brand: { "@type": "Brand", name: "Moments Packaging" },
+      category: p.category,
+      offers: p.basePrice
+        ? {
+            "@type": "Offer",
+            url,
+            priceCurrency: "KES",
+            price: p.basePrice,
+            availability: inStock
+              ? "https://schema.org/InStock"
+              : "https://schema.org/BackOrder",
+            itemCondition: "https://schema.org/NewCondition",
+          }
+        : undefined,
+    };
+    const breadcrumbLd = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://www.momentspackaging.com/" },
+        { "@type": "ListItem", position: 2, name: "Products", item: "https://www.momentspackaging.com/products" },
+        { "@type": "ListItem", position: 3, name: p.name, item: url },
+      ],
+    };
     return {
       meta: [
         { title: `${p.name} — Moments Packaging Kenya` },
@@ -31,6 +65,11 @@ export const Route = createFileRoute("/products/$slug")({
         { property: "og:title", content: `${p.name} — Moments Packaging Kenya` },
         { property: "og:description", content: p.description },
         { property: "og:image", content: image },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(ld) },
+        { type: "application/ld+json", children: JSON.stringify(breadcrumbLd) },
       ],
     };
   },
