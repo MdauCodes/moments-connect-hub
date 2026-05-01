@@ -27,6 +27,9 @@ function AdminOrderDetailPage() {
   const [source, setSource] = useState<"live" | "mock">("mock");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [refund, setRefund] = useState<RefundRequest | null>(null);
+  const [refundNote, setRefundNote] = useState("");
+  const [refundBusy, setRefundBusy] = useState(false);
 
   useEffect(() => { document.title = `Order ${id} · Moments admin`; }, [id]);
 
