@@ -1619,3 +1619,85 @@ Add `ROLE_CUSTOMER` to the `Role` enum and to a new `customer_roles` join (or re
 When the backend goes live, **no frontend changes are required** — the
 hybrid stores detect the live response and stop falling back to localStorage
 automatically.
+
+---
+
+## 22. Reviews & refunds (added Phase 6)
+
+New role check: `review:moderate` is granted to ADMIN and STAFF (mirror in §3.2).
+
+### 22.1 Reviews — `/api/v1/public` & `/api/v1/customer` & `/api/v1/admin`
+
+| Method | Path | Auth | Body / Returns | Notes |
+| --- | --- | --- | --- | --- |
+| GET    | `/public/products/{productId}/reviews` | none | `{ reviews: ProductReview[], summary: ReviewSummary }` **or** `ProductReview[]` | Excludes `hidden=true`. |
+| POST   | `/customer/products/{productId}/reviews` | CUSTOMER | `ProductReview` | Auto-publish (`hidden=false`). Set `verifiedPurchase=true` if any of the caller's DELIVERED orders contain this product, else false. |
+| GET    | `/admin/reviews?hidden=&productId=` | STAFF or ADMIN | `ProductReview[]` | Includes hidden. |
+| PATCH  | `/admin/reviews/{id}` | STAFF or ADMIN | `{ hidden: boolean }` → `ProductReview` | Hide/unhide. |
+| DELETE | `/admin/reviews/{id}` | **ADMIN only** | `204` | Hard delete (rare). |
+
+`ProductReview` shape:
+```json
+{
+  "id": "rv_xxx", "productId": "uuid",
+  "customerName": "Jane", "customerEmail": "jane@example.com",
+  "rating": 5, "title": "Lovely boxes", "body": "…",
+  "orderReference": "MP-12345", "verifiedPurchase": true,
+  "hidden": false, "createdAt": "2026-05-01T10:15:30Z"
+}
+```
+`ReviewSummary` shape:
+```json
+{ "productId": "uuid", "count": 12, "average": 4.6,
+  "histogram": { "1": 0, "2": 1, "3": 1, "4": 3, "5": 7 } }
+```
+The PDP injects `aggregateRating` JSON-LD when `count > 0` — backend SHOULD return summary so SSR can include it on first paint.
+
+### 22.2 Refund requests
+
+Eligibility (enforce server-side):
+- Order `status === "DELIVERED"` AND `now - deliveredAt <= 14 days`.
+- One open request per order (latest wins on resubmit before admin acts).
+
+| Method | Path | Auth | Body / Returns | Notes |
+| --- | --- | --- | --- | --- |
+| POST  | `/customer/orders/{ref}/refund-request` | CUSTOMER | `{ reason, desiredAction }` → `RefundRequest` | `desiredAction` ∈ `REFUND` \| `REPLACE` \| `STORE_CREDIT`. |
+| GET   | `/customer/orders/{ref}/refund-request` | CUSTOMER | `RefundRequest \| null` | |
+| GET   | `/admin/refund-requests?status=` | STAFF or ADMIN | `RefundRequest[]` | |
+| GET   | `/admin/orders/{ref}/refund-request` | STAFF or ADMIN | `RefundRequest \| null` | |
+| PATCH | `/admin/refund-requests/{id}` | **ADMIN only** for status=`APPROVED`/`RESOLVED`; STAFF may set `REJECTED` with note | `{ status, adminNote? }` → `RefundRequest` | Setting status=`APPROVED` or `RESOLVED` MAY trigger `orders.status="REFUNDED"` and a Daraja refund call. |
+
+`RefundRequest` shape:
+```json
+{
+  "id": "rf_xxx", "orderReference": "MP-12345",
+  "customerEmail": "jane@example.com", "customerName": "Jane",
+  "reason": "Box arrived crushed", "desiredAction": "REPLACE",
+  "status": "PENDING", "adminNote": null,
+  "createdAt": "2026-05-08T09:00:00Z", "updatedAt": "2026-05-08T09:00:00Z"
+}
+```
+`status` ∈ `PENDING` | `APPROVED` | `REJECTED` | `RESOLVED`.
+
+### 22.3 Database additions (Flyway `V005__reviews_refunds.sql`)
+
+- `product_reviews` (id, product_id FK, customer_id FK NULL, customer_name, customer_email, rating SMALLINT CHECK 1..5, title, body, order_reference NULL, verified_purchase, hidden, created_at)
+- `refund_requests` (id, order_id FK, customer_id FK NULL, reason, desired_action, status, admin_note, created_at, updated_at)
+  - UNIQUE partial index on `(order_id) WHERE status IN ('PENDING','APPROVED')` to prevent two open requests.
+
+### 22.4 Frontend mapping (Phase 6)
+
+| Frontend call | Backend endpoint | File |
+| --- | --- | --- |
+| `reviewStore.listForProduct()` | `GET  /public/products/{id}/reviews` | `src/services/reviewStore.ts` |
+| `reviewStore.submit()` | `POST /customer/products/{id}/reviews` | `src/services/reviewStore.ts` |
+| `reviewStore.listAll()` | `GET  /admin/reviews` | `src/services/reviewStore.ts` |
+| `reviewStore.setHidden()` | `PATCH /admin/reviews/{id}` | `src/services/reviewStore.ts` |
+| `refundStore.submit()` | `POST /customer/orders/{ref}/refund-request` | `src/services/refundStore.ts` |
+| `refundStore.getForOrder()` | `GET  /customer/orders/{ref}/refund-request` | `src/services/refundStore.ts` |
+| `refundStore.listAll()` | `GET  /admin/refund-requests` | `src/services/refundStore.ts` |
+| `refundStore.updateStatus()` | `PATCH /admin/refund-requests/{id}` | `src/services/refundStore.ts` |
+
+The receipt is rendered as a print-friendly HTML page in the browser
+(`PrintReceipt` component using `window.print()` + `@media print` CSS in
+`src/styles.css`); no backend PDF endpoint required.
