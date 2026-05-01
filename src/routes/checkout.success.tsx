@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
+import { PrintReceipt } from "@/components/PrintReceipt";
 import { orderStore, type CustomerOrder } from "@/services/orderStore";
 
 const searchSchema = z.object({ ref: z.string() });
@@ -52,6 +53,7 @@ function SuccessPage() {
             <Link to="/orders/track" search={{ ref }} className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90">
               Track this order
             </Link>
+            {order && <PrintReceipt order={order} />}
             <Link to="/products" className="rounded-full border border-border bg-background px-6 py-3 text-sm font-medium text-foreground hover:bg-secondary">
               Continue shopping
             </Link>
