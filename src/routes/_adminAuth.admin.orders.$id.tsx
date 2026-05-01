@@ -43,6 +43,32 @@ function AdminOrderDetailPage() {
     return () => { cancelled = true; };
   }, [id]);
 
+  // Load refund request (if any) for this order — keyed by reference, not id.
+  useEffect(() => {
+    if (!order?.reference) return;
+    let cancelled = false;
+    refundStore.getAdminForOrder(order.reference)
+      .then((r) => { if (!cancelled) { setRefund(r); setRefundNote(r?.adminNote ?? ""); } })
+      .catch(() => { /* silent — refunds are optional */ });
+    return () => { cancelled = true; };
+  }, [order?.reference]);
+
+  const updateRefund = async (status: RefundRequestStatus) => {
+    if (!refund) return;
+    setRefundBusy(true);
+    try {
+      const next = await refundStore.updateStatus(refund.id, status, refundNote.trim() || undefined);
+      if (next) {
+        setRefund(next);
+        toast.success(`Refund request ${status.toLowerCase()}`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update refund");
+    } finally {
+      setRefundBusy(false);
+    }
+  };
+
   const handleStatusChange = async (status: OrderStatus) => {
     if (!order) return;
     setSaving(true);
