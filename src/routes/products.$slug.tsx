@@ -11,6 +11,7 @@ import { api } from "@/services/api";
 import { apiUrl } from "@/config/api";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/products/$slug")({
@@ -62,6 +63,7 @@ function ProductDetail() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { isAuthenticated } = useAuth();
+  const wishlist = useWishlist();
 
   // Gallery
   const allImages = useMemo(() => {
@@ -82,7 +84,7 @@ function ProductDetail() {
   const [qty, setQty] = useState(product.moq);
   const [qtyError, setQtyError] = useState<string | null>(null);
   const [descExpanded, setDescExpanded] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const saved = wishlist.has(product.id);
   const [configuring, setConfiguring] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
 
@@ -153,13 +155,9 @@ function ProductDetail() {
     toast.success("Added to cart", { duration: 2000 });
   };
 
-  const handleWishlist = () => {
-    if (!isAuthenticated) {
-      navigate({ to: "/account/login" });
-      return;
-    }
-    setSaved((s) => !s);
-    toast.success(saved ? "Removed from wishlist" : "Saved to wishlist");
+  const handleWishlist = async () => {
+    const nowSaved = await wishlist.toggle(product.id);
+    toast.success(nowSaved ? "Saved to wishlist" : "Removed from wishlist");
   };
 
   const handleShare = async () => {
