@@ -20,10 +20,17 @@ export const Route = createFileRoute("/products/$slug")({
   loader: async ({ params }) => {
     const product = await api.getProductBySlug(params.slug);
     if (!product) throw notFound();
-    return { product };
+    // Best-effort review summary for AggregateRating JSON-LD; never blocks rendering.
+    let reviewSummary: { count: number; average: number } | null = null;
+    try {
+      const { summary } = await reviewStore.listForProduct(product.id);
+      if (summary.count > 0) reviewSummary = { count: summary.count, average: summary.average };
+    } catch { /* ignore */ }
+    return { product, reviewSummary };
   },
   head: ({ loaderData }) => {
     const p = loaderData?.product;
+    const reviewSummary = loaderData?.reviewSummary;
     if (!p) return { meta: [{ title: "Product — Moments Packaging" }] };
     const image = p.primaryImageUrl ?? p.image;
     const url = `https://www.momentspackaging.com/products/${p.slug}`;
