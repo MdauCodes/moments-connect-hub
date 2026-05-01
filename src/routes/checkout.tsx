@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowRight, Loader2, Smartphone } from "lucide-react";
+import { ArrowRight, Smartphone } from "lucide-react";
+import { InlineProgress } from "@/components/InlineProgress";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useCart } from "@/contexts/CartContext";
