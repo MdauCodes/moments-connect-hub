@@ -1,6 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
+import {
+  DotGrid,
+  PaperTexture,
+  ArcStroke,
+  UnderlineStroke,
+  CornerLines,
+  SignatureDivider,
+} from "@/components/BrandDecor";
 import { LatestBlogsStrip } from "@/components/blog/LatestBlogsStrip";
 import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { ProductCard } from "@/components/ProductCard";
@@ -268,8 +276,10 @@ function FeaturedProducts() {
 function PersonaSegmentPicker() {
   const { persona, setPersona } = usePersona();
   return (
-    <section className="bg-cream">
-      <div className="mx-auto max-w-5xl px-5 py-14 text-center sm:py-16 lg:px-8">
+    <section className="relative overflow-hidden bg-cream">
+      <DotGrid opacity={0.06} size={28} />
+      <ArcStroke className="-right-24 top-1/2 h-72 w-72 -translate-y-1/2" color="kraft" opacity={0.15} />
+      <div className="relative mx-auto max-w-5xl px-5 py-14 text-center sm:py-16 lg:px-8">
         <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Optional</p>
         <h2 className="mt-2 font-display text-2xl font-medium text-foreground sm:text-3xl">
           Who are you ordering for?
@@ -331,15 +341,27 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* HERO — two-column: left CTA + right 2x2 product grid */}
-      <section className="bg-cream">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:py-16 lg:grid-cols-12 lg:gap-12 lg:px-8 lg:py-20">
+      <section className="relative overflow-hidden bg-cream">
+        <DotGrid opacity={0.07} size={24} />
+        <ArcStroke className="-left-32 -top-32 h-[28rem] w-[28rem]" opacity={0.18} />
+        <ArcStroke
+          className="-bottom-40 -right-32 h-[32rem] w-[32rem]"
+          color="clay"
+          opacity={0.15}
+        />
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:py-16 lg:grid-cols-12 lg:gap-12 lg:px-8 lg:py-20">
           <div className="lg:col-span-6">
             <p className="text-[11px] uppercase tracking-[0.25em] text-accent">
               Premium paper packaging
             </p>
             <h1 className="mt-3 font-display text-[2.5rem] font-medium leading-[1.05] text-foreground text-balance sm:text-5xl lg:text-[3.5rem]">
               Packaging that <br />
-              makes the <em className="not-italic text-accent">moment</em>.
+              makes the{" "}
+              <span className="relative inline-block">
+                <em className="not-italic text-accent">moment</em>
+                <UnderlineStroke />
+              </span>
+              .
             </h1>
             <p className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
               Browse, configure and order branded paper packaging online. Delivered across Kenya from 100 units.
@@ -372,7 +394,9 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="lg:col-span-6">
+          <div className="relative lg:col-span-6">
+            <CornerLines className="-right-2 -top-2 rotate-180" opacity={0.3} />
+            <CornerLines className="-bottom-2 -left-2" opacity={0.3} />
             <HeroProductsGrid products={heroProducts} />
           </div>
         </div>
@@ -398,8 +422,12 @@ function HomePage() {
       </section>
 
       {/* SHOP BY CATEGORY — 4x2 grid on cream */}
-      <section className="bg-cream">
-        <div className="mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8">
+      <section className="relative overflow-hidden bg-cream">
+        <PaperTexture opacity={0.06} />
+        <CornerLines className="left-4 top-4" opacity={0.25} />
+        <CornerLines className="bottom-4 right-4 rotate-180" opacity={0.25} />
+        <div className="relative mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8">
+          <SignatureDivider className="mb-10" />
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Browse</p>
