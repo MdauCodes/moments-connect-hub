@@ -183,7 +183,7 @@ function ContactPage() {
                               type="button"
                               onClick={() => remove(item.productId)}
                               className="rounded-md p-1 text-muted-foreground hover:bg-secondary"
-                              aria-label={`Remove ${item.name}`}
+                              aria-label={`Remove ${item.productName}`}
                             >
                               <X className="h-4 w-4" />
                             </button>
