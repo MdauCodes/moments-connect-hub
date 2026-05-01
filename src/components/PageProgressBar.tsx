@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 
 /**
@@ -8,46 +8,54 @@ import { useRouterState } from "@tanstack/react-router";
  * across the very top of the viewport from left to right, then dissolves
  * once the new route has settled. No spinner, no pulse — feels like ink.
  *
- * States machine:
- *  - idle (no nav)            → line invisible, scaleX 0
- *  - pending (route loading)  → line visible, draws to scaleX ~0.85
- *  - settled (route idle)     → line completes to scaleX 1, then fades out
+ * Even if the new route resolves in <100ms, we hold the animation for a
+ * minimum visible window so the user always perceives the transition.
  */
+const MIN_VISIBLE_MS = 650; // minimum time the line stays on screen
+const DRAW_MS = 900;        // duration of the initial 0 → 0.85 draw
+
 export function PageProgressBar() {
   const status = useRouterState({ select: (s) => s.status });
   const [scale, setScale] = useState(0);
   const [opacity, setOpacity] = useState(0);
-  // Drawing speed slows as route takes longer (typical ink-stroke feel).
-  const [duration, setDuration] = useState(600);
+  const [duration, setDuration] = useState(0);
+  const startedAtRef = useRef<number | null>(null);
 
   useEffect(() => {
+    let completeTimer: ReturnType<typeof setTimeout> | null = null;
     let fadeTimer: ReturnType<typeof setTimeout> | null = null;
     let resetTimer: ReturnType<typeof setTimeout> | null = null;
 
     if (status === "pending") {
-      // Reset, then draw to ~85% over a long, easeOut curve.
+      startedAtRef.current = performance.now();
       setOpacity(1);
       setScale(0);
-      setDuration(60);
+      setDuration(0);
       const grow = requestAnimationFrame(() => {
-        setDuration(1400);
+        setDuration(DRAW_MS);
         setScale(0.85);
       });
       return () => cancelAnimationFrame(grow);
     }
 
-    if (status === "idle") {
-      // Snap to full, then fade the stroke out so it dissolves like ink drying.
-      setDuration(220);
-      setScale(1);
-      fadeTimer = setTimeout(() => setOpacity(0), 240);
-      resetTimer = setTimeout(() => {
-        setScale(0);
-        setDuration(0);
-      }, 600);
+    if (status === "idle" && startedAtRef.current !== null) {
+      const elapsed = performance.now() - startedAtRef.current;
+      const wait = Math.max(0, MIN_VISIBLE_MS - elapsed);
+
+      completeTimer = setTimeout(() => {
+        setDuration(220);
+        setScale(1);
+        fadeTimer = setTimeout(() => setOpacity(0), 240);
+        resetTimer = setTimeout(() => {
+          setScale(0);
+          setDuration(0);
+          startedAtRef.current = null;
+        }, 600);
+      }, wait);
     }
 
     return () => {
+      if (completeTimer) clearTimeout(completeTimer);
       if (fadeTimer) clearTimeout(fadeTimer);
       if (resetTimer) clearTimeout(resetTimer);
     };
@@ -56,16 +64,17 @@ export function PageProgressBar() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-x-0 top-0 z-[100] h-px"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[100] h-[2px]"
       style={{ opacity, transition: "opacity 320ms ease-out" }}
     >
       <div
         className="h-full origin-left"
         style={{
           background:
-            "linear-gradient(to right, transparent 0%, var(--clay) 12%, var(--clay) 88%, transparent 100%)",
+            "linear-gradient(to right, transparent 0%, var(--clay) 10%, var(--clay) 90%, transparent 100%)",
           transform: `scaleX(${scale})`,
           transition: `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`,
+          boxShadow: "0 0 6px color-mix(in oklab, var(--clay) 40%, transparent)",
         }}
       />
     </div>
