@@ -208,8 +208,15 @@ function ProductDetail() {
       finish: finish || "Standard",
       quantity: qty,
       unitPrice,
+      variantId: activeVariant?.id ?? activeVariant?.label,
+      variantLabel: activeVariant?.label,
+      sku: activeVariant?.sku ?? product.sku,
+      isBackorder: stock.isBackorder,
     });
-    toast.success("Added to cart", { duration: 2000 });
+    toast.success(
+      stock.isBackorder ? "Added — backorder (extended lead time)" : "Added to cart",
+      { duration: 2400 },
+    );
   };
 
   const handleWishlist = async () => {
