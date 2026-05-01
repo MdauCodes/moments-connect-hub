@@ -6,10 +6,37 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { ProductCard } from "@/components/ProductCard";
 import { ConfiguratorModal } from "@/components/ConfiguratorModal";
+import { Link } from "@tanstack/react-router";
 import { api } from "@/services/api";
 import { categories } from "@/data/products";
 import type { Product, Industry } from "@/data/products";
 import { getStockInfo } from "@/lib/stock";
+import { MOCK_PRODUCTS } from "@/data/mockProducts";
+
+/**
+ * Smart loading state for the catalogue.
+ * - "ok": real data (or fallback) is in `products`, render grid normally
+ * - "fallback": API unreachable / 404 → showing MOCK_PRODUCTS + subtle banner
+ * - "empty": API responded with [] and no filters active
+ * - "unauthorized": 401/403
+ * - "server_error": 500 / unknown — show retry
+ */
+type LoadState = "ok" | "fallback" | "empty" | "unauthorized" | "server_error";
+
+/** Extract HTTP status from the api layer's `Error("API request failed: 404")`. */
+function statusFromError(err: unknown): number | null {
+  if (!(err instanceof Error)) return null;
+  const m = /(\d{3})/.exec(err.message);
+  return m ? Number(m[1]) : null;
+}
+
+function classifyError(err: unknown): Exclude<LoadState, "ok" | "empty"> {
+  const status = statusFromError(err);
+  if (status === 401 || status === 403) return "unauthorized";
+  if (status === 404 || status === null) return "fallback"; // null = network/TypeError
+  if (status >= 500) return "server_error";
+  return "fallback";
+}
 
 const sortOptions = ["newest", "price-asc", "price-desc", "popular"] as const;
 type SortKey = (typeof sortOptions)[number];
