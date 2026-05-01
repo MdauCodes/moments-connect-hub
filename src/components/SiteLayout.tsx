@@ -4,8 +4,6 @@ import { SiteFooter } from "./SiteFooter";
 import { WhatsAppFloat } from "./WhatsAppFloat";
 import { usePersona } from "@/contexts/PersonaContext";
 import { PersonaGate } from "./PersonaGate";
-import { BasketPill } from "./BasketPill";
-import { BasketDrawer } from "./BasketDrawer";
 import { PageProgressBar } from "./PageProgressBar";
 import { EmailCaptureBanner } from "./EmailCaptureBanner";
 import { EmailInsiderPrompt } from "./EmailInsiderPrompt";
@@ -62,7 +60,6 @@ function ScrollLock() {
 }
 
 function LayoutShell({ children }: { children: ReactNode }) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerVisible, setBannerVisible] = useState(false);
   return (
     <>
@@ -76,8 +73,6 @@ function LayoutShell({ children }: { children: ReactNode }) {
         <SiteFooter />
         <WhatsAppFloat />
         <PersonaSwitchButton liftAbove={bannerVisible} />
-        <BasketPill onOpen={() => setDrawerOpen(true)} liftAbove={bannerVisible} />
-        <BasketDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
         <EmailCaptureBanner onVisibilityChange={setBannerVisible} />
         <EmailInsiderPrompt />
       </div>
