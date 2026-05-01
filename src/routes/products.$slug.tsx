@@ -62,7 +62,7 @@ function ProductDetail() {
   const { product } = Route.useLoaderData();
   const navigate = useNavigate();
   const { addItem } = useCart();
-  const { isAuthenticated } = useAuth();
+  useAuth(); // ensure provider availability for any future gating
   const wishlist = useWishlist();
 
   // Gallery
