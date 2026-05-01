@@ -11,6 +11,34 @@ import { ArrowRight, ShoppingCart, Smartphone, Truck, Pencil, Grid, Phone, Truck
 import { api } from "@/services/api";
 import type { Product } from "@/data/products";
 
+const orgLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Moments Packaging",
+  url: "https://www.momentspackaging.com",
+  logo: "https://www.momentspackaging.com/og-image.jpg",
+  email: "sales@momentspackaging.co.ke",
+  telephone: "+254119556688",
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "KE",
+    addressLocality: "Nairobi",
+  },
+  sameAs: [],
+};
+
+const siteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Moments Packaging",
+  url: "https://www.momentspackaging.com",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://www.momentspackaging.com/products?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -30,6 +58,10 @@ export const Route = createFileRoute("/")({
       { name: "twitter:image", content: "https://www.momentspackaging.com/og-image.jpg" },
     ],
     links: [{ rel: "canonical", href: "https://www.momentspackaging.com/" }],
+    scripts: [
+      { type: "application/ld+json", children: JSON.stringify(orgLd) },
+      { type: "application/ld+json", children: JSON.stringify(siteLd) },
+    ],
   }),
   component: HomePage,
 });
