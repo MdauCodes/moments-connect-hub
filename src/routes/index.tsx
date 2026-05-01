@@ -395,8 +395,8 @@ function HomePage() {
           </div>
 
           <div className="relative lg:col-span-6">
-            <CornerLines className="-right-2 -top-2 rotate-180" opacity={0.3} />
-            <CornerLines className="-bottom-2 -left-2" opacity={0.3} />
+            <CornerLines className="-right-2 -top-2 rotate-180" opacity={0.12} />
+            <CornerLines className="-bottom-2 -left-2" opacity={0.12} />
             <HeroProductsGrid products={heroProducts} />
           </div>
         </div>
