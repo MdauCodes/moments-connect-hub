@@ -488,6 +488,17 @@ function ProductDetail() {
               Production: 7–14 business days
             </span>
 
+            {stock.isBackorder && !enterprise && (
+              <div className="flex items-start gap-2 rounded-xl border border-accent/40 bg-accent/5 px-4 py-3 text-xs text-foreground">
+                <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
+                <p>
+                  <strong>Backorder:</strong> requested quantity exceeds current stock.
+                  We'll produce on demand — extended lead time of approx.{" "}
+                  <strong>21 business days</strong>.
+                </p>
+              </div>
+            )}
+
             {enterprise ? (
               <button
                 type="button"
@@ -502,7 +513,7 @@ function ProductDetail() {
                 onClick={handleAddToCart}
                 className="h-[52px] w-full rounded-full bg-accent text-sm font-semibold text-accent-foreground shadow-sm transition-opacity hover:opacity-90"
               >
-                Add to cart
+                {stock.isBackorder ? "Add to cart (backorder)" : "Add to cart"}
               </button>
             )}
 
