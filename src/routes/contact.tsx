@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { WHATSAPP_NUMBER, whatsappLink } from "@/data/products";
 import { Check, Loader2, MessageCircle, X } from "lucide-react";
 import { usePersona } from "@/contexts/PersonaContext";
-import { useBasket, type BasketItem } from "@/contexts/BasketContext";
+import { useCart, type CartItem } from "@/contexts/CartContext";
 import { apiUrl } from "@/config/api";
 
 export const Route = createFileRoute("/contact")({
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/contact")({
 type FormState = "idle" | "submitting" | "success" | "error";
 
 interface LocationState {
-  basketItems?: BasketItem[];
+  basketItems?: CartItem[];
 }
 
 const inputClass =
@@ -39,13 +39,13 @@ const labelClass = "block text-sm font-medium text-foreground mb-1.5";
 
 function ContactPage() {
   const { persona } = usePersona();
-  const { items, remove, clear } = useBasket();
+  const { items, removeItem: remove, clearCart: clear } = useCart();
   const isCorp = persona === "corporate";
 
   const location = useLocation();
   const state = (location.state as LocationState | undefined) ?? {};
   const incoming = state.basketItems;
-  const basketProducts: BasketItem[] = items.length === 0 && incoming ? incoming : items;
+  const basketProducts: CartItem[] = items.length === 0 && incoming ? incoming : items;
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -75,8 +75,8 @@ function ContactPage() {
       referralSource: !isCorp ? referralSource : undefined,
       products: basketProducts.map((item) => ({
         productId: item.productId,
-        name: item.name,
-        qty: item.qty,
+        name: item.productName,
+        qty: item.quantity,
         size: item.size,
         finish: item.finish,
       })),
@@ -167,23 +167,23 @@ function ContactPage() {
                             className="flex items-center gap-3 rounded-xl border border-border bg-background/50 p-3"
                           >
                             <img
-                              src={item.image}
-                              alt={item.name}
+                              src={item.primaryImageUrl}
+                              alt={item.productName}
                               className="h-12 w-12 shrink-0 rounded-lg object-cover"
                             />
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-sm font-medium text-foreground">
-                                {item.name}
+                                {item.productName}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                Qty: {item.qty} · Size: {item.size} · Finish: {item.finish}
+                                Qty: {item.quantity} · Size: {item.size} · Finish: {item.finish}
                               </p>
                             </div>
                             <button
                               type="button"
                               onClick={() => remove(item.productId)}
                               className="rounded-md p-1 text-muted-foreground hover:bg-secondary"
-                              aria-label={`Remove ${item.name}`}
+                              aria-label={`Remove ${item.productName}`}
                             >
                               <X className="h-4 w-4" />
                             </button>

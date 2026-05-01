@@ -1,6 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { PersonaProvider } from "@/contexts/PersonaContext";
-import { BasketProvider } from "@/contexts/BasketContext";
+
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import { SiteConfigProvider } from "@/contexts/SiteConfigContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -164,10 +164,8 @@ function RootComponent() {
         <CartProvider>
           <AdminAuthProvider>
             <PersonaProvider>
-              <BasketProvider>
-                <Outlet />
-                <Toaster />
-              </BasketProvider>
+              <Outlet />
+              <Toaster />
             </PersonaProvider>
           </AdminAuthProvider>
         </CartProvider>
