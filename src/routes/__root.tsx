@@ -5,6 +5,7 @@ import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import { SiteConfigProvider } from "@/contexts/SiteConfigContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { WishlistProvider } from "@/contexts/WishlistContext";
 import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
@@ -162,12 +163,14 @@ function RootComponent() {
     <SiteConfigProvider>
       <AuthProvider>
         <CartProvider>
-          <AdminAuthProvider>
-            <PersonaProvider>
-              <Outlet />
-              <Toaster />
-            </PersonaProvider>
-          </AdminAuthProvider>
+          <WishlistProvider>
+            <AdminAuthProvider>
+              <PersonaProvider>
+                <Outlet />
+                <Toaster />
+              </PersonaProvider>
+            </AdminAuthProvider>
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </SiteConfigProvider>
