@@ -106,6 +106,8 @@ function ProductsPage() {
   const [query, setQuery] = useState(q ?? "");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [configuring, setConfiguring] = useState<Product | null>(null);
+  const [loadState, setLoadState] = useState<LoadState>("ok");
+  const [retryTick, setRetryTick] = useState(0);
 
   const selectedIndustry = useMemo(
     () => industries.find((i) => i.slug === industrySlug) ?? null,
