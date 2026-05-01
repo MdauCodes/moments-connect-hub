@@ -342,12 +342,12 @@ function HomePage() {
     <SiteLayout>
       {/* HERO — two-column: left CTA + right 2x2 product grid */}
       <section className="relative overflow-hidden bg-cream">
-        <DotGrid opacity={0.07} size={24} />
-        <ArcStroke className="-left-32 -top-32 h-[28rem] w-[28rem]" opacity={0.18} />
+        <DotGrid opacity={0.05} size={14} />
+        <ArcStroke className="-left-48 -top-48 h-[36rem] w-[36rem]" opacity={0.06} />
         <ArcStroke
-          className="-bottom-40 -right-32 h-[32rem] w-[32rem]"
+          className="-bottom-56 -right-48 h-[40rem] w-[40rem]"
           color="clay"
-          opacity={0.15}
+          opacity={0.05}
         />
         <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:py-16 lg:grid-cols-12 lg:gap-12 lg:px-8 lg:py-20">
           <div className="lg:col-span-6">
