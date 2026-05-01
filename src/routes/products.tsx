@@ -143,7 +143,7 @@ function ProductsPage() {
     setPage(0);
   }, [industrySlug, category, newArrivals, deals, fastMoving, inStock, minPrice, maxPrice, sort]);
 
-  // Fetch
+  // Fetch (wrapped with smart fallback handling — does not change API calls).
   useEffect(() => {
     if (searchResults !== null) return;
     let cancelled = false;
@@ -178,8 +178,25 @@ function ProductsPage() {
         }
         setHasMore(data.length === PAGE_SIZE);
         setProducts((prev) => (page === 0 ? filtered : [...prev, ...filtered]));
+
+        // Empty-state vs ok. Only call it "empty" on the first page with no
+        // filters — otherwise it's just a filter that excluded everything.
+        if (page === 0 && data.length === 0 && !anyFilterActive) {
+          setLoadState("empty");
+        } else {
+          setLoadState("ok");
+        }
       })
-      .catch(() => { if (!cancelled && page === 0) setProducts([]); })
+      .catch((err) => {
+        if (cancelled) return;
+        const next = classifyError(err);
+        setLoadState(next);
+        if (page === 0) {
+          // Fallback: silently swap in mock catalogue so the UI stays browsable.
+          setProducts(next === "fallback" ? MOCK_PRODUCTS : []);
+          setHasMore(false);
+        }
+      })
       .finally(() => {
         if (cancelled) return;
         setIsLoading(false);
@@ -187,7 +204,7 @@ function ProductsPage() {
       });
 
     return () => { cancelled = true; };
-  }, [selectedIndustry, category, newArrivals, deals, fastMoving, inStock, minPrice, maxPrice, sortParam, page, searchResults]);
+  }, [selectedIndustry, category, newArrivals, deals, fastMoving, inStock, minPrice, maxPrice, sortParam, page, searchResults, anyFilterActive, retryTick]);
 
   // Debounced search
   useEffect(() => {
