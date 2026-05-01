@@ -6,10 +6,37 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { ProductCard } from "@/components/ProductCard";
 import { ConfiguratorModal } from "@/components/ConfiguratorModal";
+import { Link } from "@tanstack/react-router";
 import { api } from "@/services/api";
 import { categories } from "@/data/products";
 import type { Product, Industry } from "@/data/products";
 import { getStockInfo } from "@/lib/stock";
+import { MOCK_PRODUCTS } from "@/data/mockProducts";
+
+/**
+ * Smart loading state for the catalogue.
+ * - "ok": real data (or fallback) is in `products`, render grid normally
+ * - "fallback": API unreachable / 404 → showing MOCK_PRODUCTS + subtle banner
+ * - "empty": API responded with [] and no filters active
+ * - "unauthorized": 401/403
+ * - "server_error": 500 / unknown — show retry
+ */
+type LoadState = "ok" | "fallback" | "empty" | "unauthorized" | "server_error";
+
+/** Extract HTTP status from the api layer's `Error("API request failed: 404")`. */
+function statusFromError(err: unknown): number | null {
+  if (!(err instanceof Error)) return null;
+  const m = /(\d{3})/.exec(err.message);
+  return m ? Number(m[1]) : null;
+}
+
+function classifyError(err: unknown): Exclude<LoadState, "ok" | "empty"> {
+  const status = statusFromError(err);
+  if (status === 401 || status === 403) return "unauthorized";
+  if (status === 404 || status === null) return "fallback"; // null = network/TypeError
+  if (status >= 500) return "server_error";
+  return "fallback";
+}
 
 const sortOptions = ["newest", "price-asc", "price-desc", "popular"] as const;
 type SortKey = (typeof sortOptions)[number];
@@ -79,6 +106,8 @@ function ProductsPage() {
   const [query, setQuery] = useState(q ?? "");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [configuring, setConfiguring] = useState<Product | null>(null);
+  const [loadState, setLoadState] = useState<LoadState>("ok");
+  const [retryTick, setRetryTick] = useState(0);
 
   const selectedIndustry = useMemo(
     () => industries.find((i) => i.slug === industrySlug) ?? null,
@@ -114,7 +143,7 @@ function ProductsPage() {
     setPage(0);
   }, [industrySlug, category, newArrivals, deals, fastMoving, inStock, minPrice, maxPrice, sort]);
 
-  // Fetch
+  // Fetch (wrapped with smart fallback handling — does not change API calls).
   useEffect(() => {
     if (searchResults !== null) return;
     let cancelled = false;
@@ -149,8 +178,25 @@ function ProductsPage() {
         }
         setHasMore(data.length === PAGE_SIZE);
         setProducts((prev) => (page === 0 ? filtered : [...prev, ...filtered]));
+
+        // Empty-state vs ok. Only call it "empty" on the first page with no
+        // filters — otherwise it's just a filter that excluded everything.
+        if (page === 0 && data.length === 0 && !anyFilterActive) {
+          setLoadState("empty");
+        } else {
+          setLoadState("ok");
+        }
       })
-      .catch(() => { if (!cancelled && page === 0) setProducts([]); })
+      .catch((err) => {
+        if (cancelled) return;
+        const next = classifyError(err);
+        setLoadState(next);
+        if (page === 0) {
+          // Fallback: silently swap in mock catalogue so the UI stays browsable.
+          setProducts(next === "fallback" ? MOCK_PRODUCTS : []);
+          setHasMore(false);
+        }
+      })
       .finally(() => {
         if (cancelled) return;
         setIsLoading(false);
@@ -158,7 +204,7 @@ function ProductsPage() {
       });
 
     return () => { cancelled = true; };
-  }, [selectedIndustry, category, newArrivals, deals, fastMoving, inStock, minPrice, maxPrice, sortParam, page, searchResults]);
+  }, [selectedIndustry, category, newArrivals, deals, fastMoving, inStock, minPrice, maxPrice, sortParam, page, searchResults, anyFilterActive, retryTick]);
 
   // Debounced search
   useEffect(() => {
@@ -381,12 +427,58 @@ function ProductsPage() {
           </div>
         )}
 
+        {/* Subtle banner: API unreachable / 404 → showing mock catalogue. */}
+        {!searchResults && loadState === "fallback" && !isLoading && (
+          <div className="mt-6 rounded-lg border border-border/60 bg-muted/40 px-4 py-2.5 text-xs text-muted-foreground">
+            Showing sample products — connect to backend to see live catalogue.
+          </div>
+        )}
+
         {/* Grid */}
         {isLoading ? (
           <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
+          </div>
+        ) : !searchResults && loadState === "unauthorized" ? (
+          <div className="mt-16 rounded-2xl border border-dashed border-border p-16 text-center">
+            <h3 className="font-display text-2xl text-foreground">Sign in to view products.</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              This catalogue is only visible to signed-in customers.
+            </p>
+            <Link
+              to="/account/login"
+              className="mt-5 inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Sign in
+            </Link>
+          </div>
+        ) : !searchResults && loadState === "server_error" ? (
+          <div className="mt-16 rounded-2xl border border-dashed border-border p-16 text-center">
+            <h3 className="font-display text-2xl text-foreground">
+              Something went wrong on our end. Please try again.
+            </h3>
+            <button
+              type="button"
+              onClick={() => setRetryTick((n) => n + 1)}
+              className="mt-5 inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Retry
+            </button>
+          </div>
+        ) : !searchResults && loadState === "empty" ? (
+          <div className="mt-16 rounded-2xl border border-dashed border-border p-16 text-center">
+            <h3 className="font-display text-2xl text-foreground">No products listed yet</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Our catalogue is being prepared. Reach out and we&apos;ll help you directly.
+            </p>
+            <Link
+              to="/contact"
+              className="mt-5 inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Contact the team
+            </Link>
           </div>
         ) : grid.length === 0 ? (
           <div className="mt-16 rounded-2xl border border-dashed border-border p-16 text-center">
