@@ -277,8 +277,8 @@ function PersonaSegmentPicker() {
   const { persona, setPersona } = usePersona();
   return (
     <section className="relative overflow-hidden bg-cream">
-      <DotGrid opacity={0.06} size={28} />
-      <ArcStroke className="-right-24 top-1/2 h-72 w-72 -translate-y-1/2" color="kraft" opacity={0.15} />
+      <DotGrid opacity={0.04} size={14} />
+      <ArcStroke className="-right-32 top-1/2 h-80 w-80 -translate-y-1/2" color="kraft" opacity={0.06} />
       <div className="relative mx-auto max-w-5xl px-5 py-14 text-center sm:py-16 lg:px-8">
         <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Optional</p>
         <h2 className="mt-2 font-display text-2xl font-medium text-foreground sm:text-3xl">
@@ -342,12 +342,12 @@ function HomePage() {
     <SiteLayout>
       {/* HERO — two-column: left CTA + right 2x2 product grid */}
       <section className="relative overflow-hidden bg-cream">
-        <DotGrid opacity={0.07} size={24} />
-        <ArcStroke className="-left-32 -top-32 h-[28rem] w-[28rem]" opacity={0.18} />
+        <DotGrid opacity={0.05} size={14} />
+        <ArcStroke className="-left-48 -top-48 h-[36rem] w-[36rem]" opacity={0.06} />
         <ArcStroke
-          className="-bottom-40 -right-32 h-[32rem] w-[32rem]"
+          className="-bottom-56 -right-48 h-[40rem] w-[40rem]"
           color="clay"
-          opacity={0.15}
+          opacity={0.05}
         />
         <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:py-16 lg:grid-cols-12 lg:gap-12 lg:px-8 lg:py-20">
           <div className="lg:col-span-6">
@@ -395,8 +395,8 @@ function HomePage() {
           </div>
 
           <div className="relative lg:col-span-6">
-            <CornerLines className="-right-2 -top-2 rotate-180" opacity={0.3} />
-            <CornerLines className="-bottom-2 -left-2" opacity={0.3} />
+            <CornerLines className="-right-2 -top-2 rotate-180" opacity={0.12} />
+            <CornerLines className="-bottom-2 -left-2" opacity={0.12} />
             <HeroProductsGrid products={heroProducts} />
           </div>
         </div>
@@ -424,8 +424,8 @@ function HomePage() {
       {/* SHOP BY CATEGORY — 4x2 grid on cream */}
       <section className="relative overflow-hidden bg-cream">
         <PaperTexture opacity={0.06} />
-        <CornerLines className="left-4 top-4" opacity={0.25} />
-        <CornerLines className="bottom-4 right-4 rotate-180" opacity={0.25} />
+        <CornerLines className="left-4 top-4" opacity={0.1} />
+        <CornerLines className="bottom-4 right-4 rotate-180" opacity={0.1} />
         <div className="relative mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8">
           <SignatureDivider className="mb-10" />
           <div className="flex flex-wrap items-end justify-between gap-4">
