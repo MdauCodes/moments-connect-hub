@@ -62,7 +62,9 @@ function WishlistPage() {
                   <Link to="/products/$slug" params={{ slug: p.slug }} className="block font-display text-lg leading-tight hover:text-accent">
                     {p.name}
                   </Link>
-                  <p className="mt-1 text-xs text-muted-foreground">From {fmt(p.basePrice)} · MOQ {p.moq.toLocaleString()}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {p.basePrice ? `From ${fmt(p.basePrice)} · ` : ""}MOQ {p.moq.toLocaleString()}
+                  </p>
                   <button
                     onClick={() => {
                       addItem({
@@ -73,7 +75,7 @@ function WishlistPage() {
                         material: p.materials?.[0] ?? p.material ?? "Standard",
                         finish: p.finish ?? "Standard",
                         quantity: p.moq,
-                        unitPrice: p.basePrice,
+                        unitPrice: p.basePrice ?? 0,
                       });
                       toast.success("Added to cart");
                     }}
