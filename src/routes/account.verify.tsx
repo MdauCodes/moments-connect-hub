@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { InlineProgress } from "@/components/InlineProgress";
 import { useEffect, useState } from "react";
-import { Loader2, CheckCircle2, AlertCircle, MailCheck } from "lucide-react";
+import { CheckCircle2, AlertCircle, MailCheck } from "lucide-react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
 import { passwordStore } from "@/services/passwordStore";
@@ -47,7 +48,7 @@ function VerifyEmailPage() {
         )}
         {state === "loading" && (
           <div>
-            <Loader2 className="mx-auto h-10 w-10 animate-spin text-accent" />
+            <InlineProgress size="md" tone="var(--clay)" className="mx-auto" />
             <p className="mt-4 text-sm text-muted-foreground">Verifying your email…</p>
           </div>
         )}

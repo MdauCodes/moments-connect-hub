@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { InlineProgress } from "@/components/InlineProgress";
 import { useEffect, useState, type FormEvent } from "react";
-import { Loader2, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -73,7 +74,7 @@ function TrackPage() {
           <input className={inputCls} placeholder="Order reference (e.g. MP-12345)" value={ref} onChange={(e) => setRef(e.target.value)} />
           <input className={inputCls} placeholder="Email or phone" value={contact} onChange={(e) => setContact(e.target.value)} />
           <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            {loading ? <InlineProgress size="sm" /> : <Search className="h-4 w-4" />}
             Track
           </button>
         </form>

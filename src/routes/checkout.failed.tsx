@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { InlineProgress } from "@/components/InlineProgress";
 import { useEffect, useState } from "react";
-import { XCircle, RefreshCw, Loader2 } from "lucide-react";
+import { XCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -59,7 +60,7 @@ function FailedPage() {
               disabled={retrying || !order}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
             >
-              {retrying ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              {retrying ? <InlineProgress size="sm" /> : <RefreshCw className="h-4 w-4" />}
               Try M-Pesa again
             </button>
             <Link to="/cart" className="rounded-full border border-border bg-background px-6 py-3 text-sm font-medium text-foreground hover:bg-secondary">

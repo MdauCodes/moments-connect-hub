@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
+import { InlineProgress } from "@/components/InlineProgress";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useState, type FormEvent } from "react";
 import { WHATSAPP_NUMBER, whatsappLink } from "@/data/products";
-import { Check, Loader2, MessageCircle, X } from "lucide-react";
+import { Check, MessageCircle, X } from "lucide-react";
 import { usePersona } from "@/contexts/PersonaContext";
 import { useCart, type CartItem } from "@/contexts/CartContext";
 import { apiUrl } from "@/config/api";
@@ -380,7 +381,7 @@ function ContactPage() {
                   >
                     {formState === "submitting" ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin" /> Sending...
+                        <InlineProgress size="sm" /> Sending...
                       </>
                     ) : isCorp ? (
                       "Request quote →"

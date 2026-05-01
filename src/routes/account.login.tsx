@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { Loader2 } from "lucide-react";
+import { InlineProgress } from "@/components/InlineProgress";
 import { toast } from "sonner";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -56,7 +56,7 @@ function LoginPage() {
             <input type="password" required className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-            {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Sign in
+            {submitting && <InlineProgress size="sm" />} Sign in
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">

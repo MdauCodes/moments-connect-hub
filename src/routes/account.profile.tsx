@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { InlineProgress } from "@/components/InlineProgress";
 import { useEffect, useState, type FormEvent } from "react";
-import { Loader2, Plus, Trash2, Star } from "lucide-react";
+import { Plus, Trash2, Star } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -71,7 +72,7 @@ function ProfilePage() {
           <Field label="Phone" value={profile.phone} onChange={(v) => setProfile({ ...profile, phone: v })} placeholder="+254 7…" />
           <div className="sm:col-span-2 flex justify-end">
             <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-              {saving && <Loader2 className="h-4 w-4 animate-spin" />} Save
+              {saving && <InlineProgress size="sm" />} Save
             </button>
           </div>
         </form>
@@ -196,7 +197,7 @@ function NewAddressForm({ onCancel, onSaved }: { onCancel: () => void; onSaved: 
       <div className="flex justify-end gap-2 sm:col-span-2">
         <button type="button" onClick={onCancel} className="rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary">Cancel</button>
         <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
-          {saving && <Loader2 className="h-4 w-4 animate-spin" />} Save address
+          {saving && <InlineProgress size="sm" />} Save address
         </button>
       </div>
     </form>
