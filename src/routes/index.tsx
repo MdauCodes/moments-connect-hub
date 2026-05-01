@@ -208,15 +208,15 @@ function HeroProductTile({ product }: { product: Product }) {
 function HeroProductsGrid({ products }: { products: Product[] | null }) {
   if (products === null) {
     return (
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="ml-auto grid w-full max-w-md grid-cols-2 gap-2.5 sm:gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="aspect-[3/4] animate-pulse rounded-xl bg-secondary/60" />
+          <div key={i} className="aspect-[4/3] animate-pulse rounded-xl bg-secondary/60" />
         ))}
       </div>
     );
   }
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+    <div className="ml-auto grid w-full max-w-md grid-cols-2 gap-2.5 sm:gap-3">
       {products.slice(0, 4).map((p) => (
         <HeroProductTile key={p.id} product={p} />
       ))}
