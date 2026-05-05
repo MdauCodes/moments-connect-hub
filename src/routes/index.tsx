@@ -29,15 +29,11 @@ import {
   Utensils,
   Gift,
   Sparkles,
-  Plus,
   Check,
 } from "lucide-react";
 import { api } from "@/services/api";
 import type { Product } from "@/data/products";
-import { MOCK_PRODUCTS } from "@/data/mockProducts";
-import { useCart } from "@/contexts/CartContext";
 import { usePersona } from "@/contexts/PersonaContext";
-import { toast } from "sonner";
 
 const orgLd = {
   "@context": "https://schema.org",
