@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import heroImage from "@/assets/hero-hands-packing.jpg";
 import { SiteLayout } from "@/components/SiteLayout";
 import {
   DotGrid,
