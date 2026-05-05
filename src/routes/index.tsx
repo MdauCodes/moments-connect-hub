@@ -233,23 +233,6 @@ function PersonaSegmentPicker() {
 }
 
 function HomePage() {
-  const [heroProducts, setHeroProducts] = useState<Product[] | null>(null);
-
-  // Same data source as Featured — falls back to mock catalogue on failure.
-  useEffect(() => {
-    let cancelled = false;
-    api
-      .getRecommended()
-      .then((data) => {
-        if (cancelled) return;
-        setHeroProducts(data.length ? data.slice(0, 4) : MOCK_PRODUCTS.slice(0, 4));
-      })
-      .catch(() => {
-        if (!cancelled) setHeroProducts(MOCK_PRODUCTS.slice(0, 4));
-      });
-    return () => { cancelled = true; };
-  }, []);
-
   const trustList = useMemo(() => trustItems, []);
 
   return (
