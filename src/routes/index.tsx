@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import heroImage from "@/assets/hero-hands-packing.jpg";
 import { SiteLayout } from "@/components/SiteLayout";
 import {
   DotGrid,
@@ -28,15 +29,11 @@ import {
   Utensils,
   Gift,
   Sparkles,
-  Plus,
   Check,
 } from "lucide-react";
 import { api } from "@/services/api";
 import type { Product } from "@/data/products";
-import { MOCK_PRODUCTS } from "@/data/mockProducts";
-import { useCart } from "@/contexts/CartContext";
 import { usePersona } from "@/contexts/PersonaContext";
-import { toast } from "sonner";
 
 const orgLd = {
   "@context": "https://schema.org",
@@ -139,90 +136,7 @@ const personaSegments = [
 function priceFmt(n: number) {
   return `KSh ${n.toLocaleString("en-KE")}`;
 }
-
-/** Compact product tile used inside the hero (right column). */
-function HeroProductTile({ product }: { product: Product }) {
-  const { addItem } = useCart();
-  const [added, setAdded] = useState(false);
-  const price = product.basePrice ?? 0;
-  const image = product.primaryImageUrl ?? product.image;
-
-  const handleAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    addItem({
-      productId: product.id,
-      productName: product.name,
-      primaryImageUrl: image,
-      size: product.sizes[0] ?? "Standard",
-      material: product.materials?.[0] ?? "Kraft",
-      finish: product.finish ?? "Matte",
-      quantity: product.moq || 100,
-      unitPrice: price,
-    });
-    setAdded(true);
-    toast.success(`${product.name} added to cart`);
-    setTimeout(() => setAdded(false), 1400);
-  };
-
-  return (
-    <Link
-      to="/products/$slug"
-      params={{ slug: product.slug }}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-background transition-all hover:-translate-y-0.5 hover:shadow-md"
-    >
-      <div className="aspect-[4/3] overflow-hidden bg-secondary">
-        <img
-          src={image}
-          alt={product.name}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-3">
-        <h3 className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
-          {product.name}
-        </h3>
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="font-display text-base text-foreground">{priceFmt(price)}</span>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            MOQ {product.moq}
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={handleAdd}
-          className={`mt-1 inline-flex items-center justify-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-            added
-              ? "bg-primary text-primary-foreground"
-              : "bg-accent text-accent-foreground hover:bg-accent/90"
-          }`}
-        >
-          {added ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-          {added ? "Added" : "Add to cart"}
-        </button>
-      </div>
-    </Link>
-  );
-}
-
-function HeroProductsGrid({ products }: { products: Product[] | null }) {
-  if (products === null) {
-    return (
-      <div className="ml-auto grid w-full max-w-md grid-cols-2 gap-2.5 sm:gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="aspect-[4/3] animate-pulse rounded-xl bg-secondary/60" />
-        ))}
-      </div>
-    );
-  }
-  return (
-    <div className="ml-auto grid w-full max-w-md grid-cols-2 gap-2.5 sm:gap-3">
-      {products.slice(0, 4).map((p) => (
-        <HeroProductTile key={p.id} product={p} />
-      ))}
-    </div>
-  );
-}
+void priceFmt;
 
 function FeaturedProducts() {
   const [products, setProducts] = useState<Product[] | null>(null);
@@ -319,23 +233,6 @@ function PersonaSegmentPicker() {
 }
 
 function HomePage() {
-  const [heroProducts, setHeroProducts] = useState<Product[] | null>(null);
-
-  // Same data source as Featured — falls back to mock catalogue on failure.
-  useEffect(() => {
-    let cancelled = false;
-    api
-      .getRecommended()
-      .then((data) => {
-        if (cancelled) return;
-        setHeroProducts(data.length ? data.slice(0, 4) : MOCK_PRODUCTS.slice(0, 4));
-      })
-      .catch(() => {
-        if (!cancelled) setHeroProducts(MOCK_PRODUCTS.slice(0, 4));
-      });
-    return () => { cancelled = true; };
-  }, []);
-
   const trustList = useMemo(() => trustItems, []);
 
   return (
@@ -352,19 +249,18 @@ function HomePage() {
         <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:py-16 lg:grid-cols-12 lg:gap-12 lg:px-8 lg:py-20">
           <div className="lg:col-span-7">
             <p className="text-[11px] uppercase tracking-[0.25em] text-accent">
-              Premium paper packaging
+              Custom branded packaging · Kenya
             </p>
             <h1 className="mt-3 font-display text-[2.5rem] font-medium leading-[1.05] text-foreground text-balance sm:text-5xl lg:text-[3.5rem]">
-              Packaging that <br />
-              makes the{" "}
+              Branded paper packaging,{" "}
               <span className="relative inline-block">
-                <em className="not-italic text-accent">moment</em>
+                <em className="not-italic text-accent">ordered online</em>
                 <UnderlineStroke />
               </span>
               .
             </h1>
             <p className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
-              Browse, configure and order branded paper packaging online. Delivered across Kenya from 100 units.
+              Bags, boxes, cups, mailers and labels — printed with your logo and delivered across Kenya from 100 units. Pay with M-Pesa.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -383,7 +279,7 @@ function HomePage() {
                 to="/products"
                 className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-all hover:bg-accent/90 hover:shadow-xl"
               >
-                Shop now <ArrowRight className="h-4 w-4" />
+                Browse all packaging <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/enterprise-quote"
@@ -392,12 +288,47 @@ function HomePage() {
                 Enterprise quote
               </Link>
             </div>
+
+            {/* Quick-jump audience chips — help visitors self-select into the catalogue */}
+            <div className="mt-6 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                Shop by use:
+              </span>
+              {[
+                { label: "Café & restaurant", search: { category: "cups" } },
+                { label: "Retail & e-commerce", search: { category: "bags" } },
+                { label: "Events & gifting", search: { category: "gifting" } },
+              ].map((chip) => (
+                <Link
+                  key={chip.label}
+                  to="/products"
+                  search={chip.search as never}
+                  className="rounded-full border border-foreground/15 bg-background/60 px-3 py-1 text-xs font-medium text-foreground/80 transition-colors hover:border-accent hover:text-accent"
+                >
+                  {chip.label}
+                </Link>
+              ))}
+            </div>
           </div>
 
           <div className="relative lg:col-span-5">
             <CornerLines className="-right-2 -top-2 rotate-180" opacity={0.12} />
             <CornerLines className="-bottom-2 -left-2" opacity={0.12} />
-            <HeroProductsGrid products={heroProducts} />
+            <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-secondary shadow-xl">
+              <img
+                src={heroImage}
+                alt="Hands tying twine around a branded kraft paper bag, with a printed kraft box and tissue paper on a cream wooden table"
+                width={1024}
+                height={1280}
+                className="h-full w-full object-cover"
+                style={{ aspectRatio: "4 / 5" }}
+              />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/40 via-foreground/0 to-transparent p-5">
+                <p className="font-display text-sm text-background/95 sm:text-base">
+                  Made for Kenyan brands &amp; moments.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

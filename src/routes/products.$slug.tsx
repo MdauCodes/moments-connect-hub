@@ -138,7 +138,7 @@ function ProductDetail() {
   );
   const activeVariant = useMemo(
     () =>
-      variants.find((v) => (v.id ?? v.label) === variantId) ??
+      variants.find((v: any) => (v.id ?? v.label) === variantId) ??
       (variants.length > 0 ? variants[0] : undefined),
     [variants, variantId],
   );
@@ -163,7 +163,7 @@ function ProductDetail() {
   const activeTier = useMemo(
     () =>
       tiers.find(
-        (t) => qty >= t.minQty && (t.maxQty === undefined || qty <= t.maxQty),
+        (t: any) => qty >= t.minQty && (t.maxQty === undefined || qty <= t.maxQty),
       ) ?? tiers[tiers.length - 1],
     [tiers, qty],
   );
@@ -330,7 +330,7 @@ function ProductDetail() {
         <div className="lg:col-span-2">
           {productIndustries.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
-              {productIndustries.map((ind) => (
+              {productIndustries.map((ind: any) => (
                 <span
                   key={String(ind.id ?? ind.slug)}
                   className="rounded-full border border-kraft/30 bg-kraft/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-kraft"
@@ -372,7 +372,7 @@ function ProductDetail() {
                   <span>Quantity</span>
                   <span className="text-right">Price per unit</span>
                 </div>
-                {tiers.map((t) => {
+                {tiers.map((t: any) => {
                   const isActive = t === activeTier;
                   return (
                     <div
@@ -408,7 +408,7 @@ function ProductDetail() {
             {variants.length > 0 && (
               <ConfigField label="Variant" note="(price & stock per variant)">
                 <div className="flex flex-wrap gap-2">
-                  {variants.map((v) => {
+                  {variants.map((v: any) => {
                     const key = v.id ?? v.label;
                     const active = key === variantId;
                     const vStock = getStockInfo(product, v, 0);
@@ -600,7 +600,7 @@ function ProductDetail() {
                   <span>Size</span>
                   <span>Description</span>
                 </div>
-                {product.sizes.map((s) => (
+                {product.sizes.map((s: string) => (
                   <div key={s} className="grid grid-cols-2 border-t border-border px-4 py-2 text-sm">
                     <span className="font-medium text-foreground">{s}</span>
                     <span className="text-muted-foreground">Standard {product.category}</span>
