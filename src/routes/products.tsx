@@ -210,7 +210,7 @@ function ProductsPage() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      void navigate({ search: (prev) => ({ ...prev, q: query || undefined }) });
+      void navigate({ search: (prev: Record<string, unknown>) => ({ ...prev, q: query || undefined }) });
       if (query.trim().length < 2) { setSearchResults(null); return; }
       setIsLoading(true);
       void api
@@ -224,17 +224,17 @@ function ProductsPage() {
   }, [query]);
 
   const setParam = <K extends keyof typeof search>(key: K, value: (typeof search)[K] | undefined) => {
-    void navigate({ search: (prev) => ({ ...prev, [key]: value }) });
+    void navigate({ search: (prev: Record<string, unknown>) => ({ ...prev, [key]: value }) });
   };
 
   const toggleIndustry = (slug: string) => {
     void navigate({
-      search: (prev) => ({ ...prev, industry: prev.industry === slug ? undefined : slug }),
+      search: (prev: Record<string, unknown>) => ({ ...prev, industry: prev.industry === slug ? undefined : slug }),
     });
   };
 
   const toggle = (key: "newArrivals" | "deals" | "fastMoving" | "inStock") => {
-    void navigate({ search: (prev) => ({ ...prev, [key]: prev[key] ? undefined : true }) });
+    void navigate({ search: (prev: Record<string, unknown>) => ({ ...prev, [key]: prev[key] ? undefined : true }) });
   };
 
   const clearAll = () => {
