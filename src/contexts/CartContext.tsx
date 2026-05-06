@@ -25,6 +25,7 @@ interface CartContextValue {
   itemCount: number;
   cartTotal: number;
   cartId: string | null;
+  cartLoading: boolean;
   addItem: (item: Omit<CartItem, "id" | "lineTotal">) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
