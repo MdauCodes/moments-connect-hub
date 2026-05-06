@@ -116,8 +116,6 @@ function CheckoutPage() {
       const init = await orderStore.startMpesaStk(orderId, phoneNormalized);
       if (!init.success) {
         toast.error(init.message ?? "Could not start M-Pesa prompt — please retry");
-        // Order exists on backend — send to retry screen instead of losing it
-        clearCart();
         navigate({
           to: "/checkout/failed",
           search: { ref: order.reference, reason: init.message ?? "stk_init_failed" },
@@ -125,8 +123,7 @@ function CheckoutPage() {
         return;
       }
 
-      // Clear cart now — order is persisted in orderStore for tracking
-      clearCart();
+      // Do NOT clear cart here — only after payment is confirmed on the processing page.
       navigate({
         to: "/checkout/processing",
         search: { ref: order.reference, orderId: order.id, paymentMethod: "MPESA", phone: phoneNormalized },
