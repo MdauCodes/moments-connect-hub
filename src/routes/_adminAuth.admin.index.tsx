@@ -123,7 +123,7 @@ export function AdminDashboardPage() {
                   <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap" }}>{formatKes(p.revenue)}</div>
                 </div>
               ))}
-              {!loading && (stats?.topProducts.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>No sales yet.</div>}
+              {!loading && (stats?.topProducts?.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>No sales yet.</div>}
             </div>
           </div>
         </div>
