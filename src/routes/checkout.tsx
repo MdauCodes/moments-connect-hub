@@ -45,7 +45,7 @@ function isValidKenyanPhone(p: string) {
 }
 
 function CheckoutPage() {
-  const { items, cartTotal, clearCart } = useCart();
+  const { items, cartTotal } = useCart();
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
