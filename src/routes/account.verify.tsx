@@ -1,12 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { InlineProgress } from "@/components/InlineProgress";
-import { useEffect, useState } from "react";
-import { CheckCircle2, AlertCircle, MailCheck } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { MailCheck } from "lucide-react";
 import { z } from "zod";
+import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
-import { passwordStore } from "@/services/passwordStore";
+import { apiUrl, setAuthToken } from "@/config/api";
 
-const searchSchema = z.object({ token: z.string().optional() });
+const searchSchema = z.object({
+  email: z.string().optional(),
+  token: z.string().optional(),
+});
 
 export const Route = createFileRoute("/account/verify")({
   validateSearch: searchSchema,
@@ -14,64 +18,128 @@ export const Route = createFileRoute("/account/verify")({
   component: VerifyEmailPage,
 });
 
-function VerifyEmailPage() {
-  const { token } = Route.useSearch();
-  const [state, setState] = useState<"idle" | "loading" | "success" | "error">(token ? "loading" : "idle");
-  const [error, setError] = useState<string | null>(null);
+const inputCls = "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50";
 
-  useEffect(() => {
-    if (!token) return;
-    let cancelled = false;
-    (async () => {
-      const res = await passwordStore.verifyEmail(token);
-      if (cancelled) return;
-      if (res.ok) setState("success");
-      else { setError(res.message ?? "Verification failed"); setState("error"); }
-    })();
-    return () => { cancelled = true; };
-  }, [token]);
+function VerifyEmailPage() {
+  const { email: emailFromQuery } = Route.useSearch();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState(emailFromQuery ?? "");
+  const [otp, setOtp] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  async function handleVerify(e: FormEvent) {
+    e.preventDefault();
+    if (!email.trim() || !otp.trim()) {
+      toast.error("Enter your email and the verification code.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await fetch(apiUrl("/api/v1/auth/verify-email"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), otp: otp.trim() }),
+      });
+      const data = await res.json().catch(() => ({} as Record<string, unknown>));
+      if (!res.ok) {
+        throw new Error((data as { message?: string }).message ?? "Verification failed");
+      }
+      const accessToken = (data as { accessToken?: string }).accessToken;
+      const refreshToken = (data as { refreshToken?: string }).refreshToken;
+      if (accessToken) setAuthToken(accessToken);
+      if (refreshToken && typeof window !== "undefined") {
+        window.localStorage.setItem("mpk_rt", refreshToken);
+      }
+      toast.success("Email verified");
+      navigate({ to: "/account/dashboard" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Verification failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleResend() {
+    if (!email.trim()) {
+      toast.error("Enter your email first.");
+      return;
+    }
+    setResending(true);
+    try {
+      const res = await fetch(apiUrl("/api/v1/auth/resend-otp"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { message?: string }).message ?? "Could not resend code");
+      }
+      toast.success("New verification code sent.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not resend code");
+    } finally {
+      setResending(false);
+    }
+  }
 
   return (
     <SiteLayout>
-      <section className="mx-auto max-w-md px-5 py-20 text-center">
-        {state === "idle" && (
-          <>
-            <MailCheck className="mx-auto h-12 w-12 text-accent" />
-            <h1 className="mt-4 font-display text-2xl">Check your email</h1>
-            <p className="mt-3 text-sm text-muted-foreground">
-              We sent a verification link to your inbox. Click it to activate your account.
-            </p>
-            <Link to="/account/login" className="mt-6 inline-block rounded-full border border-border px-5 py-2.5 text-sm hover:bg-secondary">
-              Back to sign in
-            </Link>
-          </>
-        )}
-        {state === "loading" && (
+      <section className="mx-auto max-w-md px-5 py-16 lg:px-8 lg:py-20">
+        <div className="text-center">
+          <MailCheck className="mx-auto h-12 w-12 text-accent" />
+          <h1 className="mt-4 font-display text-3xl">Verify your email</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Enter the code we sent to {emailFromQuery ? <strong>{emailFromQuery}</strong> : "your inbox"}.
+          </p>
+        </div>
+
+        <form onSubmit={handleVerify} className="mt-8 space-y-4">
           <div>
-            <InlineProgress size="md" tone="var(--clay)" className="mx-auto" />
-            <p className="mt-4 text-sm text-muted-foreground">Verifying your email…</p>
+            <label className="mb-1.5 block text-sm font-medium">Email</label>
+            <input
+              type="email"
+              required
+              className={inputCls}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
-        )}
-        {state === "success" && (
-          <>
-            <CheckCircle2 className="mx-auto h-12 w-12 text-accent" />
-            <h1 className="mt-4 font-display text-2xl">Email verified</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Your account is now active.</p>
-            <Link to="/account/login" className="mt-6 inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-              Sign in
-            </Link>
-          </>
-        )}
-        {state === "error" && (
-          <>
-            <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
-            <h1 className="mt-4 font-display text-2xl">Verification failed</h1>
-            <p className="mt-2 text-sm text-muted-foreground">{error}</p>
-            <Link to="/account/login" className="mt-6 inline-block rounded-full border border-border px-5 py-2.5 text-sm hover:bg-secondary">
-              Back to sign in
-            </Link>
-          </>
-        )}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">Verification code</label>
+            <input
+              required
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              className={`${inputCls} tracking-[0.5em] text-center font-mono text-lg`}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\s+/g, ""))}
+              placeholder="••••••"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+          >
+            {submitting && <InlineProgress size="sm" />} Verify email
+          </button>
+        </form>
+
+        <div className="mt-6 flex items-center justify-between text-sm">
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={resending}
+            className="text-accent hover:underline disabled:opacity-60"
+          >
+            {resending ? "Sending…" : "Resend code"}
+          </button>
+          <Link to="/account/login" className="text-muted-foreground hover:underline">
+            Back to sign in
+          </Link>
+        </div>
       </section>
     </SiteLayout>
   );
