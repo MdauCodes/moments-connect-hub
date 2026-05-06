@@ -35,6 +35,25 @@ function CartPage() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
   }
 
+  if (cartLoading) {
+    return (
+      <SiteLayout>
+        <section className="mx-auto max-w-7xl px-5 py-10 sm:py-14 lg:px-8">
+          <div className="shimmer h-9 w-48 rounded-md" />
+          <div className="shimmer mt-2 h-4 w-64 rounded-md" />
+          <div className="mt-8 grid gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-3">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="shimmer h-28 w-full rounded-2xl" />
+              ))}
+            </div>
+            <div className="shimmer h-72 w-full rounded-2xl lg:col-span-1" />
+          </div>
+        </section>
+      </SiteLayout>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <SiteLayout>
