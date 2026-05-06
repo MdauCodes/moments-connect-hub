@@ -1,58 +1,22 @@
 // ----------------------------------------------------------------------------
-// E-commerce admin API client.
-//
-// Strategy: try the real backend first; if the endpoint is missing (404), the
-// network fails, or returns an unexpected shape, transparently fall back to
-// deterministic mock data so the admin UI is fully visualisable without the
-// Spring Boot backend running.
-//
-// Each successful real response is cached in-memory for 60s as a "real backend
-// is alive" hint, so we don't keep paying the 404 round-trip cost.
+// Admin commerce API client — all calls hit the live backend via adminFetch,
+// which attaches the Authorization: Bearer <token> header from AdminAuthContext.
+// No mock fallback.
 // ----------------------------------------------------------------------------
 
 import { adminFetch, ApiError } from "@/services/adminApi";
-import {
-  dashboardStatsMock,
-  getOrderMock,
-  listOrdersMock,
-  listPaymentsMock,
-  updateOrderStatusMock,
-  type DashboardStats,
-  type OrderRecord,
-  type OrderStatus,
-  type PaymentRecord,
+import type {
+  CustomerRecord,
+  DashboardStats,
+  OrderRecord,
+  OrderStatus,
+  PaymentRecord,
 } from "@/services/commerceMock";
+import type { AnalyticsOverview } from "@/services/analyticsMock";
 
-type Source = "live" | "mock";
-const ALIVE_TTL_MS = 60_000;
-const aliveCache = new Map<string, number>();
-
-function isAlive(scope: string): boolean {
-  const t = aliveCache.get(scope);
-  return !!t && Date.now() - t < ALIVE_TTL_MS;
-}
-function markAlive(scope: string) {
-  aliveCache.set(scope, Date.now());
-}
-
-async function tryLive<T>(scope: string, path: string): Promise<T | null> {
-  try {
-    const res = await adminFetch(path);
-    if (res.status === 404) return null;
-    if (!res.ok) {
-      // 5xx etc — treat as unavailable, fall back to mock
-      return null;
-    }
-    const json = (await res.json()) as T;
-    markAlive(scope);
-    return json;
-  } catch (err) {
-    // Auth errors should still bubble (they hit beforeLoad guards), other
-    // network errors silently fall back.
-    if (err instanceof ApiError && err.status === 401) throw err;
-    return null;
-  }
-}
+// "live" kept in result types for backward compatibility with existing UI
+// (e.g. <MockBanner source={...} />) — value is always "live" now.
+type Source = "live";
 
 function qs(params: Record<string, unknown>): string {
   const sp = new URLSearchParams();
@@ -61,6 +25,20 @@ function qs(params: Record<string, unknown>): string {
   }
   const s = sp.toString();
   return s ? `?${s}` : "";
+}
+
+async function getJson<T>(path: string): Promise<T> {
+  const res = await adminFetch(path);
+  if (!res.ok) throw new ApiError({ status: res.status, message: res.statusText });
+  return (await res.json()) as T;
+}
+
+function unwrapPage<T>(
+  data: { content?: T[]; totalElements?: number; totalPages?: number } | T[],
+): { rows: T[]; total: number; totalPages: number } {
+  if (Array.isArray(data)) return { rows: data, total: data.length, totalPages: 1 };
+  const rows = data.content ?? [];
+  return { rows, total: data.totalElements ?? rows.length, totalPages: data.totalPages ?? 1 };
 }
 
 // ---------- Orders ----------
@@ -80,40 +58,41 @@ export interface ListOrdersResult {
 }
 
 export async function listOrders(params: ListOrdersParams = {}): Promise<ListOrdersResult> {
-  const live = await tryLive<{ content?: OrderRecord[]; totalElements?: number; totalPages?: number } | OrderRecord[]>(
-    "orders",
+  const data = await getJson<{ content?: OrderRecord[]; totalElements?: number; totalPages?: number } | OrderRecord[]>(
     `/api/v1/admin/orders${qs(params as Record<string, unknown>)}`,
   );
-  if (live) {
-    const rows = Array.isArray(live) ? live : live.content ?? [];
-    const total = Array.isArray(live) ? rows.length : live.totalElements ?? rows.length;
-    const totalPages = Array.isArray(live) ? 1 : live.totalPages ?? 1;
-    return { rows, total, totalPages, source: "live" };
-  }
-  return { ...listOrdersMock(params), source: "mock" };
+  return { ...unwrapPage(data), source: "live" };
 }
 
 export async function getOrder(id: string): Promise<{ order: OrderRecord | undefined; source: Source }> {
-  const live = await tryLive<OrderRecord>("orders", `/api/v1/admin/orders/${encodeURIComponent(id)}`);
-  if (live) return { order: live, source: "live" };
-  return { order: getOrderMock(id), source: "mock" };
+  const order = await getJson<OrderRecord>(`/api/v1/admin/orders/${encodeURIComponent(id)}`);
+  return { order, source: "live" };
 }
 
-export async function updateOrderStatus(id: string, status: OrderStatus): Promise<{ order: OrderRecord | undefined; source: Source }> {
-  if (isAlive("orders")) {
-    try {
-      const res = await adminFetch(`/api/v1/admin/orders/${encodeURIComponent(id)}/status`, {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
-      });
-      if (res.ok) {
-        return { order: (await res.json()) as OrderRecord, source: "live" };
-      }
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) throw err;
-    }
-  }
-  return { order: updateOrderStatusMock(id, status), source: "mock" };
+export async function updateOrderStatus(
+  id: string,
+  status: OrderStatus,
+): Promise<{ order: OrderRecord | undefined; source: Source }> {
+  const res = await adminFetch(`/api/v1/admin/orders/${encodeURIComponent(id)}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) throw new ApiError({ status: res.status, message: res.statusText });
+  const order = (await res.json()) as OrderRecord;
+  return { order, source: "live" };
+}
+
+export async function assignOrder(
+  id: string,
+  assigneeId: string,
+): Promise<{ order: OrderRecord | undefined; source: Source }> {
+  const res = await adminFetch(`/api/v1/admin/orders/${encodeURIComponent(id)}/assign`, {
+    method: "PATCH",
+    body: JSON.stringify({ assigneeId }),
+  });
+  if (!res.ok) throw new ApiError({ status: res.status, message: res.statusText });
+  const order = (await res.json()) as OrderRecord;
+  return { order, source: "live" };
 }
 
 // ---------- Payments ----------
@@ -134,17 +113,10 @@ export interface ListPaymentsResult {
 }
 
 export async function listPayments(params: ListPaymentsParams = {}): Promise<ListPaymentsResult> {
-  const live = await tryLive<{ content?: PaymentRecord[]; totalElements?: number; totalPages?: number } | PaymentRecord[]>(
-    "payments",
+  const data = await getJson<{ content?: PaymentRecord[]; totalElements?: number; totalPages?: number } | PaymentRecord[]>(
     `/api/v1/admin/payments${qs(params as Record<string, unknown>)}`,
   );
-  if (live) {
-    const rows = Array.isArray(live) ? live : live.content ?? [];
-    const total = Array.isArray(live) ? rows.length : live.totalElements ?? rows.length;
-    const totalPages = Array.isArray(live) ? 1 : live.totalPages ?? 1;
-    return { rows, total, totalPages, source: "live" };
-  }
-  return { ...listPaymentsMock(params), source: "mock" };
+  return { ...unwrapPage(data), source: "live" };
 }
 
 // ---------- Dashboard ----------
@@ -154,18 +126,11 @@ export interface DashboardResult extends DashboardStats {
 }
 
 export async function getDashboardStats(): Promise<DashboardResult> {
-  const live = await tryLive<DashboardStats>("dashboard", "/api/v1/admin/dashboard/stats");
-  if (live) return { ...live, source: "live" };
-  return { ...dashboardStatsMock(), source: "mock" };
+  const stats = await getJson<DashboardStats>("/api/v1/admin/dashboard/stats");
+  return { ...stats, source: "live" };
 }
 
 // ---------- Customers ----------
-
-import {
-  listCustomersMock,
-  getCustomerMock,
-  type CustomerRecord,
-} from "@/services/commerceMock";
 
 export interface ListCustomersParams {
   q?: string;
@@ -183,42 +148,33 @@ export interface ListCustomersResult {
 }
 
 export async function listCustomers(params: ListCustomersParams = {}): Promise<ListCustomersResult> {
-  const live = await tryLive<{ content?: CustomerRecord[]; totalElements?: number; totalPages?: number } | CustomerRecord[]>(
-    "customers",
+  const data = await getJson<{ content?: CustomerRecord[]; totalElements?: number; totalPages?: number } | CustomerRecord[]>(
     `/api/v1/admin/customers${qs(params as Record<string, unknown>)}`,
   );
-  if (live) {
-    const rows = Array.isArray(live) ? live : live.content ?? [];
-    const total = Array.isArray(live) ? rows.length : live.totalElements ?? rows.length;
-    const totalPages = Array.isArray(live) ? 1 : live.totalPages ?? 1;
-    return { rows, total, totalPages, source: "live" };
-  }
-  return { ...listCustomersMock(params), source: "mock" };
+  return { ...unwrapPage(data), source: "live" };
 }
 
-export async function getCustomer(id: string): Promise<{ customer: CustomerRecord | undefined; orders: OrderRecord[]; source: Source }> {
-  const live = await tryLive<{ customer: CustomerRecord; orders: OrderRecord[] }>(
-    "customers",
+export async function getCustomer(
+  id: string,
+): Promise<{ customer: CustomerRecord | undefined; orders: OrderRecord[]; source: Source }> {
+  const data = await getJson<{ customer: CustomerRecord; orders?: OrderRecord[] }>(
     `/api/v1/admin/customers/${encodeURIComponent(id)}`,
   );
-  if (live) return { customer: live.customer, orders: live.orders ?? [], source: "live" };
-  const mock = getCustomerMock(id);
-  return { ...mock, source: "mock" };
+  return { customer: data.customer, orders: data.orders ?? [], source: "live" };
 }
 
 // ---------- Analytics ----------
 
-import { analyticsOverviewMock, type AnalyticsOverview } from "@/services/analyticsMock";
-
-export interface AnalyticsResult extends AnalyticsOverview { source: Source }
-
-export async function getAnalyticsOverview(days = 30): Promise<AnalyticsResult> {
-  const live = await tryLive<AnalyticsOverview>("analytics", `/api/v1/admin/analytics/overview?days=${days}`);
-  if (live) return { ...live, source: "live" };
-  return { ...analyticsOverviewMock(days), source: "mock" };
+export interface AnalyticsResult extends AnalyticsOverview {
+  source: Source;
 }
 
-// ---------- Exports (always sourced from whatever list endpoint returns) ----------
+export async function getAnalyticsOverview(days = 30): Promise<AnalyticsResult> {
+  const data = await getJson<AnalyticsOverview>(`/api/v1/admin/analytics/overview?days=${days}`);
+  return { ...data, source: "live" };
+}
+
+// ---------- Exports ----------
 
 export async function exportOrders(params: ListOrdersParams = {}): Promise<{ rows: OrderRecord[]; source: Source }> {
   const res = await listOrders({ ...params, size: 1000 });
