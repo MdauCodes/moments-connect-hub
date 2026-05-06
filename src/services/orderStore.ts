@@ -63,6 +63,7 @@ export interface CustomerOrder {
   createdAt: string;
   updatedAt: string;
   trackingNumber?: string;
+  receiptNumber?: string;
   trackingEvents?: { at: string; label: string; description?: string }[];
 }
 
