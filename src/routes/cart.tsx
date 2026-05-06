@@ -125,21 +125,21 @@ function CartPage() {
                           Qty
                           <input
                             type="number"
-                            min={10}
-                            step={10}
+                            min={1}
+                            step={1}
                             value={it.quantity}
                             onChange={(e) => {
-                              const v = Math.max(10, Number(e.target.value) || 10);
+                              const v = Math.max(1, Number(e.target.value) || 1);
                               updateQuantity(it.id, v);
                             }}
                             onBlur={(e) => {
-                              const v = Math.max(10, Number(e.target.value) || 10);
+                              const v = Math.max(1, Number(e.target.value) || 1);
                               if (v !== it.quantity) updateQuantity(it.id, v);
                             }}
                             className="w-24 rounded-md border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                           />
                         </label>
-                        <p className="text-[11px] text-muted-foreground">Minimum order: 10 units</p>
+                        <p className="text-[11px] text-muted-foreground">Minimum order: 1 unit</p>
                       </div>
                       <p className="font-display text-base">{fmt(it.lineTotal)}</p>
                     </div>
