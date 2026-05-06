@@ -8,11 +8,13 @@ import { useAuth } from "@/contexts/AuthContext";
 interface ProductReviewsProps {
   productId: string;
   productName: string;
+  /** Slug used for the public endpoints (preferred). Falls back to productId. */
+  productSlug?: string;
   /** Called once after load so the parent can inject AggregateRating JSON-LD if desired. */
   onSummary?: (summary: ReviewSummary) => void;
 }
 
-export function ProductReviews({ productId, productName, onSummary }: ProductReviewsProps) {
+export function ProductReviews({ productId, productName, productSlug, onSummary }: ProductReviewsProps) {
   const { user, isAuthenticated } = useAuth();
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [summary, setSummary] = useState<ReviewSummary | null>(null);
@@ -20,18 +22,20 @@ export function ProductReviews({ productId, productName, onSummary }: ProductRev
   const [eligibleOrderRef, setEligibleOrderRef] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
 
+  const lookupKey = productSlug ?? productId;
+
   // Load reviews
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    reviewStore.listForProduct(productId).then((res) => {
+    reviewStore.listForProduct(lookupKey).then((res) => {
       if (cancelled) return;
       setReviews(res.reviews);
       setSummary(res.summary);
       onSummary?.(res.summary);
     }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [productId, onSummary]);
+  }, [lookupKey, onSummary]);
 
   // Determine if this user has a DELIVERED order containing this product → eligible to review
   useEffect(() => {
