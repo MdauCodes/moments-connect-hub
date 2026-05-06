@@ -145,7 +145,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         { ...input, id: genId(), lineTotal: input.quantity * input.unitPrice },
       ];
     });
-    // Sync to backend (best-effort)
+    // Sync to backend and replace local state with backend response
     void apiFetch("/api/v1/cart/items", {
       method: "POST",
       session: true,
@@ -159,7 +159,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
         finish: input.finish,
         unitPrice: input.unitPrice,
       },
-    }).catch(() => { /* keep local cart even if backend rejects */ });
+    })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const data = await res.json().catch(() => null);
+        const parsed = parseBackendCart(data);
+        if (parsed) setItems(parsed);
+      })
+      .catch(() => { /* keep local cart even if backend rejects */ });
   };
 
   const removeItem = (id: string) => {
