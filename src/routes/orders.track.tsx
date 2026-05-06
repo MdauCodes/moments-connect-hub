@@ -74,9 +74,8 @@ function TrackPage() {
           Enter the order reference we sent you to see live status and history.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+        <form onSubmit={handleSubmit} className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto]">
           <input className={inputCls} placeholder="Order reference (e.g. MP-12345)" value={ref} onChange={(e) => setRef(e.target.value)} />
-          <input className={inputCls} placeholder="Email or phone" value={contact} onChange={(e) => setContact(e.target.value)} />
           <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
             {loading ? <InlineProgress size="sm" /> : <Search className="h-4 w-4" />}
             Track
