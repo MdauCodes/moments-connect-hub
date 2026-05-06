@@ -166,6 +166,43 @@ async function tryLiveJson<T>(input: string, init?: RequestInit, authed = false)
   }
 }
 
+function normalizeTrackingDto(raw: Record<string, any>): CustomerOrder {
+  return {
+    id: raw.id,
+    reference: raw.reference,
+    status: raw.status,
+    paymentStatus: raw.paymentStatus ?? "PENDING",
+    paymentMethod: raw.paymentMethod ?? "MPESA",
+    customerName: raw.contactName ?? raw.customerName ?? "",
+    customerEmail: raw.maskedEmail ?? raw.customerEmail ?? "",
+    customerPhone: raw.customerPhone ?? "",
+    shippingAddress: raw.shippingAddress ?? raw.deliveryAddress ?? "",
+    city: raw.city ?? "",
+    items: (raw.items ?? []).map((it: any) => ({
+      productId: it.productId ?? "",
+      productName: it.productName ?? "",
+      primaryImageUrl: it.primaryImageUrl ?? "",
+      size: it.size ?? "",
+      material: it.material ?? "",
+      finish: it.finish ?? "",
+      quantity: it.quantity ?? 0,
+      unitPrice: it.unitPrice ?? 0,
+      lineTotal: it.lineTotal ?? 0,
+    })),
+    subtotal: raw.subtotal ?? raw.totalAmount ?? 0,
+    shippingFee: raw.deliveryFee ?? raw.shippingFee ?? 0,
+    total: raw.totalAmount ?? raw.total ?? 0,
+    currency: "KES",
+    createdAt: raw.createdAt ?? new Date().toISOString(),
+    updatedAt: raw.updatedAt ?? new Date().toISOString(),
+    trackingEvents: (raw.statusHistory ?? []).map((h: any) => ({
+      at: h.changedAt,
+      label: (h.status ?? "").replace(/_/g, " "),
+      description: h.note ?? undefined,
+    })),
+  };
+}
+
 export const orderStore = {
   /** Place an order. Strict: throws if the backend cannot be reached or
    *  returns a non-2xx response. No mock fallback — the user must not
@@ -249,14 +286,14 @@ export const orderStore = {
 
   /** Poll status — returns latest snapshot. */
   async getStatus(reference: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
-    const live = await tryLiveJson<CustomerOrder>(`/api/v1/public/orders/${encodeURIComponent(reference)}`);
+    const live = await tryLiveJson<Record<string, any>>(`/api/v1/orders/track/${encodeURIComponent(reference)}`);
     if (live) {
-      // Cache locally so /account/orders shows it.
+      const order = normalizeTrackingDto(live);
       const all = readAll();
-      const idx = all.findIndex((o) => o.reference === live.reference);
-      if (idx >= 0) all[idx] = live; else all.unshift(live);
+      const idx = all.findIndex((o) => o.reference === order.reference);
+      if (idx >= 0) all[idx] = order; else all.unshift(order);
       writeAll(all);
-      return { order: live, source: "live" };
+      return { order, source: "live" };
     }
     const found = readAll().find((o) => o.reference === reference) ?? null;
     return { order: found, source: "mock" };
@@ -278,8 +315,8 @@ export const orderStore = {
 
   /** Public order tracking by reference (no contact required). */
   async trackByReference(reference: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
-    const live = await tryLiveJson<CustomerOrder>(`/api/v1/orders/track/${encodeURIComponent(reference)}`);
-    if (live) return { order: live, source: "live" };
+    const live = await tryLiveJson<Record<string, any>>(`/api/v1/orders/track/${encodeURIComponent(reference)}`);
+    if (live) return { order: normalizeTrackingDto(live), source: "live" };
     const found = readAll().find((o) => o.reference === reference) ?? null;
     return { order: found, source: "mock" };
   },
