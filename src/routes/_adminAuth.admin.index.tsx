@@ -144,7 +144,7 @@ export function AdminDashboardPage() {
               ) : (stats?.recentOrders ?? []).length === 0 ? (
                 <tr><td colSpan={6}><div className="admin-empty">No orders yet.</div></td></tr>
               ) : (
-                stats!.recentOrders.map((o) => (
+                (stats?.recentOrders ?? []).map((o) => (
                   <tr key={o.id}>
                     <td><Link to="/admin/orders/$id" params={{ id: o.id }}><b>{o.reference}</b></Link></td>
                     <td>{o.customerName}</td>
