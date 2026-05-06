@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
+import { PasswordInput } from "@/components/PasswordInput";
 import { apiUrl } from "@/config/api";
 
 export const Route = createFileRoute("/account/register")({
