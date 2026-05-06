@@ -75,20 +75,28 @@ function summarise(productId: string, rows: ProductReview[]): ReviewSummary {
 }
 
 export const reviewStore = {
-  async listForProduct(productId: string): Promise<{ reviews: ProductReview[]; summary: ReviewSummary; source: "live" | "mock" }> {
-    const live = await tryLive<ProductReview[] | { reviews: ProductReview[]; summary: ReviewSummary }>(
-      `/api/v1/public/products/${encodeURIComponent(productId)}/reviews`,
-    );
-    if (live) {
-      const reviews = Array.isArray(live) ? live : live.reviews ?? [];
-      const summary = Array.isArray(live) ? summarise(productId, reviews) : (live.summary ?? summarise(productId, reviews));
+  /**
+   * List reviews for a product. Accepts either a slug or productId — backend
+   * public endpoints are slug-based.
+   */
+  async listForProduct(productKey: string): Promise<{ reviews: ProductReview[]; summary: ReviewSummary; source: "live" | "mock" }> {
+    const key = encodeURIComponent(productKey);
+    const [reviewsRes, summaryRes] = await Promise.all([
+      tryLive<ProductReview[] | { reviews: ProductReview[] }>(`/api/v1/public/products/${key}/reviews`),
+      tryLive<ReviewSummary>(`/api/v1/public/products/${key}/rating-summary`),
+    ]);
+    if (reviewsRes || summaryRes) {
+      const reviews = reviewsRes
+        ? (Array.isArray(reviewsRes) ? reviewsRes : reviewsRes.reviews ?? [])
+        : [];
+      const summary = summaryRes ?? summarise(productKey, reviews);
       return { reviews: reviews.filter((r) => !r.hidden), summary, source: "live" };
     }
     const all = read();
     return {
-      reviews: all.filter((r) => r.productId === productId && !r.hidden)
+      reviews: all.filter((r) => r.productId === productKey && !r.hidden)
                   .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-      summary: summarise(productId, all),
+      summary: summarise(productKey, all),
       source: "mock",
     };
   },
@@ -105,7 +113,7 @@ export const reviewStore = {
   }): Promise<{ review: ProductReview; source: "live" | "mock" }> {
     if (getAccessToken()) {
       const live = await tryLive<ProductReview>(
-        `/api/v1/customer/products/${encodeURIComponent(input.productId)}/reviews`,
+        `/api/v1/customer/reviews`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
