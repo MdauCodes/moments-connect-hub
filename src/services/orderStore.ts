@@ -74,10 +74,14 @@ export interface PlaceOrderInput {
     phone: string;
     address: string;
     city: string;
+    county: string;
+    postalCode?: string;
     notes?: string;
   };
   shippingFee: number;
   paymentMethod: CheckoutPaymentMethod;
+  promoCode?: string;
+  sessionId?: string;
 }
 
 const STORAGE_KEY = "mpk_customer_orders_v1";
