@@ -172,22 +172,33 @@ export const orderStore = {
   async placeOrder(input: PlaceOrderInput): Promise<{ order: CustomerOrder; source: "live" | "mock" }> {
     let live: CustomerOrder | null = null;
     try {
+      const body: Record<string, unknown> = {
+        contactName: input.customer.name,
+        email: input.customer.email,
+        phone: input.customer.phone,
+        deliveryAddress: input.customer.address,
+        city: input.customer.city,
+        county: input.customer.county,
+        paymentMethod: input.paymentMethod,
+        items: input.items.map((it) => ({
+          productId: it.productId,
+          quantity: it.quantity,
+          size: it.size,
+          material: it.material,
+          finish: it.finish,
+        })),
+        shippingFee: input.shippingFee,
+      };
+      if (input.customer.postalCode) body.postalCode = input.customer.postalCode;
+      if (input.customer.notes) body.notes = input.customer.notes;
+      if (input.promoCode) body.promoCode = input.promoCode;
+      if (input.sessionId) body.sessionId = input.sessionId;
+
       const res = await apiFetch("/api/v1/checkout", {
         method: "POST",
         session: true,
         auth: true,
-        json: {
-          items: input.items.map((it) => ({
-            productId: it.productId,
-            quantity: it.quantity,
-            size: it.size,
-            material: it.material,
-            finish: it.finish,
-          })),
-          customer: input.customer,
-          shippingFee: input.shippingFee,
-          paymentMethod: input.paymentMethod,
-        },
+        json: body,
       });
       if (res.ok) live = (await res.json()) as CustomerOrder;
     } catch { /* fall back to local */ }
@@ -200,21 +211,25 @@ export const orderStore = {
     return { order, source: live ? "live" : "mock" };
   },
 
-  /** Trigger an STK push. In mock mode, schedules a status flip. */
-  async startMpesaStk(reference: string, phone: string): Promise<{ success: boolean; source: "live" | "mock" }> {
-    const live = await tryLiveJson<{ success: boolean }>(`/api/v1/public/payments/mpesa/stk`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderReference: reference, phone }),
-    });
-    if (live) return { success: !!live.success, source: "live" };
+  /** Trigger an STK push via the unified payments/initiate endpoint. */
+  async startMpesaStk(orderId: string, phone: string): Promise<{ success: boolean; source: "live" | "mock" }> {
+    try {
+      const res = await apiFetch("/api/v1/payments/initiate", {
+        method: "POST",
+        session: true,
+        auth: true,
+        json: { orderId, paymentMethod: "MPESA", phone },
+      });
+      if (res.ok) return { success: true, source: "live" };
+    } catch { /* fall through to mock */ }
 
-    // Mock: ~85% success after a 6-12s delay
+    // Mock: ~85% success after a 6-12s delay (keyed by orderId/reference)
     const all = readAll();
-    const idx = all.findIndex((o) => o.reference === reference);
+    const idx = all.findIndex((o) => o.id === orderId || o.reference === orderId);
     if (idx >= 0) {
       const willSucceed = Math.random() > 0.15;
       const delay = 5000 + Math.floor(Math.random() * 7000);
+      const reference = all[idx].reference;
       setTimeout(() => {
         const fresh = readAll();
         const i = fresh.findIndex((o) => o.reference === reference);
