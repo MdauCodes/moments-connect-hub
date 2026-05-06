@@ -1,11 +1,8 @@
-import { products, industries } from "@/data/products";
+import { industries } from "@/data/products";
 import { blogStore } from "@/services/blogStore";
-import { searchProducts as rankSearch } from "@/services/search";
-import { API_BASE_URL, apiUrl } from "@/config/api";
+import { apiUrl } from "@/config/api";
 import type { Product, Industry } from "@/data/products";
 import type { Blog, BlogStatus, BlogTemplate } from "@/data/blogs";
-
-const USE_MOCKS = import.meta.env.VITE_USE_MOCK_DATA === "true";
 
 type PageResponse<T> = { content: T[] };
 type ProductApiDto = Partial<Product> & {
