@@ -315,8 +315,8 @@ export const orderStore = {
 
   /** Public order tracking by reference (no contact required). */
   async trackByReference(reference: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
-    const live = await tryLiveJson<CustomerOrder>(`/api/v1/orders/track/${encodeURIComponent(reference)}`);
-    if (live) return { order: live, source: "live" };
+    const live = await tryLiveJson<Record<string, any>>(`/api/v1/orders/track/${encodeURIComponent(reference)}`);
+    if (live) return { order: normalizeTrackingDto(live), source: "live" };
     const found = readAll().find((o) => o.reference === reference) ?? null;
     return { order: found, source: "mock" };
   },
