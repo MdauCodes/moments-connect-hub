@@ -120,20 +120,27 @@ function CartPage() {
                       </button>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                      <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                        Qty
-                        <input
-                          type="number"
-                          min={1}
-                          step={50}
-                          value={it.quantity}
-                          onChange={(e) => {
-                            const v = Math.max(1, Number(e.target.value) || 1);
-                            updateQuantity(it.id, v);
-                          }}
-                          className="w-24 rounded-md border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
-                        />
-                      </label>
+                      <div className="flex flex-col gap-1">
+                        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                          Qty
+                          <input
+                            type="number"
+                            min={10}
+                            step={10}
+                            value={it.quantity}
+                            onChange={(e) => {
+                              const v = Math.max(10, Number(e.target.value) || 10);
+                              updateQuantity(it.id, v);
+                            }}
+                            onBlur={(e) => {
+                              const v = Math.max(10, Number(e.target.value) || 10);
+                              if (v !== it.quantity) updateQuantity(it.id, v);
+                            }}
+                            className="w-24 rounded-md border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+                          />
+                        </label>
+                        <p className="text-[11px] text-muted-foreground">Minimum order: 10 units</p>
+                      </div>
                       <p className="font-display text-base">{fmt(it.lineTotal)}</p>
                     </div>
                   </div>
