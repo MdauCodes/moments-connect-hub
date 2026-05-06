@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowRight, Smartphone } from "lucide-react";
+import { ArrowRight, Smartphone, Banknote, Truck, Lock } from "lucide-react";
 import { InlineProgress } from "@/components/InlineProgress";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -147,15 +147,62 @@ function CheckoutPage() {
 
             <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
               <h2 className="font-display text-xl">Payment</h2>
-              <div className="mt-4 flex items-start gap-3 rounded-xl border-2 border-accent bg-accent/5 p-4">
-                <Smartphone className="mt-0.5 h-5 w-5 text-accent" />
-                <div>
-                  <p className="text-sm font-medium text-foreground">M-Pesa STK push</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    A prompt will appear on your phone to confirm the payment of {fmt(total)}.
-                    Card and bank transfer coming soon.
-                  </p>
-                </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Choose how you'd like to pay. Only M-Pesa STK is enabled for now — bank transfer and cash on delivery are coming soon.
+              </p>
+
+              <div className="mt-4 space-y-3">
+                {/* M-Pesa STK — enabled */}
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-accent bg-accent/5 p-4">
+                  <input type="radio" name="paymentMethod" value="PAYHERO" defaultChecked className="mt-1 h-4 w-4 accent-accent" />
+                  <Smartphone className="mt-0.5 h-5 w-5 text-accent" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">M-Pesa STK push</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      A prompt will appear on your phone to confirm the payment of {fmt(total)}.
+                    </p>
+                  </div>
+                </label>
+
+                {/* Bank transfer — visible but disabled */}
+                <label
+                  aria-disabled="true"
+                  className="flex cursor-not-allowed items-start gap-3 rounded-xl border border-border bg-muted/30 p-4 opacity-60"
+                >
+                  <input type="radio" name="paymentMethod" value="BANK_TRANSFER" disabled className="mt-1 h-4 w-4" />
+                  <Banknote className="mt-0.5 h-5 w-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-foreground">Bank transfer</p>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <Lock className="h-3 w-3" /> Coming soon
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Pay via direct deposit to our bank account.
+                    </p>
+                  </div>
+                </label>
+
+                {/* Cash on delivery — visible but disabled */}
+                <label
+                  aria-disabled="true"
+                  className="flex cursor-not-allowed items-start gap-3 rounded-xl border border-border bg-muted/30 p-4 opacity-60"
+                >
+                  <input type="radio" name="paymentMethod" value="CASH_ON_DELIVERY" disabled className="mt-1 h-4 w-4" />
+                  <Truck className="mt-0.5 h-5 w-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-foreground">Cash on delivery</p>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <Lock className="h-3 w-3" /> Coming soon
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Pay our courier in cash on arrival.
+                    </p>
+                  </div>
+                </label>
               </div>
             </div>
           </div>
