@@ -93,5 +93,8 @@ export interface CustomerRecord {
   lifetimeValue: number;
   ordersCount: number;
   lastOrderAt?: string;
+  firstOrderAt?: string;
+  averageOrderValue?: number;
+  defaultAddress?: string;
   createdAt: string;
 }
