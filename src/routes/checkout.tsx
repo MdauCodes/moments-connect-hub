@@ -29,15 +29,19 @@ const labelCls = "block text-sm font-medium text-foreground mb-1.5";
 
 function normalizePhone(p: string): string {
   const digits = p.replace(/\D/g, "");
-  if (digits.startsWith("254")) return digits;
-  if (digits.startsWith("0")) return `254${digits.slice(1)}`;
-  if (digits.startsWith("7") || digits.startsWith("1")) return `254${digits}`;
-  return digits;
+  if (digits.startsWith("254")) return `+${digits}`;
+  if (digits.startsWith("0")) return `+254${digits.slice(1)}`;
+  if (digits.startsWith("7") || digits.startsWith("1")) return `+254${digits}`;
+  return digits.startsWith("+") ? digits : `+${digits}`;
 }
 
 function isValidKenyanPhone(p: string) {
-  const n = normalizePhone(p);
-  return /^254[71]\d{8}$/.test(n);
+  const trimmed = p.trim();
+  if (/^07\d{8}$/.test(trimmed)) return true;
+  if (/^\+2547\d{8}$/.test(trimmed)) return true;
+  // Be lenient on input; normalization will produce +2547XXXXXXXX
+  const n = normalizePhone(trimmed);
+  return /^\+2547\d{8}$/.test(n);
 }
 
 function CheckoutPage() {
@@ -50,6 +54,8 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
+  const [county, setCounty] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -73,29 +79,50 @@ function CheckoutPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!isValidKenyanPhone(phone)) {
-      toast.error("Enter a valid Kenyan phone (e.g. 0712 345 678)");
+      toast.error("Enter a valid Kenyan phone (07XXXXXXXX or +2547XXXXXXXX)");
       return;
     }
+    const required = { name: name.trim(), email: email.trim(), address: address.trim(), city: city.trim(), county: county.trim() };
+    if (!required.name || !required.email || !required.address || !required.city || !required.county) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+    const phoneNormalized = normalizePhone(phone);
     setSubmitting(true);
     try {
       const { order } = await orderStore.placeOrder({
         items,
         customer: {
-          name: name.trim(),
-          email: email.trim(),
-          phone: normalizePhone(phone),
-          address: address.trim(),
-          city: city.trim(),
+          name: required.name,
+          email: required.email,
+          phone: phoneNormalized,
+          address: required.address,
+          city: required.city,
+          county: required.county,
+          postalCode: postalCode.trim() || undefined,
           notes: notes.trim() || undefined,
         },
         shippingFee,
         paymentMethod: "MPESA",
       });
-      // Trigger STK push (mock or live)
-      await orderStore.startMpesaStk(order.reference, normalizePhone(phone));
+
+      // Only initiate STK push after a successful checkout that returned an orderId
+      const orderId = order.id ?? order.reference;
+      if (orderId) {
+        const init = await orderStore.startMpesaStk(orderId, phoneNormalized);
+        if (!init.success) {
+          toast.error("Could not start M-Pesa prompt — please retry");
+          setSubmitting(false);
+          return;
+        }
+      }
+
       // Clear cart now — order is persisted in orderStore for tracking
       clearCart();
-      navigate({ to: "/checkout/processing", search: { ref: order.reference } });
+      navigate({
+        to: "/checkout/processing",
+        search: { ref: order.reference, orderId: order.id, paymentMethod: "MPESA", phone: phoneNormalized },
+      });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not place order");
       setSubmitting(false);
@@ -133,6 +160,14 @@ function CheckoutPage() {
                 <div>
                   <label className={labelCls}>City / town *</label>
                   <input className={inputCls} required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Nairobi" />
+                </div>
+                <div>
+                  <label className={labelCls}>County *</label>
+                  <input className={inputCls} required value={county} onChange={(e) => setCounty(e.target.value)} placeholder="Nairobi" />
+                </div>
+                <div>
+                  <label className={labelCls}>Postal code</label>
+                  <input className={inputCls} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="00100" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className={labelCls}>Delivery address *</label>

@@ -52,20 +52,10 @@ function ProcessingPage() {
         return;
       }
 
-      // Initiate PayHero (M-Pesa STK) payment.
-      if (method === "PAYHERO" || method === "MPESA") {
-        const phoneToUse = phone ?? o?.customerPhone ?? "";
-        const init = await orderStore.initiatePayment(orderId, phoneToUse, "PAYHERO");
-        if (cancelled) return;
-        if (!init.ok) {
-          setInitError(init.message ?? "Could not start payment");
-          navigate({
-            to: "/checkout/failed",
-            search: { ref, reason: init.message ?? "initiate_failed" },
-          });
-          return;
-        }
-      }
+      // M-Pesa STK initiation already happened in the checkout step (or failed-retry).
+      // Just poll status here.
+      void method;
+      void phone;
 
       // Poll status every POLL_INTERVAL_MS, max MAX_ATTEMPTS.
       let n = 0;
