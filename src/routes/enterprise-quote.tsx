@@ -101,21 +101,22 @@ function EnterpriseQuotePage() {
     setSubmitting(true);
     try {
       const data = parsed.data;
-      await api.submitEnquiry({
-        persona: "enterprise",
-        contact: {
-          name: data.contactName,
+      const res = await apiFetch("/api/v1/public/enterprise-quote", {
+        method: "POST",
+        json: {
+          contactName: data.contactName,
           email: data.email,
           phone: data.phone,
-          company: data.company,
+          companyName: data.company,
+          estimatedQuantity: data.estimatedQuantity,
+          productInterest: [data.industry, data.productInterest].filter(Boolean).join(" — "),
+          message: data.message,
         },
-        message: [data.productInterest, data.message].filter(Boolean).join("\n\n"),
-        source: "enterprise-quote",
-        items: [{ productName: data.industry, quantity: data.estimatedQuantity }],
       });
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
       const firstName = data.contactName.split(" ")[0] || data.contactName;
       setSuccess({ firstName, email: data.email });
-      toast.success("Quote request received");
+      toast.success("Our team will contact you within 24 hours.");
     } catch {
       toast.error("Something went wrong");
     } finally {
