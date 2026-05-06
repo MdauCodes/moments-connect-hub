@@ -271,16 +271,30 @@ export const orderStore = {
     return { order: found, source: "mock" };
   },
 
-  /** Authed: list current customer's orders. */
-  async listMine(): Promise<{ rows: CustomerOrder[]; source: "live" | "mock" }> {
+  /** Public order tracking by reference (no contact required). */
+  async trackByReference(reference: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
+    const live = await tryLiveJson<CustomerOrder>(`/api/v1/orders/track/${encodeURIComponent(reference)}`);
+    if (live) return { order: live, source: "live" };
+    const found = readAll().find((o) => o.reference === reference) ?? null;
+    return { order: found, source: "mock" };
+  },
+
+  /** Authed: list current customer's orders (paginated). */
+  async listMine(page = 0, size = 20): Promise<{ rows: CustomerOrder[]; total: number; page: number; totalPages: number; source: "live" | "mock" }> {
     if (getAccessToken()) {
-      const live = await tryLiveJson<CustomerOrder[] | { content: CustomerOrder[] }>("/api/v1/customer/orders", undefined, true);
+      const live = await tryLiveJson<CustomerOrder[] | { content: CustomerOrder[]; totalElements?: number; totalPages?: number; number?: number }>(
+        `/api/v1/customer/orders?page=${page}&size=${size}`, undefined, true,
+      );
       if (live) {
         const rows = Array.isArray(live) ? live : live.content ?? [];
-        return { rows, source: "live" };
+        const totalElements = Array.isArray(live) ? rows.length : live.totalElements ?? rows.length;
+        const totalPages = Array.isArray(live) ? 1 : live.totalPages ?? 1;
+        const number = Array.isArray(live) ? page : live.number ?? page;
+        return { rows, total: totalElements, page: number, totalPages, source: "live" };
       }
     }
-    return { rows: readAll(), source: "mock" };
+    const all = readAll();
+    return { rows: all, total: all.length, page: 0, totalPages: 1, source: "mock" };
   },
 
   async getMine(reference: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
@@ -290,6 +304,24 @@ export const orderStore = {
     }
     const found = readAll().find((o) => o.reference === reference) ?? null;
     return { order: found, source: "mock" };
+  },
+
+  /** Reorder: re-add the items from a past order to the cart on the backend. */
+  async reorder(reference: string): Promise<{ ok: boolean; message?: string }> {
+    try {
+      const res = await apiFetch(`/api/v1/customer/orders/${encodeURIComponent(reference)}/reorder`, {
+        method: "POST",
+        auth: true,
+        session: true,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({} as { message?: string }));
+        return { ok: false, message: (err as { message?: string }).message ?? `Reorder failed (${res.status})` };
+      }
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, message: err instanceof Error ? err.message : "Network error" };
+    }
   },
 
   /** Initiate a PayHero (M-Pesa STK) payment for an order. */
