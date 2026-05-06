@@ -388,7 +388,7 @@ export const orderStore = {
   },
 
   /** Poll a payment's status by orderId. */
-  async getPaymentStatus(orderId: string): Promise<{ status: "PENDING" | "SUCCESS" | "FAILED" | "UNKNOWN"; message?: string; reference?: string }> {
+  async getPaymentStatus(orderId: string): Promise<{ status: "PENDING" | "SUCCESS" | "FAILED" | "UNKNOWN"; message?: string; reference?: string; receiptNumber?: string }> {
     try {
       const res = await apiFetch(`/api/v1/payments/status/${encodeURIComponent(orderId)}`, {
         session: true,
