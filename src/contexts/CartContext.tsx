@@ -77,6 +77,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [cartId, setCartId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [cartLoading, setCartLoading] = useState(true);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -107,6 +108,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (parsed) setItems(parsed);
       } catch {
         /* keep local state */
+      } finally {
+        setCartLoading(false);
       }
     })();
   }, []);
