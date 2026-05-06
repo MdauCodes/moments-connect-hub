@@ -167,98 +167,84 @@ async function tryLiveJson<T>(input: string, init?: RequestInit, authed = false)
 }
 
 export const orderStore = {
-  /** Place an order. Always persists to local store too so the user has
-   *  something to come back to even if the backend later forgets it. */
-  async placeOrder(input: PlaceOrderInput): Promise<{ order: CustomerOrder; source: "live" | "mock" }> {
-    let live: CustomerOrder | null = null;
-    try {
-      const body: Record<string, unknown> = {
-        contactName: input.customer.name,
-        email: input.customer.email,
-        phone: input.customer.phone,
-        deliveryAddress: input.customer.address,
-        city: input.customer.city,
-        county: input.customer.county,
-        paymentMethod: input.paymentMethod,
-        items: input.items.map((it) => ({
-          productId: it.productId,
-          quantity: it.quantity,
-          size: it.size,
-          material: it.material,
-          finish: it.finish,
-        })),
-        shippingFee: input.shippingFee,
-      };
-      if (input.customer.postalCode) body.postalCode = input.customer.postalCode;
-      if (input.customer.notes) body.notes = input.customer.notes;
-      if (input.promoCode) body.promoCode = input.promoCode;
-      if (input.sessionId) body.sessionId = input.sessionId;
+  /** Place an order. Strict: throws if the backend cannot be reached or
+   *  returns a non-2xx response. No mock fallback — the user must not
+   *  continue to payment unless the order is actually created server-side. */
+  async placeOrder(input: PlaceOrderInput): Promise<{ order: CustomerOrder; source: "live" }> {
+    const body: Record<string, unknown> = {
+      contactName: input.customer.name,
+      email: input.customer.email,
+      phone: input.customer.phone,
+      deliveryAddress: input.customer.address,
+      city: input.customer.city,
+      county: input.customer.county,
+      paymentMethod: input.paymentMethod,
+      items: input.items.map((it) => ({
+        productId: it.productId,
+        quantity: it.quantity,
+        size: it.size,
+        material: it.material,
+        finish: it.finish,
+      })),
+      shippingFee: input.shippingFee,
+    };
+    if (input.customer.postalCode) body.postalCode = input.customer.postalCode;
+    if (input.customer.notes) body.notes = input.customer.notes;
+    if (input.promoCode) body.promoCode = input.promoCode;
+    if (input.sessionId) body.sessionId = input.sessionId;
 
-      const res = await apiFetch("/api/v1/checkout", {
+    let res: Response;
+    try {
+      res = await apiFetch("/api/v1/checkout", {
         method: "POST",
         session: true,
         auth: true,
         json: body,
       });
-      if (res.ok) live = (await res.json()) as CustomerOrder;
-    } catch { /* fall back to local */ }
+    } catch {
+      throw new Error("Cannot reach the server. Check your connection and try again.");
+    }
 
-    const order = live ?? buildOrderFromInput(input);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({} as { message?: string; error?: string }));
+      const msg =
+        (err as { message?: string; error?: string }).message ??
+        (err as { message?: string; error?: string }).error ??
+        (res.status === 422 ? "Some details are invalid. Please review the form and try again." :
+         res.status === 401 ? "Please sign in to complete checkout." :
+         `Checkout failed (${res.status})`);
+      throw new Error(msg);
+    }
+
+    const order = (await res.json()) as CustomerOrder;
     const all = readAll();
     if (!all.some((o) => o.reference === order.reference)) {
       writeAll([order, ...all]);
     }
-    return { order, source: live ? "live" : "mock" };
+    return { order, source: "live" };
   },
 
-  /** Trigger an STK push via the unified payments/initiate endpoint. */
-  async startMpesaStk(orderId: string, phone: string): Promise<{ success: boolean; source: "live" | "mock" }> {
+  /** Trigger an STK push via the unified payments/initiate endpoint.
+   *  Strict: returns success only when the backend confirms initiation. */
+  async startMpesaStk(orderId: string, phone: string): Promise<{ success: boolean; message?: string }> {
+    let res: Response;
     try {
-      const res = await apiFetch("/api/v1/payments/initiate", {
+      res = await apiFetch("/api/v1/payments/initiate", {
         method: "POST",
         session: true,
         auth: true,
         json: { orderId, paymentMethod: "MPESA", phone },
       });
-      if (res.ok) return { success: true, source: "live" };
-    } catch { /* fall through to mock */ }
-
-    // Mock: ~85% success after a 6-12s delay (keyed by orderId/reference)
-    const all = readAll();
-    const idx = all.findIndex((o) => o.id === orderId || o.reference === orderId);
-    if (idx >= 0) {
-      const willSucceed = Math.random() > 0.15;
-      const delay = 5000 + Math.floor(Math.random() * 7000);
-      const reference = all[idx].reference;
-      setTimeout(() => {
-        const fresh = readAll();
-        const i = fresh.findIndex((o) => o.reference === reference);
-        if (i < 0) return;
-        const o = fresh[i];
-        if (willSucceed) {
-          o.paymentStatus = "SUCCESS";
-          o.status = "PAID";
-          o.paymentReference = genPaymentRef();
-          o.updatedAt = nowIso();
-          o.trackingEvents = [
-            ...(o.trackingEvents ?? []),
-            { at: o.updatedAt, label: "Payment confirmed", description: `M-Pesa ${o.paymentReference}` },
-          ];
-        } else {
-          o.paymentStatus = "FAILED";
-          o.status = "PAYMENT_FAILED";
-          o.failureReason = ["User cancelled STK push", "Insufficient funds", "Timeout waiting for PIN"][Math.floor(Math.random() * 3)];
-          o.updatedAt = nowIso();
-          o.trackingEvents = [
-            ...(o.trackingEvents ?? []),
-            { at: o.updatedAt, label: "Payment failed", description: o.failureReason },
-          ];
-        }
-        fresh[i] = o;
-        writeAll(fresh);
-      }, delay);
+    } catch {
+      return { success: false, message: "Cannot reach the payment service. Check your connection and try again." };
     }
-    return { success: true, source: "mock" };
+    if (res.ok) return { success: true };
+    const err = await res.json().catch(() => ({} as { message?: string; error?: string }));
+    const msg =
+      (err as { message?: string; error?: string }).message ??
+      (err as { message?: string; error?: string }).error ??
+      `Payment initiation failed (${res.status})`;
+    return { success: false, message: msg };
   },
 
   /** Poll status — returns latest snapshot. */
