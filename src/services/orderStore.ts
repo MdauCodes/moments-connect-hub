@@ -14,7 +14,7 @@
 //   GET    /api/v1/customer/orders/{ref}        -> authed customer order detail
 // ----------------------------------------------------------------------------
 
-import { apiUrl } from "@/config/api";
+import { apiUrl, apiFetch } from "@/config/api";
 import { authFetch, getAccessToken } from "@/contexts/AuthContext";
 import type { CartItem } from "@/contexts/CartContext";
 
