@@ -99,7 +99,7 @@ function AdminCustomerDetailPage() {
               <div className="admin-label">Lifetime value</div>
               <div style={{ fontFamily: "var(--font-display)", fontSize: 30, marginTop: 4 }}>{formatKes(customer.lifetimeValue)}</div>
               <div style={{ color: "var(--admin-muted)", fontSize: 12, marginTop: 4 }}>
-                {customer.ordersCount} order{customer.ordersCount === 1 ? "" : "s"} · AOV {formatKes(customer.averageOrderValue)}
+                {customer.ordersCount} order{customer.ordersCount === 1 ? "" : "s"} · AOV {formatKes(customer.averageOrderValue ?? 0)}
               </div>
             </div>
 
