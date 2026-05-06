@@ -40,6 +40,38 @@ function genId() {
   return Math.random().toString(36).slice(2, 11);
 }
 
+/** Best-effort normalization of a backend cart payload into CartItem[]. */
+function parseBackendCart(data: unknown): CartItem[] | null {
+  if (!data || typeof data !== "object") return null;
+  const obj = data as Record<string, unknown>;
+  const rawItems = (obj.items ?? obj.lineItems ?? obj.cartItems) as unknown;
+  if (!Array.isArray(rawItems)) return null;
+  const items: CartItem[] = [];
+  for (const r of rawItems) {
+    if (!r || typeof r !== "object") continue;
+    const it = r as Record<string, any>;
+    const quantity = Number(it.quantity ?? it.qty ?? 0);
+    const unitPrice = Number(it.unitPrice ?? it.price ?? 0);
+    items.push({
+      id: String(it.id ?? it.itemId ?? genId()),
+      productId: String(it.productId ?? it.product?.id ?? ""),
+      productName: String(it.productName ?? it.product?.name ?? ""),
+      primaryImageUrl: String(it.primaryImageUrl ?? it.product?.primaryImageUrl ?? it.imageUrl ?? ""),
+      size: String(it.size ?? ""),
+      material: String(it.material ?? ""),
+      finish: String(it.finish ?? ""),
+      quantity,
+      unitPrice,
+      lineTotal: Number(it.lineTotal ?? quantity * unitPrice),
+      variantId: it.variantId ?? undefined,
+      variantLabel: it.variantLabel ?? undefined,
+      sku: it.sku ?? undefined,
+      isBackorder: it.isBackorder ?? undefined,
+    });
+  }
+  return items;
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [cartId, setCartId] = useState<string | null>(null);
@@ -63,6 +95,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
     setHydrated(true);
+
+    // Hydrate from backend (best-effort, non-blocking)
+    void (async () => {
+      try {
+        const res = await apiFetch("/api/v1/cart", { session: true, auth: true });
+        if (!res.ok) return;
+        const data = await res.json();
+        const parsed = parseBackendCart(data);
+        if (parsed) setItems(parsed);
+      } catch {
+        /* keep local state */
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -113,10 +158,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }).catch(() => { /* keep local cart even if backend rejects */ });
   };
 
-  const removeItem = (id: string) =>
+  const removeItem = (id: string) => {
     setItems((prev) => prev.filter((it) => it.id !== id));
+    void (async () => {
+      try {
+        const res = await apiFetch(`/api/v1/cart/items/${encodeURIComponent(id)}`, {
+          method: "DELETE",
+          session: true,
+          auth: true,
+        });
+        if (!res.ok) return;
+        const data = await res.json().catch(() => null);
+        const parsed = parseBackendCart(data);
+        if (parsed) setItems(parsed);
+      } catch {
+        /* keep local state */
+      }
+    })();
+  };
 
-  const updateQuantity = (id: string, quantity: number) =>
+  const updateQuantity = (id: string, quantity: number) => {
     setItems((prev) =>
       prev.map((it) =>
         it.id === id
@@ -124,8 +185,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
           : it,
       ),
     );
+    void (async () => {
+      try {
+        const res = await apiFetch(`/api/v1/cart/items/${encodeURIComponent(id)}`, {
+          method: "PUT",
+          session: true,
+          auth: true,
+          json: { quantity },
+        });
+        if (!res.ok) return;
+        const data = await res.json().catch(() => null);
+        const parsed = parseBackendCart(data);
+        if (parsed) setItems(parsed);
+      } catch {
+        /* keep local state */
+      }
+    })();
+  };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setItems([]);
+    void apiFetch("/api/v1/cart", {
+      method: "DELETE",
+      session: true,
+      auth: true,
+    }).catch(() => { /* keep local clear */ });
+  };
 
   const { itemCount, cartTotal } = useMemo(() => {
     let count = 0;
