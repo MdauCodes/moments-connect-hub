@@ -118,8 +118,8 @@ function OrderDetailPage() {
                 <Undo2 className="h-3.5 w-3.5" /> Request refund
               </button>
             )}
-            <button onClick={handleReorder} className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
-              <RotateCcw className="h-3.5 w-3.5" /> Re-order
+            <button onClick={handleReorder} disabled={reordering} className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+              <RotateCcw className="h-3.5 w-3.5" /> {reordering ? "Adding…" : "Re-order"}
             </button>
           </div>
         </div>
