@@ -29,15 +29,19 @@ const labelCls = "block text-sm font-medium text-foreground mb-1.5";
 
 function normalizePhone(p: string): string {
   const digits = p.replace(/\D/g, "");
-  if (digits.startsWith("254")) return digits;
-  if (digits.startsWith("0")) return `254${digits.slice(1)}`;
-  if (digits.startsWith("7") || digits.startsWith("1")) return `254${digits}`;
-  return digits;
+  if (digits.startsWith("254")) return `+${digits}`;
+  if (digits.startsWith("0")) return `+254${digits.slice(1)}`;
+  if (digits.startsWith("7") || digits.startsWith("1")) return `+254${digits}`;
+  return digits.startsWith("+") ? digits : `+${digits}`;
 }
 
 function isValidKenyanPhone(p: string) {
-  const n = normalizePhone(p);
-  return /^254[71]\d{8}$/.test(n);
+  const trimmed = p.trim();
+  if (/^07\d{8}$/.test(trimmed)) return true;
+  if (/^\+2547\d{8}$/.test(trimmed)) return true;
+  // Be lenient on input; normalization will produce +2547XXXXXXXX
+  const n = normalizePhone(trimmed);
+  return /^\+2547\d{8}$/.test(n);
 }
 
 function CheckoutPage() {
