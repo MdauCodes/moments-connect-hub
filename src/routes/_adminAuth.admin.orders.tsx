@@ -33,7 +33,7 @@ function AdminOrdersPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listOrders({ status, q, page, size: PAGE_SIZE })
+    listOrders({ status: status === "ALL" ? undefined : status, q: q || undefined, page, size: PAGE_SIZE })
       .then((res) => { if (!cancelled) setData(res); })
       .catch((err) => toast.error(err instanceof Error ? err.message : "Failed to load orders"))
       .finally(() => { if (!cancelled) setLoading(false); });
