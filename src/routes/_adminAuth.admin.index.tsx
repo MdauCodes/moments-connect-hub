@@ -123,7 +123,7 @@ export function AdminDashboardPage() {
                   <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap" }}>{formatKes(p.revenue)}</div>
                 </div>
               ))}
-              {!loading && (stats?.topProducts.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>No sales yet.</div>}
+              {!loading && (stats?.topProducts?.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>No sales yet.</div>}
             </div>
           </div>
         </div>
@@ -144,7 +144,7 @@ export function AdminDashboardPage() {
               ) : (stats?.recentOrders ?? []).length === 0 ? (
                 <tr><td colSpan={6}><div className="admin-empty">No orders yet.</div></td></tr>
               ) : (
-                stats!.recentOrders.map((o) => (
+                (stats?.recentOrders ?? []).map((o) => (
                   <tr key={o.id}>
                     <td><Link to="/admin/orders/$id" params={{ id: o.id }}><b>{o.reference}</b></Link></td>
                     <td>{o.customerName}</td>
@@ -179,7 +179,7 @@ export function AdminDashboardPage() {
                   <div style={{ fontWeight: 600 }}>{formatKes(p.amount)}</div>
                 </div>
               ))}
-              {!loading && (stats?.failedPayments.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>No failed payments. </div>}
+              {!loading && (stats?.failedPayments?.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>No failed payments. </div>}
             </div>
           </div>
 
@@ -195,7 +195,7 @@ export function AdminDashboardPage() {
                   <div style={{ fontWeight: 700, color: p.stock === 0 ? "#b91c1c" : "#a16207" }}>{p.stock} left</div>
                 </div>
               ))}
-              {!loading && (stats?.lowStockProducts.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>All stock healthy.</div>}
+              {!loading && (stats?.lowStockProducts?.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>All stock healthy.</div>}
             </div>
           </div>
         </div>
