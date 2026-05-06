@@ -21,7 +21,7 @@ function fmt(n: number) {
 }
 
 function CartPage() {
-  const { items, updateQuantity, removeItem, cartTotal } = useCart();
+  const { items, updateQuantity, removeItem, cartTotal, cartLoading } = useCart();
   const navigate = useNavigate();
 
   const shippingFee = computeShippingFee(cartTotal);
