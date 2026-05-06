@@ -35,6 +35,6 @@ export const passwordStore = {
   },
   async verifyEmail(token: string) {
     if (!token) return { ok: false, source: "mock" as const, message: "Verification link is invalid." };
-    return postOrMock("/api/v1/auth/verify", { token });
+    return postOrMock("/api/v1/auth/verify-email", { token });
   },
 };
