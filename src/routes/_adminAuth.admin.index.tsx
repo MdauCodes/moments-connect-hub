@@ -179,7 +179,7 @@ export function AdminDashboardPage() {
                   <div style={{ fontWeight: 600 }}>{formatKes(p.amount)}</div>
                 </div>
               ))}
-              {!loading && (stats?.failedPayments.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>No failed payments. </div>}
+              {!loading && (stats?.failedPayments?.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>No failed payments. </div>}
             </div>
           </div>
 
