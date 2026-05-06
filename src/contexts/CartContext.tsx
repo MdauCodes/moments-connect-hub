@@ -25,6 +25,7 @@ interface CartContextValue {
   itemCount: number;
   cartTotal: number;
   cartId: string | null;
+  cartLoading: boolean;
   addItem: (item: Omit<CartItem, "id" | "lineTotal">) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
@@ -76,6 +77,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [cartId, setCartId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [cartLoading, setCartLoading] = useState(true);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -106,6 +108,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (parsed) setItems(parsed);
       } catch {
         /* keep local state */
+      } finally {
+        setCartLoading(false);
       }
     })();
   }, []);
@@ -224,7 +228,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, itemCount, cartTotal, cartId, addItem, removeItem, updateQuantity, clearCart }}
+      value={{ items, itemCount, cartTotal, cartId, cartLoading, addItem, removeItem, updateQuantity, clearCart }}
     >
       {children}
     </CartContext.Provider>
