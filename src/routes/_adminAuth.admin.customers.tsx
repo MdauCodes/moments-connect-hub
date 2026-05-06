@@ -147,7 +147,7 @@ function AdminCustomersPage() {
                       <td><span className="admin-label">{c.segment}</span></td>
                       <td>{c.ordersCount}</td>
                       <td><b>{formatKes(c.lifetimeValue)}</b></td>
-                      <td>{formatKes(c.averageOrderValue)}</td>
+                      <td>{formatKes(c.averageOrderValue ?? 0)}</td>
                       <td>{formatDateShort(c.lastOrderAt ?? undefined)}</td>
                       <td><StatusBadge status={c.status} /></td>
                       <td>
