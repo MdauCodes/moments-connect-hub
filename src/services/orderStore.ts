@@ -39,11 +39,14 @@ export interface CustomerOrderItem {
   isBackorder?: boolean;
 }
 
+export type CheckoutPaymentMethod = "PAYHERO" | "CASH_ON_DELIVERY" | "BANK_TRANSFER" | "MPESA" | "CARD" | "BANK";
+
 export interface CustomerOrder {
+  id?: string;
   reference: string;
   status: CustomerOrderStatus;
   paymentStatus: CustomerPaymentStatus;
-  paymentMethod: "MPESA" | "CARD" | "BANK";
+  paymentMethod: CheckoutPaymentMethod;
   paymentReference?: string;
   failureReason?: string;
   customerName: string;
