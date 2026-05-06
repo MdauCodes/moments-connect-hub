@@ -29,7 +29,7 @@ function FailedPage() {
     if (!order) return;
     setRetrying(true);
     try {
-      await orderStore.startMpesaStk(order.reference, order.customerPhone);
+      await orderStore.startMpesaStk(order.id ?? order.reference, order.customerPhone);
       navigate({ to: "/checkout/processing", search: { ref: order.reference } });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not retry payment");
