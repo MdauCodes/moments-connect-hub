@@ -77,7 +77,7 @@ export interface PlaceOrderInput {
     notes?: string;
   };
   shippingFee: number;
-  paymentMethod: "MPESA";
+  paymentMethod: CheckoutPaymentMethod;
 }
 
 const STORAGE_KEY = "mpk_customer_orders_v1";
