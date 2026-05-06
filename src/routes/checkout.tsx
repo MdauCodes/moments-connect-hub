@@ -1,9 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent } from "react";
-import { ArrowRight, Smartphone, Banknote, Truck, Lock } from "lucide-react";
-import { InlineProgress } from "@/components/InlineProgress";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { ArrowRight, ArrowLeft, X, Smartphone, CheckCircle2, XCircle, ShieldCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { SiteLayout } from "@/components/SiteLayout";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { orderStore, computeShippingFee, SHIPPING_THRESHOLD_KES } from "@/services/orderStore";
@@ -16,16 +14,24 @@ export const Route = createFileRoute("/checkout")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: CheckoutPage,
+  component: CheckoutModal,
 });
 
-function fmt(n: number) {
-  return new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", maximumFractionDigits: 0 }).format(n);
-}
+const BRAND = "#1a472a";
+const POLL_MS = 5000;
+const TIMEOUT_MS = 120_000; // 2 minutes
+const RESEND_AFTER_MS = 30_000;
 
-const inputCls =
-  "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50";
-const labelCls = "block text-sm font-medium text-foreground mb-1.5";
+type Step = "contact" | "payment";
+type PayState = "idle" | "sending" | "waiting" | "success" | "failed" | "timeout";
+
+function fmt(n: number) {
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency",
+    currency: "KES",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
 
 function normalizePhone(p: string): string {
   const digits = p.replace(/\D/g, "");
@@ -38,26 +44,38 @@ function normalizePhone(p: string): string {
 function isValidKenyanPhone(p: string) {
   const trimmed = p.trim();
   if (/^07\d{8}$/.test(trimmed)) return true;
-  if (/^\+2547\d{8}$/.test(trimmed)) return true;
-  // Be lenient on input; normalization will produce +2547XXXXXXXX
   const n = normalizePhone(trimmed);
   return /^\+2547\d{8}$/.test(n);
 }
 
-function CheckoutPage() {
-  const { items, cartTotal } = useCart();
+const inputCls =
+  "w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-ring)] focus:border-transparent transition";
+const labelCls = "block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5";
+
+function CheckoutModal() {
+  const { items, cartTotal, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  const [step, setStep] = useState<Step>("contact");
+
+  // Contact / delivery
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [county, setCounty] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [notes, setNotes] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [address, setAddress] = useState("");
+
+  // Payment state
+  const [payState, setPayState] = useState<PayState>("idle");
+  const [orderRef, setOrderRef] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [showResend, setShowResend] = useState(false);
+
+  const timersRef = useRef<{ poll?: ReturnType<typeof setTimeout>; timeout?: ReturnType<typeof setTimeout>; resend?: ReturnType<typeof setTimeout> }>({});
 
   useEffect(() => {
     if (user) {
@@ -66,225 +84,476 @@ function CheckoutPage() {
     }
   }, [user]);
 
-  // If cart is empty, send back to /cart
+  // Empty cart -> bounce back
   useEffect(() => {
-    if (items.length === 0) navigate({ to: "/cart", replace: true });
-  }, [items.length, navigate]);
+    if (items.length === 0 && payState === "idle") {
+      navigate({ to: "/cart", replace: true });
+    }
+  }, [items.length, navigate, payState]);
 
-  if (items.length === 0) return null;
+  useEffect(() => () => clearAllTimers(), []);
+
+  function clearAllTimers() {
+    const t = timersRef.current;
+    if (t.poll) clearTimeout(t.poll);
+    if (t.timeout) clearTimeout(t.timeout);
+    if (t.resend) clearTimeout(t.resend);
+    timersRef.current = {};
+  }
+
+  function close() {
+    clearAllTimers();
+    navigate({ to: "/cart" });
+  }
+
+  function validateContact(): boolean {
+    if (!name.trim() || !email.trim() || !address.trim() || !city.trim() || !county.trim()) {
+      toast.error("Please fill all required fields");
+      return false;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      toast.error("Enter a valid email");
+      return false;
+    }
+    if (!isValidKenyanPhone(phone)) {
+      toast.error("Enter a valid Kenyan phone (07XXXXXXXX or +2547XXXXXXXX)");
+      return false;
+    }
+    return true;
+  }
+
+  function handleContactSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!validateContact()) return;
+    setStep("payment");
+  }
+
+  async function startPayment() {
+    setErrorMsg(null);
+    setPayState("sending");
+    const phoneNormalized = normalizePhone(phone);
+
+    try {
+      let id = orderId;
+      let ref = orderRef;
+
+      if (!id) {
+        const { order } = await orderStore.placeOrder({
+          items,
+          customer: {
+            name: name.trim(),
+            email: email.trim(),
+            phone: phoneNormalized,
+            address: address.trim(),
+            city: city.trim(),
+            county: county.trim(),
+            postalCode: postalCode.trim() || undefined,
+          },
+          shippingFee,
+          paymentMethod: "MPESA",
+        });
+        id = order.id ?? order.reference;
+        ref = order.reference;
+        setOrderId(id);
+        setOrderRef(ref);
+      }
+
+      if (!id) {
+        setPayState("failed");
+        setErrorMsg("Could not create order — please try again.");
+        return;
+      }
+
+      const init = await orderStore.startMpesaStk(id, phoneNormalized);
+      if (!init.success) {
+        setPayState("failed");
+        setErrorMsg(init.message ?? "Could not send the M-Pesa prompt. Please try again.");
+        return;
+      }
+
+      enterWaiting(id, ref!);
+    } catch (err) {
+      setPayState("failed");
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    }
+  }
+
+  function enterWaiting(id: string, ref: string) {
+    setPayState("waiting");
+    setShowResend(false);
+    clearAllTimers();
+
+    timersRef.current.resend = setTimeout(() => setShowResend(true), RESEND_AFTER_MS);
+    timersRef.current.timeout = setTimeout(() => {
+      clearAllTimers();
+      setPayState("timeout");
+    }, TIMEOUT_MS);
+
+    const poll = async () => {
+      const res = await orderStore.getPaymentStatus(id);
+      if (res.status === "SUCCESS") {
+        clearAllTimers();
+        setPayState("success");
+        clearCart();
+        // brief pause for the success state to show, then redirect
+        setTimeout(() => {
+          navigate({ to: "/order-confirmation", search: { ref } });
+        }, 1200);
+        return;
+      }
+      if (res.status === "FAILED") {
+        clearAllTimers();
+        setErrorMsg(res.message ?? "Payment was not completed.");
+        setPayState("failed");
+        return;
+      }
+      timersRef.current.poll = setTimeout(poll, POLL_MS);
+    };
+    timersRef.current.poll = setTimeout(poll, POLL_MS);
+  }
+
+  async function resendPrompt() {
+    if (!orderId) return;
+    setShowResend(false);
+    const phoneNormalized = normalizePhone(phone);
+    const init = await orderStore.startMpesaStk(orderId, phoneNormalized);
+    if (!init.success) {
+      toast.error(init.message ?? "Could not resend the prompt.");
+      setShowResend(true);
+      return;
+    }
+    toast.success("New M-Pesa prompt sent.");
+    timersRef.current.resend = setTimeout(() => setShowResend(true), RESEND_AFTER_MS);
+  }
+
+  if (items.length === 0 && payState === "idle") return null;
 
   const shippingFee = computeShippingFee(cartTotal);
   const total = cartTotal + shippingFee;
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!isValidKenyanPhone(phone)) {
-      toast.error("Enter a valid Kenyan phone (07XXXXXXXX or +2547XXXXXXXX)");
-      return;
-    }
-    const required = { name: name.trim(), email: email.trim(), address: address.trim(), city: city.trim(), county: county.trim() };
-    if (!required.name || !required.email || !required.address || !required.city || !required.county) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-    const phoneNormalized = normalizePhone(phone);
-    setSubmitting(true);
-    try {
-      const { order } = await orderStore.placeOrder({
-        items,
-        customer: {
-          name: required.name,
-          email: required.email,
-          phone: phoneNormalized,
-          address: required.address,
-          city: required.city,
-          county: required.county,
-          postalCode: postalCode.trim() || undefined,
-          notes: notes.trim() || undefined,
-        },
-        shippingFee,
-        paymentMethod: "MPESA",
-      });
-
-      // Only initiate STK push after a successful checkout that returned an orderId
-      const orderId = order.id ?? order.reference;
-      if (!orderId) {
-        toast.error("Checkout response missing order id — please try again.");
-        setSubmitting(false);
-        return;
-      }
-      const init = await orderStore.startMpesaStk(orderId, phoneNormalized);
-      if (!init.success) {
-        toast.error(init.message ?? "Could not start M-Pesa prompt — please retry");
-        navigate({
-          to: "/checkout/failed",
-          search: { ref: order.reference, reason: init.message ?? "stk_init_failed" },
-        });
-        return;
-      }
-
-      // Do NOT clear cart here — only after payment is confirmed on the processing page.
-      navigate({
-        to: "/checkout/processing",
-        search: { ref: order.reference, orderId: order.id, paymentMethod: "MPESA", phone: phoneNormalized },
-      });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not place order");
-      setSubmitting(false);
-    }
-  }
+  // Brand ring color via CSS var
+  const brandStyle = { ["--brand-ring" as string]: BRAND } as React.CSSProperties;
 
   return (
-    <SiteLayout>
-      <section className="mx-auto max-w-7xl px-5 py-10 sm:py-14 lg:px-8">
-        <h1 className="font-display text-3xl sm:text-4xl">Checkout</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {isAuthenticated ? "Confirm your details to place the order." : (
-            <>Checking out as a guest. <Link to="/account/login" search={{ redirect: "/checkout" }} className="text-accent hover:underline">Sign in</Link> for faster checkout next time.</>
-          )}
-        </p>
+    <div
+      className="fixed inset-0 z-[100] flex flex-col bg-background"
+      style={brandStyle}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Checkout"
+    >
+      {/* Header */}
+      <header
+        className="flex items-center justify-between border-b border-border px-4 py-4 sm:px-8"
+        style={{ backgroundColor: BRAND }}
+      >
+        <div className="flex items-center gap-3 text-white">
+          <ShieldCheck className="h-5 w-5" />
+          <span className="font-display text-lg sm:text-xl">Secure checkout</span>
+        </div>
+        <button
+          type="button"
+          onClick={close}
+          className="rounded-full p-2 text-white/90 transition hover:bg-white/10"
+          aria-label="Close checkout"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </header>
 
-        <form onSubmit={handleSubmit} className="mt-8 grid gap-8 lg:grid-cols-3">
-          {/* Form */}
-          <div className="space-y-6 lg:col-span-2">
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-              <h2 className="font-display text-xl">Contact & delivery</h2>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className={labelCls}>Full name *</label>
+      {/* Step indicator */}
+      <div className="border-b border-border bg-card/50">
+        <div className="mx-auto flex max-w-2xl items-center justify-center gap-3 px-4 py-3 text-xs sm:text-sm">
+          <StepDot active={step === "contact"} done={step === "payment"} label="1. Contact & delivery" />
+          <span className="h-px w-8 bg-border sm:w-16" />
+          <StepDot active={step === "payment"} done={false} label="2. Payment" />
+        </div>
+      </div>
+
+      {/* Body */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
+          {step === "contact" && (
+            <form onSubmit={handleContactSubmit} className="space-y-5">
+              <div>
+                <h2 className="font-display text-2xl text-foreground">Where are we shipping to?</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {isAuthenticated ? (
+                    "Confirm your delivery details below."
+                  ) : (
+                    <>
+                      Checking out as a guest.{" "}
+                      <Link
+                        to="/account/login"
+                        search={{ redirect: "/checkout" }}
+                        className="font-semibold underline"
+                        style={{ color: BRAND }}
+                      >
+                        Sign in
+                      </Link>{" "}
+                      for faster checkout next time.
+                    </>
+                  )}
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <label className={labelCls}>Full name</label>
                   <input className={inputCls} required value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Wanjiru" />
                 </div>
                 <div>
-                  <label className={labelCls}>Email *</label>
+                  <label className={labelCls}>Email</label>
                   <input type="email" className={inputCls} required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
                 </div>
                 <div>
-                  <label className={labelCls}>Phone (M-Pesa) *</label>
+                  <label className={labelCls}>Phone (M-Pesa)</label>
                   <input className={inputCls} required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0712 345 678" inputMode="tel" />
                 </div>
+                <div className="sm:col-span-2">
+                  <label className={labelCls}>Delivery address</label>
+                  <input className={inputCls} required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Building, street, estate" />
+                </div>
                 <div>
-                  <label className={labelCls}>City / town *</label>
+                  <label className={labelCls}>City / town</label>
                   <input className={inputCls} required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Nairobi" />
                 </div>
                 <div>
-                  <label className={labelCls}>County *</label>
+                  <label className={labelCls}>County</label>
                   <input className={inputCls} required value={county} onChange={(e) => setCounty(e.target.value)} placeholder="Nairobi" />
                 </div>
-                <div>
-                  <label className={labelCls}>Postal code</label>
+                <div className="sm:col-span-2">
+                  <label className={labelCls}>Postal code (optional)</label>
                   <input className={inputCls} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="00100" />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className={labelCls}>Delivery address *</label>
-                  <input className={inputCls} required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Building, street, estate" />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className={labelCls}>Order notes (optional)</label>
-                  <textarea className={inputCls + " min-h-[88px]"} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Brand colour, artwork instructions, preferred delivery day…" />
-                </div>
               </div>
-            </div>
 
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-              <h2 className="font-display text-xl">Payment</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Choose how you'd like to pay. Only M-Pesa STK is enabled for now — bank transfer and cash on delivery are coming soon.
-              </p>
-
-              <div className="mt-4 space-y-3">
-                {/* M-Pesa STK — enabled */}
-                <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-accent bg-accent/5 p-4">
-                  <input type="radio" name="paymentMethod" value="PAYHERO" defaultChecked className="mt-1 h-4 w-4 accent-accent" />
-                  <Smartphone className="mt-0.5 h-5 w-5 text-accent" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-foreground">M-Pesa STK push</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      A prompt will appear on your phone to confirm the payment of {fmt(total)}.
-                    </p>
-                  </div>
-                </label>
-
-                {/* Bank transfer — visible but disabled */}
-                <label
-                  aria-disabled="true"
-                  className="flex cursor-not-allowed items-start gap-3 rounded-xl border border-border bg-muted/30 p-4 opacity-60"
-                >
-                  <input type="radio" name="paymentMethod" value="BANK_TRANSFER" disabled className="mt-1 h-4 w-4" />
-                  <Banknote className="mt-0.5 h-5 w-5 text-muted-foreground" />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-foreground">Bank transfer</p>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        <Lock className="h-3 w-3" /> Coming soon
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Pay via direct deposit to our bank account.
-                    </p>
-                  </div>
-                </label>
-
-                {/* Cash on delivery — visible but disabled */}
-                <label
-                  aria-disabled="true"
-                  className="flex cursor-not-allowed items-start gap-3 rounded-xl border border-border bg-muted/30 p-4 opacity-60"
-                >
-                  <input type="radio" name="paymentMethod" value="CASH_ON_DELIVERY" disabled className="mt-1 h-4 w-4" />
-                  <Truck className="mt-0.5 h-5 w-5 text-muted-foreground" />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-foreground">Cash on delivery</p>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        <Lock className="h-3 w-3" /> Coming soon
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Pay our courier in cash on arrival.
-                    </p>
-                  </div>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* Summary */}
-          <aside className="lg:col-span-1">
-            <div className="sticky top-24 rounded-2xl border border-border bg-card p-5 sm:p-6">
-              <h2 className="font-display text-xl">Your order</h2>
-              <ul className="mt-4 space-y-3 text-sm">
-                {items.map((it) => (
-                  <li key={it.id} className="flex justify-between gap-3">
-                    <span className="text-foreground/90">
-                      {it.productName} <span className="text-muted-foreground">× {it.quantity}</span>
-                    </span>
-                    <span>{fmt(it.lineTotal)}</span>
-                  </li>
-                ))}
-              </ul>
-              <dl className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
-                <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal</dt><dd>{fmt(cartTotal)}</dd></div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Shipping</dt>
-                  <dd>{shippingFee === 0 ? <span className="text-accent">Free</span> : fmt(shippingFee)}</dd>
-                </div>
-                <div className="flex justify-between border-t border-border pt-3 font-display text-base">
-                  <dt>Total</dt><dd>{fmt(total)}</dd>
-                </div>
-              </dl>
               <button
                 type="submit"
-                disabled={submitting}
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 disabled:opacity-60"
+                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:opacity-90"
+                style={{ backgroundColor: BRAND }}
               >
-                {submitting ? (<><InlineProgress size="md" /> Placing order…</>) : (<>Pay {fmt(total)} with M-Pesa <ArrowRight className="h-4 w-4" /></>)}
+                Continue to payment <ArrowRight className="h-4 w-4" />
               </button>
-              <p className="mt-3 text-[11px] text-muted-foreground">
-                By placing the order you agree to our terms. Free shipping over {fmt(SHIPPING_THRESHOLD_KES)}.
-              </p>
+            </form>
+          )}
+
+          {step === "payment" && (
+            <div className="space-y-6">
+              {payState === "idle" && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setStep("contact")}
+                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    <ArrowLeft className="h-4 w-4" /> Back
+                  </button>
+
+                  <div>
+                    <h2 className="font-display text-2xl text-foreground">Review &amp; pay</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      You'll get an M-Pesa prompt on{" "}
+                      <span className="font-semibold text-foreground">{normalizePhone(phone)}</span>.
+                    </p>
+                  </div>
+
+                  {/* Order summary */}
+                  <div className="rounded-2xl border border-border bg-card p-5">
+                    <h3 className="text-sm font-semibold text-foreground">Order summary</h3>
+                    <ul className="mt-3 space-y-2 text-sm">
+                      {items.map((it) => (
+                        <li key={it.id} className="flex justify-between gap-3">
+                          <span className="text-foreground/90">
+                            {it.productName}{" "}
+                            <span className="text-muted-foreground">× {it.quantity}</span>
+                          </span>
+                          <span className="tabular-nums">{fmt(it.lineTotal)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <dl className="mt-4 space-y-1.5 border-t border-border pt-3 text-sm">
+                      <Row label="Subtotal" value={fmt(cartTotal)} />
+                      <Row
+                        label="Shipping"
+                        value={shippingFee === 0 ? "Free" : fmt(shippingFee)}
+                      />
+                      <div className="flex justify-between border-t border-border pt-2.5 font-display text-base">
+                        <dt>Total</dt>
+                        <dd className="tabular-nums">{fmt(total)}</dd>
+                      </div>
+                    </dl>
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      Free shipping on orders over {fmt(SHIPPING_THRESHOLD_KES)}.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={startPayment}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-base font-semibold text-white shadow-lg transition hover:opacity-90"
+                    style={{ backgroundColor: BRAND }}
+                  >
+                    <Smartphone className="h-5 w-5" />
+                    Pay {fmt(total)} with M-Pesa
+                  </button>
+
+                  <p className="text-center text-[11px] text-muted-foreground">
+                    By paying, you agree to our terms. Payment is secured by Safaricom M-Pesa.
+                  </p>
+                </>
+              )}
+
+              {payState === "sending" && (
+                <CenteredState
+                  icon={<Loader2 className="h-9 w-9 animate-spin" style={{ color: BRAND }} />}
+                  title="Sending M-Pesa prompt…"
+                  subtitle="Hang on while we contact Safaricom."
+                />
+              )}
+
+              {payState === "waiting" && (
+                <div className="flex flex-col items-center py-6 text-center">
+                  <div className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-full" style={{ backgroundColor: `${BRAND}15` }}>
+                    <span className="absolute inset-0 animate-ping rounded-full" style={{ backgroundColor: `${BRAND}25` }} />
+                    <Smartphone className="relative h-11 w-11" style={{ color: BRAND }} />
+                  </div>
+                  <h2 className="mt-6 font-display text-2xl text-foreground">Check your phone</h2>
+                  <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                    Enter your M-Pesa PIN on{" "}
+                    <span className="font-semibold text-foreground">{normalizePhone(phone)}</span>{" "}
+                    to complete the payment of{" "}
+                    <span className="font-semibold text-foreground">{fmt(total)}</span>.
+                  </p>
+                  {orderRef && (
+                    <p className="mt-4 text-xs text-muted-foreground">
+                      Order reference:{" "}
+                      <span className="font-mono font-semibold text-foreground">{orderRef}</span>
+                    </p>
+                  )}
+                  <div className="mt-6 inline-flex items-center gap-2 text-xs text-muted-foreground">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Waiting for confirmation…
+                  </div>
+                  {showResend && (
+                    <button
+                      type="button"
+                      onClick={resendPrompt}
+                      className="mt-5 text-sm font-semibold underline"
+                      style={{ color: BRAND }}
+                    >
+                      Resend prompt
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {payState === "success" && (
+                <CenteredState
+                  icon={<CheckCircle2 className="h-12 w-12 text-emerald-600" />}
+                  title="Payment received!"
+                  subtitle="Redirecting to your confirmation…"
+                />
+              )}
+
+              {payState === "failed" && (
+                <div className="flex flex-col items-center py-6 text-center">
+                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
+                    <XCircle className="h-10 w-10 text-destructive" />
+                  </div>
+                  <h2 className="mt-6 font-display text-2xl text-foreground">Payment failed</h2>
+                  <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                    {errorMsg ?? "Your M-Pesa payment was not completed."}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={startPayment}
+                    className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
+                    style={{ backgroundColor: BRAND }}
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
+
+              {payState === "timeout" && (
+                <div className="flex flex-col items-center py-6 text-center">
+                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
+                    <Smartphone className="h-9 w-9 text-foreground/70" />
+                  </div>
+                  <h2 className="mt-6 font-display text-2xl text-foreground">Payment not received</h2>
+                  <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                    We didn't get a confirmation in time. Try again, or contact support if you were charged.
+                  </p>
+                  {orderRef && (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Order reference:{" "}
+                      <span className="font-mono font-semibold text-foreground">{orderRef}</span>
+                    </p>
+                  )}
+                  <div className="mt-6 flex flex-wrap justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={startPayment}
+                      className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+                      style={{ backgroundColor: BRAND }}
+                    >
+                      Try again
+                    </button>
+                    <Link
+                      to="/contact"
+                      className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
+                    >
+                      Contact support
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
-          </aside>
-        </form>
-      </section>
-    </SiteLayout>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function StepDot({ active, done, label }: { active: boolean; done: boolean; label: string }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
+        active
+          ? "text-foreground"
+          : done
+          ? "text-foreground/70"
+          : "text-muted-foreground"
+      }`}
+    >
+      <span
+        className={`inline-block h-2 w-2 rounded-full ${
+          active ? "" : done ? "" : "bg-border"
+        }`}
+        style={active || done ? { backgroundColor: BRAND } : undefined}
+      />
+      <span className={`${active ? "font-semibold" : ""}`}>{label}</span>
+    </span>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between text-sm">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="tabular-nums text-foreground">{value}</dd>
+    </div>
+  );
+}
+
+function CenteredState({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) {
+  return (
+    <div className="flex flex-col items-center py-10 text-center">
+      {icon}
+      <h2 className="mt-5 font-display text-2xl text-foreground">{title}</h2>
+      <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
+    </div>
   );
 }
