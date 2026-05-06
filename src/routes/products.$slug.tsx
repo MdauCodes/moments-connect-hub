@@ -23,7 +23,7 @@ export const Route = createFileRoute("/products/$slug")({
     // Best-effort review summary for AggregateRating JSON-LD; never blocks rendering.
     let reviewSummary: { count: number; average: number } | null = null;
     try {
-      const { summary } = await reviewStore.listForProduct(product.id);
+      const { summary } = await reviewStore.listForProduct(product.slug);
       if (summary.count > 0) reviewSummary = { count: summary.count, average: summary.average };
     } catch { /* ignore */ }
     return { product, reviewSummary };
