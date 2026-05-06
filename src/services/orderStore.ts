@@ -166,6 +166,43 @@ async function tryLiveJson<T>(input: string, init?: RequestInit, authed = false)
   }
 }
 
+function normalizeTrackingDto(raw: Record<string, any>): CustomerOrder {
+  return {
+    id: raw.id,
+    reference: raw.reference,
+    status: raw.status,
+    paymentStatus: raw.paymentStatus ?? "PENDING",
+    paymentMethod: raw.paymentMethod ?? "MPESA",
+    customerName: raw.contactName ?? raw.customerName ?? "",
+    customerEmail: raw.maskedEmail ?? raw.customerEmail ?? "",
+    customerPhone: raw.customerPhone ?? "",
+    shippingAddress: raw.shippingAddress ?? raw.deliveryAddress ?? "",
+    city: raw.city ?? "",
+    items: (raw.items ?? []).map((it: any) => ({
+      productId: it.productId ?? "",
+      productName: it.productName ?? "",
+      primaryImageUrl: it.primaryImageUrl ?? "",
+      size: it.size ?? "",
+      material: it.material ?? "",
+      finish: it.finish ?? "",
+      quantity: it.quantity ?? 0,
+      unitPrice: it.unitPrice ?? 0,
+      lineTotal: it.lineTotal ?? 0,
+    })),
+    subtotal: raw.subtotal ?? raw.totalAmount ?? 0,
+    shippingFee: raw.deliveryFee ?? raw.shippingFee ?? 0,
+    total: raw.totalAmount ?? raw.total ?? 0,
+    currency: "KES",
+    createdAt: raw.createdAt ?? new Date().toISOString(),
+    updatedAt: raw.updatedAt ?? new Date().toISOString(),
+    trackingEvents: (raw.statusHistory ?? []).map((h: any) => ({
+      at: h.changedAt,
+      label: (h.status ?? "").replace(/_/g, " "),
+      description: h.note ?? undefined,
+    })),
+  };
+}
+
 export const orderStore = {
   /** Place an order. Strict: throws if the backend cannot be reached or
    *  returns a non-2xx response. No mock fallback — the user must not
