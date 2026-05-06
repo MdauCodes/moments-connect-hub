@@ -1,93 +1,90 @@
 // ----------------------------------------------------------------------------
-// Wishlist — mock-live hybrid.
-// Authed users: GET/POST/DELETE /api/v1/customer/wishlist (when backend is up)
-// Guests: persisted to localStorage only.
+// Wishlist — backend-backed, authenticated only.
+// Guests have wishlist silently disabled (toggle is a no-op).
+// Endpoints:
+//   GET    /api/v1/customer/wishlist
+//   POST   /api/v1/customer/wishlist/{productId}
+//   DELETE /api/v1/customer/wishlist/{productId}
 // ----------------------------------------------------------------------------
 import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
-import { apiUrl } from "@/config/api";
-import { authFetch, getAccessToken } from "@/contexts/AuthContext";
-
-const STORAGE_KEY = "mpk_wishlist_v1";
+import { apiFetch } from "@/config/api";
+import { getAccessToken } from "@/contexts/AuthContext";
 
 interface WishlistContextValue {
   ids: Set<string>;
   has: (productId: string) => boolean;
-  toggle: (productId: string) => Promise<boolean>; // returns new saved state
+  toggle: (productId: string) => Promise<boolean>;
   remove: (productId: string) => Promise<void>;
   count: number;
+  enabled: boolean;
 }
 
 const WishlistContext = createContext<WishlistContextValue | undefined>(undefined);
 
-function read(): string[] {
-  if (typeof window === "undefined") return [];
+async function fetchWishlist(): Promise<string[]> {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as string[]) : [];
-  } catch { return []; }
-}
-function write(rows: string[]) {
-  if (typeof window === "undefined") return;
-  try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); } catch { /* ignore */ }
-}
-
-async function tryLive<T>(path: string, init?: RequestInit): Promise<T | null> {
-  try {
-    const res = await authFetch(apiUrl(path), init);
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch { return null; }
+    const res = await apiFetch("/api/v1/customer/wishlist", { auth: true });
+    if (!res.ok) return [];
+    const data = (await res.json()) as string[] | { productIds?: string[]; items?: { productId: string }[] };
+    if (Array.isArray(data)) return data;
+    if (data.productIds) return data.productIds;
+    if (data.items) return data.items.map((i) => i.productId);
+    return [];
+  } catch {
+    return [];
+  }
 }
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [ids, setIds] = useState<Set<string>>(new Set());
-  const [hydrated, setHydrated] = useState(false);
+  const enabled = !!getAccessToken();
 
-  // Hydrate
   useEffect(() => {
+    if (!getAccessToken()) { setIds(new Set()); return; }
     let cancelled = false;
-    (async () => {
-      const local = new Set(read());
-      if (getAccessToken()) {
-        const live = await tryLive<{ productIds: string[] } | string[]>("/api/v1/customer/wishlist");
-        if (live && !cancelled) {
-          const rows = Array.isArray(live) ? live : live.productIds ?? [];
-          rows.forEach((id) => local.add(id));
-        }
-      }
-      if (!cancelled) {
-        setIds(local);
-        setHydrated(true);
-      }
-    })();
+    fetchWishlist().then((rows) => {
+      if (!cancelled) setIds(new Set(rows));
+    });
     return () => { cancelled = true; };
   }, []);
 
-  // Persist
-  useEffect(() => {
-    if (!hydrated) return;
-    write(Array.from(ids));
-  }, [ids, hydrated]);
-
   const toggle = useCallback(async (productId: string): Promise<boolean> => {
+    if (!getAccessToken()) return false;
     const isSaved = ids.has(productId);
     const next = new Set(ids);
     if (isSaved) next.delete(productId); else next.add(productId);
     setIds(next);
-    if (getAccessToken()) {
-      await tryLive(`/api/v1/customer/wishlist/${encodeURIComponent(productId)}`, {
+    try {
+      const res = await apiFetch(`/api/v1/customer/wishlist/${encodeURIComponent(productId)}`, {
         method: isSaved ? "DELETE" : "POST",
+        auth: true,
       });
+      if (!res.ok) {
+        // Roll back on failure
+        setIds(ids);
+        return isSaved;
+      }
+    } catch {
+      setIds(ids);
+      return isSaved;
     }
     return !isSaved;
   }, [ids]);
 
   const remove = useCallback(async (productId: string) => {
+    if (!getAccessToken()) return;
+    const prev = ids;
     const next = new Set(ids);
     next.delete(productId);
     setIds(next);
-    if (getAccessToken()) {
-      await tryLive(`/api/v1/customer/wishlist/${encodeURIComponent(productId)}`, { method: "DELETE" });
+    try {
+      const res = await apiFetch(`/api/v1/customer/wishlist/${encodeURIComponent(productId)}`, {
+        method: "DELETE",
+        auth: true,
+      });
+      if (!res.ok) setIds(prev);
+    } catch {
+      setIds(prev);
     }
   }, [ids]);
 
@@ -98,6 +95,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       toggle,
       remove,
       count: ids.size,
+      enabled,
     }}>
       {children}
     </WishlistContext.Provider>
