@@ -50,6 +50,8 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
+  const [county, setCounty] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
