@@ -402,7 +402,23 @@ export const orderStore = {
         : raw === "FAILED" || raw === "CANCELLED" || raw === "ERROR" ? "FAILED"
         : raw === "PENDING" || raw === "PROCESSING" ? "PENDING"
         : "UNKNOWN";
-      return { status, message: data.message, reference: data.reference ?? data.orderReference };
+      const reference = data.reference ?? data.orderReference;
+      const receiptNumber = (data as { receiptNumber?: string }).receiptNumber;
+      if (status === "SUCCESS" && reference) {
+        const all = readAll();
+        const idx = all.findIndex((o) => o.reference === reference || o.id === orderId);
+        if (idx >= 0) {
+          all[idx] = {
+            ...all[idx],
+            paymentStatus: "SUCCESS",
+            paymentReference: receiptNumber ?? all[idx].paymentReference,
+            receiptNumber: receiptNumber ?? all[idx].receiptNumber,
+            updatedAt: nowIso(),
+          };
+          writeAll(all);
+        }
+      }
+      return { status, message: data.message, reference, receiptNumber };
     } catch {
       return { status: "UNKNOWN" };
     }
