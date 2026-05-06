@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback } from "react";
-import { apiUrl } from "@/config/api";
+import { apiUrl, setAuthToken, getAuthToken } from "@/config/api";
 
 export interface AuthUser {
   id: string;
