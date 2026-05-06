@@ -4,6 +4,7 @@ import { InlineProgress } from "@/components/InlineProgress";
 import { toast } from "sonner";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
+import { PasswordInput } from "@/components/PasswordInput";
 import { useAuth } from "@/contexts/AuthContext";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
@@ -53,7 +54,7 @@ function LoginPage() {
               <label className="text-sm font-medium">Password</label>
               <Link to="/account/forgot-password" className="text-xs text-accent hover:underline">Forgot?</Link>
             </div>
-            <input type="password" required className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput required className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
             {submitting && <InlineProgress size="sm" />} Sign in

@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
+import { PasswordInput } from "@/components/PasswordInput";
 import { apiUrl } from "@/config/api";
 
 export const Route = createFileRoute("/account/register")({
@@ -74,7 +75,7 @@ function RegisterPage() {
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium">Password</label>
-            <input type="password" required minLength={8} className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput required minLength={8} className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
             <p className="mt-1 text-xs text-muted-foreground">At least 8 characters.</p>
           </div>
           <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">

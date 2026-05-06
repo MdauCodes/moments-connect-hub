@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { ApiError } from "@/services/adminApi";
+import { PasswordInput } from "@/components/PasswordInput";
 
 export const Route = createFileRoute("/admin/login")({
   validateSearch: (search) => ({
@@ -170,9 +171,8 @@ export function AdminLoginPage({ redirect }: { redirect?: string }) {
 
           <div style={styles.field}>
             <label style={styles.label} htmlFor="admin-password">Password</label>
-            <input
+            <PasswordInput
               id="admin-password"
-              type="password"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -184,6 +184,7 @@ export function AdminLoginPage({ redirect }: { redirect?: string }) {
               onBlur={handleBlur}
               required
               autoComplete="current-password"
+              toggleStyle={{ color: "var(--admin-muted)" }}
             />
             <div style={styles.fieldError}>{fieldErrors.password}</div>
           </div>
