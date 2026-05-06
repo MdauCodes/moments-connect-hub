@@ -43,8 +43,14 @@ function ProcessingPage() {
       const { order: o } = await orderStore.getStatus(ref);
       if (cancelled) return;
       setOrder(o);
-      const orderId = orderIdParam ?? o?.id ?? ref;
+      const orderId = orderIdParam ?? o?.id ?? null;
       const method = (paymentMethod ?? o?.paymentMethod ?? "PAYHERO").toUpperCase();
+
+      if (!orderId) {
+        setInitError("We couldn't find this order. Please track it from your orders page.");
+        return;
+      }
+
 
       // Non-online methods skip payment initiation.
       if (method === "CASH_ON_DELIVERY" || method === "BANK_TRANSFER") {
