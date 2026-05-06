@@ -90,7 +90,7 @@ export const Route = createFileRoute("/")({
 });
 
 const heroPills = [
-  "100 MOQ",
+  "From 50 units",
   "M-Pesa checkout",
   "7–14 day delivery",
   "Kenya-wide",
