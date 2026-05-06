@@ -5,7 +5,6 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { apiUrl } from "@/config/api";
-import { useAuth } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/account/register")({
   head: () => ({ meta: [{ title: "Create account — Moments Packaging" }, { name: "robots", content: "noindex" }] }),
