@@ -195,7 +195,7 @@ export function AdminDashboardPage() {
                   <div style={{ fontWeight: 700, color: p.stock === 0 ? "#b91c1c" : "#a16207" }}>{p.stock} left</div>
                 </div>
               ))}
-              {!loading && (stats?.lowStockProducts.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>All stock healthy.</div>}
+              {!loading && (stats?.lowStockProducts?.length ?? 0) === 0 && <div className="admin-empty" style={{ padding: 16 }}>All stock healthy.</div>}
             </div>
           </div>
         </div>
