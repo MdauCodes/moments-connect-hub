@@ -37,20 +37,17 @@ const inputCls =
 function TrackPage() {
   const initial = Route.useSearch();
   const [ref, setRef] = useState(initial.ref ?? "");
-  const [contact, setContact] = useState(initial.contact ?? "");
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<CustomerOrder | null>(null);
   const [searched, setSearched] = useState(false);
 
-  async function lookup(reference: string, c: string) {
+  async function lookup(reference: string) {
     setLoading(true);
     setSearched(true);
     try {
-      const { order: o } = c
-        ? await orderStore.lookup(reference, c)
-        : await orderStore.getStatus(reference);
+      const { order: o } = await orderStore.trackByReference(reference);
       setOrder(o);
-      if (!o) toast.error("No order found with those details");
+      if (!o) toast.error("No order found with that reference");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Lookup failed");
     } finally {
@@ -59,14 +56,14 @@ function TrackPage() {
   }
 
   useEffect(() => {
-    if (initial.ref) lookup(initial.ref, initial.contact ?? "");
+    if (initial.ref) lookup(initial.ref);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!ref.trim()) return;
-    lookup(ref.trim(), contact.trim());
+    lookup(ref.trim());
   }
 
   return (
@@ -74,7 +71,7 @@ function TrackPage() {
       <section className="mx-auto max-w-3xl px-5 py-12 lg:px-8 lg:py-16">
         <h1 className="font-display text-3xl sm:text-4xl">Track your order</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Enter the order reference we sent you. Add your email or phone for guest orders.
+          Enter the order reference we sent you to see live status and history.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
