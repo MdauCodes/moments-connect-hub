@@ -14,7 +14,6 @@ export const Route = createFileRoute("/account/register")({
 const inputCls = "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50";
 
 function RegisterPage() {
-  const { login } = useAuth();
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -34,26 +33,14 @@ function RegisterPage() {
       const res = await fetch(apiUrl("/api/v1/auth/register"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email: email.trim(), phone, password }),
+        body: JSON.stringify({ email: email.trim(), firstName, lastName, phone, password }),
       });
       if (!res.ok) {
-        // Backend offline → fall through to optimistic login attempt
-        if (res.status >= 500 || res.status === 0) {
-          toast.success("Account queued — sign-in will activate when backend is reachable.");
-          navigate({ to: "/account/login" });
-          return;
-        }
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.message ?? "Registration failed");
+        throw new Error((err as { message?: string }).message ?? "Registration failed");
       }
-      try {
-        await login(email.trim(), password);
-        toast.success("Account created");
-        navigate({ to: "/account/dashboard" });
-      } catch {
-        toast.success("Check your email to verify, then sign in.");
-        navigate({ to: "/account/login" });
-      }
+      toast.success("Account created — check your email for the verification code.");
+      navigate({ to: "/account/verify", search: { email: email.trim() } });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Registration failed");
     } finally {
