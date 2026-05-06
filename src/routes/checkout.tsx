@@ -161,6 +161,14 @@ function CheckoutPage() {
                   <label className={labelCls}>City / town *</label>
                   <input className={inputCls} required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Nairobi" />
                 </div>
+                <div>
+                  <label className={labelCls}>County *</label>
+                  <input className={inputCls} required value={county} onChange={(e) => setCounty(e.target.value)} placeholder="Nairobi" />
+                </div>
+                <div>
+                  <label className={labelCls}>Postal code</label>
+                  <input className={inputCls} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="00100" />
+                </div>
                 <div className="sm:col-span-2">
                   <label className={labelCls}>Delivery address *</label>
                   <input className={inputCls} required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Building, street, estate" />
