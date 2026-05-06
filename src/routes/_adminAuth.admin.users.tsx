@@ -6,6 +6,7 @@ import { AdminLayout } from "@/layouts/AdminLayout";
 import { Forbidden } from "@/components/admin/Forbidden";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { adminResources, type BackendRole, type UserDto } from "@/services/adminResources";
+import { PasswordInput } from "@/components/PasswordInput";
 
 export const Route = createFileRoute("/_adminAuth/admin/users")({ component: AdminUsersPage });
 const empty = { email: "", firstName: "", lastName: "", password: "", enabled: true, roles: ["ROLE_STAFF"] as BackendRole[] };
