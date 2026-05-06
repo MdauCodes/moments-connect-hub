@@ -79,29 +79,50 @@ function CheckoutPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!isValidKenyanPhone(phone)) {
-      toast.error("Enter a valid Kenyan phone (e.g. 0712 345 678)");
+      toast.error("Enter a valid Kenyan phone (07XXXXXXXX or +2547XXXXXXXX)");
       return;
     }
+    const required = { name: name.trim(), email: email.trim(), address: address.trim(), city: city.trim(), county: county.trim() };
+    if (!required.name || !required.email || !required.address || !required.city || !required.county) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+    const phoneNormalized = normalizePhone(phone);
     setSubmitting(true);
     try {
       const { order } = await orderStore.placeOrder({
         items,
         customer: {
-          name: name.trim(),
-          email: email.trim(),
-          phone: normalizePhone(phone),
-          address: address.trim(),
-          city: city.trim(),
+          name: required.name,
+          email: required.email,
+          phone: phoneNormalized,
+          address: required.address,
+          city: required.city,
+          county: required.county,
+          postalCode: postalCode.trim() || undefined,
           notes: notes.trim() || undefined,
         },
         shippingFee,
         paymentMethod: "MPESA",
       });
-      // Trigger STK push (mock or live)
-      await orderStore.startMpesaStk(order.reference, normalizePhone(phone));
+
+      // Only initiate STK push after a successful checkout that returned an orderId
+      const orderId = order.id ?? order.reference;
+      if (orderId) {
+        const init = await orderStore.startMpesaStk(orderId, phoneNormalized);
+        if (!init.success) {
+          toast.error("Could not start M-Pesa prompt — please retry");
+          setSubmitting(false);
+          return;
+        }
+      }
+
       // Clear cart now — order is persisted in orderStore for tracking
       clearCart();
-      navigate({ to: "/checkout/processing", search: { ref: order.reference } });
+      navigate({
+        to: "/checkout/processing",
+        search: { ref: order.reference, orderId: order.id, paymentMethod: "MPESA", phone: phoneNormalized },
+      });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not place order");
       setSubmitting(false);
