@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ArrowLeft, Package, MapPin, Phone, Mail, RotateCcw, ShoppingBag, CheckCircle2, Clock, Truck, AlertCircle, Undo2 } from "lucide-react";
 import { toast } from "sonner";
@@ -40,9 +40,11 @@ function statusTone(status: string) {
 function OrderDetailPage() {
   const { reference } = Route.useParams();
   const { addItem } = useCart();
+  const navigate = useNavigate();
   const [order, setOrder] = useState<CustomerOrder | null | undefined>(undefined);
   const [refund, setRefund] = useState<RefundRequest | null>(null);
   const [showRefundForm, setShowRefundForm] = useState(false);
+  const [reordering, setReordering] = useState(false);
 
   useEffect(() => {
     orderStore.getMine(reference).then((res) => setOrder(res.order));
@@ -64,21 +66,31 @@ function OrderDetailPage() {
     throw notFound();
   }
 
-  function handleReorder() {
+  async function handleReorder() {
     if (!order) return;
-    for (const it of order.items) {
-      addItem({
-        productId: it.productId,
-        productName: it.productName,
-        primaryImageUrl: it.primaryImageUrl,
-        size: it.size,
-        material: it.material,
-        finish: it.finish,
-        quantity: it.quantity,
-        unitPrice: it.unitPrice,
-      });
+    setReordering(true);
+    const res = await orderStore.reorder(order.reference);
+    if (res.ok) {
+      toast.success("Items added to cart");
+      navigate({ to: "/cart" });
+    } else {
+      // Fallback: add locally
+      for (const it of order.items) {
+        addItem({
+          productId: it.productId,
+          productName: it.productName,
+          primaryImageUrl: it.primaryImageUrl,
+          size: it.size,
+          material: it.material,
+          finish: it.finish,
+          quantity: it.quantity,
+          unitPrice: it.unitPrice,
+        });
+      }
+      toast.success("Items added to cart");
+      navigate({ to: "/cart" });
     }
-    toast.success("Items added to cart");
+    setReordering(false);
   }
 
   return (
@@ -106,8 +118,8 @@ function OrderDetailPage() {
                 <Undo2 className="h-3.5 w-3.5" /> Request refund
               </button>
             )}
-            <button onClick={handleReorder} className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
-              <RotateCcw className="h-3.5 w-3.5" /> Re-order
+            <button onClick={handleReorder} disabled={reordering} className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+              <RotateCcw className="h-3.5 w-3.5" /> {reordering ? "Adding…" : "Re-order"}
             </button>
           </div>
         </div>

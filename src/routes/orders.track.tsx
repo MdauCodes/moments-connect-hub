@@ -7,7 +7,14 @@ import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { orderStore, type CustomerOrder } from "@/services/orderStore";
 
-const searchSchema = z.object({ ref: z.string().optional(), contact: z.string().optional() });
+const searchSchema = z.object({ ref: z.string().optional() });
+
+function maskEmail(email: string): string {
+  if (!email || !email.includes("@")) return email ?? "";
+  const [user, domain] = email.split("@");
+  const u = user.length <= 2 ? user[0] + "*" : user[0] + "***" + user[user.length - 1];
+  return `${u}@${domain}`;
+}
 
 export const Route = createFileRoute("/orders/track")({
   validateSearch: searchSchema,
@@ -30,20 +37,17 @@ const inputCls =
 function TrackPage() {
   const initial = Route.useSearch();
   const [ref, setRef] = useState(initial.ref ?? "");
-  const [contact, setContact] = useState(initial.contact ?? "");
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<CustomerOrder | null>(null);
   const [searched, setSearched] = useState(false);
 
-  async function lookup(reference: string, c: string) {
+  async function lookup(reference: string) {
     setLoading(true);
     setSearched(true);
     try {
-      const { order: o } = c
-        ? await orderStore.lookup(reference, c)
-        : await orderStore.getStatus(reference);
+      const { order: o } = await orderStore.trackByReference(reference);
       setOrder(o);
-      if (!o) toast.error("No order found with those details");
+      if (!o) toast.error("No order found with that reference");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Lookup failed");
     } finally {
@@ -52,14 +56,14 @@ function TrackPage() {
   }
 
   useEffect(() => {
-    if (initial.ref) lookup(initial.ref, initial.contact ?? "");
+    if (initial.ref) lookup(initial.ref);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!ref.trim()) return;
-    lookup(ref.trim(), contact.trim());
+    lookup(ref.trim());
   }
 
   return (
@@ -67,12 +71,11 @@ function TrackPage() {
       <section className="mx-auto max-w-3xl px-5 py-12 lg:px-8 lg:py-16">
         <h1 className="font-display text-3xl sm:text-4xl">Track your order</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Enter the order reference we sent you. Add your email or phone for guest orders.
+          Enter the order reference we sent you to see live status and history.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+        <form onSubmit={handleSubmit} className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto]">
           <input className={inputCls} placeholder="Order reference (e.g. MP-12345)" value={ref} onChange={(e) => setRef(e.target.value)} />
-          <input className={inputCls} placeholder="Email or phone" value={contact} onChange={(e) => setContact(e.target.value)} />
           <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
             {loading ? <InlineProgress size="sm" /> : <Search className="h-4 w-4" />}
             Track
@@ -101,6 +104,7 @@ function TrackPage() {
               <div><dt className="text-muted-foreground">Placed</dt><dd>{new Date(order.createdAt).toLocaleString("en-KE")}</dd></div>
               <div><dt className="text-muted-foreground">Total</dt><dd className="font-semibold">{fmt(order.total)}</dd></div>
               <div><dt className="text-muted-foreground">Payment</dt><dd>{order.paymentStatus} · {order.paymentMethod}</dd></div>
+              <div><dt className="text-muted-foreground">Customer</dt><dd>{maskEmail(order.customerEmail)}</dd></div>
               <div><dt className="text-muted-foreground">Delivery to</dt><dd>{order.shippingAddress}, {order.city}</dd></div>
               {order.trackingNumber && <div><dt className="text-muted-foreground">Tracking #</dt><dd>{order.trackingNumber}</dd></div>}
             </dl>
