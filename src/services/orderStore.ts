@@ -286,14 +286,14 @@ export const orderStore = {
 
   /** Poll status — returns latest snapshot. */
   async getStatus(reference: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
-    const live = await tryLiveJson<CustomerOrder>(`/api/v1/public/orders/${encodeURIComponent(reference)}`);
+    const live = await tryLiveJson<Record<string, any>>(`/api/v1/orders/track/${encodeURIComponent(reference)}`);
     if (live) {
-      // Cache locally so /account/orders shows it.
+      const order = normalizeTrackingDto(live);
       const all = readAll();
-      const idx = all.findIndex((o) => o.reference === live.reference);
-      if (idx >= 0) all[idx] = live; else all.unshift(live);
+      const idx = all.findIndex((o) => o.reference === order.reference);
+      if (idx >= 0) all[idx] = order; else all.unshift(order);
       writeAll(all);
-      return { order: live, source: "live" };
+      return { order, source: "live" };
     }
     const found = readAll().find((o) => o.reference === reference) ?? null;
     return { order: found, source: "mock" };
