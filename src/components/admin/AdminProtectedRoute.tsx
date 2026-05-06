@@ -15,8 +15,11 @@ export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
   const hasRequiredRole = !requiredRole || !!user?.roles.includes(requiredRole);
 
   const redirectToLogin = () => {
-    const redirect = location.pathname.startsWith("/admin/login") ? "/admin/dashboard" : location.href;
-    void navigate({ to: "/login", search: { redirect } });
+    const onLoginPage =
+      location.pathname === "/login" ||
+      location.pathname.startsWith("/admin/login");
+    if (onLoginPage) return; // already at login — don't stack redirects
+    void navigate({ to: "/login", search: { redirect: location.href }, replace: true });
   };
 
   useEffect(() => {

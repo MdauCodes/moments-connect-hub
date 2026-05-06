@@ -101,7 +101,12 @@ export function AdminLoginPage({ redirect }: { redirect?: string }) {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const safeRedirect = redirect && !redirect.startsWith("/admin/login") ? redirect : "/admin/dashboard";
+  const safeRedirect =
+    redirect &&
+    !redirect.startsWith("/admin/login") &&
+    !redirect.startsWith("/login")
+      ? redirect
+      : "/admin/dashboard";
 
   useEffect(() => {
     if (isAuthenticated) {
