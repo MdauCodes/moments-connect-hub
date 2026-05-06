@@ -7,7 +7,14 @@ import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { orderStore, type CustomerOrder } from "@/services/orderStore";
 
-const searchSchema = z.object({ ref: z.string().optional(), contact: z.string().optional() });
+const searchSchema = z.object({ ref: z.string().optional() });
+
+function maskEmail(email: string): string {
+  if (!email || !email.includes("@")) return email ?? "";
+  const [user, domain] = email.split("@");
+  const u = user.length <= 2 ? user[0] + "*" : user[0] + "***" + user[user.length - 1];
+  return `${u}@${domain}`;
+}
 
 export const Route = createFileRoute("/orders/track")({
   validateSearch: searchSchema,
