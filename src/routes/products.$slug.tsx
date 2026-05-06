@@ -613,7 +613,7 @@ function ProductDetail() {
           </TabsContent>
 
           <TabsContent value="reviews" className="mt-6">
-            <ProductReviews productId={product.id} productName={product.name} />
+            <ProductReviews productId={product.id} productSlug={product.slug} productName={product.name} />
           </TabsContent>
         </Tabs>
       </section>
