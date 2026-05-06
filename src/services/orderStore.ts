@@ -5,13 +5,14 @@
 // localStorage-backed mock so the entire checkout → processing → success →
 // account/orders loop works even with no backend.
 //
-// Live endpoints assumed (backend will provide):
-//   POST   /api/v1/public/orders                -> create order (returns reference)
-//   POST   /api/v1/public/payments/mpesa/stk    -> trigger STK push
-//   GET    /api/v1/public/payments/{ref}/status -> poll payment status
-//   GET    /api/v1/public/orders/{ref}?email=   -> guest lookup
-//   GET    /api/v1/customer/orders              -> authed customer order list
-//   GET    /api/v1/customer/orders/{ref}        -> authed customer order detail
+// Live endpoints:
+//   POST   /api/v1/checkout                        -> create order
+//   POST   /api/v1/payments/initiate               -> trigger STK push
+//   GET    /api/v1/payments/status/{orderId}        -> poll payment status (UUID)
+//   GET    /api/v1/orders/track/{reference}         -> public order tracking
+//   GET    /api/v1/public/orders/{ref}?contact=     -> guest lookup
+//   GET    /api/v1/customer/orders                  -> authed order list
+//   GET    /api/v1/customer/orders/{ref}            -> authed order detail
 // ----------------------------------------------------------------------------
 
 import { apiUrl, apiFetch } from "@/config/api";
@@ -19,8 +20,16 @@ import { authFetch, getAccessToken } from "@/contexts/AuthContext";
 import type { CartItem } from "@/contexts/CartContext";
 
 export type CustomerOrderStatus =
-  | "AWAITING_PAYMENT" | "PAID" | "PROCESSING" | "PACKED"
-  | "SHIPPED" | "DELIVERED" | "CANCELLED" | "REFUNDED" | "PAYMENT_FAILED";
+  | "AWAITING_PAYMENT"
+  | "PENDING_PAYMENT"
+  | "PAID"
+  | "PROCESSING"
+  | "PACKED"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "REFUNDED"
+  | "PAYMENT_FAILED";
 
 export type CustomerPaymentStatus = "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED";
 
@@ -85,9 +94,35 @@ export interface PlaceOrderInput {
   sessionId?: string;
 }
 
+// ── Normalised status the UI cares about ─────────────────────────────────────
+export type PaymentPollStatus = "PROCESSING" | "SUCCESS" | "FAILED" | "UNKNOWN";
+
+export interface PaymentPollResult {
+  status: PaymentPollStatus;
+  message?: string;
+  orderReference?: string;
+  receiptNumber?: string;
+  failureReason?: string;
+}
+
+// ── Backend response shape from GET /api/v1/payments/status/{orderId} ────────
+interface BackendPaymentStatusResponse {
+  orderId?: string;
+  orderReference?: string;
+  status?: string; // PROCESSING | SUCCESS | FAILED | NO_PAYMENT
+  message?: string;
+  amount?: number;
+  receiptNumber?: string;
+  failureReason?: string;
+  paymentMethod?: string;
+}
+
+// ── localStorage helpers ──────────────────────────────────────────────────────
 const STORAGE_KEY = "mpk_customer_orders_v1";
 
-function isBrowser() { return typeof window !== "undefined"; }
+function isBrowser() {
+  return typeof window !== "undefined";
+}
 
 function readAll(): CustomerOrder[] {
   if (!isBrowser()) return [];
@@ -101,65 +136,21 @@ function readAll(): CustomerOrder[] {
 
 function writeAll(rows: CustomerOrder[]) {
   if (!isBrowser()) return;
-  try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); } catch { /* ignore */ }
-}
-
-function genRef(): string {
-  const n = Math.floor(Math.random() * 90000 + 10000);
-  return `MP-${n}`;
-}
-
-function genPaymentRef(): string {
-  return `Q${Math.random().toString(36).slice(2, 11).toUpperCase()}`;
-}
-
-function nowIso() { return new Date().toISOString(); }
-
-function buildOrderFromInput(input: PlaceOrderInput): CustomerOrder {
-  const subtotal = input.items.reduce((s, it) => s + it.lineTotal, 0);
-  const total = subtotal + input.shippingFee;
-  const ref = genRef();
-  const created = nowIso();
-  return {
-    reference: ref,
-    status: "AWAITING_PAYMENT",
-    paymentStatus: "PENDING",
-    paymentMethod: input.paymentMethod,
-    customerName: input.customer.name,
-    customerEmail: input.customer.email,
-    customerPhone: input.customer.phone,
-    shippingAddress: input.customer.address,
-    city: input.customer.city,
-    notes: input.customer.notes,
-    items: input.items.map((it) => ({
-      productId: it.productId,
-      productName: it.productName,
-      primaryImageUrl: it.primaryImageUrl,
-      size: it.size,
-      material: it.material,
-      finish: it.finish,
-      quantity: it.quantity,
-      unitPrice: it.unitPrice,
-      lineTotal: it.lineTotal,
-      variantLabel: it.variantLabel,
-      sku: it.sku,
-      isBackorder: it.isBackorder,
-    })),
-    subtotal,
-    shippingFee: input.shippingFee,
-    total,
-    currency: "KES",
-    createdAt: created,
-    updatedAt: created,
-    trackingEvents: [{ at: created, label: "Order placed", description: "Awaiting payment confirmation" }],
-  };
-}
-
-async function tryLiveJson<T>(input: string, init?: RequestInit, authed = false): Promise<T | null> {
   try {
-    const res = authed
-      ? await authFetch(apiUrl(input), init)
-      : await fetch(apiUrl(input), init);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+  } catch {
+    /* ignore */
+  }
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+// ── Fetch helpers ─────────────────────────────────────────────────────────────
+async function tryLiveJson<T>(path: string, init?: RequestInit, authed = false): Promise<T | null> {
+  try {
+    const res = authed ? await authFetch(apiUrl(path), init) : await fetch(apiUrl(path), init);
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
@@ -167,6 +158,7 @@ async function tryLiveJson<T>(input: string, init?: RequestInit, authed = false)
   }
 }
 
+// ── Order DTO normaliser (tracking endpoint) ──────────────────────────────────
 function normalizeTrackingDto(raw: Record<string, any>): CustomerOrder {
   return {
     id: raw.id,
@@ -204,10 +196,24 @@ function normalizeTrackingDto(raw: Record<string, any>): CustomerOrder {
   };
 }
 
+/**
+ * Maps the backend's normalised status string to the UI's PaymentPollStatus.
+ * Backend always returns one of: PROCESSING | SUCCESS | FAILED | NO_PAYMENT
+ */
+function mapBackendStatus(raw: string): PaymentPollStatus {
+  const s = raw.toUpperCase();
+  if (s === "SUCCESS") return "SUCCESS";
+  if (s === "FAILED") return "FAILED";
+  if (s === "PROCESSING" || s === "NO_PAYMENT") return "PROCESSING";
+  return "UNKNOWN";
+}
+
+// ── Order store ───────────────────────────────────────────────────────────────
 export const orderStore = {
-  /** Place an order. Strict: throws if the backend cannot be reached or
-   *  returns a non-2xx response. No mock fallback — the user must not
-   *  continue to payment unless the order is actually created server-side. */
+  /**
+   * Place an order. Strict: throws if the backend cannot be reached or
+   * returns a non-2xx response. No mock fallback.
+   */
   async placeOrder(input: PlaceOrderInput): Promise<{ order: CustomerOrder; source: "live" }> {
     const body: Record<string, unknown> = {
       contactName: input.customer.name,
@@ -244,13 +250,15 @@ export const orderStore = {
     }
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({} as { message?: string; error?: string }));
+      const err = await res.json().catch(() => ({}) as { message?: string; error?: string });
       const msg =
-        (err as { message?: string; error?: string }).message ??
-        (err as { message?: string; error?: string }).error ??
-        (res.status === 422 ? "Some details are invalid. Please review the form and try again." :
-         res.status === 401 ? "Please sign in to complete checkout." :
-         `Checkout failed (${res.status})`);
+        (err as any).message ??
+        (err as any).error ??
+        (res.status === 422
+          ? "Some details are invalid. Please review the form and try again."
+          : res.status === 401
+            ? "Please sign in to complete checkout."
+            : `Checkout failed (${res.status})`);
       throw new Error(msg);
     }
 
@@ -262,8 +270,10 @@ export const orderStore = {
     return { order, source: "live" };
   },
 
-  /** Trigger an STK push via the unified payments/initiate endpoint.
-   *  Strict: returns success only when the backend confirms initiation. */
+  /**
+   * Trigger an STK push.
+   * Uses POST /api/v1/payments/initiate with paymentMethod MPESA.
+   */
   async startMpesaStk(orderId: string, phone: string): Promise<{ success: boolean; message?: string }> {
     let res: Response;
     try {
@@ -274,25 +284,82 @@ export const orderStore = {
         json: { orderId, paymentMethod: "MPESA", phone },
       });
     } catch {
-      return { success: false, message: "Cannot reach the payment service. Check your connection and try again." };
+      return {
+        success: false,
+        message: "Cannot reach the payment service. Check your connection and try again.",
+      };
     }
     if (res.ok) return { success: true };
-    const err = await res.json().catch(() => ({} as { message?: string; error?: string }));
-    const msg =
-      (err as { message?: string; error?: string }).message ??
-      (err as { message?: string; error?: string }).error ??
-      `Payment initiation failed (${res.status})`;
-    return { success: false, message: msg };
+    const err = await res.json().catch(() => ({}) as { message?: string });
+    return {
+      success: false,
+      message: (err as any).message ?? `Payment initiation failed (${res.status})`,
+    };
   },
 
-  /** Poll status — returns latest snapshot. */
+  /**
+   * Poll payment status.
+   * Calls GET /api/v1/payments/status/{orderId} (orderId is the UUID from the order).
+   *
+   * Backend returns a PaymentStatusResponse with status always one of:
+   *   PROCESSING | SUCCESS | FAILED | NO_PAYMENT
+   *
+   * This method maps to PaymentPollResult so the UI has a single source of truth.
+   */
+  async getPaymentStatus(orderId: string): Promise<PaymentPollResult> {
+    try {
+      const res = await apiFetch(`/api/v1/payments/status/${encodeURIComponent(orderId)}`, {
+        session: true,
+        auth: true,
+      });
+
+      if (!res.ok) {
+        return { status: "UNKNOWN", message: `Status check failed (${res.status})` };
+      }
+
+      const data = (await res.json()) as BackendPaymentStatusResponse;
+      const status = mapBackendStatus(data.status ?? "");
+
+      // If payment succeeded, persist receipt into localStorage order cache
+      if (status === "SUCCESS" && data.orderReference) {
+        const all = readAll();
+        const idx = all.findIndex((o) => o.reference === data.orderReference || o.id === orderId);
+        if (idx >= 0) {
+          all[idx] = {
+            ...all[idx],
+            paymentStatus: "SUCCESS",
+            receiptNumber: data.receiptNumber ?? all[idx].receiptNumber,
+            paymentReference: data.receiptNumber ?? all[idx].paymentReference,
+            updatedAt: nowIso(),
+          };
+          writeAll(all);
+        }
+      }
+
+      return {
+        status,
+        message: data.message,
+        orderReference: data.orderReference,
+        receiptNumber: data.receiptNumber,
+        failureReason: data.failureReason,
+      };
+    } catch {
+      return { status: "UNKNOWN", message: "Network error checking payment status." };
+    }
+  },
+
+  /**
+   * Public order tracking by reference — no auth required.
+   * Uses GET /api/v1/orders/track/{reference}.
+   */
   async getStatus(reference: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
     const live = await tryLiveJson<Record<string, any>>(`/api/v1/orders/track/${encodeURIComponent(reference)}`);
     if (live) {
       const order = normalizeTrackingDto(live);
       const all = readAll();
       const idx = all.findIndex((o) => o.reference === order.reference);
-      if (idx >= 0) all[idx] = order; else all.unshift(order);
+      if (idx >= 0) all[idx] = order;
+      else all.unshift(order);
       writeAll(all);
       return { order, source: "live" };
     }
@@ -300,39 +367,53 @@ export const orderStore = {
     return { order: found, source: "mock" };
   },
 
-  /** Guest lookup — needs reference + email or phone for verification. */
+  /** Guest lookup — reference + email or phone. */
   async lookup(reference: string, contact: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
     const live = await tryLiveJson<CustomerOrder>(
       `/api/v1/public/orders/${encodeURIComponent(reference)}?contact=${encodeURIComponent(contact)}`,
     );
     if (live) return { order: live, source: "live" };
     const c = contact.trim().toLowerCase();
-    const found = readAll().find((o) =>
-      o.reference === reference &&
-      (o.customerEmail.toLowerCase() === c || o.customerPhone.replace(/\s+/g, "") === contact.replace(/\s+/g, "")),
-    ) ?? null;
+    const found =
+      readAll().find(
+        (o) =>
+          o.reference === reference &&
+          (o.customerEmail.toLowerCase() === c || o.customerPhone.replace(/\s+/g, "") === contact.replace(/\s+/g, "")),
+      ) ?? null;
     return { order: found, source: "mock" };
   },
 
-  /** Public order tracking by reference (no contact required). */
+  /** Public order tracking by reference (alias for getStatus). */
   async trackByReference(reference: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
-    const live = await tryLiveJson<Record<string, any>>(`/api/v1/orders/track/${encodeURIComponent(reference)}`);
-    if (live) return { order: normalizeTrackingDto(live), source: "live" };
-    const found = readAll().find((o) => o.reference === reference) ?? null;
-    return { order: found, source: "mock" };
+    return this.getStatus(reference);
   },
 
-  /** Authed: list current customer's orders (paginated). */
-  async listMine(page = 0, size = 20): Promise<{ rows: CustomerOrder[]; total: number; page: number; totalPages: number; source: "live" | "mock" }> {
+  /** Authed: list current customer's orders. */
+  async listMine(
+    page = 0,
+    size = 20,
+  ): Promise<{
+    rows: CustomerOrder[];
+    total: number;
+    page: number;
+    totalPages: number;
+    source: "live" | "mock";
+  }> {
     if (getAccessToken()) {
-      const live = await tryLiveJson<CustomerOrder[] | { content: CustomerOrder[]; totalElements?: number; totalPages?: number; number?: number }>(
-        `/api/v1/customer/orders?page=${page}&size=${size}`, undefined, true,
-      );
+      const live = await tryLiveJson<
+        | CustomerOrder[]
+        | {
+            content: CustomerOrder[];
+            totalElements?: number;
+            totalPages?: number;
+            number?: number;
+          }
+      >(`/api/v1/customer/orders?page=${page}&size=${size}`, undefined, true);
       if (live) {
-        const rows = Array.isArray(live) ? live : live.content ?? [];
-        const totalElements = Array.isArray(live) ? rows.length : live.totalElements ?? rows.length;
-        const totalPages = Array.isArray(live) ? 1 : live.totalPages ?? 1;
-        const number = Array.isArray(live) ? page : live.number ?? page;
+        const rows = Array.isArray(live) ? live : (live.content ?? []);
+        const totalElements = Array.isArray(live) ? rows.length : (live.totalElements ?? rows.length);
+        const totalPages = Array.isArray(live) ? 1 : (live.totalPages ?? 1);
+        const number = Array.isArray(live) ? page : (live.number ?? page);
         return { rows, total: totalElements, page: number, totalPages, source: "live" };
       }
     }
@@ -342,14 +423,18 @@ export const orderStore = {
 
   async getMine(reference: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
     if (getAccessToken()) {
-      const live = await tryLiveJson<CustomerOrder>(`/api/v1/customer/orders/${encodeURIComponent(reference)}`, undefined, true);
+      const live = await tryLiveJson<CustomerOrder>(
+        `/api/v1/customer/orders/${encodeURIComponent(reference)}`,
+        undefined,
+        true,
+      );
       if (live) return { order: live, source: "live" };
     }
     const found = readAll().find((o) => o.reference === reference) ?? null;
     return { order: found, source: "mock" };
   },
 
-  /** Reorder: re-add the items from a past order to the cart on the backend. */
+  /** Reorder: re-add past order items to cart. */
   async reorder(reference: string): Promise<{ ok: boolean; message?: string }> {
     try {
       const res = await apiFetch(`/api/v1/customer/orders/${encodeURIComponent(reference)}/reorder`, {
@@ -358,8 +443,11 @@ export const orderStore = {
         session: true,
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({} as { message?: string }));
-        return { ok: false, message: (err as { message?: string }).message ?? `Reorder failed (${res.status})` };
+        const err = await res.json().catch(() => ({}) as { message?: string });
+        return {
+          ok: false,
+          message: (err as any).message ?? `Reorder failed (${res.status})`,
+        };
       }
       return { ok: true };
     } catch (err) {
@@ -367,7 +455,10 @@ export const orderStore = {
     }
   },
 
-  /** Initiate a PayHero (M-Pesa STK) payment for an order. */
+  /**
+   * Initiate a PayHero (M-Pesa STK) payment for an order.
+   * Alias that matches the older call signature some components may use.
+   */
   async initiatePayment(orderId: string, phone: string, paymentMethod: CheckoutPaymentMethod = "PAYHERO") {
     try {
       const res = await apiFetch("/api/v1/payments/initiate", {
@@ -377,54 +468,24 @@ export const orderStore = {
         json: { orderId, paymentMethod, phone },
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({} as { message?: string }));
-        return { ok: false as const, message: (err as { message?: string }).message ?? `Payment initiation failed (${res.status})` };
+        const err = await res.json().catch(() => ({}) as { message?: string });
+        return {
+          ok: false as const,
+          message: (err as any).message ?? `Payment initiation failed (${res.status})`,
+        };
       }
       const data = await res.json().catch(() => ({}));
       return { ok: true as const, data };
     } catch (err) {
-      return { ok: false as const, message: err instanceof Error ? err.message : "Network error" };
-    }
-  },
-
-  /** Poll a payment's status by orderId. */
-  async getPaymentStatus(orderId: string): Promise<{ status: "PENDING" | "SUCCESS" | "FAILED" | "UNKNOWN"; message?: string; reference?: string; receiptNumber?: string }> {
-    try {
-      const res = await apiFetch(`/api/v1/payments/status/${encodeURIComponent(orderId)}`, {
-        session: true,
-        auth: true,
-      });
-      if (!res.ok) return { status: "UNKNOWN" };
-      const data = (await res.json()) as { status?: string; message?: string; reference?: string; orderReference?: string };
-      const raw = String(data.status ?? "").toUpperCase();
-      const status: "PENDING" | "SUCCESS" | "FAILED" | "UNKNOWN" =
-        raw === "SUCCESS" || raw === "PAID" || raw === "COMPLETED" ? "SUCCESS"
-        : raw === "FAILED" || raw === "CANCELLED" || raw === "ERROR" ? "FAILED"
-        : raw === "PENDING" || raw === "PROCESSING" ? "PENDING"
-        : "UNKNOWN";
-      const reference = data.reference ?? data.orderReference;
-      const receiptNumber = (data as { receiptNumber?: string }).receiptNumber;
-      if (status === "SUCCESS" && reference) {
-        const all = readAll();
-        const idx = all.findIndex((o) => o.reference === reference || o.id === orderId);
-        if (idx >= 0) {
-          all[idx] = {
-            ...all[idx],
-            paymentStatus: "SUCCESS",
-            paymentReference: receiptNumber ?? all[idx].paymentReference,
-            receiptNumber: receiptNumber ?? all[idx].receiptNumber,
-            updatedAt: nowIso(),
-          };
-          writeAll(all);
-        }
-      }
-      return { status, message: data.message, reference, receiptNumber };
-    } catch {
-      return { status: "UNKNOWN" };
+      return {
+        ok: false as const,
+        message: err instanceof Error ? err.message : "Network error",
+      };
     }
   },
 };
 
+// ── Shipping helpers ──────────────────────────────────────────────────────────
 export const SHIPPING_THRESHOLD_KES = 5000;
 export const SHIPPING_FLAT_KES = 350;
 export function computeShippingFee(subtotal: number): number {
