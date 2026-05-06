@@ -40,9 +40,11 @@ function statusTone(status: string) {
 function OrderDetailPage() {
   const { reference } = Route.useParams();
   const { addItem } = useCart();
+  const navigate = useNavigate();
   const [order, setOrder] = useState<CustomerOrder | null | undefined>(undefined);
   const [refund, setRefund] = useState<RefundRequest | null>(null);
   const [showRefundForm, setShowRefundForm] = useState(false);
+  const [reordering, setReordering] = useState(false);
 
   useEffect(() => {
     orderStore.getMine(reference).then((res) => setOrder(res.order));
@@ -64,21 +66,31 @@ function OrderDetailPage() {
     throw notFound();
   }
 
-  function handleReorder() {
+  async function handleReorder() {
     if (!order) return;
-    for (const it of order.items) {
-      addItem({
-        productId: it.productId,
-        productName: it.productName,
-        primaryImageUrl: it.primaryImageUrl,
-        size: it.size,
-        material: it.material,
-        finish: it.finish,
-        quantity: it.quantity,
-        unitPrice: it.unitPrice,
-      });
+    setReordering(true);
+    const res = await orderStore.reorder(order.reference);
+    if (res.ok) {
+      toast.success("Items added to cart");
+      navigate({ to: "/cart" });
+    } else {
+      // Fallback: add locally
+      for (const it of order.items) {
+        addItem({
+          productId: it.productId,
+          productName: it.productName,
+          primaryImageUrl: it.primaryImageUrl,
+          size: it.size,
+          material: it.material,
+          finish: it.finish,
+          quantity: it.quantity,
+          unitPrice: it.unitPrice,
+        });
+      }
+      toast.success("Items added to cart");
+      navigate({ to: "/cart" });
     }
-    toast.success("Items added to cart");
+    setReordering(false);
   }
 
   return (
