@@ -108,13 +108,21 @@ function CheckoutPage() {
 
       // Only initiate STK push after a successful checkout that returned an orderId
       const orderId = order.id ?? order.reference;
-      if (orderId) {
-        const init = await orderStore.startMpesaStk(orderId, phoneNormalized);
-        if (!init.success) {
-          toast.error("Could not start M-Pesa prompt — please retry");
-          setSubmitting(false);
-          return;
-        }
+      if (!orderId) {
+        toast.error("Checkout response missing order id — please try again.");
+        setSubmitting(false);
+        return;
+      }
+      const init = await orderStore.startMpesaStk(orderId, phoneNormalized);
+      if (!init.success) {
+        toast.error(init.message ?? "Could not start M-Pesa prompt — please retry");
+        // Order exists on backend — send to retry screen instead of losing it
+        clearCart();
+        navigate({
+          to: "/checkout/failed",
+          search: { ref: order.reference, reason: init.message ?? "stk_init_failed" },
+        });
+        return;
       }
 
       // Clear cart now — order is persisted in orderStore for tracking
