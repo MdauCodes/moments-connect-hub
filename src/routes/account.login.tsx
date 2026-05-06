@@ -4,6 +4,7 @@ import { InlineProgress } from "@/components/InlineProgress";
 import { toast } from "sonner";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
+import { PasswordInput } from "@/components/PasswordInput";
 import { useAuth } from "@/contexts/AuthContext";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
