@@ -42,7 +42,7 @@ function SuccessPage() {
           {order && (
             <dl className="mx-auto mt-8 max-w-md space-y-2 rounded-xl border border-border bg-background/50 p-5 text-left text-sm">
               <div className="flex justify-between"><dt className="text-muted-foreground">Reference</dt><dd className="font-mono">{order.reference}</dd></div>
-              <div className="flex justify-between"><dt className="text-muted-foreground">M-Pesa code</dt><dd className="font-mono">{order.paymentReference ?? "—"}</dd></div>
+              <div className="flex justify-between"><dt className="text-muted-foreground">M-Pesa code</dt><dd className="font-mono">{order.paymentReference ?? order.receiptNumber ?? "—"}</dd></div>
               <div className="flex justify-between"><dt className="text-muted-foreground">Items</dt><dd>{order.items.length}</dd></div>
               <div className="flex justify-between border-t border-border pt-2"><dt className="text-muted-foreground">Total paid</dt><dd className="font-semibold">{fmt(order.total)}</dd></div>
               <div className="flex justify-between"><dt className="text-muted-foreground">Delivery to</dt><dd className="text-right">{order.shippingAddress}, {order.city}</dd></div>

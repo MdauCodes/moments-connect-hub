@@ -63,6 +63,7 @@ export interface CustomerOrder {
   createdAt: string;
   updatedAt: string;
   trackingNumber?: string;
+  receiptNumber?: string;
   trackingEvents?: { at: string; label: string; description?: string }[];
 }
 
@@ -387,7 +388,7 @@ export const orderStore = {
   },
 
   /** Poll a payment's status by orderId. */
-  async getPaymentStatus(orderId: string): Promise<{ status: "PENDING" | "SUCCESS" | "FAILED" | "UNKNOWN"; message?: string; reference?: string }> {
+  async getPaymentStatus(orderId: string): Promise<{ status: "PENDING" | "SUCCESS" | "FAILED" | "UNKNOWN"; message?: string; reference?: string; receiptNumber?: string }> {
     try {
       const res = await apiFetch(`/api/v1/payments/status/${encodeURIComponent(orderId)}`, {
         session: true,
@@ -401,7 +402,23 @@ export const orderStore = {
         : raw === "FAILED" || raw === "CANCELLED" || raw === "ERROR" ? "FAILED"
         : raw === "PENDING" || raw === "PROCESSING" ? "PENDING"
         : "UNKNOWN";
-      return { status, message: data.message, reference: data.reference ?? data.orderReference };
+      const reference = data.reference ?? data.orderReference;
+      const receiptNumber = (data as { receiptNumber?: string }).receiptNumber;
+      if (status === "SUCCESS" && reference) {
+        const all = readAll();
+        const idx = all.findIndex((o) => o.reference === reference || o.id === orderId);
+        if (idx >= 0) {
+          all[idx] = {
+            ...all[idx],
+            paymentStatus: "SUCCESS",
+            paymentReference: receiptNumber ?? all[idx].paymentReference,
+            receiptNumber: receiptNumber ?? all[idx].receiptNumber,
+            updatedAt: nowIso(),
+          };
+          writeAll(all);
+        }
+      }
+      return { status, message: data.message, reference, receiptNumber };
     } catch {
       return { status: "UNKNOWN" };
     }
