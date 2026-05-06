@@ -104,6 +104,7 @@ function TrackPage() {
               <div><dt className="text-muted-foreground">Placed</dt><dd>{new Date(order.createdAt).toLocaleString("en-KE")}</dd></div>
               <div><dt className="text-muted-foreground">Total</dt><dd className="font-semibold">{fmt(order.total)}</dd></div>
               <div><dt className="text-muted-foreground">Payment</dt><dd>{order.paymentStatus} · {order.paymentMethod}</dd></div>
+              <div><dt className="text-muted-foreground">Customer</dt><dd>{maskEmail(order.customerEmail)}</dd></div>
               <div><dt className="text-muted-foreground">Delivery to</dt><dd>{order.shippingAddress}, {order.city}</dd></div>
               {order.trackingNumber && <div><dt className="text-muted-foreground">Tracking #</dt><dd>{order.trackingNumber}</dd></div>}
             </dl>
