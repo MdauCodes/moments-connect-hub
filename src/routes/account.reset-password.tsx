@@ -5,6 +5,7 @@ import { KeyRound, CheckCircle2, AlertCircle } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
+import { PasswordInput } from "@/components/PasswordInput";
 import { passwordStore } from "@/services/passwordStore";
 
 const searchSchema = z.object({ token: z.string().optional() });
