@@ -33,7 +33,7 @@ function AdminOrdersPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listOrders({ status, q, page, size: PAGE_SIZE })
+    listOrders({ status: status === "ALL" ? undefined : status, q: q || undefined, page, size: PAGE_SIZE })
       .then((res) => { if (!cancelled) setData(res); })
       .catch((err) => toast.error(err instanceof Error ? err.message : "Failed to load orders"))
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -93,7 +93,7 @@ function AdminOrdersPage() {
             <button
               className="admin-btn admin-btn-ghost"
               onClick={async () => {
-                const { rows } = await exportOrders({ status, q });
+                const { rows } = await exportOrders({ status: status === "ALL" ? undefined : status, q: q || undefined });
                 downloadCsv(`orders-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows.map((o) => ({
                   reference: o.reference, status: o.status, payment: o.paymentStatus, gateway: o.paymentGateway,
                   customer: o.customerName, email: o.customerEmail, phone: o.customerPhone, city: o.city,
