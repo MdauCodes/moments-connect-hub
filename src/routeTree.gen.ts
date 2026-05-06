@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as OrderConfirmationRouteImport } from './routes/order-confirmation'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndustriesRouteImport } from './routes/industries'
 import { Route as EnterpriseQuoteRouteImport } from './routes/enterprise-quote'
@@ -69,6 +70,11 @@ const StaffRoute = StaffRouteImport.update({
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderConfirmationRoute = OrderConfirmationRouteImport.update({
+  id: '/order-confirmation',
+  path: '/order-confirmation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -331,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/enterprise-quote': typeof EnterpriseQuoteRoute
   '/industries': typeof IndustriesRoute
   '/login': typeof LoginRoute
+  '/order-confirmation': typeof OrderConfirmationRoute
   '/products': typeof ProductsRouteWithChildren
   '/staff': typeof StaffRoute
   '/account/dashboard': typeof AccountDashboardRoute
@@ -383,6 +390,7 @@ export interface FileRoutesByTo {
   '/enterprise-quote': typeof EnterpriseQuoteRoute
   '/industries': typeof IndustriesRoute
   '/login': typeof LoginRoute
+  '/order-confirmation': typeof OrderConfirmationRoute
   '/products': typeof ProductsRouteWithChildren
   '/staff': typeof StaffRoute
   '/account/dashboard': typeof AccountDashboardRoute
@@ -437,6 +445,7 @@ export interface FileRoutesById {
   '/enterprise-quote': typeof EnterpriseQuoteRoute
   '/industries': typeof IndustriesRoute
   '/login': typeof LoginRoute
+  '/order-confirmation': typeof OrderConfirmationRoute
   '/products': typeof ProductsRouteWithChildren
   '/staff': typeof StaffRoute
   '/account/dashboard': typeof AccountDashboardRoute
@@ -491,6 +500,7 @@ export interface FileRouteTypes {
     | '/enterprise-quote'
     | '/industries'
     | '/login'
+    | '/order-confirmation'
     | '/products'
     | '/staff'
     | '/account/dashboard'
@@ -543,6 +553,7 @@ export interface FileRouteTypes {
     | '/enterprise-quote'
     | '/industries'
     | '/login'
+    | '/order-confirmation'
     | '/products'
     | '/staff'
     | '/account/dashboard'
@@ -596,6 +607,7 @@ export interface FileRouteTypes {
     | '/enterprise-quote'
     | '/industries'
     | '/login'
+    | '/order-confirmation'
     | '/products'
     | '/staff'
     | '/account/dashboard'
@@ -650,6 +662,7 @@ export interface RootRouteChildren {
   EnterpriseQuoteRoute: typeof EnterpriseQuoteRoute
   IndustriesRoute: typeof IndustriesRoute
   LoginRoute: typeof LoginRoute
+  OrderConfirmationRoute: typeof OrderConfirmationRoute
   ProductsRoute: typeof ProductsRouteWithChildren
   StaffRoute: typeof StaffRoute
   AccountDashboardRoute: typeof AccountDashboardRoute
@@ -681,6 +694,13 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/order-confirmation': {
+      id: '/order-confirmation'
+      path: '/order-confirmation'
+      fullPath: '/order-confirmation'
+      preLoaderRoute: typeof OrderConfirmationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1187,6 +1207,7 @@ const rootRouteChildren: RootRouteChildren = {
   EnterpriseQuoteRoute: EnterpriseQuoteRoute,
   IndustriesRoute: IndustriesRoute,
   LoginRoute: LoginRoute,
+  OrderConfirmationRoute: OrderConfirmationRoute,
   ProductsRoute: ProductsRouteWithChildren,
   StaffRoute: StaffRoute,
   AccountDashboardRoute: AccountDashboardRoute,
