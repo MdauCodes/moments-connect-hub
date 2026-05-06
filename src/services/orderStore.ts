@@ -39,11 +39,14 @@ export interface CustomerOrderItem {
   isBackorder?: boolean;
 }
 
+export type CheckoutPaymentMethod = "PAYHERO" | "CASH_ON_DELIVERY" | "BANK_TRANSFER" | "MPESA" | "CARD" | "BANK";
+
 export interface CustomerOrder {
+  id?: string;
   reference: string;
   status: CustomerOrderStatus;
   paymentStatus: CustomerPaymentStatus;
-  paymentMethod: "MPESA" | "CARD" | "BANK";
+  paymentMethod: CheckoutPaymentMethod;
   paymentReference?: string;
   failureReason?: string;
   customerName: string;
@@ -74,7 +77,7 @@ export interface PlaceOrderInput {
     notes?: string;
   };
   shippingFee: number;
-  paymentMethod: "MPESA";
+  paymentMethod: CheckoutPaymentMethod;
 }
 
 const STORAGE_KEY = "mpk_customer_orders_v1";
@@ -287,6 +290,47 @@ export const orderStore = {
     }
     const found = readAll().find((o) => o.reference === reference) ?? null;
     return { order: found, source: "mock" };
+  },
+
+  /** Initiate a PayHero (M-Pesa STK) payment for an order. */
+  async initiatePayment(orderId: string, phone: string, paymentMethod: CheckoutPaymentMethod = "PAYHERO") {
+    try {
+      const res = await apiFetch("/api/v1/payments/initiate", {
+        method: "POST",
+        session: true,
+        auth: true,
+        json: { orderId, paymentMethod, phone },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({} as { message?: string }));
+        return { ok: false as const, message: (err as { message?: string }).message ?? `Payment initiation failed (${res.status})` };
+      }
+      const data = await res.json().catch(() => ({}));
+      return { ok: true as const, data };
+    } catch (err) {
+      return { ok: false as const, message: err instanceof Error ? err.message : "Network error" };
+    }
+  },
+
+  /** Poll a payment's status by orderId. */
+  async getPaymentStatus(orderId: string): Promise<{ status: "PENDING" | "SUCCESS" | "FAILED" | "UNKNOWN"; message?: string; reference?: string }> {
+    try {
+      const res = await apiFetch(`/api/v1/payments/status/${encodeURIComponent(orderId)}`, {
+        session: true,
+        auth: true,
+      });
+      if (!res.ok) return { status: "UNKNOWN" };
+      const data = (await res.json()) as { status?: string; message?: string; reference?: string; orderReference?: string };
+      const raw = String(data.status ?? "").toUpperCase();
+      const status: "PENDING" | "SUCCESS" | "FAILED" | "UNKNOWN" =
+        raw === "SUCCESS" || raw === "PAID" || raw === "COMPLETED" ? "SUCCESS"
+        : raw === "FAILED" || raw === "CANCELLED" || raw === "ERROR" ? "FAILED"
+        : raw === "PENDING" || raw === "PROCESSING" ? "PENDING"
+        : "UNKNOWN";
+      return { status, message: data.message, reference: data.reference ?? data.orderReference };
+    } catch {
+      return { status: "UNKNOWN" };
+    }
   },
 };
 
