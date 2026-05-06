@@ -14,7 +14,7 @@
 //   GET    /api/v1/customer/orders/{ref}        -> authed customer order detail
 // ----------------------------------------------------------------------------
 
-import { apiUrl } from "@/config/api";
+import { apiUrl, apiFetch } from "@/config/api";
 import { authFetch, getAccessToken } from "@/contexts/AuthContext";
 import type { CartItem } from "@/contexts/CartContext";
 
@@ -163,22 +163,27 @@ export const orderStore = {
   /** Place an order. Always persists to local store too so the user has
    *  something to come back to even if the backend later forgets it. */
   async placeOrder(input: PlaceOrderInput): Promise<{ order: CustomerOrder; source: "live" | "mock" }> {
-    const live = await tryLiveJson<CustomerOrder>("/api/v1/public/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: input.items.map((it) => ({
-          productId: it.productId,
-          quantity: it.quantity,
-          size: it.size,
-          material: it.material,
-          finish: it.finish,
-        })),
-        customer: input.customer,
-        shippingFee: input.shippingFee,
-        paymentMethod: input.paymentMethod,
-      }),
-    }, !!getAccessToken());
+    let live: CustomerOrder | null = null;
+    try {
+      const res = await apiFetch("/api/v1/checkout", {
+        method: "POST",
+        session: true,
+        auth: true,
+        json: {
+          items: input.items.map((it) => ({
+            productId: it.productId,
+            quantity: it.quantity,
+            size: it.size,
+            material: it.material,
+            finish: it.finish,
+          })),
+          customer: input.customer,
+          shippingFee: input.shippingFee,
+          paymentMethod: input.paymentMethod,
+        },
+      });
+      if (res.ok) live = (await res.json()) as CustomerOrder;
+    } catch { /* fall back to local */ }
 
     const order = live ?? buildOrderFromInput(input);
     const all = readAll();

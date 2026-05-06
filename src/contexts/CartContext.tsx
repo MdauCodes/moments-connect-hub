@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import { apiFetch } from "@/config/api";
 
 export interface CartItem {
   id: string;
@@ -85,23 +86,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
       );
       if (idx >= 0) {
         const next = [...prev];
-        const merged = {
-          ...next[idx],
-          quantity: next[idx].quantity + input.quantity,
-        };
+        const merged = { ...next[idx], quantity: next[idx].quantity + input.quantity };
         merged.lineTotal = merged.quantity * merged.unitPrice;
         next[idx] = merged;
         return next;
       }
       return [
         ...prev,
-        {
-          ...input,
-          id: genId(),
-          lineTotal: input.quantity * input.unitPrice,
-        },
+        { ...input, id: genId(), lineTotal: input.quantity * input.unitPrice },
       ];
     });
+    // Sync to backend (best-effort)
+    void apiFetch("/api/v1/cart/items", {
+      method: "POST",
+      session: true,
+      auth: true,
+      json: {
+        productId: input.productId,
+        variantId: input.variantId,
+        quantity: input.quantity,
+        size: input.size,
+        material: input.material,
+        finish: input.finish,
+        unitPrice: input.unitPrice,
+      },
+    }).catch(() => { /* keep local cart even if backend rejects */ });
   };
 
   const removeItem = (id: string) =>

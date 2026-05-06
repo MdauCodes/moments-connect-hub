@@ -1,11 +1,8 @@
-import { products, industries } from "@/data/products";
+import { industries } from "@/data/products";
 import { blogStore } from "@/services/blogStore";
-import { searchProducts as rankSearch } from "@/services/search";
-import { API_BASE_URL, apiUrl } from "@/config/api";
+import { apiUrl } from "@/config/api";
 import type { Product, Industry } from "@/data/products";
 import type { Blog, BlogStatus, BlogTemplate } from "@/data/blogs";
-
-const USE_MOCKS = import.meta.env.VITE_USE_MOCK_DATA === "true";
 
 type PageResponse<T> = { content: T[] };
 type ProductApiDto = Partial<Product> & {
@@ -123,129 +120,93 @@ export const api = {
     size?: number;
     sort?: string;
   }) => {
-    if (!USE_MOCKS && API_BASE_URL) {
-      const flat: Record<string, string | number | boolean | undefined> = {
-        industryId: params?.industryId,
-        isDiscount: params?.isDiscount,
-        isNewArrival: params?.isNewArrival,
-        isFastMoving: params?.isFastMoving,
-        category: params?.category,
-        page: params?.page ?? 0,
-        size: params?.size ?? 20,
-        sort: params?.sort ?? "createdAt,desc",
-      };
-      // Multi-industry support: backend accepts repeated industryId params
-      const search = new URLSearchParams();
-      Object.entries(flat).forEach(([k, v]) => {
-        if (v !== undefined && v !== "") search.set(k, String(v));
-      });
-      if (params?.industryIds?.length) {
-        params.industryIds.forEach((id) => search.append("industryId", id));
-      }
-      const data = await getJson<PageResponse<Product> | Product[]>(
-        `/api/v1/public/products?${search.toString()}`,
-      );
-      return (Array.isArray(data) ? data : data.content).map(normalizeProduct);
-    }
-    let result = [...products];
-    if (params?.industryId) result = result.filter((p) => p.industryIds.includes(params.industryId!));
+    const flat: Record<string, string | number | boolean | undefined> = {
+      industryId: params?.industryId,
+      isDiscount: params?.isDiscount,
+      isNewArrival: params?.isNewArrival,
+      isFastMoving: params?.isFastMoving,
+      category: params?.category,
+      page: params?.page ?? 0,
+      size: params?.size ?? 20,
+      sort: params?.sort ?? "createdAt,desc",
+    };
+    const search = new URLSearchParams();
+    Object.entries(flat).forEach(([k, v]) => {
+      if (v !== undefined && v !== "") search.set(k, String(v));
+    });
     if (params?.industryIds?.length) {
-      const set = new Set(params.industryIds);
-      result = result.filter((p) => p.industryIds.some((id) => set.has(id)));
+      params.industryIds.forEach((id) => search.append("industryId", id));
     }
-    if (params?.isDiscount) result = result.filter((p) => p.isDiscount);
-    if (params?.isNewArrival) result = result.filter((p) => p.isNewArrival);
-    if (params?.isFastMoving) result = result.filter((p) => p.isFastMoving);
-    if (params?.category) {
-      const c = params.category.toLowerCase();
-      result = result.filter((p) => p.category.toLowerCase().includes(c));
-    }
-    return result;
+    const data = await getJson<PageResponse<Product> | Product[]>(
+      `/api/v1/public/products?${search.toString()}`,
+    );
+    return (Array.isArray(data) ? data : data.content).map(normalizeProduct);
   },
 
   // GET /api/v1/public/products/search?q=&limit=
   searchProducts: async (q: string, limit?: number) => {
     if (!q || q.trim().length < 2) return [];
-    if (!USE_MOCKS && API_BASE_URL) {
-      const data = await getJson<Product[]>(
-        `/api/v1/public/products/search${qs({ q: q.trim(), limit })}`,
-      );
-      return data.map(normalizeProduct);
-    }
-    return rankSearch(products, q, limit);
+    const data = await getJson<Product[]>(
+      `/api/v1/public/products/search${qs({ q: q.trim(), limit })}`,
+    );
+    return data.map(normalizeProduct);
   },
 
   // GET /api/v1/public/products/recommended
   getRecommended: async () => {
-    if (!USE_MOCKS && API_BASE_URL) {
-      const data = await getJson<Product[]>("/api/v1/public/products/recommended");
-      return data.map(normalizeProduct);
-    }
-    return [...products].sort((a, b) => b.monthlyClicks - a.monthlyClicks).slice(0, 4);
+    const data = await getJson<Product[]>("/api/v1/public/products/recommended");
+    return data.map(normalizeProduct);
   },
 
   // GET /api/v1/public/industries
   getIndustries: async () => {
-    if (!USE_MOCKS && API_BASE_URL) {
-      const data = await getJson<Array<Partial<Industry> & { displayId?: number }>>(
-        "/api/v1/public/industries",
-      );
-      return data.map(normalizeIndustry);
-    }
-    return industries;
+    const data = await getJson<Array<Partial<Industry> & { displayId?: number }>>(
+      "/api/v1/public/industries",
+    );
+    return data.map(normalizeIndustry);
   },
 
   // GET /api/v1/public/products/{slug}
   getProductBySlug: async (slug: string): Promise<Product | null> => {
-    if (!USE_MOCKS && API_BASE_URL) {
-      try {
-        const data = await getJson<Product>(`/api/v1/public/products/${encodeURIComponent(slug)}`);
-        return normalizeProduct(data);
-      } catch {
-        return null;
-      }
+    try {
+      const data = await getJson<Product>(`/api/v1/public/products/${encodeURIComponent(slug)}`);
+      return normalizeProduct(data);
+    } catch {
+      return null;
     }
-    return products.find((p) => p.slug === slug) ?? null;
   },
 
   // POST /api/v1/public/enquiries
   submitEnquiry: async (payload: unknown) => {
-    if (!USE_MOCKS && API_BASE_URL) {
-      const res = await fetch(apiUrl("/api/v1/public/enquiries"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`Enquiry failed: ${res.status}`);
-      return res.json() as Promise<{ id: string; reference?: string; success?: boolean }>;
-    }
-    console.log("MOCK submitEnquiry:", payload);
-    return { success: true, id: "mock-id-001" };
+    const res = await fetch(apiUrl("/api/v1/public/enquiries"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Enquiry failed: ${res.status}`);
+    return res.json() as Promise<{ id: string; reference?: string; success?: boolean }>;
   },
 
   // POST /api/v1/public/leads
   submitLead: async (email: string, persona: string) => {
-    if (!USE_MOCKS && API_BASE_URL) {
-      const res = await fetch(apiUrl("/api/v1/public/leads"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, persona }),
-      });
-      if (!res.ok) throw new Error(`Lead capture failed: ${res.status}`);
-      return { success: true };
-    }
-    console.log("MOCK submitLead:", email, persona);
+    const res = await fetch(apiUrl("/api/v1/public/leads"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, persona }),
+    });
+    if (!res.ok) throw new Error(`Lead capture failed: ${res.status}`);
     return { success: true };
   },
 
   // POST /api/v1/public/products/{id}/click
   trackClick: async (productId: string) => {
-    if (!USE_MOCKS && API_BASE_URL) {
+    try {
       await fetch(apiUrl(`/api/v1/public/products/${encodeURIComponent(productId)}/click`), {
         method: "POST",
       });
-      return;
+    } catch {
+      /* ignore tracking errors */
     }
-    console.log("MOCK trackClick:", productId);
   },
 };
+

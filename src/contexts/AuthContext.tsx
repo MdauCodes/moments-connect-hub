@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback } from "react";
-import { apiUrl } from "@/config/api";
+import { apiUrl, setAuthToken, getAuthToken } from "@/config/api";
 
 export interface AuthUser {
   id: string;
@@ -26,19 +26,20 @@ const REFRESH_INTERVAL_MS = 840_000; // 14 min
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// Module-scoped access token (memory only, never localStorage)
+// Module-scoped access token mirror (kept in sync with localStorage)
 let accessTokenMem: string | null = null;
 export function getAccessToken(): string | null {
-  return accessTokenMem;
+  return accessTokenMem ?? getAuthToken();
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [accessToken, setAccessTokenState] = useState<string | null>(null);
+  const [accessToken, setAccessTokenState] = useState<string | null>(getAuthToken());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const setAccessToken = (token: string | null) => {
     accessTokenMem = token;
+    setAuthToken(token);
     setAccessTokenState(token);
   };
 

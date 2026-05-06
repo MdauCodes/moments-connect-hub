@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import heroImage from "@/assets/hero-hands-packing.jpg";
 import { SiteLayout } from "@/components/SiteLayout";
 import {
   DotGrid,
@@ -91,7 +90,7 @@ export const Route = createFileRoute("/")({
 });
 
 const heroPills = [
-  "100 MOQ",
+  "From 50 units",
   "M-Pesa checkout",
   "7–14 day delivery",
   "Kenya-wide",
@@ -246,89 +245,65 @@ function HomePage() {
           color="clay"
           opacity={0.05}
         />
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:py-16 lg:grid-cols-12 lg:gap-12 lg:px-8 lg:py-20">
-          <div className="lg:col-span-7">
-            <p className="text-[11px] uppercase tracking-[0.25em] text-accent">
-              Custom branded packaging · Kenya
-            </p>
-            <h1 className="mt-3 font-display text-[2.5rem] font-medium leading-[1.05] text-foreground text-balance sm:text-5xl lg:text-[3.5rem]">
-              Branded paper packaging,{" "}
-              <span className="relative inline-block">
-                <em className="not-italic text-accent">ordered online</em>
-                <UnderlineStroke />
-              </span>
-              .
-            </h1>
-            <p className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
-              Bags, boxes, cups, mailers and labels — printed with your logo and delivered across Kenya from 100 units. Pay with M-Pesa.
-            </p>
+        <div className="relative mx-auto max-w-4xl px-5 py-16 text-center sm:py-20 lg:px-8 lg:py-28">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-accent">
+            Custom branded packaging · Kenya
+          </p>
+          <h1 className="mt-3 font-display text-[2.25rem] font-medium leading-[1.08] text-foreground text-balance sm:text-5xl lg:text-[3.5rem]">
+            Premium Branded Packaging for{" "}
+            <span className="relative inline-block">
+              <em className="not-italic text-accent">Kenyan Businesses</em>
+              <UnderlineStroke />
+            </span>
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            From kraft bags to printed boxes — order directly, no sales calls needed. Starting from 50 units.
+          </p>
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {heroPills.map((s) => (
-                <span
-                  key={s}
-                  className="rounded-full border border-kraft/40 bg-background/70 px-3 py-1 text-xs font-medium text-foreground/80"
-                >
-                  {s}
-                </span>
-              ))}
-            </div>
-
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link
-                to="/products"
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-all hover:bg-accent/90 hover:shadow-xl"
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            {heroPills.map((s) => (
+              <span
+                key={s}
+                className="rounded-full border border-kraft/40 bg-background/70 px-3 py-1 text-xs font-medium text-foreground/80"
               >
-                Browse all packaging <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/enterprise-quote"
-                className="inline-flex items-center gap-2 rounded-full border border-foreground/30 bg-background px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
-              >
-                Enterprise quote
-              </Link>
-            </div>
-
-            {/* Quick-jump audience chips — help visitors self-select into the catalogue */}
-            <div className="mt-6 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                Shop by use:
+                {s}
               </span>
-              {[
-                { label: "Café & restaurant", search: { category: "cups" } },
-                { label: "Retail & e-commerce", search: { category: "bags" } },
-                { label: "Events & gifting", search: { category: "gifting" } },
-              ].map((chip) => (
-                <Link
-                  key={chip.label}
-                  to="/products"
-                  search={chip.search as never}
-                  className="rounded-full border border-foreground/15 bg-background/60 px-3 py-1 text-xs font-medium text-foreground/80 transition-colors hover:border-accent hover:text-accent"
-                >
-                  {chip.label}
-                </Link>
-              ))}
-            </div>
+            ))}
           </div>
 
-          <div className="relative lg:col-span-5">
-            <CornerLines className="-right-2 -top-2 rotate-180" opacity={0.12} />
-            <CornerLines className="-bottom-2 -left-2" opacity={0.12} />
-            <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-secondary shadow-xl">
-              <img
-                src={heroImage}
-                alt="Hands tying twine around a branded kraft paper bag, with a printed kraft box and tissue paper on a cream wooden table"
-                width={1024}
-                height={1280}
-                className="h-full w-full object-cover"
-                style={{ aspectRatio: "4 / 5" }}
-              />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/40 via-foreground/0 to-transparent p-5">
-                <p className="font-display text-sm text-background/95 sm:text-base">
-                  Made for Kenyan brands &amp; moments.
-                </p>
-              </div>
-            </div>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/20 transition-all hover:bg-accent/90 hover:shadow-xl"
+            >
+              Browse all packaging <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/enterprise-quote"
+              className="inline-flex items-center gap-2 rounded-full border border-foreground/30 bg-background px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+            >
+              Enterprise quote
+            </Link>
+          </div>
+
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
+            <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              Shop by use:
+            </span>
+            {[
+              { label: "Café & restaurant", search: { category: "cups" } },
+              { label: "Retail & e-commerce", search: { category: "bags" } },
+              { label: "Events & gifting", search: { category: "gifting" } },
+            ].map((chip) => (
+              <Link
+                key={chip.label}
+                to="/products"
+                search={chip.search as never}
+                className="rounded-full border border-foreground/15 bg-background/60 px-3 py-1 text-xs font-medium text-foreground/80 transition-colors hover:border-accent hover:text-accent"
+              >
+                {chip.label}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
