@@ -45,7 +45,7 @@ function AdminOrdersPage() {
   const totals = useMemo(() => {
     if (!data) return { revenue: 0, orders: 0 };
     return {
-      revenue: data.rows.reduce((s, o) => s + (["PAID", "PROCESSING", "PACKED", "SHIPPED", "DELIVERED"].includes(o.status) ? o.total : 0), 0),
+      revenue: data.rows.reduce((s, o) => s + Number((o as any).totalAmount ?? o.total ?? 0), 0),
       orders: data.total,
     };
   }, [data]);
