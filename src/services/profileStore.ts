@@ -6,7 +6,7 @@ import { authFetch, getAccessToken } from "@/contexts/AuthContext";
 
 export interface CustomerAddress {
   id: string;
-  label: string;       // "Home", "Office"
+  label: string;
   recipient: string;
   phone: string;
   line1: string;
@@ -29,21 +29,22 @@ function read(): CustomerProfile | null {
   try {
     const raw = window.localStorage.getItem(PROFILE_KEY);
     return raw ? (JSON.parse(raw) as CustomerProfile) : null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
+
 function write(p: CustomerProfile) {
   if (typeof window === "undefined") return;
-  try { window.localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch { /* ignore */ }
+  try {
+    window.localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+  } catch {
+    /* ignore */
+  }
 }
 
 function blank(): CustomerProfile {
-  return {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    addresses: [],
-  };
+  return { firstName: "", lastName: "", email: "", phone: "", addresses: [] };
 }
 
 async function tryLive<T>(path: string, init?: RequestInit): Promise<T | null> {
@@ -51,22 +52,16 @@ async function tryLive<T>(path: string, init?: RequestInit): Promise<T | null> {
     const res = await authFetch(apiUrl(path), init);
     if (!res.ok) return null;
     return (await res.json()) as T;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
-function genId() { return Math.random().toString(36).slice(2, 11); }
+function genId() {
+  return Math.random().toString(36).slice(2, 11);
+}
 
 export const profileStore = {
-  async get(): Promise<{ profile: CustomerProfile; source: "live" | "mock" }> {
-    if (getAccessToken()) {
-      const live = await tryLive<CustomerProfile>("/api/v1/customer/profile");
-      if (live) {
-        live.addresses = live.addresses ?? [];
-        write(live);
-        return { profile: live, source: "live" };
-      }
-  },
-
   async get(): Promise<{ profile: CustomerProfile; source: "live" | "mock" }> {
     if (getAccessToken()) {
       const live = await tryLive<CustomerProfile>("/api/v1/customer/profile");
@@ -79,6 +74,22 @@ export const profileStore = {
     const local = read();
     if (local) local.addresses = local.addresses ?? [];
     return { profile: local ?? blank(), source: "mock" };
+  },
+
+  async save(profile: CustomerProfile): Promise<{ profile: CustomerProfile; source: "live" | "mock" }> {
+    if (getAccessToken()) {
+      const live = await tryLive<CustomerProfile>("/api/v1/customer/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profile),
+      });
+      if (live) {
+        write(live);
+        return { profile: live, source: "live" };
+      }
+    }
+    write(profile);
+    return { profile, source: "mock" };
   },
 
   async addAddress(addr: Omit<CustomerAddress, "id">): Promise<CustomerProfile> {
