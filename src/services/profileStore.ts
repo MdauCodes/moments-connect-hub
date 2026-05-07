@@ -67,20 +67,18 @@ export const profileStore = {
       }
   },
 
-  async save(profile: CustomerProfile): Promise<{ profile: CustomerProfile; source: "live" | "mock" }> {
+  async get(): Promise<{ profile: CustomerProfile; source: "live" | "mock" }> {
     if (getAccessToken()) {
-      const live = await tryLive<CustomerProfile>("/api/v1/customer/profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profile),
-      });
+      const live = await tryLive<CustomerProfile>("/api/v1/customer/profile");
       if (live) {
+        live.addresses = live.addresses ?? [];
         write(live);
         return { profile: live, source: "live" };
       }
     }
-    write(profile);
-    return { profile, source: "mock" };
+    const local = read();
+    if (local) local.addresses = local.addresses ?? [];
+    return { profile: local ?? blank(), source: "mock" };
   },
 
   async addAddress(addr: Omit<CustomerAddress, "id">): Promise<CustomerProfile> {
