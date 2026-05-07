@@ -28,8 +28,12 @@ function DashboardPage() {
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
 
   useEffect(() => {
-    orderStore.listMine().then((res) => setOrders(res.rows.slice(0, 3)));
-    profileStore.get().then((res) => setProfile(res.profile));
+    orderStore.listMine().then((res) => setOrders((res.rows ?? []).slice(0, 3)));
+    profileStore.get().then((res) => {
+      const p = res.profile;
+      if (p) p.addresses = p.addresses ?? [];
+      setProfile(p);
+    });
   }, []);
 
   const defaultAddress = (profile?.addresses ?? []).find((a) => a.isDefault) ?? profile?.addresses?.[0];
