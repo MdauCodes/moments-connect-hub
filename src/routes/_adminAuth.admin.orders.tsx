@@ -134,7 +134,7 @@ function AdminOrdersPage() {
                         <div>{o.customerName}</div>
                         <div style={{ color: "var(--admin-muted)", fontSize: 11 }}>{o.city}</div>
                       </td>
-                      <td>{o.items.reduce((s, it) => s + it.qty, 0)} units · {o.items.length} SKU{o.items.length === 1 ? "" : "s"}</td>
+                      <td>{o.items.reduce((s, it) => s + Number(it.qty ?? 0), 0)} units · {o.items.length} SKU{o.items.length === 1 ? "" : "s"}</td>
                       <td><b>{formatKes(o.total)}</b></td>
                       <td><OrderStatusBadge status={o.status} /></td>
                       <td style={{ display: "flex", gap: 6, alignItems: "center" }}>
@@ -143,7 +143,7 @@ function AdminOrdersPage() {
                       </td>
                       <td>{formatDateShort(o.createdAt)}</td>
                       <td>
-                        <Link to="/admin/orders/$id" params={{ id: o.id }} className="admin-btn admin-btn-ghost">View</Link>
+                        <button className="admin-btn admin-btn-ghost" onClick={() => setOpenId(o.id)}>View</button>
                       </td>
                     </tr>
                   ))
