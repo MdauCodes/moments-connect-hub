@@ -3,7 +3,6 @@ import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 import { WhatsAppFloat } from "./WhatsAppFloat";
 import { PageProgressBar } from "./PageProgressBar";
-import { EmailCaptureBanner } from "./EmailCaptureBanner";
 import { EmailInsiderPrompt } from "./EmailInsiderPrompt";
 import { AppSplash } from "./AppSplash";
 
@@ -24,7 +23,6 @@ function FirstVisitSplash() {
 }
 
 function LayoutShell({ children }: { children: ReactNode }) {
-  const [, setBannerVisible] = useState(false);
   return (
     <>
       <FirstVisitSplash />
@@ -34,7 +32,6 @@ function LayoutShell({ children }: { children: ReactNode }) {
         <main className="flex-1">{children}</main>
         <SiteFooter />
         <WhatsAppFloat />
-        <EmailCaptureBanner onVisibilityChange={setBannerVisible} />
         <EmailInsiderPrompt />
       </div>
     </>
@@ -44,3 +41,4 @@ function LayoutShell({ children }: { children: ReactNode }) {
 export function SiteLayout({ children }: { children: ReactNode }) {
   return <LayoutShell>{children}</LayoutShell>;
 }
+

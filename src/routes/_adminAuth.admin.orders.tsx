@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { OrderDetailDrawer } from "@/components/admin/OrderDetailDrawer";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import {
@@ -23,6 +24,7 @@ const PAGE_SIZE = 20;
 
 function AdminOrdersPage() {
   const [data, setData] = useState<ListOrdersResult | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<string>("ALL");
   const [q, setQ] = useState("");
@@ -43,7 +45,7 @@ function AdminOrdersPage() {
   const totals = useMemo(() => {
     if (!data) return { revenue: 0, orders: 0 };
     return {
-      revenue: data.rows.reduce((s, o) => s + (["PAID", "PROCESSING", "PACKED", "SHIPPED", "DELIVERED"].includes(o.status) ? o.total : 0), 0),
+      revenue: data.rows.reduce((s, o) => s + Number((o as any).totalAmount ?? o.total ?? 0), 0),
       orders: data.total,
     };
   }, [data]);
@@ -132,7 +134,7 @@ function AdminOrdersPage() {
                         <div>{o.customerName}</div>
                         <div style={{ color: "var(--admin-muted)", fontSize: 11 }}>{o.city}</div>
                       </td>
-                      <td>{o.items.reduce((s, it) => s + it.qty, 0)} units · {o.items.length} SKU{o.items.length === 1 ? "" : "s"}</td>
+                      <td>{o.items.reduce((s, it) => s + Number(it.qty ?? 0), 0)} units · {o.items.length} SKU{o.items.length === 1 ? "" : "s"}</td>
                       <td><b>{formatKes(o.total)}</b></td>
                       <td><OrderStatusBadge status={o.status} /></td>
                       <td style={{ display: "flex", gap: 6, alignItems: "center" }}>
@@ -141,7 +143,7 @@ function AdminOrdersPage() {
                       </td>
                       <td>{formatDateShort(o.createdAt)}</td>
                       <td>
-                        <Link to="/admin/orders/$id" params={{ id: o.id }} className="admin-btn admin-btn-ghost">View</Link>
+                        <button className="admin-btn admin-btn-ghost" onClick={() => setOpenId(o.id)}>View</button>
                       </td>
                     </tr>
                   ))
@@ -163,6 +165,7 @@ function AdminOrdersPage() {
           )}
         </div>
       </div>
+      <OrderDetailDrawer orderId={openId} onClose={() => setOpenId(null)} />
     </AdminLayout>
   );
 }

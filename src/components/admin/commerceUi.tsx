@@ -4,8 +4,10 @@
 // ----------------------------------------------------------------------------
 import type { OrderStatus, PaymentStatus, PaymentGateway } from "@/services/commerceMock";
 
-export function formatKes(amount: number): string {
-  return new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", maximumFractionDigits: 0 }).format(amount);
+export function formatKes(amount: number | string | null | undefined): string {
+  const n = Number(amount ?? 0);
+  const safe = Number.isFinite(n) ? n : 0;
+  return `KES ${safe.toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function formatDate(iso: string | undefined): string {
