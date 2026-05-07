@@ -61,11 +61,10 @@ export const profileStore = {
     if (getAccessToken()) {
       const live = await tryLive<CustomerProfile>("/api/v1/customer/profile");
       if (live) {
+        live.addresses = live.addresses ?? [];
         write(live);
         return { profile: live, source: "live" };
       }
-    }
-    return { profile: read() ?? blank(), source: "mock" };
   },
 
   async save(profile: CustomerProfile): Promise<{ profile: CustomerProfile; source: "live" | "mock" }> {
