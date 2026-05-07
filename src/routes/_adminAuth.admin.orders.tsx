@@ -24,6 +24,7 @@ const PAGE_SIZE = 20;
 
 function AdminOrdersPage() {
   const [data, setData] = useState<ListOrdersResult | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<string>("ALL");
   const [q, setQ] = useState("");
