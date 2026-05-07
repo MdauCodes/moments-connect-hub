@@ -58,7 +58,7 @@ function DashboardPage() {
           <Tile to="/account/orders" icon={Receipt} label="Orders" value={orders?.length ?? "—"} />
           <Tile to="/account/wishlist" icon={Heart} label="Wishlist" value={wishlistCount} />
           <Tile to="/cart" icon={ShoppingBag} label="Cart" value="View" />
-          <Tile to="/account/profile" icon={MapPin} label="Addresses" value={profile?.addresses.length ?? 0} />
+          <Tile to="/account/profile" icon={MapPin} label="Addresses" value={profile?.addresses?.length ?? 0} />
         </div>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
