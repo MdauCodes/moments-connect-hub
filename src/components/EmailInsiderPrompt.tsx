@@ -12,7 +12,7 @@ import { apiUrl } from "@/config/api";
  *   2. Scroll depth: user scrolls past 50% of page
  *   3. Idle: 30 seconds with no interaction
  *
- * Frequency: shown once per active visit after a conversion trigger.
+ * Dismiss: × button only. No "No thanks" text link.
  */
 
 const STORAGE_KEY = "moments_insider_prompt";
@@ -47,27 +47,22 @@ export function EmailInsiderPrompt() {
     setEligible(shouldShow());
   }, [persona, emailCaptureEnabled]);
 
-  // Trigger setup
   useEffect(() => {
     if (!eligible || open || submitted) return;
     if (typeof window === "undefined") return;
-    // Don't fire while persona gate is up.
     if (persona === null) return;
 
     const trigger = () => {
       if (firedRef.current) return;
       firedRef.current = true;
-      // Re-confirm eligibility at fire time (banner could have been submitted in between).
       if (!shouldShow()) return;
       setOpen(true);
     };
 
-    // 1. Exit intent (desktop only — touch devices don't fire mouseleave reliably)
     const onMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 0) trigger();
     };
 
-    // 2. Scroll depth
     const onScroll = () => {
       const doc = document.documentElement;
       const scrollable = doc.scrollHeight - window.innerHeight;
@@ -76,19 +71,12 @@ export function EmailInsiderPrompt() {
       if (ratio >= SCROLL_THRESHOLD) trigger();
     };
 
-    // 3. Idle timer — resets on any user activity
     let idleTimer: ReturnType<typeof setTimeout> | null = null;
     const resetIdle = () => {
       if (idleTimer) clearTimeout(idleTimer);
       idleTimer = setTimeout(trigger, IDLE_MS);
     };
-    const activityEvents: (keyof WindowEventMap)[] = [
-      "mousemove",
-      "keydown",
-      "touchstart",
-      "scroll",
-      "click",
-    ];
+    const activityEvents: (keyof WindowEventMap)[] = ["mousemove", "keydown", "touchstart", "scroll", "click"];
 
     document.documentElement.addEventListener("mouseleave", onMouseLeave);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -103,7 +91,6 @@ export function EmailInsiderPrompt() {
     };
   }, [eligible, open, submitted, persona]);
 
-  // Auto-close after submit confirmation
   useEffect(() => {
     if (!submitted) return;
     const t = setTimeout(() => setOpen(false), 3500);
@@ -161,6 +148,7 @@ export function EmailInsiderPrompt() {
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-2xl">
         {/* Decorative gradient header */}
         <div className="relative bg-gradient-to-br from-primary/15 via-primary/5 to-transparent px-5 pb-3 pt-5">
+          {/* × close button — only dismiss mechanism */}
           <button
             type="button"
             onClick={handleDismiss}
@@ -174,9 +162,7 @@ export function EmailInsiderPrompt() {
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-                Insiders only
-              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">Insiders only</p>
               <h3 id="insider-prompt-title" className="text-base font-semibold leading-tight">
                 Wait — be first in line.
               </h3>
@@ -211,11 +197,11 @@ export function EmailInsiderPrompt() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Tag className="h-3.5 w-3.5 text-primary" />
-                  Insider-only deals & bulk pricing
+                  Insider-only deals &amp; bulk pricing
                 </li>
                 <li className="flex items-center gap-2">
                   <Sparkles className="h-3.5 w-3.5 text-primary" />
-                  Trends & packaging tips, no spam
+                  Trends &amp; packaging tips, no spam
                 </li>
               </ul>
 
@@ -238,13 +224,7 @@ export function EmailInsiderPrompt() {
                 >
                   {loading ? "Adding you..." : "Count me in"}
                 </button>
-                <button
-                  type="button"
-                  onClick={handleDismiss}
-                  className="block w-full text-center text-[11px] text-muted-foreground hover:text-foreground"
-                >
-                  No thanks, I&apos;ll miss out
-                </button>
+                {/* "No thanks" removed per client request — × is the only dismiss */}
               </form>
             </>
           )}
