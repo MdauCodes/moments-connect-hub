@@ -41,6 +41,65 @@ function unwrapPage<T>(
   return { rows, total: data.totalElements ?? rows.length, totalPages: data.totalPages ?? 1 };
 }
 
+const num = (v: unknown): number => {
+  const n = Number(v ?? 0);
+  return Number.isFinite(n) ? n : 0;
+};
+
+// Normalise backend OrderDto → frontend OrderRecord. Backend serialises BigDecimal
+// as number-or-string; we coerce every monetary field to a real number here so
+// downstream UI never gets NaN.
+function normalizeOrder(raw: any): OrderRecord {
+  const items = (raw?.items ?? []).map((it: any) => ({
+    productId: it.productId ?? it.id ?? "",
+    name: it.productName ?? it.name ?? "",
+    qty: num(it.quantity ?? it.qty),
+    unitPrice: num(it.unitPrice),
+    imageUrl: it.primaryImageUrl ?? it.imageUrl,
+    // pass-through extras for the drawer
+    category: it.category,
+    size: it.size,
+    material: it.material,
+    finish: it.finish,
+    lineTotal: num(it.lineTotal ?? num(it.unitPrice) * num(it.quantity ?? it.qty)),
+  }));
+  const subtotal = num(raw?.subtotal);
+  const shippingFee = num(raw?.deliveryFee ?? raw?.shippingFee);
+  const total = num(raw?.totalAmount ?? raw?.total);
+  return {
+    id: raw?.id ?? raw?.reference ?? "",
+    reference: raw?.reference ?? raw?.id ?? "",
+    status: raw?.status ?? "PENDING",
+    paymentStatus: raw?.paymentStatus ?? "PENDING",
+    paymentGateway: raw?.paymentGateway ?? raw?.paymentMethod ?? "MPESA",
+    customerName: raw?.contactName ?? raw?.customerName ?? "",
+    customerEmail: raw?.customerEmail ?? raw?.maskedEmail ?? "",
+    customerPhone: raw?.customerPhone ?? raw?.phone ?? "",
+    shippingAddress: raw?.deliveryAddress ?? raw?.shippingAddress ?? "",
+    city: raw?.city ?? "",
+    items,
+    subtotal: subtotal || items.reduce((s: number, it: any) => s + it.lineTotal, 0),
+    shippingFee,
+    total: total || subtotal + shippingFee,
+    currency: "KES",
+    createdAt: raw?.createdAt ?? new Date().toISOString(),
+    updatedAt: raw?.updatedAt ?? raw?.createdAt ?? new Date().toISOString(),
+    trackingNumber: raw?.trackingNumber,
+    notes: raw?.staffNotes ?? raw?.notes,
+    assignedTo: raw?.assignedTo,
+    // raw passthrough for drawer (county, postalCode, promo, statusHistory, discount)
+    ...({
+      county: raw?.county,
+      postalCode: raw?.postalCode,
+      discount: num(raw?.discount),
+      promoCode: raw?.promoCode,
+      paymentMethod: raw?.paymentMethod,
+      statusHistory: raw?.statusHistory ?? [],
+      staffNotes: raw?.staffNotes ?? "",
+    } as any),
+  } as OrderRecord;
+}
+
 // ---------- Orders ----------
 
 export interface ListOrdersParams {
@@ -58,16 +117,18 @@ export interface ListOrdersResult {
 }
 
 export async function listOrders(params: ListOrdersParams = {}): Promise<ListOrdersResult> {
-  const data = await getJson<{ content?: OrderRecord[]; totalElements?: number; totalPages?: number } | OrderRecord[]>(
+  const data = await getJson<{ content?: any[]; totalElements?: number; totalPages?: number } | any[]>(
     `/api/v1/admin/orders${qs(params as Record<string, unknown>)}`,
   );
-  return { ...unwrapPage(data), source: "live" };
+  const { rows, total, totalPages } = unwrapPage<any>(data);
+  return { rows: rows.map(normalizeOrder), total, totalPages, source: "live" };
 }
 
 export async function getOrder(id: string): Promise<{ order: OrderRecord | undefined; source: Source }> {
-  const order = await getJson<OrderRecord>(`/api/v1/admin/orders/${encodeURIComponent(id)}`);
-  return { order, source: "live" };
+  const raw = await getJson<any>(`/api/v1/admin/orders/${encodeURIComponent(id)}`);
+  return { order: normalizeOrder(raw), source: "live" };
 }
+
 
 export async function updateOrderStatus(
   id: string,
