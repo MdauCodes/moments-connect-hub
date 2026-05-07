@@ -165,6 +165,7 @@ function AdminOrdersPage() {
           )}
         </div>
       </div>
+      <OrderDetailDrawer orderId={openId} onClose={() => setOpenId(null)} />
     </AdminLayout>
   );
 }
