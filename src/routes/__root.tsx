@@ -150,7 +150,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body style={{ overflow: "hidden", height: "100vh", margin: 0 }}>
+      <body>
         {children}
         <Scripts />
       </body>
@@ -186,6 +186,19 @@ function MaintenanceOverlay() {
   );
 }
 
+function MaintenanceGate({ children }: { children: React.ReactNode }) {
+  const { maintenanceMode } = useSiteConfig();
+  if (!maintenanceMode) return <>{children}</>;
+  return (
+    <>
+      <div aria-hidden="true" className="pointer-events-none h-screen overflow-hidden">
+        {children}
+      </div>
+      <MaintenanceOverlay />
+    </>
+  );
+}
+
 function RootComponent() {
   return (
     <SiteConfigProvider>
@@ -194,10 +207,9 @@ function RootComponent() {
           <WishlistProvider>
             <AdminAuthProvider>
               <PersonaProvider>
-                <div aria-hidden="true" className="pointer-events-none h-screen overflow-hidden">
+                <MaintenanceGate>
                   <Outlet />
-                </div>
-                <MaintenanceOverlay />
+                </MaintenanceGate>
                 <Toaster />
               </PersonaProvider>
             </AdminAuthProvider>
@@ -207,13 +219,3 @@ function RootComponent() {
     </SiteConfigProvider>
   );
 }
-
-// Keep providers imported for when the site goes live
-void SiteConfigProvider;
-void AuthProvider;
-void CartProvider;
-void WishlistProvider;
-void AdminAuthProvider;
-void PersonaProvider;
-void Toaster;
-void Outlet;
