@@ -158,26 +158,54 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function MaintenanceScreen() {
+function MaintenanceOverlay() {
   return (
-    <div className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center overflow-hidden bg-[#1a472a] px-6 text-center">
-      <div className="max-w-xl">
-        <p className="text-[11px] uppercase tracking-[0.3em] text-white/60">
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center px-6 text-center"
+      style={{
+        backgroundColor: "rgba(26, 71, 42, 0.55)",
+        backdropFilter: "blur(14px) saturate(120%)",
+        WebkitBackdropFilter: "blur(14px) saturate(120%)",
+      }}
+    >
+      <div className="max-w-xl animate-fade-in">
+        <p className="text-[11px] uppercase tracking-[0.3em] text-white/80">
           Moments Packaging Kenya
         </p>
-        <h1 className="mt-6 font-display text-3xl font-medium leading-tight text-white sm:text-5xl">
+        <h1 className="mt-6 font-display text-3xl font-medium leading-tight text-white drop-shadow-lg sm:text-5xl">
           This website is under development.
         </h1>
-        <p className="mt-5 text-base text-white/80 sm:text-lg">
+        <p className="mt-5 text-base text-white/90 sm:text-lg">
           It will be live and available very soon.
         </p>
+        <div className="mt-8 flex justify-center">
+          <span className="inline-flex h-2 w-2 animate-ping rounded-full bg-white/80" />
+        </div>
       </div>
     </div>
   );
 }
 
 function RootComponent() {
-  return <MaintenanceScreen />;
+  return (
+    <SiteConfigProvider>
+      <AuthProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <AdminAuthProvider>
+              <PersonaProvider>
+                <div aria-hidden="true" className="pointer-events-none h-screen overflow-hidden">
+                  <Outlet />
+                </div>
+                <MaintenanceOverlay />
+                <Toaster />
+              </PersonaProvider>
+            </AdminAuthProvider>
+          </WishlistProvider>
+        </CartProvider>
+      </AuthProvider>
+    </SiteConfigProvider>
+  );
 }
 
 // Keep providers imported for when the site goes live
