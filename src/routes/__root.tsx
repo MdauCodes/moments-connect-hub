@@ -188,7 +188,11 @@ function MaintenanceOverlay() {
 
 function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const { maintenanceMode } = useSiteConfig();
-  if (!maintenanceMode) return <>{children}</>;
+  const location = useLocation();
+  const isExempt =
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/login");
+  if (!maintenanceMode || isExempt) return <>{children}</>;
   return (
     <>
       <div aria-hidden="true" className="pointer-events-none h-screen overflow-hidden">
