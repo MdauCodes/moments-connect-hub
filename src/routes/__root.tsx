@@ -2,7 +2,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import { PersonaProvider } from "@/contexts/PersonaContext";
 
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
-import { SiteConfigProvider } from "@/contexts/SiteConfigContext";
+import { SiteConfigProvider, useSiteConfig } from "@/contexts/SiteConfigContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
