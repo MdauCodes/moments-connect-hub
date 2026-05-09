@@ -150,7 +150,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body style={{ overflow: "hidden", height: "100vh", margin: 0 }}>
         {children}
         <Scripts />
       </body>
@@ -158,21 +158,34 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function RootComponent() {
+function MaintenanceScreen() {
   return (
-    <SiteConfigProvider>
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <AdminAuthProvider>
-              <PersonaProvider>
-                <Outlet />
-                <Toaster />
-              </PersonaProvider>
-            </AdminAuthProvider>
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
-    </SiteConfigProvider>
+    <div className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center overflow-hidden bg-[#1a472a] px-6 text-center">
+      <div className="max-w-xl">
+        <p className="text-[11px] uppercase tracking-[0.3em] text-white/60">
+          Moments Packaging Kenya
+        </p>
+        <h1 className="mt-6 font-display text-3xl font-medium leading-tight text-white sm:text-5xl">
+          This website is under development.
+        </h1>
+        <p className="mt-5 text-base text-white/80 sm:text-lg">
+          It will be live and available very soon.
+        </p>
+      </div>
+    </div>
   );
 }
+
+function RootComponent() {
+  return <MaintenanceScreen />;
+}
+
+// Keep providers imported for when the site goes live
+void SiteConfigProvider;
+void AuthProvider;
+void CartProvider;
+void WishlistProvider;
+void AdminAuthProvider;
+void PersonaProvider;
+void Toaster;
+void Outlet;
