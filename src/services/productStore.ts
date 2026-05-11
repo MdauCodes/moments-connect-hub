@@ -79,7 +79,9 @@ function normalizeProduct(p: ProductApiDto): Product {
     monthlyClicks: p.monthlyClicks ?? 0,
     totalEnquiries: p.totalEnquiries ?? 0,
     monthlyEnquiries: p.monthlyEnquiries ?? 0,
-  };
+    individualSalesEnabled: (p as any).individualSalesEnabled ?? false,
+    pricingTiers: (p as any).pricingTiers ?? [],
+  } as Product;
 }
 
 async function adminJson<T>(path: string, init?: RequestInit): Promise<T> {
