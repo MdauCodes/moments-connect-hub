@@ -64,6 +64,8 @@ export interface ProductFormValues {
   lowStockThreshold?: number;
   trackInventory?: boolean;
   variants?: ProductVariant[];
+  individualSalesEnabled?: boolean;
+  pricingTiers?: PricingTierRow[];
 }
 
 export function emptyProductValues(): ProductFormValues {
