@@ -33,6 +33,7 @@ import { Route as AccountWishlistRouteImport } from './routes/account.wishlist'
 import { Route as AccountVerifyRouteImport } from './routes/account.verify'
 import { Route as AccountResetPasswordRouteImport } from './routes/account.reset-password'
 import { Route as AccountRegisterRouteImport } from './routes/account.register'
+import { Route as AccountReferralsRouteImport } from './routes/account.referrals'
 import { Route as AccountProfileRouteImport } from './routes/account.profile'
 import { Route as AccountOrdersRouteImport } from './routes/account.orders'
 import { Route as AccountLoginRouteImport } from './routes/account.login'
@@ -179,6 +180,11 @@ const AccountResetPasswordRoute = AccountResetPasswordRouteImport.update({
 const AccountRegisterRoute = AccountRegisterRouteImport.update({
   id: '/account/register',
   path: '/account/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountReferralsRoute = AccountReferralsRouteImport.update({
+  id: '/account/referrals',
+  path: '/account/referrals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountProfileRoute = AccountProfileRouteImport.update({
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/account/login': typeof AccountLoginRoute
   '/account/orders': typeof AccountOrdersRouteWithChildren
   '/account/profile': typeof AccountProfileRoute
+  '/account/referrals': typeof AccountReferralsRoute
   '/account/register': typeof AccountRegisterRoute
   '/account/reset-password': typeof AccountResetPasswordRoute
   '/account/verify': typeof AccountVerifyRoute
@@ -398,6 +405,7 @@ export interface FileRoutesByTo {
   '/account/login': typeof AccountLoginRoute
   '/account/orders': typeof AccountOrdersRouteWithChildren
   '/account/profile': typeof AccountProfileRoute
+  '/account/referrals': typeof AccountReferralsRoute
   '/account/register': typeof AccountRegisterRoute
   '/account/reset-password': typeof AccountResetPasswordRoute
   '/account/verify': typeof AccountVerifyRoute
@@ -453,6 +461,7 @@ export interface FileRoutesById {
   '/account/login': typeof AccountLoginRoute
   '/account/orders': typeof AccountOrdersRouteWithChildren
   '/account/profile': typeof AccountProfileRoute
+  '/account/referrals': typeof AccountReferralsRoute
   '/account/register': typeof AccountRegisterRoute
   '/account/reset-password': typeof AccountResetPasswordRoute
   '/account/verify': typeof AccountVerifyRoute
@@ -508,6 +517,7 @@ export interface FileRouteTypes {
     | '/account/login'
     | '/account/orders'
     | '/account/profile'
+    | '/account/referrals'
     | '/account/register'
     | '/account/reset-password'
     | '/account/verify'
@@ -561,6 +571,7 @@ export interface FileRouteTypes {
     | '/account/login'
     | '/account/orders'
     | '/account/profile'
+    | '/account/referrals'
     | '/account/register'
     | '/account/reset-password'
     | '/account/verify'
@@ -615,6 +626,7 @@ export interface FileRouteTypes {
     | '/account/login'
     | '/account/orders'
     | '/account/profile'
+    | '/account/referrals'
     | '/account/register'
     | '/account/reset-password'
     | '/account/verify'
@@ -670,6 +682,7 @@ export interface RootRouteChildren {
   AccountLoginRoute: typeof AccountLoginRoute
   AccountOrdersRoute: typeof AccountOrdersRouteWithChildren
   AccountProfileRoute: typeof AccountProfileRoute
+  AccountReferralsRoute: typeof AccountReferralsRoute
   AccountRegisterRoute: typeof AccountRegisterRoute
   AccountResetPasswordRoute: typeof AccountResetPasswordRoute
   AccountVerifyRoute: typeof AccountVerifyRoute
@@ -848,6 +861,13 @@ declare module '@tanstack/react-router' {
       path: '/account/register'
       fullPath: '/account/register'
       preLoaderRoute: typeof AccountRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/referrals': {
+      id: '/account/referrals'
+      path: '/account/referrals'
+      fullPath: '/account/referrals'
+      preLoaderRoute: typeof AccountReferralsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account/profile': {
@@ -1215,6 +1235,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountLoginRoute: AccountLoginRoute,
   AccountOrdersRoute: AccountOrdersRouteWithChildren,
   AccountProfileRoute: AccountProfileRoute,
+  AccountReferralsRoute: AccountReferralsRoute,
   AccountRegisterRoute: AccountRegisterRoute,
   AccountResetPasswordRoute: AccountResetPasswordRoute,
   AccountVerifyRoute: AccountVerifyRoute,
