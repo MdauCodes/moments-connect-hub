@@ -172,7 +172,20 @@ export type Product = {
   primaryImageUrl?: string;
   imageUrls?: string[];
   industries?: Array<{ id?: string | number; displayId?: string | number; name?: string; slug?: string }>;
-  pricingTiers?: Array<{ minQty: number; maxQty?: number; pricePerUnit: number }>;
+  pricingTiers?: Array<{
+    id?: string;
+    /** New collection-shape (from backend) */
+    collectionName?: string;
+    quantity?: number;
+    collectionPrice?: number;
+    sortOrder?: number;
+    /** Legacy quantity-bracket shape (mock data) */
+    minQty?: number;
+    maxQty?: number;
+    pricePerUnit: number;
+  }>;
+  /** Allow buying loose units (in addition to collection tiers). */
+  individualSalesEnabled?: boolean;
 };
 
 export const categories = [
