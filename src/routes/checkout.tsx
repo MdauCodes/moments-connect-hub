@@ -425,7 +425,7 @@ function CheckoutModal() {
                     <span className="absolute inset-0 animate-ping rounded-full" style={{ backgroundColor: `${BRAND}25` }} />
                     <Smartphone className="relative h-11 w-11" style={{ color: BRAND }} />
                   </div>
-                  <h2 className="mt-6 font-display text-2xl text-foreground">Check your phone</h2>
+                  <h2 className="mt-6 font-display text-2xl text-foreground">Check your phone, enter M-Pesa PIN</h2>
                   <p className="mt-2 max-w-md text-sm text-muted-foreground">
                     Enter your M-Pesa PIN on{" "}
                     <span className="font-semibold text-foreground">{normalizePhone(phone)}</span>{" "}
