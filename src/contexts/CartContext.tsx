@@ -59,6 +59,7 @@ function parseBackendCart(data: unknown): CartItem[] | null {
     const it = r as Record<string, any>;
     const quantity = Number(it.quantity ?? it.qty ?? 0);
     const unitPrice = Number(it.unitPrice ?? it.price ?? 0);
+    const collectionQuantity = it.collectionQuantity != null ? Number(it.collectionQuantity) : undefined;
     items.push({
       id: String(it.id ?? it.itemId ?? genId()),
       productId: String(it.productId ?? it.product?.id ?? ""),
@@ -74,6 +75,14 @@ function parseBackendCart(data: unknown): CartItem[] | null {
       variantLabel: it.variantLabel ?? undefined,
       sku: it.sku ?? undefined,
       isBackorder: it.isBackorder ?? undefined,
+      tierId: it.tierId ?? null,
+      collectionName: it.collectionName ?? undefined,
+      collectionQuantity,
+      totalUnits: it.totalUnits != null
+        ? Number(it.totalUnits)
+        : collectionQuantity != null
+          ? quantity * collectionQuantity
+          : quantity,
     });
   }
   return items;
