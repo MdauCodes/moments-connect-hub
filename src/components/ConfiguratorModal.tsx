@@ -20,44 +20,71 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
   const [size, setSize] = useState<string>("");
   const [material, setMaterial] = useState<string>("");
   const [finish, setFinish] = useState<string>("");
-  const [quantity, setQuantity] = useState<number>(0);
+  const [quantity, setQuantity] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [selectedTierId, setSelectedTierId] = useState<string | null>(null);
 
-  // Reset state on product change
+  const collectionTiers = useMemo(() => {
+    if (!product) return [];
+    return (product.pricingTiers ?? [])
+      .filter((t: any) => t.collectionName && t.quantity)
+      .slice()
+      .sort((a: any, b: any) => (a.sortOrder ?? a.quantity) - (b.sortOrder ?? b.quantity));
+  }, [product]);
+
+  const hasCollections = collectionTiers.length > 0;
+  const individualEnabled = product ? (product.individualSalesEnabled ?? !hasCollections) : true;
+
+  const selectedTier = useMemo(
+    () =>
+      hasCollections && selectedTierId
+        ? (collectionTiers.find((t: any) => (t.id ?? `tier-${collectionTiers.indexOf(t)}`) === selectedTierId) as any)
+        : null,
+    [collectionTiers, hasCollections, selectedTierId],
+  );
+
   useEffect(() => {
     if (!product) return;
     setSize(product.sizes?.[0] ?? "");
     setMaterial(product.materials?.[0] ?? product.material ?? "");
     setFinish(product.finish ?? "Standard");
-    setQuantity(product.moq);
     setError(null);
     setSaved(false);
+    if (hasCollections) {
+      const first = collectionTiers[0] as any;
+      setSelectedTierId(first.id ?? `tier-0`);
+      setQuantity(1);
+    } else {
+      setSelectedTierId(null);
+      setQuantity(product.moq);
+    }
   }, [product]);
 
-  const unitPrice = product?.basePrice ?? 0;
-  const lineTotal = useMemo(() => quantity * unitPrice, [quantity, unitPrice]);
+  const unitPrice = selectedTier ? Number(selectedTier.pricePerUnit) || 0 : (product?.basePrice ?? 0);
+  const collectionQty = selectedTier ? Number(selectedTier.quantity) || 0 : 0;
+  const collectionPrice = selectedTier ? Number(selectedTier.collectionPrice ?? unitPrice * collectionQty) || 0 : 0;
+  const lineTotal = selectedTier ? quantity * collectionPrice : quantity * unitPrice;
+  const minQty = selectedTier ? 1 : (product?.moq ?? 1);
 
   if (!product) return null;
 
-  const handleQtyBlur = () => {
-    if (quantity < product.moq) {
-      setQuantity(product.moq);
-      setError(null);
-    }
+  const handleSelectTier = (key: string | null) => {
+    setSelectedTierId(key);
+    setQuantity(1);
+    setError(null);
   };
 
   const handleQtyChange = (v: string) => {
     const n = Number(v);
     if (Number.isNaN(n)) return;
     setQuantity(n);
-    if (n < product.moq) setError(`Minimum order is ${product.moq.toLocaleString()} units`);
-    else setError(null);
+    setError(n < minQty ? `Minimum: ${minQty.toLocaleString()}` : null);
   };
 
   const handleAdd = () => {
-    if (quantity < product.moq) {
-      setError(`Minimum order is ${product.moq.toLocaleString()} units`);
+    if (quantity < minQty) {
+      setError(`Minimum: ${minQty.toLocaleString()}`);
       return;
     }
     addItem({
@@ -69,6 +96,10 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
       finish: finish || "Standard",
       quantity,
       unitPrice,
+      tierId: selectedTier ? selectedTierId : null,
+      collectionName: selectedTier?.collectionName,
+      collectionQuantity: selectedTier ? collectionQty : undefined,
+      totalUnits: selectedTier ? quantity * collectionQty : quantity,
     });
     toast.success("Added to cart", { duration: 2000 });
     onClose();
@@ -81,15 +112,11 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
     }
     setSaved((s) => !s);
     toast.success(saved ? "Removed from wishlist" : "Saved to wishlist");
-    // POST /api/v1/customer/wishlist/[productId] — wired in Prompt 3 with auth headers.
   };
 
   return (
     <Sheet open={!!product} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent
-        side="right"
-        className="w-full overflow-y-auto bg-background p-0 sm:max-w-lg"
-      >
+      <SheetContent side="right" className="w-full overflow-y-auto bg-background p-0 sm:max-w-lg">
         <div className="flex items-start justify-between border-b border-border px-6 py-4">
           <h2 className="font-display text-xl text-foreground">{product.name}</h2>
           <button
@@ -103,7 +130,6 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
         </div>
 
         <div className="space-y-6 px-6 py-6">
-          {/* Thumb */}
           <div className="flex items-center gap-4">
             <div className="h-20 w-20 overflow-hidden rounded-xl bg-secondary">
               <img
@@ -116,75 +142,116 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
               <span className="rounded-full border border-kraft/30 bg-kraft/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-kraft">
                 {product.category}
               </span>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Min. {product.moq.toLocaleString()} units
-              </p>
+              <p className="mt-1 text-xs text-muted-foreground">Min. {product.moq.toLocaleString()} units</p>
             </div>
           </div>
 
-          {/* Size */}
+          {/* Collection tier selection */}
+          {hasCollections && (
+            <Section label="Choose how to buy">
+              <div className="grid gap-2 grid-cols-2">
+                {collectionTiers.map((t: any, i: number) => {
+                  const key = t.id ?? `tier-${i}`;
+                  const active = key === selectedTierId;
+                  const cPrice = Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => handleSelectTier(key)}
+                      className={`flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                        active
+                          ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+                          : "border-border bg-card hover:border-foreground/40"
+                      }`}
+                    >
+                      <span className="font-display text-sm text-foreground">{t.collectionName}</span>
+                      <span className="mt-0.5 text-[11px] text-muted-foreground">
+                        {Number(t.quantity).toLocaleString()} units
+                      </span>
+                      <span className="mt-1.5 text-sm font-semibold text-foreground">
+                        KES {cPrice.toLocaleString()}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        KES {Number(t.pricePerUnit).toLocaleString()}/unit
+                      </span>
+                    </button>
+                  );
+                })}
+                {individualEnabled && (
+                  <button
+                    type="button"
+                    onClick={() => handleSelectTier(null)}
+                    className={`flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                      selectedTierId === null
+                        ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+                        : "border-border bg-card hover:border-foreground/40"
+                    }`}
+                  >
+                    <span className="font-display text-sm text-foreground">Individual units</span>
+                    <span className="mt-0.5 text-[11px] text-muted-foreground">Buy any quantity</span>
+                    <span className="mt-1.5 text-sm font-semibold text-foreground">
+                      KES {(product.basePrice ?? 0).toLocaleString()}/unit
+                    </span>
+                  </button>
+                )}
+              </div>
+            </Section>
+          )}
+
           {product.sizes && product.sizes.length > 0 && (
             <Section label="Size">
-              <PillGroup
-                options={product.sizes}
-                value={size}
-                onChange={setSize}
-              />
+              <PillGroup options={product.sizes} value={size} onChange={setSize} />
             </Section>
           )}
-
-          {/* Material */}
           {(product.materials?.length ?? 0) > 0 && (
             <Section label="Material">
-              <PillGroup
-                options={product.materials!}
-                value={material}
-                onChange={setMaterial}
-              />
+              <PillGroup options={product.materials!} value={material} onChange={setMaterial} />
             </Section>
           )}
-
-          {/* Finish */}
           {finish && (
             <Section label="Finish">
-              <PillGroup
-                options={[finish]}
-                value={finish}
-                onChange={setFinish}
-              />
+              <PillGroup options={[finish]} value={finish} onChange={setFinish} />
             </Section>
           )}
 
-          {/* Quantity */}
           <Section
-            label="Quantity"
-            note={`(Min. ${product.moq.toLocaleString()} units)`}
+            label={selectedTier ? `Number of ${selectedTier.collectionName}s` : "Quantity"}
+            note={selectedTier ? `(${collectionQty} units each)` : `(Min. ${minQty.toLocaleString()})`}
           >
             <input
               type="number"
-              min={product.moq}
+              min={minQty}
               step={1}
               value={quantity}
               onChange={(e) => handleQtyChange(e.target.value)}
-              onBlur={handleQtyBlur}
+              onBlur={() => {
+                if (quantity < minQty) {
+                  setQuantity(minQty);
+                  setError(null);
+                }
+              }}
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
             {error && <p className="mt-1.5 text-xs text-accent">{error}</p>}
           </Section>
 
-          {/* Price summary */}
           <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
-            {unitPrice > 0 ? (
+            {selectedTier ? (
               <p className="text-sm">
-                {quantity.toLocaleString()} units × KES {unitPrice.toLocaleString()} ={" "}
-                <span className="font-display text-lg font-semibold">
-                  KES {lineTotal.toLocaleString()}
+                {quantity.toLocaleString()} × {selectedTier.collectionName} ({collectionQty} units) ={" "}
+                <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
+                <span className="ml-2 text-xs opacity-80">
+                  · {(quantity * collectionQty).toLocaleString()} total units
                 </span>
               </p>
-            ) : (
+            ) : unitPrice > 0 ? (
               <p className="text-sm">
-                Price calculated on order — our team will confirm.
+                {quantity.toLocaleString()} units × KES {unitPrice.toLocaleString()} ={" "}
+                <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
               </p>
+            ) : (
+              <p className="text-sm">Price calculated on order — our team will confirm.</p>
             )}
           </div>
 
@@ -203,9 +270,7 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
             onClick={handleWishlist}
             className="flex w-full items-center justify-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            <Heart
-              className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`}
-            />
+            <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
             {saved ? "Saved to wishlist" : "Save to wishlist"}
           </button>
         </div>
@@ -214,15 +279,7 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
   );
 }
 
-function Section({
-  label,
-  note,
-  children,
-}: {
-  label: string;
-  note?: string;
-  children: React.ReactNode;
-}) {
+function Section({ label, note, children }: { label: string; note?: string; children: React.ReactNode }) {
   return (
     <div>
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -234,15 +291,7 @@ function Section({
   );
 }
 
-function PillGroup({
-  options,
-  value,
-  onChange,
-}: {
-  options: string[];
-  value: string;
-  onChange: (v: string) => void;
-}) {
+function PillGroup({ options, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((opt) => {
