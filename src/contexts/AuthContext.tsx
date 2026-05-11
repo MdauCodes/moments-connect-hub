@@ -16,7 +16,6 @@ interface AuthContextValue {
   isCustomer: boolean;
   isStaff: boolean;
   isAdmin: boolean;
-
   login: (email: string, password: string) => Promise<AuthUser | null>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<string | null>;
@@ -109,7 +108,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     if (data.user) setUser(data.user);
-    return (data.user as AuthUser) ?? null;
   };
 
   const logout = async () => {
