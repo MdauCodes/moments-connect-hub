@@ -47,6 +47,8 @@ function toBackendPayload(input: Partial<ProductDraft>) {
     lowStockThreshold: input.lowStockThreshold,
     trackInventory: input.trackInventory,
     variants: input.variants ?? [],
+    individualSalesEnabled: (input as any).individualSalesEnabled ?? false,
+    pricingTiers: (input as any).pricingTiers ?? [],
   };
 }
 
