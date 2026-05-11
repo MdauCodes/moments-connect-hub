@@ -16,7 +16,8 @@ interface AuthContextValue {
   isCustomer: boolean;
   isStaff: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<void>;
+
+  login: (email: string, password: string) => Promise<AuthUser | null>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<string | null>;
 }
