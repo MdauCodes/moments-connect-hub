@@ -409,14 +409,67 @@ function ProductDetail() {
 
           {/* Pricing */}
           <div className="mt-6">
-            {tiers.length > 0 ? (
+            {hasCollections ? (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Choose how to buy
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {collectionTiers.map((t: any, i: number) => {
+                    const key = t.id ?? `tier-${i}`;
+                    const active = key === selectedTierId;
+                    const cPrice = Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => handleSelectTier(key)}
+                        className={`flex flex-col items-start rounded-xl border px-4 py-3 text-left transition-colors ${
+                          active
+                            ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+                            : "border-border bg-card hover:border-foreground/40"
+                        }`}
+                      >
+                        <span className="font-display text-base text-foreground">{t.collectionName}</span>
+                        <span className="mt-0.5 text-xs text-muted-foreground">
+                          {Number(t.quantity).toLocaleString()} units
+                        </span>
+                        <span className="mt-2 text-sm font-semibold text-foreground">
+                          KES {cPrice.toLocaleString()}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          KES {Number(t.pricePerUnit).toLocaleString()}/unit
+                        </span>
+                      </button>
+                    );
+                  })}
+                  {individualEnabled && (
+                    <button
+                      type="button"
+                      onClick={() => handleSelectTier(null)}
+                      className={`flex flex-col items-start rounded-xl border px-4 py-3 text-left transition-colors ${
+                        selectedTierId === null
+                          ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+                          : "border-border bg-card hover:border-foreground/40"
+                      }`}
+                    >
+                      <span className="font-display text-base text-foreground">Individual units</span>
+                      <span className="mt-0.5 text-xs text-muted-foreground">Buy any quantity</span>
+                      <span className="mt-2 text-sm font-semibold text-foreground">
+                        KES {(product.basePrice ?? 0).toLocaleString()}/unit
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : tiers.length > 0 ? (
               <div className="overflow-hidden rounded-xl border border-border">
                 <div className="grid grid-cols-2 bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary-foreground">
                   <span>Quantity</span>
                   <span className="text-right">Price per unit</span>
                 </div>
-                {tiers.map((t: any) => {
-                  const isActive = t === activeTier;
+                {(tiers as any[]).map((t) => {
+                  const isActive = t === legacyTier;
                   return (
                     <div
                       key={`${t.minQty}-${t.maxQty ?? "max"}`}
@@ -425,10 +478,10 @@ function ProductDetail() {
                       }`}
                     >
                       <span>
-                        {t.minQty.toLocaleString()}
-                        {t.maxQty ? `–${t.maxQty.toLocaleString()}` : "+"}
+                        {Number(t.minQty).toLocaleString()}
+                        {t.maxQty ? `–${Number(t.maxQty).toLocaleString()}` : "+"}
                       </span>
-                      <span className="text-right">KES {t.pricePerUnit.toLocaleString()}</span>
+                      <span className="text-right">KES {Number(t.pricePerUnit).toLocaleString()}</span>
                     </div>
                   );
                 })}
@@ -514,17 +567,17 @@ function ProductDetail() {
             )}
 
             <ConfigField
-              label="Quantity"
-              note={`(Min. ${product.moq.toLocaleString()} units)`}
+              label={selectedTier ? `Number of ${selectedTier.collectionName}s` : "Quantity"}
+              note={selectedTier ? `(${collectionQty} units each)` : `(Min. ${product.moq.toLocaleString()} units)`}
             >
               <input
                 type="number"
-                min={product.moq}
+                min={minQty}
                 step={1}
                 value={qty}
                 onChange={(e) => handleQty(e.target.value)}
                 onBlur={() => {
-                  if (qty < product.moq) setQty(product.moq);
+                  if (qty < minQty) setQty(minQty);
                   setQtyError(null);
                 }}
                 className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -533,7 +586,17 @@ function ProductDetail() {
             </ConfigField>
 
             <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
-              {unitPrice > 0 ? (
+              {selectedTier ? (
+                <p className="text-sm">
+                  {qty.toLocaleString()} × {selectedTier.collectionName} ({collectionQty} units) ={" "}
+                  <span className="font-display text-lg font-semibold">
+                    KES {lineTotal.toLocaleString()}
+                  </span>
+                  <span className="ml-2 text-xs opacity-80">
+                    · {(qty * collectionQty).toLocaleString()} total units
+                  </span>
+                </p>
+              ) : unitPrice > 0 ? (
                 <p className="text-sm">
                   {qty.toLocaleString()} × KES {unitPrice.toLocaleString()} ={" "}
                   <span className="font-display text-lg font-semibold">
