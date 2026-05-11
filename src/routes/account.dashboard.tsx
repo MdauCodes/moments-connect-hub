@@ -129,6 +129,13 @@ function DashboardPage() {
                 <p className="text-muted-foreground">{defaultAddress.phone}</p>
               </div>
             )}
+            <Link
+              to="/account/referrals"
+              className="mt-5 inline-flex w-full items-center justify-between rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm hover:bg-secondary"
+            >
+              <span className="font-semibold">Refer & earn credit</span>
+              <ArrowRight className="h-4 w-4 text-accent" />
+            </Link>
           </div>
         </div>
       </section>
