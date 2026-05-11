@@ -18,8 +18,9 @@ export const Route = createFileRoute("/checkout")({
 });
 
 const BRAND = "#1a472a";
-const POLL_MS = 5000;
-const TIMEOUT_MS = 120_000; // 2 minutes
+const POLL_MS = 3000;
+const MAX_POLLS = 20;
+const TIMEOUT_MS = POLL_MS * MAX_POLLS;
 const RESEND_AFTER_MS = 30_000;
 
 type Step = "contact" | "payment";
