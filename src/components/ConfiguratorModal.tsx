@@ -28,7 +28,15 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
   const collectionTiers = useMemo(() => {
     if (!product) return [];
     return (product.pricingTiers ?? [])
-      .filter((t: any) => t.collectionName && t.quantity)
+
+      .filter((t: any) => (t.collectionName && t.quantity) || t.minQty)
+      .map((t: any, i: number) => ({
+        ...t,
+        collectionName: t.collectionName ?? `Tier ${i + 1}`,
+        quantity: t.quantity ?? t.minQty,
+        collectionPrice: t.collectionPrice ?? t.pricePerUnit * (t.quantity ?? t.minQty),
+        id: t.id ?? `tier-${i}`,
+      }))
       .slice()
       .sort((a: any, b: any) => (a.sortOrder ?? a.quantity) - (b.sortOrder ?? b.quantity));
   }, [product]);
