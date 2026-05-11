@@ -26,6 +26,14 @@ export interface ProductVariant {
   stock?: number;
 }
 
+export interface PricingTierRow {
+  id?: string;
+  collectionName: string;
+  quantity: number;
+  pricePerUnit: number;
+  sortOrder?: number;
+}
+
 export interface ProductFormValues {
   name: string;
   slug: string;
