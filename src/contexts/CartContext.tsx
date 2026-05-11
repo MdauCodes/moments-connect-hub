@@ -18,6 +18,12 @@ export interface CartItem {
   sku?: string;
   /** True when the line was placed beyond available stock. */
   isBackorder?: boolean;
+  /** Pricing-tier (collection) selection. Null/undefined = individual units. */
+  tierId?: string | null;
+  collectionName?: string;
+  collectionQuantity?: number;
+  /** quantity * collectionQuantity (or quantity for individual units). */
+  totalUnits?: number;
 }
 
 interface CartContextValue {
@@ -53,6 +59,7 @@ function parseBackendCart(data: unknown): CartItem[] | null {
     const it = r as Record<string, any>;
     const quantity = Number(it.quantity ?? it.qty ?? 0);
     const unitPrice = Number(it.unitPrice ?? it.price ?? 0);
+    const collectionQuantity = it.collectionQuantity != null ? Number(it.collectionQuantity) : undefined;
     items.push({
       id: String(it.id ?? it.itemId ?? genId()),
       productId: String(it.productId ?? it.product?.id ?? ""),
@@ -68,6 +75,14 @@ function parseBackendCart(data: unknown): CartItem[] | null {
       variantLabel: it.variantLabel ?? undefined,
       sku: it.sku ?? undefined,
       isBackorder: it.isBackorder ?? undefined,
+      tierId: it.tierId ?? null,
+      collectionName: it.collectionName ?? undefined,
+      collectionQuantity,
+      totalUnits: it.totalUnits != null
+        ? Number(it.totalUnits)
+        : collectionQuantity != null
+          ? quantity * collectionQuantity
+          : quantity,
     });
   }
   return items;
@@ -124,25 +139,43 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, hydrated]);
 
   const addItem: CartContextValue["addItem"] = (input) => {
+    const collectionQuantity = input.collectionQuantity;
+    const totalUnits =
+      input.totalUnits ??
+      (collectionQuantity != null ? input.quantity * collectionQuantity : input.quantity);
     setItems((prev) => {
       const idx = prev.findIndex(
         (it) =>
           it.productId === input.productId &&
           (it.variantId ?? "") === (input.variantId ?? "") &&
+          (it.tierId ?? "") === (input.tierId ?? "") &&
           it.size === input.size &&
           it.material === input.material &&
           it.finish === input.finish,
       );
       if (idx >= 0) {
         const next = [...prev];
-        const merged = { ...next[idx], quantity: next[idx].quantity + input.quantity };
-        merged.lineTotal = merged.quantity * merged.unitPrice;
+        const newQty = next[idx].quantity + input.quantity;
+        const merged = {
+          ...next[idx],
+          quantity: newQty,
+          lineTotal: newQty * next[idx].unitPrice,
+          totalUnits:
+            next[idx].collectionQuantity != null
+              ? newQty * (next[idx].collectionQuantity as number)
+              : newQty,
+        };
         next[idx] = merged;
         return next;
       }
       return [
         ...prev,
-        { ...input, id: genId(), lineTotal: input.quantity * input.unitPrice },
+        {
+          ...input,
+          id: genId(),
+          lineTotal: input.quantity * input.unitPrice,
+          totalUnits,
+        },
       ];
     });
     // Sync to backend and replace local state with backend response
@@ -153,6 +186,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       json: {
         productId: input.productId,
         variantId: input.variantId,
+        tierId: input.tierId ?? null,
         quantity: input.quantity,
         size: input.size,
         material: input.material,

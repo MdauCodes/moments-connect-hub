@@ -158,19 +158,50 @@ function ProductDetail() {
 
   const enterprise = product.moq >= 10000;
 
-  // Active pricing tier and unit price
+  // ── Pricing tiers ──────────────────────────────────────────────────────────
   const tiers = product.pricingTiers ?? [];
-  const activeTier = useMemo(
+  const collectionTiers = useMemo(
     () =>
-      tiers.find(
-        (t: any) => qty >= t.minQty && (t.maxQty === undefined || qty <= t.maxQty),
-      ) ?? tiers[tiers.length - 1],
-    [tiers, qty],
+      tiers
+        .filter((t: any) => t.collectionName && t.quantity)
+        .slice()
+        .sort((a: any, b: any) => (a.sortOrder ?? a.quantity) - (b.sortOrder ?? b.quantity)),
+    [tiers],
   );
+  const hasCollections = collectionTiers.length > 0;
+  const individualEnabled = product.individualSalesEnabled ?? !hasCollections;
+
+  // selectedTierId = null  → individual units
+  // selectedTierId = "id"  → that tier
+  const [selectedTierId, setSelectedTierId] = useState<string | null>(() => {
+    if (hasCollections) return (collectionTiers[0] as any).id ?? `tier-0`;
+    return null;
+  });
+  const selectedTier =
+    hasCollections && selectedTierId
+      ? (collectionTiers.find((t: any) => (t.id ?? `tier-${collectionTiers.indexOf(t)}`) === selectedTierId) as any)
+      : null;
+
+  // Legacy quantity-bracket tier (mock data only — when no collection tiers).
+  const legacyTier = useMemo(
+    () =>
+      !hasCollections
+        ? (tiers as any[]).find(
+            (t) => qty >= (t.minQty ?? 0) && (t.maxQty === undefined || qty <= t.maxQty),
+          ) ?? tiers[tiers.length - 1]
+        : null,
+    [tiers, qty, hasCollections],
+  );
+
   // Variant price overrides tier price when present.
-  const unitPrice =
-    activeVariant?.price ?? activeTier?.pricePerUnit ?? product.basePrice ?? 0;
-  const lineTotal = qty * unitPrice;
+  const unitPrice = selectedTier
+    ? Number(selectedTier.pricePerUnit) || 0
+    : (activeVariant?.price ?? (legacyTier as any)?.pricePerUnit ?? product.basePrice ?? 0);
+  const collectionQty = selectedTier ? Number(selectedTier.quantity) || 0 : 0;
+  const collectionPrice = selectedTier
+    ? Number(selectedTier.collectionPrice ?? unitPrice * collectionQty) || 0
+    : 0;
+  const lineTotal = selectedTier ? qty * collectionPrice : qty * unitPrice;
 
   const stock = useMemo(
     () => getStockInfo(product, activeVariant, qty),
@@ -201,11 +232,19 @@ function ProductDetail() {
     };
   }, [product.id]);
 
+  const minQty = selectedTier ? 1 : product.moq;
+
   const handleQty = (v: string) => {
     const n = Number(v);
     if (Number.isNaN(n)) return;
     setQty(n);
-    setQtyError(n < product.moq ? `Minimum order is ${product.moq.toLocaleString()} units` : null);
+    setQtyError(n < minQty ? `Minimum: ${minQty.toLocaleString()}` : null);
+  };
+
+  const handleSelectTier = (tierKey: string | null) => {
+    setSelectedTierId(tierKey);
+    setQty(tierKey ? 1 : product.moq);
+    setQtyError(null);
   };
 
   const handleAddToCart = () => {
@@ -213,8 +252,8 @@ function ProductDetail() {
       navigate({ to: "/enterprise-quote" });
       return;
     }
-    if (qty < product.moq) {
-      setQtyError(`Minimum order is ${product.moq.toLocaleString()} units`);
+    if (qty < minQty) {
+      setQtyError(`Minimum: ${minQty.toLocaleString()}`);
       return;
     }
     addItem({
@@ -225,11 +264,15 @@ function ProductDetail() {
       material: material || "Standard",
       finish: finish || "Standard",
       quantity: qty,
-      unitPrice,
+      unitPrice: selectedTier ? collectionPrice : unitPrice,
       variantId: activeVariant?.id ?? activeVariant?.label,
       variantLabel: activeVariant?.label,
       sku: activeVariant?.sku ?? product.sku,
       isBackorder: stock.isBackorder,
+      tierId: selectedTier ? selectedTierId : null,
+      collectionName: selectedTier?.collectionName,
+      collectionQuantity: selectedTier ? collectionQty : undefined,
+      totalUnits: selectedTier ? qty * collectionQty : qty,
     });
     toast.success(
       stock.isBackorder ? "Added — backorder (extended lead time)" : "Added to cart",
@@ -366,14 +409,67 @@ function ProductDetail() {
 
           {/* Pricing */}
           <div className="mt-6">
-            {tiers.length > 0 ? (
+            {hasCollections ? (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Choose how to buy
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {collectionTiers.map((t: any, i: number) => {
+                    const key = t.id ?? `tier-${i}`;
+                    const active = key === selectedTierId;
+                    const cPrice = Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => handleSelectTier(key)}
+                        className={`flex flex-col items-start rounded-xl border px-4 py-3 text-left transition-colors ${
+                          active
+                            ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+                            : "border-border bg-card hover:border-foreground/40"
+                        }`}
+                      >
+                        <span className="font-display text-base text-foreground">{t.collectionName}</span>
+                        <span className="mt-0.5 text-xs text-muted-foreground">
+                          {Number(t.quantity).toLocaleString()} units
+                        </span>
+                        <span className="mt-2 text-sm font-semibold text-foreground">
+                          KES {cPrice.toLocaleString()}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          KES {Number(t.pricePerUnit).toLocaleString()}/unit
+                        </span>
+                      </button>
+                    );
+                  })}
+                  {individualEnabled && (
+                    <button
+                      type="button"
+                      onClick={() => handleSelectTier(null)}
+                      className={`flex flex-col items-start rounded-xl border px-4 py-3 text-left transition-colors ${
+                        selectedTierId === null
+                          ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+                          : "border-border bg-card hover:border-foreground/40"
+                      }`}
+                    >
+                      <span className="font-display text-base text-foreground">Individual units</span>
+                      <span className="mt-0.5 text-xs text-muted-foreground">Buy any quantity</span>
+                      <span className="mt-2 text-sm font-semibold text-foreground">
+                        KES {(product.basePrice ?? 0).toLocaleString()}/unit
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : tiers.length > 0 ? (
               <div className="overflow-hidden rounded-xl border border-border">
                 <div className="grid grid-cols-2 bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary-foreground">
                   <span>Quantity</span>
                   <span className="text-right">Price per unit</span>
                 </div>
-                {tiers.map((t: any) => {
-                  const isActive = t === activeTier;
+                {(tiers as any[]).map((t) => {
+                  const isActive = t === legacyTier;
                   return (
                     <div
                       key={`${t.minQty}-${t.maxQty ?? "max"}`}
@@ -382,10 +478,10 @@ function ProductDetail() {
                       }`}
                     >
                       <span>
-                        {t.minQty.toLocaleString()}
-                        {t.maxQty ? `–${t.maxQty.toLocaleString()}` : "+"}
+                        {Number(t.minQty).toLocaleString()}
+                        {t.maxQty ? `–${Number(t.maxQty).toLocaleString()}` : "+"}
                       </span>
-                      <span className="text-right">KES {t.pricePerUnit.toLocaleString()}</span>
+                      <span className="text-right">KES {Number(t.pricePerUnit).toLocaleString()}</span>
                     </div>
                   );
                 })}
@@ -471,17 +567,17 @@ function ProductDetail() {
             )}
 
             <ConfigField
-              label="Quantity"
-              note={`(Min. ${product.moq.toLocaleString()} units)`}
+              label={selectedTier ? `Number of ${selectedTier.collectionName}s` : "Quantity"}
+              note={selectedTier ? `(${collectionQty} units each)` : `(Min. ${product.moq.toLocaleString()} units)`}
             >
               <input
                 type="number"
-                min={product.moq}
+                min={minQty}
                 step={1}
                 value={qty}
                 onChange={(e) => handleQty(e.target.value)}
                 onBlur={() => {
-                  if (qty < product.moq) setQty(product.moq);
+                  if (qty < minQty) setQty(minQty);
                   setQtyError(null);
                 }}
                 className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -490,7 +586,17 @@ function ProductDetail() {
             </ConfigField>
 
             <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
-              {unitPrice > 0 ? (
+              {selectedTier ? (
+                <p className="text-sm">
+                  {qty.toLocaleString()} × {selectedTier.collectionName} ({collectionQty} units) ={" "}
+                  <span className="font-display text-lg font-semibold">
+                    KES {lineTotal.toLocaleString()}
+                  </span>
+                  <span className="ml-2 text-xs opacity-80">
+                    · {(qty * collectionQty).toLocaleString()} total units
+                  </span>
+                </p>
+              ) : unitPrice > 0 ? (
                 <p className="text-sm">
                   {qty.toLocaleString()} × KES {unitPrice.toLocaleString()} ={" "}
                   <span className="font-display text-lg font-semibold">

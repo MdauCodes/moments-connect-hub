@@ -13,7 +13,7 @@ export interface SiteConfig {
 const DEFAULTS: SiteConfig = {
   blogsEnabled: true,
   emailCaptureEnabled: true,
-  maintenanceMode: true, // default ON until backend says otherwise
+  maintenanceMode: false,
   whatsappNumber: "254119556688",
   companyEmail: "sales@momentspackaging.co.ke",
   companyPhone: "0119 556 688",
