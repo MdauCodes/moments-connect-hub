@@ -18,6 +18,12 @@ export interface CartItem {
   sku?: string;
   /** True when the line was placed beyond available stock. */
   isBackorder?: boolean;
+  /** Pricing-tier (collection) selection. Null/undefined = individual units. */
+  tierId?: string | null;
+  collectionName?: string;
+  collectionQuantity?: number;
+  /** quantity * collectionQuantity (or quantity for individual units). */
+  totalUnits?: number;
 }
 
 interface CartContextValue {
