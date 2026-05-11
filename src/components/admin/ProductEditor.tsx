@@ -135,6 +135,16 @@ export function productToFormValues(p: Product): ProductFormValues {
     variants: (p as Product & { variants?: ProductVariant[] }).variants
       ? [...((p as Product & { variants?: ProductVariant[] }).variants ?? [])]
       : [],
+    individualSalesEnabled: (p as any).individualSalesEnabled ?? true,
+    pricingTiers: ((p as any).pricingTiers ?? [])
+      .filter((t: any) => t && t.collectionName)
+      .map((t: any, i: number) => ({
+        id: t.id,
+        collectionName: String(t.collectionName ?? ""),
+        quantity: Number(t.quantity ?? 0),
+        pricePerUnit: Number(t.pricePerUnit ?? 0),
+        sortOrder: t.sortOrder ?? i,
+      })),
   };
 }
 
