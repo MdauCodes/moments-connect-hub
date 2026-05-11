@@ -139,25 +139,43 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, hydrated]);
 
   const addItem: CartContextValue["addItem"] = (input) => {
+    const collectionQuantity = input.collectionQuantity;
+    const totalUnits =
+      input.totalUnits ??
+      (collectionQuantity != null ? input.quantity * collectionQuantity : input.quantity);
     setItems((prev) => {
       const idx = prev.findIndex(
         (it) =>
           it.productId === input.productId &&
           (it.variantId ?? "") === (input.variantId ?? "") &&
+          (it.tierId ?? "") === (input.tierId ?? "") &&
           it.size === input.size &&
           it.material === input.material &&
           it.finish === input.finish,
       );
       if (idx >= 0) {
         const next = [...prev];
-        const merged = { ...next[idx], quantity: next[idx].quantity + input.quantity };
-        merged.lineTotal = merged.quantity * merged.unitPrice;
+        const newQty = next[idx].quantity + input.quantity;
+        const merged = {
+          ...next[idx],
+          quantity: newQty,
+          lineTotal: newQty * next[idx].unitPrice,
+          totalUnits:
+            next[idx].collectionQuantity != null
+              ? newQty * (next[idx].collectionQuantity as number)
+              : newQty,
+        };
         next[idx] = merged;
         return next;
       }
       return [
         ...prev,
-        { ...input, id: genId(), lineTotal: input.quantity * input.unitPrice },
+        {
+          ...input,
+          id: genId(),
+          lineTotal: input.quantity * input.unitPrice,
+          totalUnits,
+        },
       ];
     });
     // Sync to backend and replace local state with backend response
@@ -168,6 +186,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       json: {
         productId: input.productId,
         variantId: input.variantId,
+        tierId: input.tierId ?? null,
         quantity: input.quantity,
         size: input.size,
         material: input.material,
