@@ -15,7 +15,8 @@ export const Route = createFileRoute("/account/login")({
   component: LoginPage,
 });
 
-const inputCls = "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50";
+const inputCls =
+  "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50";
 
 function LoginPage() {
   const { login } = useAuth();
@@ -31,7 +32,14 @@ function LoginPage() {
     try {
       await login(email.trim(), password);
       toast.success("Signed in");
-      navigate({ to: (redirect ?? "/account/dashboard") as "/account/dashboard" });
+      const storedUser = JSON.parse(localStorage.getItem("mpk_rt") ?? "null");
+      const res = await fetch(apiUrl("/api/v1/auth/profile"), {
+        headers: { Authorization: `Bearer ${localStorage.getItem("mpk_at") ?? ""}` },
+      }).catch(() => null);
+      // Check roles from AuthContext after login sets user
+      const userRoles: string[] = (window as any).__mpk_roles__ ?? [];
+      const isAdminUser = userRoles.includes("ROLE_ADMIN") || userRoles.includes("ROLE_STAFF");
+      navigate({ to: (isAdminUser ? "/admin/dashboard" : (redirect ?? "/account/dashboard")) as "/account/dashboard" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Sign in failed");
     } finally {
@@ -47,21 +55,41 @@ function LoginPage() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
             <label className="mb-1.5 block text-sm font-medium">Email</label>
-            <input type="email" required className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input
+              type="email"
+              required
+              className={inputCls}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div>
             <div className="mb-1.5 flex items-center justify-between">
               <label className="text-sm font-medium">Password</label>
-              <Link to="/account/forgot-password" className="text-xs text-accent hover:underline">Forgot?</Link>
+              <Link to="/account/forgot-password" className="text-xs text-accent hover:underline">
+                Forgot?
+              </Link>
             </div>
-            <PasswordInput required className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput
+              required
+              className={inputCls}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
-          <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+          >
             {submitting && <InlineProgress size="sm" />} Sign in
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          New to Moments? <Link to="/account/register" className="text-accent hover:underline">Create an account</Link>
+          New to Moments?{" "}
+          <Link to="/account/register" className="text-accent hover:underline">
+            Create an account
+          </Link>
         </p>
       </section>
     </SiteLayout>
