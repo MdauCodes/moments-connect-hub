@@ -190,13 +190,14 @@ function CheckoutModal() {
       setPayState("timeout");
     }, TIMEOUT_MS);
 
+    let attempts = 0;
     const poll = async () => {
+      attempts += 1;
       const res = await orderStore.getPaymentStatus(id);
       if (res.status === "SUCCESS") {
         clearAllTimers();
         setPayState("success");
         clearCart();
-        // brief pause for the success state to show, then redirect
         setTimeout(() => {
           navigate({ to: "/order-confirmation", search: { ref } });
         }, 1200);
@@ -206,6 +207,11 @@ function CheckoutModal() {
         clearAllTimers();
         setErrorMsg(res.message ?? "Payment was not completed.");
         setPayState("failed");
+        return;
+      }
+      if (attempts >= MAX_POLLS) {
+        clearAllTimers();
+        setPayState("timeout");
         return;
       }
       timersRef.current.poll = setTimeout(poll, POLL_MS);
