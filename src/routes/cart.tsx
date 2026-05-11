@@ -97,17 +97,31 @@ function CartPage() {
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <h3 className="font-display text-base text-foreground">{it.productName}</h3>
+                        {it.collectionName && (
+                          <p className="mt-0.5 text-xs font-semibold text-accent">
+                            {it.collectionName}
+                            {it.collectionQuantity ? ` · ${it.collectionQuantity} units each` : ""}
+                          </p>
+                        )}
                         <p className="mt-0.5 text-xs text-muted-foreground">
                           {[it.variantLabel, it.size, it.material, it.finish].filter(Boolean).join(" · ")}
                           {it.sku && <span className="ml-2 text-foreground/40">SKU {it.sku}</span>}
                         </p>
+                        {it.collectionName && it.collectionQuantity ? (
+                          <p className="mt-1 text-xs text-foreground/80">
+                            {it.quantity} × {it.collectionName} ={" "}
+                            <span className="font-semibold">
+                              {(it.totalUnits ?? it.quantity * it.collectionQuantity).toLocaleString()} units
+                            </span>
+                          </p>
+                        ) : null}
                         {it.isBackorder && (
                           <p className="mt-1 inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent">
                             Backorder · ~21 days
                           </p>
                         )}
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {fmt(it.unitPrice)} / unit
+                          {fmt(it.unitPrice)} {it.collectionName ? `/ ${it.collectionName}` : "/ unit"}
                         </p>
                       </div>
                       <button
