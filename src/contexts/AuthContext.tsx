@@ -109,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     if (data.user) setUser(data.user);
+    return (data.user as AuthUser) ?? null;
   };
 
   const logout = async () => {
