@@ -30,16 +30,14 @@ function LoginPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await login(email.trim(), password);
+      const loggedInUser = await login(email.trim(), password);
       toast.success("Signed in");
-      const storedUser = JSON.parse(localStorage.getItem("mpk_rt") ?? "null");
-      const res = await fetch(apiUrl("/api/v1/auth/profile"), {
-        headers: { Authorization: `Bearer ${localStorage.getItem("mpk_at") ?? ""}` },
-      }).catch(() => null);
-      // Check roles from AuthContext after login sets user
-      const userRoles: string[] = (window as any).__mpk_roles__ ?? [];
-      const isAdminUser = userRoles.includes("ROLE_ADMIN") || userRoles.includes("ROLE_STAFF");
-      navigate({ to: (isAdminUser ? "/admin/dashboard" : (redirect ?? "/account/dashboard")) as "/account/dashboard" });
+      const roles = loggedInUser?.roles ?? [];
+      const dest =
+        roles.includes("ROLE_ADMIN") || roles.includes("ROLE_STAFF")
+          ? "/admin/dashboard"
+          : (redirect ?? "/account/dashboard");
+      navigate({ to: dest as "/account/dashboard" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Sign in failed");
     } finally {
