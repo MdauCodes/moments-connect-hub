@@ -98,6 +98,8 @@ export function emptyProductValues(): ProductFormValues {
     lowStockThreshold: 50,
     trackInventory: true,
     variants: [],
+    individualSalesEnabled: true,
+    pricingTiers: [],
   };
 }
 
