@@ -25,7 +25,9 @@ export const Route = createFileRoute("/products/$slug")({
     try {
       const { summary } = await reviewStore.listForProduct(product.slug);
       if (summary.count > 0) reviewSummary = { count: summary.count, average: summary.average };
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     return { product, reviewSummary };
   },
   head: ({ loaderData }) => {
@@ -51,9 +53,7 @@ export const Route = createFileRoute("/products/$slug")({
             url,
             priceCurrency: "KES",
             price: p.basePrice,
-            availability: inStock
-              ? "https://schema.org/InStock"
-              : "https://schema.org/BackOrder",
+            availability: inStock ? "https://schema.org/InStock" : "https://schema.org/BackOrder",
             itemCondition: "https://schema.org/NewCondition",
           }
         : undefined,
@@ -100,9 +100,7 @@ export const Route = createFileRoute("/products/$slug")({
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-5 py-32 text-center lg:px-8">
         <h1 className="font-display text-5xl">Product not found</h1>
-        <p className="mt-4 text-muted-foreground">
-          The product you're looking for doesn't exist or has been moved.
-        </p>
+        <p className="mt-4 text-muted-foreground">The product you're looking for doesn't exist or has been moved.</p>
         <Link
           to="/products"
           className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm text-primary-foreground hover:bg-primary/90"
@@ -123,31 +121,24 @@ function ProductDetail() {
 
   // Gallery
   const allImages = useMemo(() => {
-    const list = [
-      product.primaryImageUrl ?? product.image,
-      ...(product.imageUrls ?? product.images ?? []),
-    ].filter(Boolean);
+    const list = [product.primaryImageUrl ?? product.image, ...(product.imageUrls ?? product.images ?? [])].filter(
+      Boolean,
+    );
     return Array.from(new Set(list));
   }, [product]);
   const [activeImage, setActiveImage] = useState(allImages[0]);
 
   // Variants take precedence — when present, drive price/sku/stock.
   const variants = product.variants ?? [];
-  const [variantId, setVariantId] = useState<string | undefined>(
-    variants[0]?.id ?? variants[0]?.label,
-  );
+  const [variantId, setVariantId] = useState<string | undefined>(variants[0]?.id ?? variants[0]?.label);
   const activeVariant = useMemo(
-    () =>
-      variants.find((v: any) => (v.id ?? v.label) === variantId) ??
-      (variants.length > 0 ? variants[0] : undefined),
+    () => variants.find((v: any) => (v.id ?? v.label) === variantId) ?? (variants.length > 0 ? variants[0] : undefined),
     [variants, variantId],
   );
 
   // Configurator state
   const [size, setSize] = useState(product.sizes?.[0] ?? "");
-  const [material, setMaterial] = useState(
-    product.materials?.[0] ?? product.material ?? "",
-  );
+  const [material, setMaterial] = useState(product.materials?.[0] ?? product.material ?? "");
   const [finish, setFinish] = useState(product.finish ?? "Standard");
   const [qty, setQty] = useState(product.moq);
   const [qtyError, setQtyError] = useState<string | null>(null);
@@ -186,9 +177,8 @@ function ProductDetail() {
   const legacyTier = useMemo(
     () =>
       !hasCollections
-        ? (tiers as any[]).find(
-            (t) => qty >= (t.minQty ?? 0) && (t.maxQty === undefined || qty <= t.maxQty),
-          ) ?? tiers[tiers.length - 1]
+        ? ((tiers as any[]).find((t) => qty >= (t.minQty ?? 0) && (t.maxQty === undefined || qty <= t.maxQty)) ??
+          tiers[tiers.length - 1])
         : null,
     [tiers, qty, hasCollections],
   );
@@ -198,15 +188,10 @@ function ProductDetail() {
     ? Number(selectedTier.pricePerUnit) || 0
     : (activeVariant?.price ?? (legacyTier as any)?.pricePerUnit ?? product.basePrice ?? 0);
   const collectionQty = selectedTier ? Number(selectedTier.quantity) || 0 : 0;
-  const collectionPrice = selectedTier
-    ? Number(selectedTier.collectionPrice ?? unitPrice * collectionQty) || 0
-    : 0;
+  const collectionPrice = selectedTier ? Number(selectedTier.collectionPrice ?? unitPrice * collectionQty) || 0 : 0;
   const lineTotal = selectedTier ? qty * collectionPrice : qty * unitPrice;
 
-  const stock = useMemo(
-    () => getStockInfo(product, activeVariant, qty),
-    [product, activeVariant, qty],
-  );
+  const stock = useMemo(() => getStockInfo(product, activeVariant, qty), [product, activeVariant, qty]);
 
   // Click tracking on mount
   useEffect(() => {
@@ -264,7 +249,7 @@ function ProductDetail() {
       material: material || "Standard",
       finish: finish || "Standard",
       quantity: qty,
-      unitPrice: selectedTier ? collectionPrice : unitPrice,
+      unitPrice: selectedTier ? Number(selectedTier.pricePerUnit) : unitPrice,
       variantId: activeVariant?.id ?? activeVariant?.label,
       variantLabel: activeVariant?.label,
       sku: activeVariant?.sku ?? product.sku,
@@ -274,10 +259,7 @@ function ProductDetail() {
       collectionQuantity: selectedTier ? collectionQty : undefined,
       totalUnits: selectedTier ? qty * collectionQty : qty,
     });
-    toast.success(
-      stock.isBackorder ? "Added — backorder (extended lead time)" : "Added to cart",
-      { duration: 2400 },
-    );
+    toast.success(stock.isBackorder ? "Added — backorder (extended lead time)" : "Added to cart", { duration: 2400 });
   };
 
   const handleWishlist = async () => {
@@ -314,9 +296,13 @@ function ProductDetail() {
 
       {/* Breadcrumb */}
       <nav className="mx-auto max-w-7xl px-5 pt-4 text-xs text-muted-foreground lg:px-8">
-        <Link to="/" className="hover:text-foreground">Home</Link>
+        <Link to="/" className="hover:text-foreground">
+          Home
+        </Link>
         <span className="mx-1.5">/</span>
-        <Link to="/products" className="hover:text-foreground">Products</Link>
+        <Link to="/products" className="hover:text-foreground">
+          Products
+        </Link>
         <span className="mx-1.5">/</span>
         <span className="text-foreground/80">{product.category}</span>
         <span className="mx-1.5">/</span>
@@ -327,11 +313,7 @@ function ProductDetail() {
         {/* LEFT — gallery (60%) */}
         <div className="lg:col-span-3">
           <div className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-secondary">
-            <img
-              src={activeImage}
-              alt={product.name}
-              className="h-full w-full object-cover"
-            />
+            <img src={activeImage} alt={product.name} className="h-full w-full object-cover" />
             <div className="absolute left-3 top-3 flex flex-col gap-1.5">
               {product.isNewArrival && (
                 <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
@@ -389,11 +371,7 @@ function ProductDetail() {
           </h1>
 
           <div className="mt-3">
-            <p
-              className={`text-sm text-muted-foreground sm:text-base ${
-                descExpanded ? "" : "line-clamp-3"
-              }`}
-            >
+            <p className={`text-sm text-muted-foreground sm:text-base ${descExpanded ? "" : "line-clamp-3"}`}>
               {product.description}
             </p>
             {product.description && product.description.length > 160 && (
@@ -553,11 +531,7 @@ function ProductDetail() {
             )}
             {(product.materials?.length ?? 0) > 0 && (
               <ConfigField label="Material">
-                <PillGroup
-                  options={product.materials!}
-                  value={material}
-                  onChange={setMaterial}
-                />
+                <PillGroup options={product.materials!} value={material} onChange={setMaterial} />
               </ConfigField>
             )}
             {finish && (
@@ -589,9 +563,7 @@ function ProductDetail() {
               {selectedTier ? (
                 <p className="text-sm">
                   {qty.toLocaleString()} × {selectedTier.collectionName} ({collectionQty} units) ={" "}
-                  <span className="font-display text-lg font-semibold">
-                    KES {lineTotal.toLocaleString()}
-                  </span>
+                  <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
                   <span className="ml-2 text-xs opacity-80">
                     · {(qty * collectionQty).toLocaleString()} total units
                   </span>
@@ -599,9 +571,7 @@ function ProductDetail() {
               ) : unitPrice > 0 ? (
                 <p className="text-sm">
                   {qty.toLocaleString()} × KES {unitPrice.toLocaleString()} ={" "}
-                  <span className="font-display text-lg font-semibold">
-                    KES {lineTotal.toLocaleString()}
-                  </span>
+                  <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
                 </p>
               ) : (
                 <p className="text-sm">Price calculated on order — our team will confirm.</p>
@@ -616,9 +586,8 @@ function ProductDetail() {
               <div className="flex items-start gap-2 rounded-xl border border-accent/40 bg-accent/5 px-4 py-3 text-xs text-foreground">
                 <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
                 <p>
-                  <strong>Backorder:</strong> requested quantity exceeds current stock.
-                  We'll produce on demand — extended lead time of approx.{" "}
-                  <strong>21 business days</strong>.
+                  <strong>Backorder:</strong> requested quantity exceeds current stock. We'll produce on demand —
+                  extended lead time of approx. <strong>21 business days</strong>.
                 </p>
               </div>
             )}
@@ -662,15 +631,9 @@ function ProductDetail() {
 
           {/* Trust chips */}
           <ul className="mt-5 flex flex-wrap gap-2 text-xs text-foreground/70">
-            <li className="rounded-full border border-border bg-cream px-3 py-1">
-              ✓ Secure M-Pesa checkout
-            </li>
-            <li className="rounded-full border border-border bg-cream px-3 py-1">
-              ✓ 7–14 day production
-            </li>
-            <li className="rounded-full border border-border bg-cream px-3 py-1">
-              ✓ Custom branding included
-            </li>
+            <li className="rounded-full border border-border bg-cream px-3 py-1">✓ Secure M-Pesa checkout</li>
+            <li className="rounded-full border border-border bg-cream px-3 py-1">✓ 7–14 day production</li>
+            <li className="rounded-full border border-border bg-cream px-3 py-1">✓ Custom branding included</li>
           </ul>
         </div>
       </section>
@@ -686,13 +649,9 @@ function ProductDetail() {
 
           <TabsContent value="details" className="mt-6">
             <dl className="grid gap-4 sm:grid-cols-2">
-              {product.material && (
-                <DetailRow label="Material" value={product.material} />
-              )}
+              {product.material && <DetailRow label="Material" value={product.material} />}
               {product.finish && <DetailRow label="Finish" value={product.finish} />}
-              {product.tags && product.tags.length > 0 && (
-                <DetailRow label="Tags" value={product.tags.join(", ")} />
-              )}
+              {product.tags && product.tags.length > 0 && <DetailRow label="Tags" value={product.tags.join(", ")} />}
               {product.keywords && product.keywords.length > 0 && (
                 <DetailRow label="Keywords" value={product.keywords.join(", ")} />
               )}
@@ -727,9 +686,7 @@ function ProductDetail() {
       {/* Related */}
       {related.length > 0 && (
         <section className="mx-auto max-w-7xl px-5 pb-20 sm:pb-24 lg:px-8">
-          <h2 className="font-display text-2xl text-foreground sm:text-3xl">
-            You might also like
-          </h2>
+          <h2 className="font-display text-2xl text-foreground sm:text-3xl">You might also like</h2>
           <div className="mt-6 grid gap-5 sm:mt-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
             {related.map((p) => (
               <ProductCard key={p.id} product={p} onConfigure={setConfiguring} />
@@ -743,39 +700,19 @@ function ProductDetail() {
   );
 }
 
-function ConfigField({
-  label,
-  note,
-  children,
-}: {
-  label: string;
-  note?: string;
-  children: React.ReactNode;
-}) {
+function ConfigField({ label, note, children }: { label: string; note?: string; children: React.ReactNode }) {
   return (
     <div>
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
-        {note && (
-          <span className="ml-1 font-normal normal-case tracking-normal text-foreground/60">
-            {note}
-          </span>
-        )}
+        {note && <span className="ml-1 font-normal normal-case tracking-normal text-foreground/60">{note}</span>}
       </p>
       {children}
     </div>
   );
 }
 
-function PillGroup({
-  options,
-  value,
-  onChange,
-}: {
-  options: string[];
-  value: string;
-  onChange: (v: string) => void;
-}) {
+function PillGroup({ options, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((opt) => {
@@ -802,9 +739,7 @@ function PillGroup({
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <dt className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </dt>
+      <dt className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</dt>
       <dd className="mt-1 text-sm text-foreground">{value}</dd>
     </div>
   );
