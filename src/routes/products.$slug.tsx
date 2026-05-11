@@ -158,19 +158,50 @@ function ProductDetail() {
 
   const enterprise = product.moq >= 10000;
 
-  // Active pricing tier and unit price
+  // ── Pricing tiers ──────────────────────────────────────────────────────────
   const tiers = product.pricingTiers ?? [];
-  const activeTier = useMemo(
+  const collectionTiers = useMemo(
     () =>
-      tiers.find(
-        (t: any) => qty >= t.minQty && (t.maxQty === undefined || qty <= t.maxQty),
-      ) ?? tiers[tiers.length - 1],
-    [tiers, qty],
+      tiers
+        .filter((t: any) => t.collectionName && t.quantity)
+        .slice()
+        .sort((a: any, b: any) => (a.sortOrder ?? a.quantity) - (b.sortOrder ?? b.quantity)),
+    [tiers],
   );
+  const hasCollections = collectionTiers.length > 0;
+  const individualEnabled = product.individualSalesEnabled ?? !hasCollections;
+
+  // selectedTierId = null  → individual units
+  // selectedTierId = "id"  → that tier
+  const [selectedTierId, setSelectedTierId] = useState<string | null>(() => {
+    if (hasCollections) return (collectionTiers[0] as any).id ?? `tier-0`;
+    return null;
+  });
+  const selectedTier =
+    hasCollections && selectedTierId
+      ? (collectionTiers.find((t: any) => (t.id ?? `tier-${collectionTiers.indexOf(t)}`) === selectedTierId) as any)
+      : null;
+
+  // Legacy quantity-bracket tier (mock data only — when no collection tiers).
+  const legacyTier = useMemo(
+    () =>
+      !hasCollections
+        ? (tiers as any[]).find(
+            (t) => qty >= (t.minQty ?? 0) && (t.maxQty === undefined || qty <= t.maxQty),
+          ) ?? tiers[tiers.length - 1]
+        : null,
+    [tiers, qty, hasCollections],
+  );
+
   // Variant price overrides tier price when present.
-  const unitPrice =
-    activeVariant?.price ?? activeTier?.pricePerUnit ?? product.basePrice ?? 0;
-  const lineTotal = qty * unitPrice;
+  const unitPrice = selectedTier
+    ? Number(selectedTier.pricePerUnit) || 0
+    : (activeVariant?.price ?? (legacyTier as any)?.pricePerUnit ?? product.basePrice ?? 0);
+  const collectionQty = selectedTier ? Number(selectedTier.quantity) || 0 : 0;
+  const collectionPrice = selectedTier
+    ? Number(selectedTier.collectionPrice ?? unitPrice * collectionQty) || 0
+    : 0;
+  const lineTotal = selectedTier ? qty * collectionPrice : qty * unitPrice;
 
   const stock = useMemo(
     () => getStockInfo(product, activeVariant, qty),
@@ -201,11 +232,19 @@ function ProductDetail() {
     };
   }, [product.id]);
 
+  const minQty = selectedTier ? 1 : product.moq;
+
   const handleQty = (v: string) => {
     const n = Number(v);
     if (Number.isNaN(n)) return;
     setQty(n);
-    setQtyError(n < product.moq ? `Minimum order is ${product.moq.toLocaleString()} units` : null);
+    setQtyError(n < minQty ? `Minimum: ${minQty.toLocaleString()}` : null);
+  };
+
+  const handleSelectTier = (tierKey: string | null) => {
+    setSelectedTierId(tierKey);
+    setQty(tierKey ? 1 : product.moq);
+    setQtyError(null);
   };
 
   const handleAddToCart = () => {
@@ -213,8 +252,8 @@ function ProductDetail() {
       navigate({ to: "/enterprise-quote" });
       return;
     }
-    if (qty < product.moq) {
-      setQtyError(`Minimum order is ${product.moq.toLocaleString()} units`);
+    if (qty < minQty) {
+      setQtyError(`Minimum: ${minQty.toLocaleString()}`);
       return;
     }
     addItem({
@@ -225,11 +264,15 @@ function ProductDetail() {
       material: material || "Standard",
       finish: finish || "Standard",
       quantity: qty,
-      unitPrice,
+      unitPrice: selectedTier ? collectionPrice : unitPrice,
       variantId: activeVariant?.id ?? activeVariant?.label,
       variantLabel: activeVariant?.label,
       sku: activeVariant?.sku ?? product.sku,
       isBackorder: stock.isBackorder,
+      tierId: selectedTier ? selectedTierId : null,
+      collectionName: selectedTier?.collectionName,
+      collectionQuantity: selectedTier ? collectionQty : undefined,
+      totalUnits: selectedTier ? qty * collectionQty : qty,
     });
     toast.success(
       stock.isBackorder ? "Added — backorder (extended lead time)" : "Added to cart",
