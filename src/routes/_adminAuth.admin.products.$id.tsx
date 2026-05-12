@@ -6,6 +6,7 @@ import {
   productToFormValues,
 } from "@/components/admin/ProductEditor";
 import { productStore } from "@/services/productStore";
+import { updateProductApi, deleteProductApi } from "@/services/adminProductApi";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can } from "@/lib/permissions";
 
@@ -48,13 +49,13 @@ function EditProductPage() {
           canDelete
             ? async () => {
                 if (!confirm(`Delete "${product.name}" permanently?`)) return;
-                await productStore.remove(product.id);
+                await deleteProductApi(product.id);
                 navigate({ to: "/admin/products" });
               }
             : undefined
         }
         onSubmit={async (values) => {
-          await productStore.update(product.id, values);
+          await updateProductApi(product.id, values);
           navigate({ to: "/admin/products" });
         }}
       />
