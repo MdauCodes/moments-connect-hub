@@ -144,7 +144,7 @@ export function productToFormValues(p: Product): ProductFormValues {
 // ---------------------------------------------------------------------------
 
 function buildCreateRequest(values: ProductFormValues, productId?: string) {
-  const slug = values.slug || slugifyDraft(values.name);
+  // Backend ignores client-supplied slug (generated server-side from name).
   const imageUrls = values.images.length ? values.images : values.image ? [values.image] : [];
 
   // Resolve client-side industry string IDs → UUID strings (backend is List<UUID>)
