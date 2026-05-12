@@ -95,7 +95,7 @@ export function emptyProductValues(): ProductFormValues {
     basePrice: undefined,
     compareAtPrice: undefined,
     stock: 0,
-    lowStockThreshold: 50,
+    lowStockThreshold: 10,
     trackInventory: true,
     variants: [],
     individualSalesEnabled: true,
