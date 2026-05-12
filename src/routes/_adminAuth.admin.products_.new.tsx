@@ -8,6 +8,16 @@ import { can } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_adminAuth/admin/products_/new")({
   component: NewProductPage,
+  errorComponent: ({ error }) => {
+    console.error("[products/new errorComponent]", error);
+    return (
+      <AdminLayout title="Error">
+        <p style={{ color: "red", padding: 24 }}>
+          Failed to open new product page: {(error as Error)?.message ?? "Unknown error"}
+        </p>
+      </AdminLayout>
+    );
+  },
 });
 
 function NewProductPage() {
@@ -24,15 +34,34 @@ function NewProductPage() {
     );
   }
 
+  let initialValues;
+  try {
+    initialValues = emptyProductValues();
+  } catch (err) {
+    console.error("[products/new] emptyProductValues failed", err);
+    return (
+      <AdminLayout title="New product">
+        <p style={{ color: "red", padding: 24 }}>
+          Failed to initialise form: {(err as Error)?.message ?? "Unknown error"}
+        </p>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout title="New product">
       <ProductEditor
-        initial={emptyProductValues()}
+        initial={initialValues}
         submitLabel="Create product"
         onCancel={() => navigate({ to: "/admin/products" })}
         onSubmit={async (values) => {
-          await createProductApi(values);
-          navigate({ to: "/admin/products" });
+          try {
+            await createProductApi(values);
+            navigate({ to: "/admin/products" });
+          } catch (err) {
+            console.error("[products/new] createProductApi failed", err);
+            throw err;
+          }
         }}
       />
     </AdminLayout>
