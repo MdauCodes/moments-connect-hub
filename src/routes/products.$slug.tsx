@@ -145,6 +145,11 @@ function ProductDetail() {
   const [descExpanded, setDescExpanded] = useState(false);
   const saved = wishlist.has(product.id);
   const [configuring, setConfiguring] = useState<Product | null>(null);
+  const [preTier, setPreTier] = useState<string | null>(null);
+  const handleConfigure = (p: Product, tierId?: string) => {
+    setPreTier(tierId ?? null);
+    setConfiguring(p);
+  };
   const [related, setRelated] = useState<Product[]>([]);
 
   const enterprise = product.moq >= 10000;
@@ -689,13 +694,13 @@ function ProductDetail() {
           <h2 className="font-display text-2xl text-foreground sm:text-3xl">You might also like</h2>
           <div className="mt-6 grid gap-5 sm:mt-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
             {related.map((p) => (
-              <ProductCard key={p.id} product={p} onConfigure={setConfiguring} />
+              <ProductCard key={p.id} product={p} onConfigure={handleConfigure} />
             ))}
           </div>
         </section>
       )}
 
-      <ConfiguratorModal product={configuring} onClose={() => setConfiguring(null)} />
+      <ConfiguratorModal product={configuring} preSelectedTierId={preTier} onClose={() => setConfiguring(null)} />
     </SiteLayout>
   );
 }

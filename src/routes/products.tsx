@@ -106,6 +106,11 @@ function ProductsPage() {
   const [query, setQuery] = useState(q ?? "");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [configuring, setConfiguring] = useState<Product | null>(null);
+  const [preTier, setPreTier] = useState<string | null>(null);
+  const handleConfigure = (p: Product, tierId?: string) => {
+    setPreTier(tierId ?? null);
+    setConfiguring(p);
+  };
   const [loadState, setLoadState] = useState<LoadState>("ok");
   const [retryTick, setRetryTick] = useState(0);
 
@@ -496,7 +501,7 @@ function ProductsPage() {
           <>
             <div className="mt-8 grid animate-in fade-in gap-5 duration-300 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
               {grid.map((p) => (
-                <ProductCard key={p.id} product={p} onConfigure={setConfiguring} />
+                <ProductCard key={p.id} product={p} onConfigure={handleConfigure} />
               ))}
             </div>
 
@@ -516,7 +521,7 @@ function ProductsPage() {
         )}
       </section>
 
-      <ConfiguratorModal product={configuring} onClose={() => setConfiguring(null)} />
+      <ConfiguratorModal product={configuring} preSelectedTierId={preTier} onClose={() => setConfiguring(null)} />
     </SiteLayout>
   );
 }

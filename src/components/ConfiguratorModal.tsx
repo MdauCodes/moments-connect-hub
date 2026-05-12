@@ -10,9 +10,10 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 interface ConfiguratorModalProps {
   product: Product | null;
   onClose: () => void;
+  preSelectedTierId?: string | null;
 }
 
-export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) {
+export function ConfiguratorModal({ product, onClose, preSelectedTierId }: ConfiguratorModalProps) {
   const { addItem } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -63,7 +64,10 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
     setError(null);
     setSaved(false);
     if (hasCollections) {
-      setSelectedTierId((collectionTiers[0] as any).id);
+      const match = preSelectedTierId
+        ? (collectionTiers as any[]).find((t) => String(t.id) === String(preSelectedTierId))
+        : null;
+      setSelectedTierId(match ? match.id : (collectionTiers[0] as any).id);
       setQuantity(1);
     } else if (individualEnabled) {
       setSelectedTierId(null);
@@ -72,7 +76,7 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
       setSelectedTierId(null);
       setQuantity(product.moq);
     }
-  }, [product]);
+  }, [product, preSelectedTierId]);
 
   const unitPrice = selectedTier ? Number(selectedTier.pricePerUnit) || 0 : (product?.basePrice ?? 0);
   const collectionQty = selectedTier ? Number(selectedTier.quantity) || 0 : 0;

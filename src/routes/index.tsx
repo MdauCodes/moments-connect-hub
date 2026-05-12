@@ -168,6 +168,11 @@ const personaSegments = [
 function FeaturedProducts() {
   const [products, setProducts] = useState<Product[] | null>(null);
   const [configuring, setConfiguring] = useState<Product | null>(null);
+  const [preTier, setPreTier] = useState<string | null>(null);
+  const handleConfigure = (p: Product, tierId?: string) => {
+    setPreTier(tierId ?? null);
+    setConfiguring(p);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -208,11 +213,11 @@ function FeaturedProducts() {
               Products loading — check back shortly.
             </div>
           ) : (
-            products.map((p) => <ProductCard key={p.id} product={p} onConfigure={setConfiguring} />)
+            products.map((p) => <ProductCard key={p.id} product={p} onConfigure={handleConfigure} />)
           )}
         </div>
 
-        <ConfiguratorModal product={configuring} onClose={() => setConfiguring(null)} />
+        <ConfiguratorModal product={configuring} preSelectedTierId={preTier} onClose={() => setConfiguring(null)} />
       </div>
     </section>
   );
