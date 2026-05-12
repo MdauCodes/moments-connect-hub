@@ -160,7 +160,7 @@ function ProductDetail() {
     [tiers],
   );
   const hasCollections = collectionTiers.length > 0;
-  const individualEnabled = product.individualSalesEnabled ?? !hasCollections;
+  const individualEnabled = product.individualSalesEnabled === true;
 
   // selectedTierId = null  → individual units
   // selectedTierId = "id"  → that tier
