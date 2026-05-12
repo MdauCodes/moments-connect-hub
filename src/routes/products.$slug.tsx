@@ -145,6 +145,11 @@ function ProductDetail() {
   const [descExpanded, setDescExpanded] = useState(false);
   const saved = wishlist.has(product.id);
   const [configuring, setConfiguring] = useState<Product | null>(null);
+  const [preTier, setPreTier] = useState<string | null>(null);
+  const handleConfigure = (p: Product, tierId?: string) => {
+    setPreTier(tierId ?? null);
+    setConfiguring(p);
+  };
   const [related, setRelated] = useState<Product[]>([]);
 
   const enterprise = product.moq >= 10000;
