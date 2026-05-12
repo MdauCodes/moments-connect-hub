@@ -3,13 +3,31 @@ import { Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { OrderStatusBadge, PaymentStatusBadge, formatKes, formatDate } from "@/components/admin/commerceUi";
+import {
+  OrderStatusBadge,
+  PaymentStatusBadge,
+  formatKes,
+  formatDate,
+  ORDER_STATUS_OPTIONS,
+} from "@/components/admin/commerceUi";
 import { getOrder, updateOrderStatus } from "@/services/commerceApi";
-import type { OrderRecord } from "@/services/commerceMock";
+import type { OrderRecord, OrderStatus } from "@/services/commerceMock";
 
 interface Props {
   orderId: string | null;
   onClose: () => void;
+}
+
+// Human-readable label for any OrderStatus enum value
+function statusLabel(raw: string | undefined | null): string {
+  if (!raw) return "—";
+  const found = ORDER_STATUS_OPTIONS.find((o) => o.value === raw);
+  return found
+    ? found.label
+    : raw
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function OrderDetailDrawer({ orderId, onClose }: Props) {
@@ -17,6 +35,8 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [staffNotes, setStaffNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "">("");
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
     if (!orderId) return;
@@ -26,18 +46,63 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
     getOrder(orderId)
       .then((res) => {
         if (cancelled) return;
-        setOrder(res.order ?? null);
-        setStaffNotes(((res.order as any)?.staffNotes ?? res.order?.notes ?? "") as string);
+        const loaded = res.order ?? null;
+        setOrder(loaded);
+        setStaffNotes(loaded?.staffNotes ?? loaded?.notes ?? "");
+        setSelectedStatus(loaded?.status ?? "");
       })
       .catch((err) => toast.error(err instanceof Error ? err.message : "Failed to load order"))
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [orderId]);
 
   const o = order as (OrderRecord & Record<string, any>) | null;
 
+  const handleStatusUpdate = async () => {
+    if (!o || !selectedStatus || selectedStatus === o.status) return;
+    setUpdatingStatus(true);
+    try {
+      const res = await updateOrderStatus(o.id, selectedStatus as OrderStatus, staffNotes || undefined);
+      if (res.order) {
+        setOrder(res.order);
+        setSelectedStatus(res.order.status);
+        toast.success(`Status updated to ${statusLabel(selectedStatus)}`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update status");
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    if (!o) return;
+    setSavingNotes(true);
+    try {
+      // Piggybacks on the status PATCH — sends current status unchanged, only staffNotes changes
+      const res = await updateOrderStatus(o.id, o.status, staffNotes);
+      if (res.order) {
+        setOrder(res.order);
+        toast.success("Staff notes saved");
+      }
+    } catch (err) {
+      toast.error("Could not save notes");
+    } finally {
+      setSavingNotes(false);
+    }
+  };
+
   return (
-    <Sheet open={!!orderId} onOpenChange={(v) => { if (!v) onClose(); }}>
+    <Sheet
+      open={!!orderId}
+      onOpenChange={(v) => {
+        if (!v) onClose();
+      }}
+    >
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto p-0">
         {loading || !o ? (
           <div className="p-6 space-y-4">
@@ -58,11 +123,7 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
                 </div>
                 <OrderStatusBadge status={o.status} />
               </div>
-              <button
-                onClick={onClose}
-                className="rounded-sm p-1 opacity-70 hover:opacity-100"
-                aria-label="Close"
-              >
+              <button onClick={onClose} className="rounded-sm p-1 opacity-70 hover:opacity-100" aria-label="Close">
                 <X size={18} />
               </button>
             </div>
@@ -103,7 +164,9 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
                           </td>
                           <td className="py-2 pr-3 text-right">{Number(it.qty ?? 0)}</td>
                           <td className="py-2 pr-3 text-right">{formatKes(it.unitPrice)}</td>
-                          <td className="py-2 text-right font-medium">{formatKes(it.lineTotal ?? Number(it.unitPrice) * Number(it.qty))}</td>
+                          <td className="py-2 text-right font-medium">
+                            {formatKes(it.lineTotal ?? Number(it.unitPrice) * Number(it.qty))}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -115,9 +178,8 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
               <Section title="Financials">
                 <Row label="Subtotal" value={formatKes(o.subtotal)} />
                 <Row label="Delivery fee" value={formatKes(o.shippingFee)} />
-                {Number(o.discount ?? 0) > 0 && (
-                  <Row label="Discount" value={`− ${formatKes(o.discount)}`} />
-                )}
+                {Number(o.discount ?? 0) > 0 && <Row label="Discount" value={`− ${formatKes(o.discount)}`} />}
+                {o.promoCode && <Row label="Promo code" value={o.promoCode} />}
                 <Row label="Total" value={formatKes(o.total)} bold />
               </Section>
 
@@ -128,21 +190,49 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
                   <span className="text-sm text-muted-foreground">Status</span>
                   <PaymentStatusBadge status={o.paymentStatus} />
                 </div>
-                {o.promoCode && <Row label="Promo code" value={o.promoCode} />}
+                {o.fulfillmentType && <Row label="Fulfillment" value={o.fulfillmentType.replace(/_/g, " ")} />}
+              </Section>
+
+              {/* Update status */}
+              <Section title="Update order status">
+                <div className="space-y-3 pt-1">
+                  <select
+                    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
+                    disabled={updatingStatus}
+                  >
+                    {ORDER_STATUS_OPTIONS.filter((opt) => opt.value !== "ALL").map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    className="admin-btn admin-btn-primary w-full"
+                    disabled={updatingStatus || selectedStatus === o.status}
+                    onClick={handleStatusUpdate}
+                  >
+                    {updatingStatus && <Loader2 size={14} className="mr-1 animate-spin inline" />}
+                    {selectedStatus === o.status ? "Current status" : `Set to ${statusLabel(selectedStatus)}`}
+                  </button>
+                </div>
               </Section>
 
               {/* Status history */}
               {Array.isArray(o.statusHistory) && o.statusHistory.length > 0 && (
                 <Section title="Status history">
                   <ol className="space-y-3">
-                    {o.statusHistory.map((h: any, i: number) => (
+                    {[...o.statusHistory].reverse().map((h: any, i: number) => (
                       <li key={i} className="border-l-2 border-primary/30 pl-3">
                         <div className="text-sm font-medium">
-                          {(h.fromStatus ?? "—")} → {(h.toStatus ?? h.status ?? "—")}
+                          {h.fromStatus ? `${statusLabel(h.fromStatus)} → ` : ""}
+                          <span className="text-foreground">{statusLabel(h.toStatus)}</span>
                         </div>
-                        {h.note && <div className="text-xs text-muted-foreground">{h.note}</div>}
-                        <div className="text-[11px] text-muted-foreground">
-                          {h.changedBy ? `by ${h.changedBy} · ` : ""}{formatDate(h.changedAt)}
+                        {h.note && <div className="text-xs text-muted-foreground mt-0.5">{h.note}</div>}
+                        <div className="text-[11px] text-muted-foreground mt-0.5">
+                          {h.changedBy ? `by ${h.changedBy} · ` : ""}
+                          {formatDate(h.changedAt)}
                         </div>
                       </li>
                     ))}
@@ -153,34 +243,18 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
               {/* Staff */}
               <Section title="Staff">
                 <Row label="Assigned to" value={o.assignedTo || "—"} />
-                <label className="block">
+                <label className="block mt-2">
                   <span className="text-xs uppercase text-muted-foreground">Staff notes</span>
                   <textarea
                     className="mt-1 w-full rounded-md border bg-background p-2 text-sm"
                     rows={4}
                     value={staffNotes}
                     onChange={(e) => setStaffNotes(e.target.value)}
-                    placeholder="Internal notes…"
+                    placeholder="Internal notes visible to team only…"
                   />
                 </label>
                 <div className="flex justify-end pt-2">
-                  <button
-                    className="admin-btn admin-btn-ghost"
-                    disabled={savingNotes}
-                    onClick={async () => {
-                      // Notes save is best-effort: re-use the status PATCH endpoint pattern
-                      // is wrong; without a dedicated notes endpoint we just toast for now.
-                      setSavingNotes(true);
-                      try {
-                        await updateOrderStatus(o.id, o.status);
-                        toast.success("Notes saved locally — backend notes endpoint not wired");
-                      } catch (e) {
-                        toast.error("Could not save notes");
-                      } finally {
-                        setSavingNotes(false);
-                      }
-                    }}
-                  >
+                  <button className="admin-btn admin-btn-ghost" disabled={savingNotes} onClick={handleSaveNotes}>
                     {savingNotes && <Loader2 size={14} className="mr-1 animate-spin inline" />}
                     Save notes
                   </button>
@@ -197,9 +271,7 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {title}
-      </h3>
+      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</h3>
       <div className="rounded-lg border bg-card p-4 space-y-1">{children}</div>
     </section>
   );
@@ -208,7 +280,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Row({ label, value, bold }: { label: string; value: React.ReactNode; bold?: boolean }) {
   return (
     <div className="flex items-start justify-between gap-3 py-1.5">
-      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-sm text-muted-foreground shrink-0">{label}</span>
       <span className={`text-sm text-right ${bold ? "font-semibold" : ""}`}>{value}</span>
     </div>
   );
