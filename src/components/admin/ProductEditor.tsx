@@ -804,9 +804,10 @@ export function ProductEditor({
                     key={idx}
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "1.4fr 0.9fr 0.7fr 0.7fr auto",
+                      gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 0.7fr) minmax(0, 0.7fr) auto",
                       gap: 6,
                       alignItems: "center",
+                      minWidth: 0,
                     }}
                   >
                     <input
