@@ -13,17 +13,32 @@ import { can } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_adminAuth/admin/products/$id")({
   loader: async ({ params }) => {
-    const product = await adminJson<ProductDto>(
-      `/api/v1/admin/products/${encodeURIComponent(params.id)}`
-    );
-    if (!product) throw notFound();
-    return { product };
+    try {
+      const product = await adminJson<ProductDto>(
+        `/api/v1/admin/products/${encodeURIComponent(params.id)}`
+      );
+      if (!product) throw notFound();
+      return { product };
+    } catch (err) {
+      console.error("[products/$id loader] failed", err);
+      throw err;
+    }
   },
   notFoundComponent: () => (
     <AdminLayout title="Product not found">
       <p style={{ color: "var(--admin-muted)", fontSize: 13 }}>This product no longer exists.</p>
     </AdminLayout>
   ),
+  errorComponent: ({ error }) => {
+    console.error("[products/$id errorComponent]", error);
+    return (
+      <AdminLayout title="Error">
+        <p style={{ color: "red", padding: 24 }}>
+          Failed to load product: {(error as Error)?.message ?? "Unknown error"}
+        </p>
+      </AdminLayout>
+    );
+  },
   component: EditProductPage,
 });
 
