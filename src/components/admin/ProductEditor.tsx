@@ -453,29 +453,58 @@ function chip(active: boolean): CSSProperties {
 
 function ImagePicker({ value, onChange }: { value: string; onChange: (url: string) => void }) {
   const [urlDraft, setUrlDraft] = useState("");
-  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") onChange(reader.result);
-    };
-    reader.readAsDataURL(file);
     e.target.value = "";
+    if (!file) return;
+
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+
+      const res = await adminFetch("/api/v1/admin/uploads/image?entity=products", {
+        method: "POST",
+        body: form,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as any).message || `Upload failed (${res.status})`);
+      }
+
+      const data = (await res.json()) as { url: string; publicId: string };
+      onChange(data.url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
   };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {value ? (
         <img src={value} alt="Product preview" style={s.imgPreview} />
       ) : (
-        <div style={s.imgPlaceholder}>No image yet</div>
+        <div style={s.imgPlaceholder}>{uploading ? "Uploading…" : "No image yet"}</div>
       )}
       <div style={s.inlineRow}>
-        <label style={s.fileBtn}>
-          Upload file
-          <input type="file" accept="image/*" onChange={handleFile} style={{ display: "none" }} />
+        <label style={{ ...s.fileBtn, opacity: uploading ? 0.6 : 1, pointerEvents: uploading ? "none" : "auto" }}>
+          {uploading ? "Uploading…" : "Upload file"}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleFile}
+            disabled={uploading}
+            style={{ display: "none" }}
+          />
         </label>
-        {value && (
+        {value && !uploading && (
           <button type="button" style={s.ghostBtn} onClick={() => onChange("")}>
             Remove
           </button>
@@ -486,23 +515,27 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
           style={{ ...s.input, flex: 1 }}
           placeholder="…or paste an image URL"
           value={urlDraft}
-          onChange={(e) => setUrlDraft(e.target.value)}
+          onChange={(e) => {
+            setUrlDraft(e.target.value);
+            setUploadError(null);
+          }}
         />
         <button
           type="button"
           style={s.ghostBtn}
           onClick={() => {
-            if (urlDraft.trim()) {
-              onChange(urlDraft.trim());
-              setUrlDraft("");
-            }
+            const url = urlDraft.trim();
+            if (!url) return;
+            onChange(url);
+            setUrlDraft("");
           }}
         >
           Use URL
         </button>
       </div>
+      {uploadError && <div style={{ ...s.helper, color: "var(--admin-clay)" }}>{uploadError}</div>}
       <div style={s.helper}>
-        File uploads are stored as data URLs. Cloudinary will replace this once backend image upload is wired.
+        JPEG, PNG or WebP · max 5 MB. File is uploaded to Cloudinary via the backend and the returned URL is stored.
       </div>
     </div>
   );
