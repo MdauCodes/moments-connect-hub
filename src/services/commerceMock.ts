@@ -3,19 +3,22 @@
 // comes from the live backend via commerceApi.ts.
 // ----------------------------------------------------------------------------
 
+// Matches backend: com.mdau...order.entity.OrderStatus
 export type OrderStatus =
-  | "PENDING"
+  | "PENDING_PAYMENT"
   | "PAID"
-  | "PROCESSING"
-  | "PACKED"
-  | "SHIPPED"
+  | "IN_PRODUCTION"
+  | "READY_FOR_DISPATCH"
+  | "DISPATCHED"
   | "DELIVERED"
   | "CANCELLED"
-  | "REFUNDED"
-  | "ON_HOLD";
+  | "REFUNDED";
 
-export type PaymentStatus = "SUCCESS" | "FAILED" | "PENDING" | "REFUNDED";
-export type PaymentGateway = "MPESA" | "CARD" | "BANK";
+// Matches backend: com.mdau...order.entity.PaymentStatus
+export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+
+// Matches backend: com.mdau...order.entity.PaymentMethod
+export type PaymentGateway = "PAYHERO" | "MPESA" | "BANK_TRANSFER" | "CASH_ON_DELIVERY";
 
 export interface OrderItem {
   productId: string;
@@ -23,6 +26,11 @@ export interface OrderItem {
   qty: number;
   unitPrice: number;
   imageUrl?: string;
+  category?: string;
+  size?: string;
+  material?: string;
+  finish?: string;
+  lineTotal?: number;
 }
 
 export interface OrderRecord {
@@ -36,16 +44,31 @@ export interface OrderRecord {
   customerPhone: string;
   shippingAddress: string;
   city: string;
+  county?: string;
+  postalCode?: string;
   items: OrderItem[];
   subtotal: number;
   shippingFee: number;
+  discount?: number;
   total: number;
   currency: "KES";
   createdAt: string;
   updatedAt: string;
   trackingNumber?: string;
   notes?: string;
+  staffNotes?: string;
   assignedTo?: string;
+  promoCode?: string;
+  paymentMethod?: string;
+  fulfillmentType?: string;
+  statusHistory?: {
+    id?: string;
+    fromStatus?: string;
+    toStatus: string;
+    note?: string;
+    changedBy?: string;
+    changedAt: string;
+  }[];
 }
 
 export interface PaymentRecord {
