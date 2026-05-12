@@ -747,6 +747,7 @@ export function ProductEditor({
                   onChange={(e) => set("basePrice", e.target.value ? Number(e.target.value) : undefined)}
                   placeholder="0"
                 />
+                <span style={styles.helper}>Internal reference price per unit. Shown to buyers only when individual sales are enabled below.</span>
               </div>
               <div style={styles.field}>
                 <label style={styles.label}>Compare-at price</label>
@@ -796,6 +797,142 @@ export function ProductEditor({
               </div>
             )}
 
+            {/* Individual sales toggle */}
+            <label style={styles.switchRow}>
+              <input
+                type="checkbox"
+                checked={values.individualSalesEnabled ?? true}
+                onChange={(e) => set("individualSalesEnabled", e.target.checked)}
+              />
+              <span style={styles.switchLabel}>
+                Allow individual unit purchases
+                <span style={{ ...styles.helper, display: "block", marginTop: 2 }}>
+                  Disable for collections-only products (e.g. carrier bags sold only in packs). Base price will be hidden from buyers.
+                </span>
+              </span>
+            </label>
+
+            {/* Pricing tiers (collections) */}
+            <div style={styles.field}>
+              <label style={styles.label}>Pricing collections</label>
+              <span style={styles.helper}>
+                Define named bundles like "Half Dozen = 6 units @ KES 9/unit". Customers pick a collection. sortOrder is set automatically by row position.
+              </span>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
+                    gap: 6,
+                    fontSize: 10,
+                    textTransform: "uppercase" as const,
+                    letterSpacing: "0.1em",
+                    color: "var(--admin-muted)",
+                    paddingInline: 4,
+                  }}
+                >
+                  <span>Collection name</span>
+                  <span>Qty (units)</span>
+                  <span>KES / unit</span>
+                  <span>Total (auto)</span>
+                  <span />
+                </div>
+                {(values.pricingTiers ?? []).map((row, idx) => {
+                  const total = (Number(row.quantity) || 0) * (Number(row.pricePerUnit) || 0);
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
+                        gap: 6,
+                        alignItems: "center",
+                      }}
+                    >
+                      <input
+                        style={styles.input}
+                        placeholder="e.g. Half Dozen"
+                        value={row.collectionName}
+                        onChange={(e) => {
+                          const next = [...(values.pricingTiers ?? [])];
+                          next[idx] = { ...row, collectionName: e.target.value };
+                          set("pricingTiers", next);
+                        }}
+                      />
+                      <input
+                        type="number"
+                        min={1}
+                        style={styles.input}
+                        placeholder="6"
+                        value={row.quantity || ""}
+                        onChange={(e) => {
+                          const next = [...(values.pricingTiers ?? [])];
+                          next[idx] = { ...row, quantity: Number(e.target.value) || 0 };
+                          set("pricingTiers", next);
+                        }}
+                      />
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        style={styles.input}
+                        placeholder="9.00"
+                        value={row.pricePerUnit || ""}
+                        onChange={(e) => {
+                          const next = [...(values.pricingTiers ?? [])];
+                          next[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
+                          set("pricingTiers", next);
+                        }}
+                      />
+                      <div
+                        style={{
+                          ...styles.input,
+                          background: "transparent",
+                          color: total > 0 ? "var(--admin-text)" : "var(--admin-muted)",
+                          display: "flex",
+                          alignItems: "center",
+                          fontWeight: total > 0 ? 600 : 400,
+                        }}
+                      >
+                        KES {total > 0 ? total.toLocaleString() : "—"}
+                      </div>
+                      <button
+                        type="button"
+                        style={styles.removeX}
+                        onClick={() =>
+                          set(
+                            "pricingTiers",
+                            (values.pricingTiers ?? []).filter((_, i) => i !== idx),
+                          )
+                        }
+                        aria-label="Remove tier"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
+                <button
+                  type="button"
+                  style={styles.ghostBtn}
+                  onClick={() =>
+                    set("pricingTiers", [
+                      ...(values.pricingTiers ?? []),
+                      {
+                        collectionName: "",
+                        quantity: 0,
+                        pricePerUnit: 0,
+                        sortOrder: (values.pricingTiers ?? []).length,
+                      },
+                    ])
+                  }
+                >
+                  + Add collection
+                </button>
+              </div>
+            </div>
+
+            {/* Variants */}
             <div style={styles.field}>
               <label style={styles.label}>Variants (size / material combinations)</label>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -804,10 +941,9 @@ export function ProductEditor({
                     key={idx}
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 0.7fr) minmax(0, 0.7fr) auto",
+                      gridTemplateColumns: "1.4fr 0.9fr 0.7fr 0.7fr auto",
                       gap: 6,
                       alignItems: "center",
-                      minWidth: 0,
                     }}
                   >
                     <input
@@ -878,138 +1014,9 @@ export function ProductEditor({
                 Leave empty for a single-SKU product — base price + stock above will be used.
               </span>
             </div>
-            </div>
-
-            {/* Pricing tiers (collections) */}
-            <div style={{ borderTop: "1px solid var(--admin-border)", paddingTop: 14, marginTop: 4 }}>
-              <label style={styles.switchRow}>
-                <input
-                  type="checkbox"
-                  checked={values.individualSalesEnabled ?? true}
-                  onChange={(e) => set("individualSalesEnabled", e.target.checked)}
-                />
-                <span style={styles.switchLabel}>Allow individual unit purchases</span>
-              </label>
-              <div style={styles.field}>
-                <label style={styles.label}>Pricing tiers (collections)</label>
-                <span style={styles.helper}>
-                  Define collection bundles like "Dozen = 12 units". Customers pick one tier or buy individual units.
-                </span>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 0.7fr) minmax(0, 0.8fr) minmax(0, 0.9fr) auto",
-                      gap: 6,
-                      fontSize: 10,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.1em",
-                      color: "var(--admin-muted)",
-                      paddingInline: 4,
-                    }}
-                  >
-                    <span>Collection name</span>
-                    <span>Quantity</span>
-                    <span>Price / unit</span>
-                    <span>Total (auto)</span>
-                    <span />
-                  </div>
-                  {(values.pricingTiers ?? []).map((row, idx) => {
-                    const total = (Number(row.quantity) || 0) * (Number(row.pricePerUnit) || 0);
-                    return (
-                      <div
-                        key={idx}
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 0.7fr) minmax(0, 0.8fr) minmax(0, 0.9fr) auto",
-                          gap: 6,
-                          alignItems: "center",
-                        }}
-                      >
-                        <input
-                          style={styles.input}
-                          placeholder="Dozen"
-                          value={row.collectionName}
-                          onChange={(e) => {
-                            const next = [...(values.pricingTiers ?? [])];
-                            next[idx] = { ...row, collectionName: e.target.value };
-                            set("pricingTiers", next);
-                          }}
-                        />
-                        <input
-                          type="number"
-                          min={1}
-                          style={styles.input}
-                          placeholder="12"
-                          value={row.quantity || ""}
-                          onChange={(e) => {
-                            const next = [...(values.pricingTiers ?? [])];
-                            next[idx] = { ...row, quantity: Number(e.target.value) || 0 };
-                            set("pricingTiers", next);
-                          }}
-                        />
-                        <input
-                          type="number"
-                          min={0}
-                          step="0.01"
-                          style={styles.input}
-                          placeholder="8.50"
-                          value={row.pricePerUnit || ""}
-                          onChange={(e) => {
-                            const next = [...(values.pricingTiers ?? [])];
-                            next[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
-                            set("pricingTiers", next);
-                          }}
-                        />
-                        <div
-                          style={{
-                            ...styles.input,
-                            background: "transparent",
-                            color: "var(--admin-muted)",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          KES {total.toLocaleString()}
-                        </div>
-                        <button
-                          type="button"
-                          style={styles.removeX}
-                          onClick={() =>
-                            set(
-                              "pricingTiers",
-                              (values.pricingTiers ?? []).filter((_, i) => i !== idx),
-                            )
-                          }
-                          aria-label="Remove tier"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    style={styles.ghostBtn}
-                    onClick={() =>
-                      set("pricingTiers", [
-                        ...(values.pricingTiers ?? []),
-                        {
-                          collectionName: "",
-                          quantity: 0,
-                          pricePerUnit: 0,
-                          sortOrder: (values.pricingTiers ?? []).length,
-                        },
-                      ])
-                    }
-                  >
-                    + Add pricing tier
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
+      </div>
 
       <div style={styles.sideColumn}>
         {/* Sizes & material */}
