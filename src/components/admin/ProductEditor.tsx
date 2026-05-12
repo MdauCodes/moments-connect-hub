@@ -686,7 +686,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
             <div style={s.cardTitle}>Core details</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={s.row}>
+            <div style={s.row} data-admin-row>
               <div style={s.col}>
                 <label style={s.label}>Name</label>
                 <input
@@ -708,7 +708,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                 <span style={s.helper}>Leave blank to auto-generate.</span>
               </div>
             </div>
-            <div style={s.row}>
+            <div style={s.row} data-admin-row>
               <div style={s.col}>
                 <label style={s.label}>Category</label>
                 <select style={s.select} value={values.category} onChange={(e) => set("category", e.target.value)}>
@@ -758,7 +758,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {/* SKU / base price / compare-at */}
-            <div style={s.row3}>
+            <div style={s.row3} data-admin-row>
               <div style={s.col}>
                 <label style={s.label}>SKU</label>
                 <input
@@ -803,7 +803,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
             </label>
 
             {(values.trackInventory ?? true) && (
-              <div style={s.row}>
+              <div style={s.row} data-admin-row>
                 <div style={s.col}>
                   <label style={s.label}>Stock on hand</label>
                   <input
@@ -1063,7 +1063,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                 placeholder="e.g. Small (200×100×250mm), 8oz…"
               />
             </div>
-            <div style={s.row}>
+            <div style={s.row} data-admin-row>
               <div style={s.col}>
                 <label style={s.label}>Material</label>
                 <input
@@ -1176,7 +1176,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
               />
               <span style={s.switchLabel}>Fast-moving ("Trending")</span>
             </label>
-            <div style={s.row3}>
+            <div style={s.row3} data-admin-row>
               <div style={s.col}>
                 <label style={s.label}>Monthly clicks</label>
                 <input
