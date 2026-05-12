@@ -721,7 +721,6 @@ export function ProductEditor({
         </div>
 
         {/* Pricing & Inventory */}
-        {/* Pricing & Inventory */}
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <div style={styles.cardTitle}>Pricing & inventory</div>
