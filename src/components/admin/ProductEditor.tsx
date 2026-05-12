@@ -122,7 +122,7 @@ export function productToFormValues(p: Product): ProductFormValues {
     sku: anyP.sku ?? "",
     basePrice: p.basePrice,
     compareAtPrice: anyP.compareAtPrice,
-    stock: anyP.stock ?? 0,
+    stock: anyP.stockCount ?? anyP.stock ?? 0,
     lowStockThreshold: anyP.lowStockThreshold ?? 10,
     trackInventory: anyP.trackInventory ?? true,
     variants: anyP.variants ? [...anyP.variants] : [],
