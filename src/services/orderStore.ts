@@ -274,7 +274,10 @@ export const orderStore = {
    * Trigger an STK push.
    * Uses POST /api/v1/payments/initiate with paymentMethod MPESA.
    */
-  async startMpesaStk(orderId: string, phone: string): Promise<{ success: boolean; message?: string }> {
+  async startMpesaStk(
+    orderId: string,
+    phone: string,
+  ): Promise<{ success: boolean; message?: string; errorCode?: string }> {
     let res: Response;
     try {
       res = await apiFetch("/api/v1/payments/initiate", {
@@ -286,15 +289,30 @@ export const orderStore = {
     } catch {
       return {
         success: false,
+        errorCode: "NETWORK_ERROR",
         message: "Cannot reach the payment service. Check your connection and try again.",
       };
     }
+
     if (res.ok) return { success: true };
-    const err = await res.json().catch(() => ({}) as { message?: string });
-    return {
-      success: false,
-      message: (err as any).message ?? `Payment initiation failed (${res.status})`,
-    };
+
+    let errorCode = "UNKNOWN";
+    let message = `Payment initiation failed (${res.status})`;
+
+    try {
+      const err = (await res.json()) as { errorCode?: string; message?: string };
+      errorCode = err.errorCode ?? errorCode;
+      message = err.message ?? message;
+    } catch {
+      /* non-JSON body */
+    }
+
+    // Map specific backend codes to user-friendly copy
+    if (errorCode === "MERCHANT_UNAVAILABLE") {
+      message = "Payment is temporarily unavailable. Please try again in a few minutes or contact support.";
+    }
+
+    return { success: false, errorCode, message };
   },
 
   /**
