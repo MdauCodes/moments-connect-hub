@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
 import { adminJson } from "@/services/adminApi";
+import { api } from "@/services/api";
 import type { Product, ProductTag } from "@/data/products";
-import { categories, industries } from "@/data/products";
+import { categories } from "@/data/products";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -143,13 +144,11 @@ export function productToFormValues(p: Product): ProductFormValues {
 // ---------------------------------------------------------------------------
 
 function buildCreateRequest(values: ProductFormValues, productId?: string) {
-  const slug = values.slug || slugifyDraft(values.name);
+  // Backend ignores client-supplied slug (generated server-side from name).
   const imageUrls = values.images.length ? values.images : values.image ? [values.image] : [];
 
   // Resolve client-side industry string IDs → UUID strings (backend is List<UUID>)
-  const industryIds = values.industryIds
-    .map((clientId) => industries.find((i) => String(i.id) === String(clientId))?.id ?? clientId)
-    .filter(Boolean);
+  const industryIds = values.industryIds.filter(Boolean);
 
   const pricingTiers = (values.pricingTiers ?? [])
     .filter((t) => t.collectionName.trim() && t.quantity > 0 && t.pricePerUnit > 0)
@@ -166,7 +165,6 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
   return {
     ...(productId ? { id: productId } : {}),
     name: values.name,
-    slug,
     category: values.category,
     description: values.description,
     moq: values.moq,
@@ -587,6 +585,18 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [liveIndustries, setLiveIndustries] = useState<Array<{ id: string; name: string; slug: string }>>([]);
+
+  useEffect(() => {
+    api
+      .getIndustries()
+      .then((data) => {
+        setLiveIndustries(
+          data.map((ind) => ({ id: String(ind.id), name: ind.name, slug: ind.slug })),
+        );
+      })
+      .catch(() => {}); // non-fatal — industries chip section just stays empty
+  }, []);
 
   const isDirty = useMemo(() => JSON.stringify(values) !== JSON.stringify(initial), [initial, values]);
   const validationIssues = useMemo(() => validateProduct(values), [values]);
@@ -1055,12 +1065,12 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
             <span style={s.helper}>Drives industry filters &amp; search.</span>
           </div>
           <div style={s.chipRow}>
-            {industries.map((ind) => (
+            {liveIndustries.map((ind) => (
               <button
                 key={ind.id}
                 type="button"
-                style={chip(values.industryIds.includes(String(ind.id)))}
-                onClick={() => toggleIndustry(String(ind.id))}
+                style={chip(values.industryIds.includes(ind.id))}
+                onClick={() => toggleIndustry(ind.id)}
               >
                 {ind.name}
               </button>
