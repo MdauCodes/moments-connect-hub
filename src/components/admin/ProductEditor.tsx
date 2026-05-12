@@ -899,7 +899,7 @@ export function ProductEditor({
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
+                      gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 0.7fr) minmax(0, 0.8fr) minmax(0, 0.9fr) auto",
                       gap: 6,
                       fontSize: 10,
                       textTransform: "uppercase",
@@ -921,7 +921,7 @@ export function ProductEditor({
                         key={idx}
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
+                          gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 0.7fr) minmax(0, 0.8fr) minmax(0, 0.9fr) auto",
                           gap: 6,
                           alignItems: "center",
                         }}
