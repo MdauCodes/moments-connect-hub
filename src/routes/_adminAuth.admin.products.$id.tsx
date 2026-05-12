@@ -5,20 +5,19 @@ import {
   ProductEditor,
   productToFormValues,
 } from "@/components/admin/ProductEditor";
-import { adminResources } from "@/services/adminResources";
+import { adminJson } from "@/services/adminApi";
+import type { ProductDto } from "@/services/adminResources";
 import { updateProductApi, deleteProductApi } from "@/services/adminProductApi";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_adminAuth/admin/products/$id")({
   loader: async ({ params }) => {
-    try {
-      const product = await adminResources.products.get(params.id);
-      if (!product) throw notFound();
-      return { product };
-    } catch {
-      throw notFound();
-    }
+    const product = await adminJson<ProductDto>(
+      `/api/v1/admin/products/${encodeURIComponent(params.id)}`
+    );
+    if (!product) throw notFound();
+    return { product };
   },
   notFoundComponent: () => (
     <AdminLayout title="Product not found">
