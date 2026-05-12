@@ -37,6 +37,26 @@ function normalizeIndustryIds(p: ProductApiDto): string[] {
     .map(String);
 }
 
+function normalizePricingTiers(raw: any): Array<any> {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((t) => t && (t.collectionName || t.quantity != null))
+    .map((t, i) => {
+      const quantity = Number(t.quantity ?? 0) || 0;
+      const pricePerUnit = Number(t.pricePerUnit ?? 0) || 0;
+      const collectionPrice = Number(t.collectionPrice ?? quantity * pricePerUnit) || 0;
+      return {
+        id: String(t.id ?? `tier-${i}`),
+        collectionName: String(t.collectionName ?? `Tier ${i + 1}`),
+        quantity,
+        pricePerUnit,
+        collectionPrice,
+        sortOrder: t.sortOrder != null ? Number(t.sortOrder) : i,
+      };
+    })
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
 function normalizeProduct(p: ProductApiDto): Product {
   const image = p.image ?? p.primaryImageUrl ?? p.imageUrls?.[0] ?? "";
   return {
@@ -56,6 +76,8 @@ function normalizeProduct(p: ProductApiDto): Product {
     monthlyClicks: p.monthlyClicks ?? 0,
     totalEnquiries: p.totalEnquiries ?? 0,
     monthlyEnquiries: p.monthlyEnquiries ?? 0,
+    individualSalesEnabled: (p as any).individualSalesEnabled ?? true,
+    pricingTiers: normalizePricingTiers((p as any).pricingTiers),
   };
 }
 
