@@ -148,9 +148,7 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
   const imageUrls = values.images.length ? values.images : values.image ? [values.image] : [];
 
   // Resolve client-side industry string IDs → UUID strings (backend is List<UUID>)
-  const industryIds = values.industryIds
-    .map((clientId) => industries.find((i) => String(i.id) === String(clientId))?.id ?? clientId)
-    .filter(Boolean);
+  const industryIds = values.industryIds.filter(Boolean);
 
   const pricingTiers = (values.pricingTiers ?? [])
     .filter((t) => t.collectionName.trim() && t.quantity > 0 && t.pricePerUnit > 0)
@@ -1056,12 +1054,12 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
             <span style={s.helper}>Drives industry filters &amp; search.</span>
           </div>
           <div style={s.chipRow}>
-            {industries.map((ind) => (
+            {liveIndustries.map((ind) => (
               <button
                 key={ind.id}
                 type="button"
-                style={chip(values.industryIds.includes(String(ind.id)))}
-                onClick={() => toggleIndustry(String(ind.id))}
+                style={chip(values.industryIds.includes(ind.id))}
+                onClick={() => toggleIndustry(ind.id)}
               >
                 {ind.name}
               </button>
