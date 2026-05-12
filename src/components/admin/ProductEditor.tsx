@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
-import { adminJson, adminFetch } from "@/services/adminApi";
+import { adminJson } from "@/services/adminApi";
+import { adminResources } from "@/services/adminResources";
 import { api } from "@/services/api";
 import type { Product, ProductTag } from "@/data/products";
 import { categories } from "@/data/products";
@@ -464,21 +465,8 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
     setUploadError(null);
     setUploading(true);
     try {
-      const form = new FormData();
-      form.append("file", file);
-
-      const res = await adminFetch("/api/v1/admin/uploads/image?entity=products", {
-        method: "POST",
-        body: form,
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error((err as any).message || `Upload failed (${res.status})`);
-      }
-
-      const data = (await res.json()) as { url: string; publicId: string };
-      onChange(data.url);
+      const result = await adminResources.uploadImage(file, "products");
+      onChange(result.url);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -682,7 +670,14 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
   const pricingTiers = values.pricingTiers ?? [];
 
   return (
-    <form style={s.wrap} onSubmit={handleSubmit}>
+    <form style={s.wrap} onSubmit={handleSubmit} data-admin-editor-grid>
+      <style>{`
+        [data-admin-editor-grid] { grid-template-columns: minmax(0,1.35fr) minmax(320px,0.75fr); }
+        @media (max-width: 860px) {
+          [data-admin-editor-grid] { grid-template-columns: 1fr !important; }
+          [data-admin-row] { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       {/* ── LEFT COLUMN ─────────────────────────────────────────────────── */}
       <div style={s.mainCol}>
         {/* Core details */}
@@ -691,7 +686,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
             <div style={s.cardTitle}>Core details</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={s.row}>
+            <div style={s.row} data-admin-row>
               <div style={s.col}>
                 <label style={s.label}>Name</label>
                 <input
@@ -713,7 +708,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                 <span style={s.helper}>Leave blank to auto-generate.</span>
               </div>
             </div>
-            <div style={s.row}>
+            <div style={s.row} data-admin-row>
               <div style={s.col}>
                 <label style={s.label}>Category</label>
                 <select style={s.select} value={values.category} onChange={(e) => set("category", e.target.value)}>
@@ -763,7 +758,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {/* SKU / base price / compare-at */}
-            <div style={s.row3}>
+            <div style={s.row3} data-admin-row>
               <div style={s.col}>
                 <label style={s.label}>SKU</label>
                 <input
@@ -808,7 +803,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
             </label>
 
             {(values.trackInventory ?? true) && (
-              <div style={s.row}>
+              <div style={s.row} data-admin-row>
                 <div style={s.col}>
                   <label style={s.label}>Stock on hand</label>
                   <input
@@ -1068,7 +1063,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                 placeholder="e.g. Small (200×100×250mm), 8oz…"
               />
             </div>
-            <div style={s.row}>
+            <div style={s.row} data-admin-row>
               <div style={s.col}>
                 <label style={s.label}>Material</label>
                 <input
@@ -1181,7 +1176,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
               />
               <span style={s.switchLabel}>Fast-moving ("Trending")</span>
             </label>
-            <div style={s.row3}>
+            <div style={s.row3} data-admin-row>
               <div style={s.col}>
                 <label style={s.label}>Monthly clicks</label>
                 <input
