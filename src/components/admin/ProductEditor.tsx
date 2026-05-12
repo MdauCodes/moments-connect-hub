@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
-import { adminJson } from "@/services/adminApi";
+import { adminJson, adminFetch } from "@/services/adminApi";
 import { api } from "@/services/api";
 import type { Product, ProductTag } from "@/data/products";
 import { categories } from "@/data/products";
