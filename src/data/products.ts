@@ -172,20 +172,38 @@ export type Product = {
   primaryImageUrl?: string;
   imageUrls?: string[];
   industries?: Array<{ id?: string | number; displayId?: string | number; name?: string; slug?: string }>;
-  pricingTiers?: Array<{
-    id?: string;
-    /** New collection-shape (from backend) */
-    collectionName?: string;
-    quantity?: number;
-    collectionPrice?: number;
-    sortOrder?: number;
-    /** Legacy quantity-bracket shape (mock data) */
-    minQty?: number;
-    maxQty?: number;
-    pricePerUnit: number;
-  }>;
-  /** Allow buying loose units (in addition to collection tiers). */
+  /** Backend collection-based pricing tiers. Hydrated by API mapper. */
+  pricingTiers?: ProductPricingTierLike[];
+  /** Whether the product can be purchased as individual units (default true if undefined). */
   individualSalesEnabled?: boolean;
+};
+
+/** Strict pricing tier shape returned by the backend (and used by all UI). */
+export interface PricingTier {
+  id: string;
+  collectionName: string;
+  quantity: number;
+  pricePerUnit: number;
+  collectionPrice: number;
+  sortOrder: number;
+}
+
+/**
+ * Loose tier shape stored on Product.pricingTiers — covers both the strict
+ * backend `PricingTier` and the legacy quantity-bracket mock shape
+ * (`minQty`/`maxQty`/`pricePerUnit`). UI code should normalize via the API
+ * mapper before consuming.
+ */
+export type ProductPricingTierLike = {
+  id?: string;
+  collectionName?: string;
+  quantity?: number;
+  pricePerUnit: number;
+  collectionPrice?: number;
+  sortOrder?: number;
+  /** Legacy mock-data fields — never sent to backend. */
+  minQty?: number;
+  maxQty?: number;
 };
 
 export const categories = [
