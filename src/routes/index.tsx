@@ -157,12 +157,6 @@ const categoryTiles: CategoryTile[] = [
   },
 ];
 
-// ── Persona segments ──────────────────────────────────────────────────────────
-const personaSegments = [
-  { id: "individual" as const, label: "I'm an individual", blurb: "Wedding, birthday, gifting — order what you need." },
-  { id: "sme" as const, label: "Small business / shop", blurb: "Restaurant, café, retail — fast turnaround." },
-  { id: "corporate" as const, label: "Large company / brand", blurb: "Volume orders, contracts, formal quotes." },
-];
 
 // ── Featured products ─────────────────────────────────────────────────────────
 function FeaturedProducts() {
