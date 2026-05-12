@@ -105,11 +105,11 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           )}
         </div>
       </div>
-      <div className="flex flex-1 flex-col p-4">
-        <span className="self-start rounded-full border border-kraft/30 bg-kraft/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-kraft">
+      <div className="flex flex-1 flex-col p-3 sm:p-4">
+        <span className="self-start rounded-full border border-kraft/30 bg-kraft/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-kraft sm:px-2.5 sm:text-[10px]">
           {p.category}
         </span>
-        <h3 className="mt-2 font-display text-base font-semibold text-foreground">
+        <h3 className="mt-1.5 font-display text-sm font-semibold leading-snug text-foreground sm:mt-2 sm:text-base">
           {p.name}
         </h3>
 
