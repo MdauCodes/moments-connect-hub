@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import { api } from "@/services/api";
 import type { Product } from "@/data/products";
-import { usePersona } from "@/contexts/PersonaContext";
+
 
 // ── JSON-LD ───────────────────────────────────────────────────────────────────
 const orgLd = {
@@ -157,12 +157,6 @@ const categoryTiles: CategoryTile[] = [
   },
 ];
 
-// ── Persona segments ──────────────────────────────────────────────────────────
-const personaSegments = [
-  { id: "individual" as const, label: "I'm an individual", blurb: "Wedding, birthday, gifting — order what you need." },
-  { id: "sme" as const, label: "Small business / shop", blurb: "Restaurant, café, retail — fast turnaround." },
-  { id: "corporate" as const, label: "Large company / brand", blurb: "Volume orders, contracts, formal quotes." },
-];
 
 // ── Featured products ─────────────────────────────────────────────────────────
 function FeaturedProducts() {
@@ -274,44 +268,64 @@ function CategoryGrid() {
   );
 }
 
-// ── Persona picker ────────────────────────────────────────────────────────────
-function PersonaSegmentPicker() {
-  const { persona, setPersona } = usePersona();
+// ── Audiences we serve — informational, non-interactive ──────────────────────
+const audienceColumns = [
+  {
+    icon: Gift,
+    role: "Individuals",
+    blurb: "Weddings, birthdays, anniversaries and personal gifting — order what you need, no minimums.",
+    examples: ["Wedding favours", "Birthday gift boxes", "One-off event packs"],
+  },
+  {
+    icon: ShoppingBag,
+    role: "Small businesses & shops",
+    blurb: "Cafés, restaurants, retail and online sellers — quality packaging on a turnaround that fits your week.",
+    examples: ["Takeaway cups & boxes", "Branded carrier bags", "E-commerce mailers"],
+  },
+  {
+    icon: Package,
+    role: "Companies & enterprise",
+    blurb: "Volume orders, contracts and procurement — formal quotes and a dedicated contact for every rollout.",
+    examples: ["10,000+ unit runs", "National brand rollouts", "Scheduled deliveries"],
+  },
+];
+
+function AudiencesWeServe() {
   return (
     <section className="relative overflow-hidden bg-cream">
       <DotGrid opacity={0.04} size={14} />
       <ArcStroke className="-right-32 top-1/2 h-80 w-80 -translate-y-1/2" color="kraft" opacity={0.06} />
-      <div className="relative mx-auto max-w-5xl px-5 py-14 text-center sm:py-16 lg:px-8">
-        <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Optional</p>
-        <h2 className="mt-2 font-display text-2xl font-medium text-foreground sm:text-3xl">
-          Who are you ordering for?
-        </h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
-          Pick one to tailor recommendations. Skip if you&apos;d rather just browse.
-        </p>
+      <div className="relative mx-auto max-w-6xl px-5 py-14 sm:py-20 lg:px-8">
+        <div className="max-w-2xl">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Who we pack for</p>
+          <h2 className="mt-2 font-display text-3xl font-medium text-foreground sm:text-4xl">
+            Whether you&apos;re an individual, a small business, or a large enterprise — we serve all of you.
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+            One catalogue, one production line, three kinds of customers. Same quality, same craft —
+            scaled to whatever you&apos;re ordering.
+          </p>
+        </div>
 
-        <div className="mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
-          {personaSegments.map((seg) => {
-            const active = persona === seg.id;
+        <div className="mt-10 grid gap-8 border-t border-border pt-10 sm:grid-cols-3 sm:gap-6">
+          {audienceColumns.map((col) => {
+            const Icon = col.icon;
             return (
-              <button
-                key={seg.id}
-                type="button"
-                onClick={() => setPersona(active ? null : seg.id)}
-                className={`rounded-2xl border p-5 text-left transition-all ${
-                  active
-                    ? "border-primary bg-primary text-primary-foreground shadow-md"
-                    : "border-border bg-background text-foreground hover:border-foreground/40 hover:shadow-sm"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-display text-base font-semibold">{seg.label}</span>
-                  {active && <Check className="h-4 w-4" />}
-                </div>
-                <p className={`mt-2 text-xs ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-                  {seg.blurb}
-                </p>
-              </button>
+              <div key={col.role} className="flex flex-col">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <Icon className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                <h3 className="mt-4 font-display text-lg font-semibold text-foreground">{col.role}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{col.blurb}</p>
+                <ul className="mt-4 space-y-1.5 border-t border-border/60 pt-4">
+                  {col.examples.map((ex) => (
+                    <li key={ex} className="flex items-start gap-2 text-xs text-foreground/75">
+                      <Check className="mt-0.5 h-3 w-3 shrink-0 text-accent" />
+                      <span>{ex}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             );
           })}
         </div>
@@ -411,14 +425,14 @@ function HomePage() {
         </div>
       </section>
 
+      {/* FEATURED PRODUCTS — products lead */}
+      <FeaturedProducts />
+
       {/* CATEGORY GRID — Swiss image tiles */}
       <CategoryGrid />
 
-      {/* FEATURED PRODUCTS */}
-      <FeaturedProducts />
-
-      {/* PERSONA PICKER */}
-      <PersonaSegmentPicker />
+      {/* AUDIENCES WE SERVE — informational */}
+      <AudiencesWeServe />
 
       {/* BLOGS */}
       <LatestBlogsStrip />
