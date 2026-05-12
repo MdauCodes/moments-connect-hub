@@ -501,7 +501,7 @@ function ProductsPage() {
           <>
             <div className="mt-8 grid animate-in fade-in gap-5 duration-300 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
               {grid.map((p) => (
-                <ProductCard key={p.id} product={p} onConfigure={setConfiguring} />
+                <ProductCard key={p.id} product={p} onConfigure={handleConfigure} />
               ))}
             </div>
 
