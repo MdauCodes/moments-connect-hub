@@ -213,11 +213,11 @@ function FeaturedProducts() {
               Products loading — check back shortly.
             </div>
           ) : (
-            products.map((p) => <ProductCard key={p.id} product={p} onConfigure={setConfiguring} />)
+            products.map((p) => <ProductCard key={p.id} product={p} onConfigure={handleConfigure} />)
           )}
         </div>
 
-        <ConfiguratorModal product={configuring} onClose={() => setConfiguring(null)} />
+        <ConfiguratorModal product={configuring} preSelectedTierId={preTier} onClose={() => setConfiguring(null)} />
       </div>
     </section>
   );
