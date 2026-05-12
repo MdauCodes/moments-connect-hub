@@ -74,6 +74,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           src={image}
           alt={p.name}
           loading="lazy"
+          style={{ objectPosition: "center" }}
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute left-3 top-3 flex flex-col gap-1.5">
