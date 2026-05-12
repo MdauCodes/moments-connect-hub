@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import { api } from "@/services/api";
 import type { Product } from "@/data/products";
-import { usePersona } from "@/contexts/PersonaContext";
+
 
 // ── JSON-LD ───────────────────────────────────────────────────────────────────
 const orgLd = {
