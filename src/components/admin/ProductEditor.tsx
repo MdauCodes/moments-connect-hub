@@ -1,28 +1,19 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type CSSProperties,
-  type ChangeEvent,
-  type FormEvent,
-} from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
+import { adminJson } from "@/services/adminApi";
 import type { Product, ProductTag } from "@/data/products";
 import { categories, industries } from "@/data/products";
 
 // ---------------------------------------------------------------------------
-// Admin product editor — mirrors the Product entity 1:1 so the form can be
-// pointed at POST/PUT /api/admin/products without changing field names.
-// Image upload accepts either a file (read as DataURL — temporary) or a URL
-// paste, identical to the BlogEditor pattern. Cloudinary will replace this.
+// Types
 // ---------------------------------------------------------------------------
 
 const TAGS: ProductTag[] = ["Trending", "New", "Discounted", "Featured"];
 
 export interface ProductVariant {
   id?: string;
-  label: string;       // e.g. "Small / Kraft"
+  label: string;
   sku?: string;
-  price?: number;      // unit price KES
+  price?: number;
   stock?: number;
 }
 
@@ -48,7 +39,7 @@ export interface ProductFormValues {
   discountPercent?: number;
   isNewArrival: boolean;
   isFastMoving: boolean;
-  industryIds: string[];
+  industryIds: string[]; // stored as strings client-side; sent as UUIDs to backend
   totalClicks: number;
   monthlyClicks: number;
   totalEnquiries: number;
@@ -56,10 +47,9 @@ export interface ProductFormValues {
   material?: string;
   finish?: string;
   keywords?: string[];
-  // Inventory (Phase 2)
   sku?: string;
-  basePrice?: number;        // KES
-  compareAtPrice?: number;   // KES — strike-through reference
+  basePrice?: number;
+  compareAtPrice?: number;
   stock?: number;
   lowStockThreshold?: number;
   trackInventory?: boolean;
@@ -104,6 +94,7 @@ export function emptyProductValues(): ProductFormValues {
 }
 
 export function productToFormValues(p: Product): ProductFormValues {
+  const anyP = p as any;
   return {
     name: p.name,
     slug: p.slug,
@@ -126,18 +117,16 @@ export function productToFormValues(p: Product): ProductFormValues {
     material: p.material ?? "",
     finish: p.finish ?? "",
     keywords: p.keywords ? [...p.keywords] : [],
-    sku: (p as Product & { sku?: string }).sku ?? "",
+    sku: anyP.sku ?? "",
     basePrice: p.basePrice,
-    compareAtPrice: (p as Product & { compareAtPrice?: number }).compareAtPrice,
-    stock: (p as Product & { stock?: number }).stock ?? 0,
-    lowStockThreshold: (p as Product & { lowStockThreshold?: number }).lowStockThreshold ?? 10,
-    trackInventory: (p as Product & { trackInventory?: boolean }).trackInventory ?? true,
-    variants: (p as Product & { variants?: ProductVariant[] }).variants
-      ? [...((p as Product & { variants?: ProductVariant[] }).variants ?? [])]
-      : [],
-    individualSalesEnabled: (p as any).individualSalesEnabled ?? true,
-    pricingTiers: ((p as any).pricingTiers ?? [])
-      .filter((t: any) => t && t.collectionName)
+    compareAtPrice: anyP.compareAtPrice,
+    stock: anyP.stock ?? 0,
+    lowStockThreshold: anyP.lowStockThreshold ?? 10,
+    trackInventory: anyP.trackInventory ?? true,
+    variants: anyP.variants ? [...anyP.variants] : [],
+    individualSalesEnabled: anyP.individualSalesEnabled ?? true,
+    pricingTiers: (anyP.pricingTiers ?? [])
+      .filter((t: any) => t?.collectionName)
       .map((t: any, i: number) => ({
         id: t.id,
         collectionName: String(t.collectionName ?? ""),
@@ -149,30 +138,143 @@ export function productToFormValues(p: Product): ProductFormValues {
 }
 
 // ---------------------------------------------------------------------------
-// Styles — match AdminLayout's dark surface (same tokens as BlogEditor)
+// Backend payload builder — resolves string industry IDs to UUIDs via the
+// industries data map, so the Spring backend receives proper UUID strings.
 // ---------------------------------------------------------------------------
 
-const styles: Record<string, CSSProperties> = {
+function buildCreateRequest(values: ProductFormValues, productId?: string) {
+  const images = values.images.length ? values.images : values.image ? [values.image] : [];
+  const slug = values.slug || slugifyDraft(values.name);
+
+  // Map client-side industry IDs → UUID strings expected by backend
+  // industries[] from @/data/products has { id, slug, ... }
+  const industryIds = values.industryIds
+    .map((clientId) => {
+      const ind = industries.find((i) => String(i.id) === String(clientId));
+      return ind?.id ?? clientId; // already a UUID if backend populated it
+    })
+    .filter(Boolean);
+
+  const pricingTiers = (values.pricingTiers ?? [])
+    .filter((t) => t.collectionName.trim())
+    .map((t, i) => ({
+      ...(t.id && !t.id.startsWith("tier-") ? { id: t.id } : {}),
+      collectionName: t.collectionName,
+      quantity: t.quantity,
+      pricePerUnit: t.pricePerUnit,
+      sortOrder: t.sortOrder ?? i,
+    }));
+
+  return {
+    ...(productId ? { id: productId } : {}),
+    name: values.name,
+    slug,
+    category: values.category,
+    description: values.description,
+    moq: values.moq,
+    sizes: values.sizes,
+    tags: values.tags,
+    image: values.image,
+    images,
+    isDiscount: values.isDiscount,
+    discountPercent: values.isDiscount ? values.discountPercent : undefined,
+    isNewArrival: values.isNewArrival,
+    isFastMoving: values.isFastMoving,
+    industryIds,
+    totalClicks: values.totalClicks,
+    monthlyClicks: values.monthlyClicks,
+    totalEnquiries: values.totalEnquiries,
+    monthlyEnquiries: values.monthlyEnquiries,
+    material: values.material || undefined,
+    finish: values.finish || undefined,
+    keywords: values.keywords?.length ? values.keywords : undefined,
+    sku: values.sku || undefined,
+    basePrice: values.basePrice,
+    compareAtPrice: values.compareAtPrice,
+    stock: values.trackInventory ? (values.stock ?? 0) : undefined,
+    lowStockThreshold: values.trackInventory ? (values.lowStockThreshold ?? 10) : undefined,
+    trackInventory: values.trackInventory ?? true,
+    variants: (values.variants ?? []).filter((v) => v.label.trim()),
+    individualSalesEnabled: values.individualSalesEnabled ?? true,
+    pricingTiers,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Admin API helpers — POST to create, PUT to update
+// ---------------------------------------------------------------------------
+
+export async function createProductApi(values: ProductFormValues): Promise<Product> {
+  return adminJson<Product>("/api/v1/admin/products", {
+    method: "POST",
+    body: JSON.stringify(buildCreateRequest(values)),
+  });
+}
+
+export async function updateProductApi(id: string, values: ProductFormValues): Promise<Product> {
+  return adminJson<Product>(`/api/v1/admin/products/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: JSON.stringify(buildCreateRequest(values, id)),
+  });
+}
+
+export async function deleteProductApi(id: string): Promise<void> {
+  await adminJson<void>(`/api/v1/admin/products/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
+
+function slugifyDraft(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 80);
+}
+
+function categoryName(slug: string): string {
+  return categories.find((c) => c.slug === slug)?.name ?? slug;
+}
+
+function validateProduct(values: ProductFormValues): string[] {
+  const issues: string[] = [];
+  if (!values.name.trim()) issues.push("Product name is required.");
+  if (!values.image) issues.push("Add a product image.");
+  if (!values.category) issues.push("Pick a product category.");
+  if (!values.description.trim()) issues.push("Add a short catalogue description.");
+  if (values.moq < 1) issues.push("MOQ must be at least 1.");
+  if (values.isDiscount && (!values.discountPercent || values.discountPercent <= 0))
+    issues.push("Set a discount percentage when Discounted is on.");
+  if (values.isDiscount && values.discountPercent && values.discountPercent > 90)
+    issues.push("Discount percentage must be 90% or lower.");
+  return issues;
+}
+
+// ---------------------------------------------------------------------------
+// Styles
+// ---------------------------------------------------------------------------
+
+const s: Record<string, CSSProperties> = {
   wrap: {
     maxWidth: 1240,
-    width: "100%",
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 520px), 1fr))",
+    gridTemplateColumns: "minmax(0,1.35fr) minmax(320px,0.75fr)",
     gap: 20,
     alignItems: "start",
   },
-  row: { display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))" },
-  rowThree: { display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))" },
-  field: { display: "flex", flexDirection: "column", gap: 6, minWidth: 0 },
-  label: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: "0.12em",
-    color: "var(--admin-muted)",
-  },
+  row: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" },
+  row3: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr 1fr" },
+  col: { display: "flex", flexDirection: "column", gap: 6 },
+  label: { fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--admin-muted)" },
   helper: { fontSize: 11, color: "var(--admin-muted)" },
   input: {
-    background: "color-mix(in oklab, var(--admin-bg) 82%, var(--admin-surface) 18%)",
+    background: "color-mix(in oklab,var(--admin-bg) 82%,var(--admin-surface) 18%)",
     border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "9px 12px",
@@ -180,13 +282,9 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 13,
     fontFamily: "inherit",
     outline: "none",
-    width: "100%",
-    maxWidth: "100%",
-    minWidth: 0,
-    boxSizing: "border-box",
   },
   textarea: {
-    background: "color-mix(in oklab, var(--admin-bg) 82%, var(--admin-surface) 18%)",
+    background: "color-mix(in oklab,var(--admin-bg) 82%,var(--admin-surface) 18%)",
     border: "1px solid var(--admin-border)",
     borderRadius: 8,
     padding: "10px 12px",
@@ -196,10 +294,6 @@ const styles: Record<string, CSSProperties> = {
     outline: "none",
     resize: "vertical",
     minHeight: 90,
-    width: "100%",
-    maxWidth: "100%",
-    minWidth: 0,
-    boxSizing: "border-box",
   },
   select: {
     background: "var(--admin-bg)",
@@ -210,25 +304,16 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 13,
     fontFamily: "inherit",
     outline: "none",
-    width: "100%",
-    maxWidth: "100%",
-    minWidth: 0,
-    boxSizing: "border-box",
   },
   card: {
     background:
-      "linear-gradient(180deg, color-mix(in oklab, var(--admin-surface) 92%, var(--cream) 8%), var(--admin-surface))",
+      "linear-gradient(180deg,color-mix(in oklab,var(--admin-surface) 92%,var(--cream) 8%),var(--admin-surface))",
     border: "1px solid var(--admin-border)",
     borderRadius: 14,
     padding: 18,
     boxShadow: "var(--admin-shadow)",
   },
-  cardHeader: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
+  cardHd: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
   cardTitle: {
     fontSize: 18,
     fontWeight: 650,
@@ -236,22 +321,22 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "var(--font-display)",
     letterSpacing: 0,
   },
-  mainColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
-  sideColumn: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
+  mainCol: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
+  sideCol: { display: "flex", flexDirection: "column", gap: 18, minWidth: 0 },
   chipRow: { display: "flex", flexWrap: "wrap", gap: 8 },
-  imagePreview: {
+  imgPreview: {
     width: "100%",
     maxWidth: 280,
-    aspectRatio: "4 / 3",
+    aspectRatio: "4/3",
     background: "var(--admin-bg)",
     border: "1px solid var(--admin-border)",
     borderRadius: 10,
     objectFit: "cover" as const,
   },
-  imagePlaceholder: {
+  imgPlaceholder: {
     width: "100%",
     maxWidth: 280,
-    aspectRatio: "4 / 3",
+    aspectRatio: "4/3",
     background: "var(--admin-bg)",
     border: "1px dashed var(--admin-border)",
     borderRadius: 10,
@@ -268,12 +353,7 @@ const styles: Record<string, CSSProperties> = {
     overflow: "hidden",
     boxShadow: "var(--admin-shadow)",
   },
-  previewImage: {
-    width: "100%",
-    aspectRatio: "4 / 3",
-    objectFit: "cover" as const,
-    background: "var(--admin-bg)",
-  },
+  previewImg: { width: "100%", aspectRatio: "4/3", objectFit: "cover" as const, background: "var(--admin-bg)" },
   previewBody: { padding: 16, display: "flex", flexDirection: "column", gap: 10 },
   previewTitle: {
     color: "var(--admin-text)",
@@ -283,13 +363,8 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1.1,
     margin: 0,
   },
-  previewMeta: {
-    color: "var(--admin-muted)",
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-  },
-  previewDescription: { color: "var(--admin-muted)", fontSize: 12.5, lineHeight: 1.55, margin: 0 },
+  previewMeta: { color: "var(--admin-muted)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em" },
+  previewDesc: { color: "var(--admin-muted)", fontSize: 12.5, lineHeight: 1.55, margin: 0 },
   fileBtn: {
     background: "var(--admin-border)",
     border: "1px solid var(--admin-border)",
@@ -322,7 +397,7 @@ const styles: Record<string, CSSProperties> = {
     fontFamily: "var(--font-display)",
   },
   dangerBtn: {
-    background: "color-mix(in oklab, var(--admin-clay) 22%, var(--admin-bg))",
+    background: "color-mix(in oklab,var(--admin-clay) 22%,var(--admin-bg))",
     color: "var(--admin-clay)",
     border: "1px solid var(--admin-clay)",
     borderRadius: 8,
@@ -331,12 +406,7 @@ const styles: Record<string, CSSProperties> = {
     cursor: "pointer",
     fontFamily: "inherit",
   },
-  actionsBar: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 10,
-    paddingTop: 6,
-  },
+  actionsBar: { display: "flex", justifyContent: "space-between", gap: 10, paddingTop: 6 },
   actionsRight: { display: "flex", gap: 10, marginLeft: "auto" },
   badge: {
     display: "inline-flex",
@@ -360,31 +430,24 @@ const styles: Record<string, CSSProperties> = {
   },
   inlineRow: { display: "flex", gap: 8, alignItems: "center" },
   errorText: { fontSize: 12, color: "var(--admin-clay)" },
-  validationList: {
-    margin: 0,
-    paddingLeft: 18,
-    color: "var(--admin-clay)",
-    fontSize: 12,
-    lineHeight: 1.7,
-  },
+  validationList: { margin: 0, paddingLeft: 18, color: "var(--admin-clay)", fontSize: 12, lineHeight: 1.7 },
   switchRow: {
     display: "flex",
     alignItems: "center",
     gap: 10,
     padding: "10px 12px",
-    background: "color-mix(in oklab, var(--admin-bg) 74%, var(--admin-surface) 26%)",
+    background: "color-mix(in oklab,var(--admin-bg) 74%,var(--admin-surface) 26%)",
     border: "1px solid var(--admin-border)",
     borderRadius: 10,
   },
   switchLabel: { fontSize: 12.5, color: "var(--admin-text)", flex: 1 },
+  divider: { borderTop: "1px solid var(--admin-border)", paddingTop: 14, marginTop: 4 },
 };
 
-function chipStyle(active: boolean): CSSProperties {
+function chip(active: boolean): CSSProperties {
   return {
     border: `1px solid ${active ? "var(--admin-accent-hover)" : "var(--admin-border)"}`,
-    background: active
-      ? "color-mix(in oklab, var(--admin-accent) 34%, var(--admin-surface))"
-      : "var(--admin-bg)",
+    background: active ? "color-mix(in oklab,var(--admin-accent) 34%,var(--admin-surface))" : "var(--admin-bg)",
     color: active ? "var(--cream)" : "var(--admin-muted)",
     borderRadius: 999,
     padding: "5px 12px",
@@ -394,50 +457,12 @@ function chipStyle(active: boolean): CSSProperties {
   };
 }
 
-function slugifyDraft(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 80);
-}
-
-function categoryName(slug: string): string {
-  return categories.find((c) => c.slug === slug)?.name ?? slug;
-}
-
-function validateProduct(values: ProductFormValues): string[] {
-  const issues: string[] = [];
-  if (!values.name.trim()) issues.push("Product name is required.");
-  if (!values.slug.trim() && !values.name.trim())
-    issues.push("Add a name so the URL slug can be generated.");
-  if (!values.image) issues.push("Add a product image.");
-  if (!values.category) issues.push("Pick a product category.");
-  if (!values.description.trim()) issues.push("Add a short catalogue description.");
-  if (values.moq < 1) issues.push("MOQ must be at least 1.");
-  if (values.isDiscount && (!values.discountPercent || values.discountPercent <= 0)) {
-    issues.push("Set a discount percentage when Discounted is on.");
-  }
-  if (values.isDiscount && values.discountPercent && values.discountPercent > 90) {
-    issues.push("Discount percentage must be 90% or lower.");
-  }
-  return issues;
-}
-
 // ---------------------------------------------------------------------------
-// Image picker — mirrors BlogEditor (file -> DataURL, or URL paste)
+// Sub-components
 // ---------------------------------------------------------------------------
 
-interface ImagePickerProps {
-  value: string;
-  onChange: (url: string) => void;
-}
-
-function ImagePicker({ value, onChange }: ImagePickerProps) {
+function ImagePicker({ value, onChange }: { value: string; onChange: (url: string) => void }) {
   const [urlDraft, setUrlDraft] = useState("");
-
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -446,40 +471,36 @@ function ImagePicker({ value, onChange }: ImagePickerProps) {
       if (typeof reader.result === "string") onChange(reader.result);
     };
     reader.readAsDataURL(file);
-    // reset so the same file can be re-selected
     e.target.value = "";
   };
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {value ? (
-        <img src={value} alt="Product preview" style={styles.imagePreview} />
+        <img src={value} alt="Product preview" style={s.imgPreview} />
       ) : (
-        <div style={styles.imagePlaceholder}>No image yet</div>
+        <div style={s.imgPlaceholder}>No image yet</div>
       )}
-
-      <div style={styles.inlineRow}>
-        <label style={styles.fileBtn}>
+      <div style={s.inlineRow}>
+        <label style={s.fileBtn}>
           Upload file
           <input type="file" accept="image/*" onChange={handleFile} style={{ display: "none" }} />
         </label>
         {value && (
-          <button type="button" style={styles.ghostBtn} onClick={() => onChange("")}>
+          <button type="button" style={s.ghostBtn} onClick={() => onChange("")}>
             Remove
           </button>
         )}
       </div>
-
-      <div style={styles.inlineRow}>
+      <div style={s.inlineRow}>
         <input
-          style={{ ...styles.input, flex: 1 }}
+          style={{ ...s.input, flex: 1 }}
           placeholder="…or paste an image URL"
           value={urlDraft}
           onChange={(e) => setUrlDraft(e.target.value)}
         />
         <button
           type="button"
-          style={styles.ghostBtn}
+          style={s.ghostBtn}
           onClick={() => {
             if (urlDraft.trim()) {
               onChange(urlDraft.trim());
@@ -490,30 +511,26 @@ function ImagePicker({ value, onChange }: ImagePickerProps) {
           Use URL
         </button>
       </div>
-      <div style={styles.helper}>
-        File uploads are stored as data URLs in this preview. Cloudinary will replace this once the
-        backend is live.
+      <div style={s.helper}>
+        File uploads are stored as data URLs. Cloudinary will replace this once backend image upload is wired.
       </div>
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Tokenized list input — used for sizes & keywords
-// ---------------------------------------------------------------------------
-
-interface TokenInputProps {
+function TokenInput({
+  values,
+  onChange,
+  placeholder,
+}: {
   values: string[];
   onChange: (next: string[]) => void;
   placeholder?: string;
-}
-
-function TokenInput({ values, onChange, placeholder }: TokenInputProps) {
+}) {
   const [draft, setDraft] = useState("");
   const commit = () => {
     const v = draft.trim();
-    if (!v) return;
-    if (values.includes(v)) {
+    if (!v || values.includes(v)) {
       setDraft("");
       return;
     }
@@ -522,9 +539,9 @@ function TokenInput({ values, onChange, placeholder }: TokenInputProps) {
   };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <div style={styles.inlineRow}>
+      <div style={s.inlineRow}>
         <input
-          style={{ ...styles.input, flex: 1 }}
+          style={{ ...s.input, flex: 1 }}
           placeholder={placeholder}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -535,18 +552,18 @@ function TokenInput({ values, onChange, placeholder }: TokenInputProps) {
             }
           }}
         />
-        <button type="button" style={styles.ghostBtn} onClick={commit}>
+        <button type="button" style={s.ghostBtn} onClick={commit}>
           Add
         </button>
       </div>
       {values.length > 0 && (
-        <div style={styles.chipRow}>
+        <div style={s.chipRow}>
           {values.map((v) => (
-            <span key={v} style={styles.badge}>
+            <span key={v} style={s.badge}>
               {v}
               <button
                 type="button"
-                style={styles.removeX}
+                style={s.removeX}
                 onClick={() => onChange(values.filter((x) => x !== v))}
                 aria-label={`Remove ${v}`}
               >
@@ -566,72 +583,57 @@ function TokenInput({ values, onChange, placeholder }: TokenInputProps) {
 
 export interface ProductEditorProps {
   initial: ProductFormValues;
+  productId?: string; // undefined = create, set = update
   submitLabel: string;
   onSubmit: (values: ProductFormValues) => Promise<void> | void;
   onDelete?: () => Promise<void> | void;
   onCancel: () => void;
 }
 
-export function ProductEditor({
-  initial,
-  submitLabel,
-  onSubmit,
-  onDelete,
-  onCancel,
-}: ProductEditorProps) {
+export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCancel }: ProductEditorProps) {
   const [values, setValues] = useState<ProductFormValues>(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const isDirty = useMemo(
-    () => JSON.stringify(values) !== JSON.stringify(initial),
-    [initial, values],
-  );
+
+  const isDirty = useMemo(() => JSON.stringify(values) !== JSON.stringify(initial), [initial, values]);
   const validationIssues = useMemo(() => validateProduct(values), [values]);
 
   useEffect(() => {
     if (!isDirty) return;
-    const warn = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [isDirty]);
 
-  const set = <K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) => {
+  const set = <K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
-  };
 
-  const toggleIndustry = (id: string) => {
+  const toggleIndustry = (id: string) =>
     setValues((v) => ({
       ...v,
-      industryIds: v.industryIds.includes(id)
-        ? v.industryIds.filter((x) => x !== id)
-        : [...v.industryIds, id],
+      industryIds: v.industryIds.includes(id) ? v.industryIds.filter((x) => x !== id) : [...v.industryIds, id],
     }));
-  };
 
-  const toggleTag = (tag: ProductTag) => {
+  const toggleTag = (tag: ProductTag) =>
     setValues((v) => ({
       ...v,
       tags: v.tags.includes(tag) ? v.tags.filter((x) => x !== tag) : [...v.tags, tag],
     }));
-  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-
     setSubmitted(true);
     if (validationIssues.length) {
       setError("Please resolve the highlighted fields before saving.");
       return;
     }
-
     setBusy(true);
     try {
-      // Mirror the main image into images[] if not already there.
       const images = values.images.length ? values.images : [values.image];
       await onSubmit({ ...values, slug: values.slug || slugifyDraft(values.name), images });
     } catch (err) {
@@ -641,46 +643,45 @@ export function ProductEditor({
     }
   };
 
+  const variants = values.variants ?? [];
+  const pricingTiers = values.pricingTiers ?? [];
+
   return (
-    <form style={styles.wrap} onSubmit={handleSubmit} data-admin-editor-grid>
-      <div style={styles.mainColumn}>
-        {/* Core */}
-        <div style={styles.card}>
-          <div style={styles.cardHeader}>
-            <div style={styles.cardTitle}>Core details</div>
+    <form style={s.wrap} onSubmit={handleSubmit}>
+      {/* ── LEFT COLUMN ─────────────────────────────────────────────────── */}
+      <div style={s.mainCol}>
+        {/* Core details */}
+        <div style={s.card}>
+          <div style={s.cardHd}>
+            <div style={s.cardTitle}>Core details</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={styles.row} data-admin-row>
-              <div style={styles.field}>
-                <label style={styles.label}>Name</label>
+            <div style={s.row}>
+              <div style={s.col}>
+                <label style={s.label}>Name</label>
                 <input
-                  style={styles.input}
+                  style={s.input}
                   value={values.name}
                   onChange={(e) => set("name", e.target.value)}
                   placeholder="e.g. Kraft Twisted-Handle Bag"
                   required
                 />
               </div>
-              <div style={styles.field}>
-                <label style={styles.label}>URL slug</label>
+              <div style={s.col}>
+                <label style={s.label}>URL slug</label>
                 <input
-                  style={styles.input}
+                  style={s.input}
                   value={values.slug || slugifyDraft(values.name)}
                   onChange={(e) => set("slug", e.target.value)}
-                  placeholder="auto-generated from name"
+                  placeholder="auto-generated"
                 />
-                <span style={styles.helper}>Leave blank to auto-generate from the name.</span>
+                <span style={s.helper}>Leave blank to auto-generate.</span>
               </div>
             </div>
-
-            <div style={styles.row} data-admin-row>
-              <div style={styles.field}>
-                <label style={styles.label}>Category</label>
-                <select
-                  style={styles.select}
-                  value={values.category}
-                  onChange={(e) => set("category", e.target.value)}
-                >
+            <div style={s.row}>
+              <div style={s.col}>
+                <label style={s.label}>Category</label>
+                <select style={s.select} value={values.category} onChange={(e) => set("category", e.target.value)}>
                   {categories.map((c) => (
                     <option key={c.slug} value={c.slug}>
                       {c.name}
@@ -688,255 +689,120 @@ export function ProductEditor({
                   ))}
                 </select>
               </div>
-              <div style={styles.field}>
-                <label style={styles.label}>MOQ (minimum order quantity)</label>
+              <div style={s.col}>
+                <label style={s.label}>MOQ</label>
                 <input
                   type="number"
                   min={1}
-                  style={styles.input}
+                  style={s.input}
                   value={values.moq}
                   onChange={(e) => set("moq", Number(e.target.value) || 0)}
                 />
               </div>
             </div>
-
-            <div style={styles.field}>
-              <label style={styles.label}>Description</label>
+            <div style={s.col}>
+              <label style={s.label}>Description</label>
               <textarea
-                style={styles.textarea}
+                style={s.textarea}
                 value={values.description}
                 onChange={(e) => set("description", e.target.value)}
-                placeholder="Short product summary shown on the catalogue + detail page."
+                placeholder="Short product summary."
               />
             </div>
           </div>
         </div>
 
         {/* Image */}
-        <div style={styles.card}>
-          <div style={styles.cardHeader}>
-            <div style={styles.cardTitle}>Product image</div>
+        <div style={s.card}>
+          <div style={s.cardHd}>
+            <div style={s.cardTitle}>Product image</div>
           </div>
           <ImagePicker value={values.image} onChange={(url) => set("image", url)} />
         </div>
 
-        {/* Pricing & Inventory */}
-        <div style={styles.card}>
-          <div style={styles.cardHeader}>
-            <div style={styles.cardTitle}>Pricing & inventory</div>
-            <span style={styles.helper}>All prices in KES. Stock drives low-stock alerts.</span>
+        {/* Pricing & Inventory ─ single card, no broken nesting */}
+        <div style={s.card}>
+          <div style={s.cardHd}>
+            <div style={s.cardTitle}>Pricing &amp; inventory</div>
+            <span style={s.helper}>All prices in KES.</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={styles.rowThree} data-admin-row>
-              <div style={styles.field}>
-                <label style={styles.label}>SKU</label>
+            {/* SKU / base price / compare-at */}
+            <div style={s.row3}>
+              <div style={s.col}>
+                <label style={s.label}>SKU</label>
                 <input
-                  style={styles.input}
+                  style={s.input}
                   value={values.sku ?? ""}
                   onChange={(e) => set("sku", e.target.value)}
-                  placeholder="e.g. KRB-MD-001"
+                  placeholder="KRB-MD-001"
                 />
               </div>
-              <div style={styles.field}>
-                <label style={styles.label}>Base price (KES)</label>
+              <div style={s.col}>
+                <label style={s.label}>Base price (KES)</label>
                 <input
                   type="number"
                   min={0}
-                  style={styles.input}
+                  style={s.input}
                   value={values.basePrice ?? ""}
                   onChange={(e) => set("basePrice", e.target.value ? Number(e.target.value) : undefined)}
                   placeholder="0"
                 />
-                <span style={styles.helper}>Internal reference price per unit. Shown to buyers only when individual sales are enabled below.</span>
               </div>
-              <div style={styles.field}>
-                <label style={styles.label}>Compare-at price</label>
+              <div style={s.col}>
+                <label style={s.label}>Compare-at price</label>
                 <input
                   type="number"
                   min={0}
-                  style={styles.input}
+                  style={s.input}
                   value={values.compareAtPrice ?? ""}
                   onChange={(e) => set("compareAtPrice", e.target.value ? Number(e.target.value) : undefined)}
-                  placeholder="optional strike-through"
+                  placeholder="strike-through"
                 />
               </div>
             </div>
 
-            <label style={styles.switchRow}>
+            {/* Track inventory toggle */}
+            <label style={s.switchRow}>
               <input
                 type="checkbox"
                 checked={values.trackInventory ?? true}
                 onChange={(e) => set("trackInventory", e.target.checked)}
               />
-              <span style={styles.switchLabel}>Track inventory levels for this product</span>
+              <span style={s.switchLabel}>Track inventory levels for this product</span>
             </label>
 
             {(values.trackInventory ?? true) && (
-              <div style={styles.row} data-admin-row>
-                <div style={styles.field}>
-                  <label style={styles.label}>Stock on hand (units)</label>
+              <div style={s.row}>
+                <div style={s.col}>
+                  <label style={s.label}>Stock on hand</label>
                   <input
                     type="number"
                     min={0}
-                    style={styles.input}
+                    style={s.input}
                     value={values.stock ?? 0}
                     onChange={(e) => set("stock", Number(e.target.value) || 0)}
                   />
                 </div>
-                <div style={styles.field}>
-                  <label style={styles.label}>Low-stock threshold</label>
+                <div style={s.col}>
+                  <label style={s.label}>Low-stock threshold</label>
                   <input
                     type="number"
                     min={0}
-                    style={styles.input}
+                    style={s.input}
                     value={values.lowStockThreshold ?? 10}
                     onChange={(e) => set("lowStockThreshold", Number(e.target.value) || 0)}
                   />
-                  <span style={styles.helper}>Alert when stock drops below this number.</span>
+                  <span style={s.helper}>Alert when stock drops below this.</span>
                 </div>
               </div>
             )}
 
-            {/* Individual sales toggle */}
-            <label style={styles.switchRow}>
-              <input
-                type="checkbox"
-                checked={values.individualSalesEnabled ?? true}
-                onChange={(e) => set("individualSalesEnabled", e.target.checked)}
-              />
-              <span style={styles.switchLabel}>
-                Allow individual unit purchases
-                <span style={{ ...styles.helper, display: "block", marginTop: 2 }}>
-                  Disable for collections-only products (e.g. carrier bags sold only in packs). Base price will be hidden from buyers.
-                </span>
-              </span>
-            </label>
-
-            {/* Pricing tiers (collections) */}
-            <div style={styles.field}>
-              <label style={styles.label}>Pricing collections</label>
-              <span style={styles.helper}>
-                Define named bundles like "Half Dozen = 6 units @ KES 9/unit". Customers pick a collection. sortOrder is set automatically by row position.
-              </span>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
-                    gap: 6,
-                    fontSize: 10,
-                    textTransform: "uppercase" as const,
-                    letterSpacing: "0.1em",
-                    color: "var(--admin-muted)",
-                    paddingInline: 4,
-                  }}
-                >
-                  <span>Collection name</span>
-                  <span>Qty (units)</span>
-                  <span>KES / unit</span>
-                  <span>Total (auto)</span>
-                  <span />
-                </div>
-                {(values.pricingTiers ?? []).map((row, idx) => {
-                  const total = (Number(row.quantity) || 0) * (Number(row.pricePerUnit) || 0);
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
-                        gap: 6,
-                        alignItems: "center",
-                      }}
-                    >
-                      <input
-                        style={styles.input}
-                        placeholder="e.g. Half Dozen"
-                        value={row.collectionName}
-                        onChange={(e) => {
-                          const next = [...(values.pricingTiers ?? [])];
-                          next[idx] = { ...row, collectionName: e.target.value };
-                          set("pricingTiers", next);
-                        }}
-                      />
-                      <input
-                        type="number"
-                        min={1}
-                        style={styles.input}
-                        placeholder="6"
-                        value={row.quantity || ""}
-                        onChange={(e) => {
-                          const next = [...(values.pricingTiers ?? [])];
-                          next[idx] = { ...row, quantity: Number(e.target.value) || 0 };
-                          set("pricingTiers", next);
-                        }}
-                      />
-                      <input
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        style={styles.input}
-                        placeholder="9.00"
-                        value={row.pricePerUnit || ""}
-                        onChange={(e) => {
-                          const next = [...(values.pricingTiers ?? [])];
-                          next[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
-                          set("pricingTiers", next);
-                        }}
-                      />
-                      <div
-                        style={{
-                          ...styles.input,
-                          background: "transparent",
-                          color: total > 0 ? "var(--admin-text)" : "var(--admin-muted)",
-                          display: "flex",
-                          alignItems: "center",
-                          fontWeight: total > 0 ? 600 : 400,
-                        }}
-                      >
-                        KES {total > 0 ? total.toLocaleString() : "—"}
-                      </div>
-                      <button
-                        type="button"
-                        style={styles.removeX}
-                        onClick={() =>
-                          set(
-                            "pricingTiers",
-                            (values.pricingTiers ?? []).filter((_, i) => i !== idx),
-                          )
-                        }
-                        aria-label="Remove tier"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  );
-                })}
-                <button
-                  type="button"
-                  style={styles.ghostBtn}
-                  onClick={() =>
-                    set("pricingTiers", [
-                      ...(values.pricingTiers ?? []),
-                      {
-                        collectionName: "",
-                        quantity: 0,
-                        pricePerUnit: 0,
-                        sortOrder: (values.pricingTiers ?? []).length,
-                      },
-                    ])
-                  }
-                >
-                  + Add collection
-                </button>
-              </div>
-            </div>
-
             {/* Variants */}
-            <div style={styles.field}>
-              <label style={styles.label}>Variants (size / material combinations)</label>
+            <div style={s.col}>
+              <label style={s.label}>Variants (size / material)</label>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {(values.variants ?? []).map((variant, idx) => (
+                {variants.map((variant, idx) => (
                   <div
                     key={idx}
                     style={{
@@ -947,53 +813,58 @@ export function ProductEditor({
                     }}
                   >
                     <input
-                      style={styles.input}
+                      style={s.input}
                       placeholder="Label (e.g. Small / Kraft)"
                       value={variant.label}
                       onChange={(e) => {
-                        const next = [...(values.variants ?? [])];
-                        next[idx] = { ...variant, label: e.target.value };
-                        set("variants", next);
+                        const n = [...variants];
+                        n[idx] = { ...variant, label: e.target.value };
+                        set("variants", n);
                       }}
                     />
                     <input
-                      style={styles.input}
+                      style={s.input}
                       placeholder="SKU"
                       value={variant.sku ?? ""}
                       onChange={(e) => {
-                        const next = [...(values.variants ?? [])];
-                        next[idx] = { ...variant, sku: e.target.value };
-                        set("variants", next);
+                        const n = [...variants];
+                        n[idx] = { ...variant, sku: e.target.value };
+                        set("variants", n);
                       }}
                     />
                     <input
                       type="number"
                       min={0}
-                      style={styles.input}
+                      style={s.input}
                       placeholder="Price"
                       value={variant.price ?? ""}
                       onChange={(e) => {
-                        const next = [...(values.variants ?? [])];
-                        next[idx] = { ...variant, price: e.target.value ? Number(e.target.value) : undefined };
-                        set("variants", next);
+                        const n = [...variants];
+                        n[idx] = { ...variant, price: e.target.value ? Number(e.target.value) : undefined };
+                        set("variants", n);
                       }}
                     />
                     <input
                       type="number"
                       min={0}
-                      style={styles.input}
+                      style={s.input}
                       placeholder="Stock"
                       value={variant.stock ?? ""}
                       onChange={(e) => {
-                        const next = [...(values.variants ?? [])];
-                        next[idx] = { ...variant, stock: e.target.value ? Number(e.target.value) : undefined };
-                        set("variants", next);
+                        const n = [...variants];
+                        n[idx] = { ...variant, stock: e.target.value ? Number(e.target.value) : undefined };
+                        set("variants", n);
                       }}
                     />
                     <button
                       type="button"
-                      style={styles.removeX}
-                      onClick={() => set("variants", (values.variants ?? []).filter((_, i) => i !== idx))}
+                      style={s.removeX}
+                      onClick={() =>
+                        set(
+                          "variants",
+                          variants.filter((_, i) => i !== idx),
+                        )
+                      }
                       aria-label="Remove variant"
                     >
                       ×
@@ -1002,54 +873,183 @@ export function ProductEditor({
                 ))}
                 <button
                   type="button"
-                  style={styles.ghostBtn}
+                  style={s.ghostBtn}
                   onClick={() =>
-                    set("variants", [...(values.variants ?? []), { label: "", sku: "", price: undefined, stock: undefined }])
+                    set("variants", [...variants, { label: "", sku: "", price: undefined, stock: undefined }])
                   }
                 >
                   + Add variant
                 </button>
               </div>
-              <span style={styles.helper}>
-                Leave empty for a single-SKU product — base price + stock above will be used.
-              </span>
+              <span style={s.helper}>Leave empty if this is a single-SKU product.</span>
+            </div>
+
+            {/* Pricing tiers — INSIDE the same card, separated by a divider */}
+            <div style={s.divider}>
+              <label style={s.switchRow}>
+                <input
+                  type="checkbox"
+                  checked={values.individualSalesEnabled ?? true}
+                  onChange={(e) => set("individualSalesEnabled", e.target.checked)}
+                />
+                <span style={s.switchLabel}>Allow individual unit purchases</span>
+              </label>
+
+              <div style={{ ...s.col, marginTop: 12 }}>
+                <label style={s.label}>Pricing tiers (collections)</label>
+                <span style={s.helper}>
+                  e.g. "Dozen = 12 units at KES 8.50 each". Customers pick a tier or buy individually.
+                </span>
+
+                {pricingTiers.length > 0 && (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
+                      gap: 6,
+                      fontSize: 10,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
+                      color: "var(--admin-muted)",
+                      paddingInline: 4,
+                      marginTop: 8,
+                    }}
+                  >
+                    <span>Collection</span>
+                    <span>Qty</span>
+                    <span>Price/unit</span>
+                    <span>Total</span>
+                    <span />
+                  </div>
+                )}
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
+                  {pricingTiers.map((row, idx) => {
+                    const total = (Number(row.quantity) || 0) * (Number(row.pricePerUnit) || 0);
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
+                          gap: 6,
+                          alignItems: "center",
+                        }}
+                      >
+                        <input
+                          style={s.input}
+                          placeholder="Dozen"
+                          value={row.collectionName}
+                          onChange={(e) => {
+                            const n = [...pricingTiers];
+                            n[idx] = { ...row, collectionName: e.target.value };
+                            set("pricingTiers", n);
+                          }}
+                        />
+                        <input
+                          type="number"
+                          min={1}
+                          style={s.input}
+                          placeholder="12"
+                          value={row.quantity || ""}
+                          onChange={(e) => {
+                            const n = [...pricingTiers];
+                            n[idx] = { ...row, quantity: Number(e.target.value) || 0 };
+                            set("pricingTiers", n);
+                          }}
+                        />
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          style={s.input}
+                          placeholder="8.50"
+                          value={row.pricePerUnit || ""}
+                          onChange={(e) => {
+                            const n = [...pricingTiers];
+                            n[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
+                            set("pricingTiers", n);
+                          }}
+                        />
+                        <div
+                          style={{
+                            ...s.input,
+                            background: "transparent",
+                            color: "var(--admin-muted)",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          KES {total.toLocaleString()}
+                        </div>
+                        <button
+                          type="button"
+                          style={s.removeX}
+                          onClick={() =>
+                            set(
+                              "pricingTiers",
+                              pricingTiers.filter((_, i) => i !== idx),
+                            )
+                          }
+                          aria-label="Remove tier"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    style={s.ghostBtn}
+                    onClick={() =>
+                      set("pricingTiers", [
+                        ...pricingTiers,
+                        { collectionName: "", quantity: 0, pricePerUnit: 0, sortOrder: pricingTiers.length },
+                      ])
+                    }
+                  >
+                    + Add pricing tier
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div style={styles.sideColumn}>
-        {/* Sizes & material */}
-        <div style={styles.card}>
-          <div style={styles.cardHeader}>
-            <div style={styles.cardTitle}>Variants & spec</div>
+      {/* ── RIGHT COLUMN ────────────────────────────────────────────────── */}
+      <div style={s.sideCol}>
+        {/* Variants & spec */}
+        <div style={s.card}>
+          <div style={s.cardHd}>
+            <div style={s.cardTitle}>Variants &amp; spec</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={styles.field}>
-              <label style={styles.label}>Available sizes</label>
+            <div style={s.col}>
+              <label style={s.label}>Available sizes</label>
               <TokenInput
                 values={values.sizes}
                 onChange={(next) => set("sizes", next)}
-                placeholder="e.g. Small (200×100×250mm), 8oz, A5…"
+                placeholder="e.g. Small (200×100×250mm), 8oz…"
               />
             </div>
-            <div style={styles.row} data-admin-row>
-              <div style={styles.field}>
-                <label style={styles.label}>Material</label>
+            <div style={s.row}>
+              <div style={s.col}>
+                <label style={s.label}>Material</label>
                 <input
-                  style={styles.input}
+                  style={s.input}
                   value={values.material ?? ""}
                   onChange={(e) => set("material", e.target.value)}
                   placeholder="e.g. Kraft 120gsm"
                 />
               </div>
-              <div style={styles.field}>
-                <label style={styles.label}>Finish</label>
+              <div style={s.col}>
+                <label style={s.label}>Finish</label>
                 <input
-                  style={styles.input}
+                  style={s.input}
                   value={values.finish ?? ""}
                   onChange={(e) => set("finish", e.target.value)}
-                  placeholder="e.g. Matte, Gloss, Soft-touch"
+                  placeholder="e.g. Matte, Gloss"
                 />
               </div>
             </div>
@@ -1057,79 +1057,67 @@ export function ProductEditor({
         </div>
 
         {/* Industries */}
-        <div style={styles.card}>
-          <div style={styles.cardHeader}>
-            <div style={styles.cardTitle}>Industries served</div>
-            <span style={styles.helper}>
-              Pick all that apply — drives industry filters & search.
-            </span>
+        <div style={s.card}>
+          <div style={s.cardHd}>
+            <div style={s.cardTitle}>Industries served</div>
+            <span style={s.helper}>Drives industry filters &amp; search.</span>
           </div>
-          <div style={styles.chipRow}>
-            {industries.map((ind) => {
-              const active = values.industryIds.includes(ind.id);
-              return (
-                <button
-                  key={ind.id}
-                  type="button"
-                  style={chipStyle(active)}
-                  onClick={() => toggleIndustry(ind.id)}
-                >
-                  {ind.name}
-                </button>
-              );
-            })}
+          <div style={s.chipRow}>
+            {industries.map((ind) => (
+              <button
+                key={ind.id}
+                type="button"
+                style={chip(values.industryIds.includes(String(ind.id)))}
+                onClick={() => toggleIndustry(String(ind.id))}
+              >
+                {ind.name}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Tags & keywords */}
-        <div style={styles.card}>
-          <div style={styles.cardHeader}>
-            <div style={styles.cardTitle}>Tags & search keywords</div>
+        <div style={s.card}>
+          <div style={s.cardHd}>
+            <div style={s.cardTitle}>Tags &amp; search keywords</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={styles.field}>
-              <label style={styles.label}>Display tags</label>
-              <div style={styles.chipRow}>
+            <div style={s.col}>
+              <label style={s.label}>Display tags</label>
+              <div style={s.chipRow}>
                 {TAGS.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    style={chipStyle(values.tags.includes(t))}
-                    onClick={() => toggleTag(t)}
-                  >
+                  <button key={t} type="button" style={chip(values.tags.includes(t))} onClick={() => toggleTag(t)}>
                     {t}
                   </button>
                 ))}
               </div>
             </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Search keywords</label>
+            <div style={s.col}>
+              <label style={s.label}>Search keywords</label>
               <TokenInput
                 values={values.keywords ?? []}
                 onChange={(next) => set("keywords", next)}
                 placeholder="e.g. coffee, takeaway cup, kikombe"
               />
-              <span style={styles.helper}>
-                Synonyms, sheng, common misspellings — all boost search recall.
-              </span>
+              <span style={s.helper}>Synonyms, sheng, misspellings — all boost search recall.</span>
             </div>
           </div>
         </div>
 
-        {/* Carousel flags */}
-        <div style={styles.card}>
-          <div style={styles.cardHeader}>
-            <div style={styles.cardTitle}>Homepage carousel & popularity</div>
-            <span style={styles.helper}>Drives the "Picks of the moment" section.</span>
+        {/* Homepage flags */}
+        <div style={s.card}>
+          <div style={s.cardHd}>
+            <div style={s.cardTitle}>Homepage &amp; popularity</div>
+            <span style={s.helper}>Drives "Picks of the moment".</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <label style={styles.switchRow}>
+            <label style={s.switchRow}>
               <input
                 type="checkbox"
                 checked={values.isDiscount}
                 onChange={(e) => set("isDiscount", e.target.checked)}
               />
-              <span style={styles.switchLabel}>Discounted (appears in "Deals")</span>
+              <span style={s.switchLabel}>Discounted (appears in "Deals")</span>
               {values.isDiscount && (
                 <input
                   type="number"
@@ -1137,58 +1125,55 @@ export function ProductEditor({
                   max={90}
                   value={values.discountPercent ?? ""}
                   placeholder="%"
-                  onChange={(e) =>
-                    set("discountPercent", e.target.value ? Number(e.target.value) : undefined)
-                  }
-                  style={{ ...styles.input, width: 70 }}
+                  onChange={(e) => set("discountPercent", e.target.value ? Number(e.target.value) : undefined)}
+                  style={{ ...s.input, width: 70 }}
                 />
               )}
             </label>
-            <label style={styles.switchRow}>
+            <label style={s.switchRow}>
               <input
                 type="checkbox"
                 checked={values.isNewArrival}
                 onChange={(e) => set("isNewArrival", e.target.checked)}
               />
-              <span style={styles.switchLabel}>New arrival (appears in "Just landed")</span>
+              <span style={s.switchLabel}>New arrival ("Just landed")</span>
             </label>
-            <label style={styles.switchRow}>
+            <label style={s.switchRow}>
               <input
                 type="checkbox"
                 checked={values.isFastMoving}
                 onChange={(e) => set("isFastMoving", e.target.checked)}
               />
-              <span style={styles.switchLabel}>Fast-moving (appears in "Trending")</span>
+              <span style={s.switchLabel}>Fast-moving ("Trending")</span>
             </label>
-
-            <div style={styles.rowThree} data-admin-row>
-              <div style={styles.field}>
-                <label style={styles.label}>Monthly clicks</label>
+            <div style={s.row3}>
+              <div style={s.col}>
+                <label style={s.label}>Monthly clicks</label>
                 <input
                   type="number"
                   min={0}
-                  style={styles.input}
+                  style={s.input}
                   value={values.monthlyClicks}
                   onChange={(e) => set("monthlyClicks", Number(e.target.value) || 0)}
                 />
-                <span style={styles.helper}>Used as the popularity tie-breaker in search.</span>
+                <span style={s.helper}>Popularity tie-breaker in search.</span>
               </div>
-              <div style={styles.field}>
-                <label style={styles.label}>Total clicks</label>
+              <div style={s.col}>
+                <label style={s.label}>Total clicks</label>
                 <input
                   type="number"
                   min={0}
-                  style={styles.input}
+                  style={s.input}
                   value={values.totalClicks}
                   onChange={(e) => set("totalClicks", Number(e.target.value) || 0)}
                 />
               </div>
-              <div style={styles.field}>
-                <label style={styles.label}>Monthly enquiries</label>
+              <div style={s.col}>
+                <label style={s.label}>Monthly enquiries</label>
                 <input
                   type="number"
                   min={0}
-                  style={styles.input}
+                  style={s.input}
                   value={values.monthlyEnquiries}
                   onChange={(e) => set("monthlyEnquiries", Number(e.target.value) || 0)}
                 />
@@ -1197,38 +1182,33 @@ export function ProductEditor({
           </div>
         </div>
 
-        <div style={styles.previewCard}>
+        {/* Live preview */}
+        <div style={s.previewCard}>
           {values.image ? (
-            <img src={values.image} alt="" style={styles.previewImage} />
+            <img src={values.image} alt="" style={s.previewImg} />
           ) : (
-            <div style={{ ...styles.imagePlaceholder, maxWidth: "none", borderRadius: 0 }}>
-              Preview image
-            </div>
+            <div style={{ ...s.imgPlaceholder, maxWidth: "none", borderRadius: 0 }}>Preview image</div>
           )}
-          <div style={styles.previewBody}>
-            <div style={styles.previewMeta}>
+          <div style={s.previewBody}>
+            <div style={s.previewMeta}>
               {categoryName(values.category)} · MOQ {Math.max(values.moq, 0).toLocaleString()}
             </div>
-            <h3 style={styles.previewTitle}>{values.name || "Product name"}</h3>
-            <p style={styles.previewDescription}>
-              {values.description ||
-                "Product description preview appears here as the catalogue card will read."}
-            </p>
-            <div style={styles.chipRow}>
-              {values.isNewArrival && <span style={styles.badge}>New arrival</span>}
-              {values.isFastMoving && <span style={styles.badge}>Fast moving</span>}
-              {values.isDiscount && (
-                <span style={styles.badge}>-{values.discountPercent ?? 0}%</span>
-              )}
+            <h3 style={s.previewTitle}>{values.name || "Product name"}</h3>
+            <p style={s.previewDesc}>{values.description || "Product description preview."}</p>
+            <div style={s.chipRow}>
+              {values.isNewArrival && <span style={s.badge}>New arrival</span>}
+              {values.isFastMoving && <span style={s.badge}>Fast moving</span>}
+              {values.isDiscount && <span style={s.badge}>-{values.discountPercent ?? 0}%</span>}
             </div>
           </div>
         </div>
 
+        {/* Errors */}
         {(error || (submitted && validationIssues.length > 0)) && (
-          <div style={styles.errorText}>
+          <div style={s.errorText}>
             {error && <div>{error}</div>}
             {submitted && validationIssues.length > 0 && (
-              <ul style={styles.validationList}>
+              <ul style={s.validationList}>
                 {validationIssues.map((issue) => (
                   <li key={issue}>{issue}</li>
                 ))}
@@ -1237,30 +1217,26 @@ export function ProductEditor({
           </div>
         )}
 
-        <div style={styles.actionsBar} data-admin-actions>
+        {/* Actions */}
+        <div style={s.actionsBar}>
           {onDelete && (
-            <button
-              type="button"
-              style={styles.dangerBtn}
-              onClick={() => void onDelete()}
-              disabled={busy}
-            >
+            <button type="button" style={s.dangerBtn} onClick={() => void onDelete()} disabled={busy}>
               Delete product
             </button>
           )}
-          <div style={styles.actionsRight}>
+          <div style={s.actionsRight}>
             <button
               type="button"
-              style={styles.ghostBtn}
+              style={s.ghostBtn}
               onClick={() => {
-                if (isDirty && !confirm("Discard unsaved product changes?")) return;
+                if (isDirty && !confirm("Discard unsaved changes?")) return;
                 onCancel();
               }}
               disabled={busy}
             >
               Cancel
             </button>
-            <button type="submit" style={styles.primaryBtn} disabled={busy}>
+            <button type="submit" style={s.primaryBtn} disabled={busy}>
               {busy ? "Saving…" : submitLabel}
             </button>
           </div>
