@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { Forbidden } from "@/components/admin/Forbidden";
 import { ProductEditor, emptyProductValues } from "@/components/admin/ProductEditor";
-import { productStore } from "@/services/productStore";
+import { createProductApi } from "@/services/adminProductApi";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can } from "@/lib/permissions";
 
@@ -31,7 +31,7 @@ function NewProductPage() {
         submitLabel="Create product"
         onCancel={() => navigate({ to: "/admin/products" })}
         onSubmit={async (values) => {
-          await productStore.create(values);
+          await createProductApi(values);
           navigate({ to: "/admin/products" });
         }}
       />
