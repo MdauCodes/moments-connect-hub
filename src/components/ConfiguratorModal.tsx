@@ -10,9 +10,10 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 interface ConfiguratorModalProps {
   product: Product | null;
   onClose: () => void;
+  preSelectedTierId?: string | null;
 }
 
-export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) {
+export function ConfiguratorModal({ product, onClose, preSelectedTierId }: ConfiguratorModalProps) {
   const { addItem } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
