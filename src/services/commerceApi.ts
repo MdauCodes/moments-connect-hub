@@ -10,12 +10,11 @@ import type {
   DashboardStats,
   OrderRecord,
   OrderStatus,
+  PaymentGateway,
   PaymentRecord,
 } from "@/services/commerceMock";
 import type { AnalyticsOverview } from "@/services/analyticsMock";
 
-// "live" kept in result types for backward compatibility with existing UI
-// (e.g. <MockBanner source={...} />) — value is always "live" now.
 type Source = "live";
 
 function qs(params: Record<string, unknown>): string {
@@ -33,9 +32,11 @@ async function getJson<T>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
-function unwrapPage<T>(
-  data: { content?: T[]; totalElements?: number; totalPages?: number } | T[],
-): { rows: T[]; total: number; totalPages: number } {
+function unwrapPage<T>(data: { content?: T[]; totalElements?: number; totalPages?: number } | T[]): {
+  rows: T[];
+  total: number;
+  totalPages: number;
+} {
   if (Array.isArray(data)) return { rows: data, total: data.length, totalPages: 1 };
   const rows = data.content ?? [];
   return { rows, total: data.totalElements ?? rows.length, totalPages: data.totalPages ?? 1 };
@@ -46,9 +47,22 @@ const num = (v: unknown): number => {
   return Number.isFinite(n) ? n : 0;
 };
 
-// Normalise backend OrderDto → frontend OrderRecord. Backend serialises BigDecimal
-// as number-or-string; we coerce every monetary field to a real number here so
-// downstream UI never gets NaN.
+// Map backend PaymentMethod → frontend PaymentGateway type.
+// Backend: PAYHERO | MPESA | BANK_TRANSFER | CASH_ON_DELIVERY
+// Frontend type now matches backend exactly.
+function normalizeGateway(raw: string | undefined): PaymentGateway {
+  if (!raw) return "MPESA";
+  const upper = raw.toUpperCase();
+  if (upper === "PAYHERO") return "PAYHERO";
+  if (upper === "MPESA" || upper === "M_PESA") return "MPESA";
+  if (upper === "BANK_TRANSFER" || upper === "BANK") return "BANK_TRANSFER";
+  if (upper === "CASH_ON_DELIVERY" || upper === "COD") return "CASH_ON_DELIVERY";
+  return "MPESA";
+}
+
+// Normalise backend OrderDto → frontend OrderRecord.
+// Backend serialises BigDecimal as number-or-string; coerce every monetary
+// field to a real number here so downstream UI never gets NaN.
 function normalizeOrder(raw: any): OrderRecord {
   const items = (raw?.items ?? []).map((it: any) => ({
     productId: it.productId ?? it.id ?? "",
@@ -56,47 +70,66 @@ function normalizeOrder(raw: any): OrderRecord {
     qty: num(it.quantity ?? it.qty),
     unitPrice: num(it.unitPrice),
     imageUrl: it.primaryImageUrl ?? it.imageUrl,
-    // pass-through extras for the drawer
     category: it.category,
     size: it.size,
     material: it.material,
     finish: it.finish,
     lineTotal: num(it.lineTotal ?? num(it.unitPrice) * num(it.quantity ?? it.qty)),
   }));
+
   const subtotal = num(raw?.subtotal);
   const shippingFee = num(raw?.deliveryFee ?? raw?.shippingFee);
   const total = num(raw?.totalAmount ?? raw?.total);
+
   return {
     id: raw?.id ?? raw?.reference ?? "",
     reference: raw?.reference ?? raw?.id ?? "",
-    status: raw?.status ?? "PENDING",
+
+    // Backend field: status (OrderStatus enum) — pass through directly.
+    // If the value arrives in an unexpected shape, default to PENDING_PAYMENT.
+    status: (raw?.status as OrderStatus) ?? "PENDING_PAYMENT",
+
+    // Backend field: paymentStatus (PaymentStatus enum).
+    // Backend values: PENDING | PAID | FAILED | REFUNDED
     paymentStatus: raw?.paymentStatus ?? "PENDING",
-    paymentGateway: raw?.paymentGateway ?? raw?.paymentMethod ?? "MPESA",
+
+    // Backend field: paymentMethod (PaymentMethod enum).
+    // Normalised → PaymentGateway type used by the UI.
+    paymentGateway: normalizeGateway(raw?.paymentMethod ?? raw?.paymentGateway),
+
     customerName: raw?.contactName ?? raw?.customerName ?? "",
-    customerEmail: raw?.customerEmail ?? raw?.maskedEmail ?? "",
-    customerPhone: raw?.customerPhone ?? raw?.phone ?? "",
+    customerEmail: raw?.email ?? raw?.customerEmail ?? raw?.maskedEmail ?? "",
+    customerPhone: raw?.phone ?? raw?.customerPhone ?? "",
     shippingAddress: raw?.deliveryAddress ?? raw?.shippingAddress ?? "",
     city: raw?.city ?? "",
+    county: raw?.county,
+    postalCode: raw?.postalCode,
+
     items,
-    subtotal: subtotal || items.reduce((s: number, it: any) => s + it.lineTotal, 0),
+    subtotal: subtotal || items.reduce((s: number, it: any) => s + (it.lineTotal ?? 0), 0),
     shippingFee,
+    discount: num(raw?.discount),
     total: total || subtotal + shippingFee,
     currency: "KES",
+
     createdAt: raw?.createdAt ?? new Date().toISOString(),
     updatedAt: raw?.updatedAt ?? raw?.createdAt ?? new Date().toISOString(),
+
     trackingNumber: raw?.trackingNumber,
-    notes: raw?.staffNotes ?? raw?.notes,
+    notes: raw?.notes,
+    staffNotes: raw?.staffNotes ?? "",
     assignedTo: raw?.assignedTo,
-    // raw passthrough for drawer (county, postalCode, promo, statusHistory, discount)
-    ...({
-      county: raw?.county,
-      postalCode: raw?.postalCode,
-      discount: num(raw?.discount),
-      promoCode: raw?.promoCode,
-      paymentMethod: raw?.paymentMethod,
-      statusHistory: raw?.statusHistory ?? [],
-      staffNotes: raw?.staffNotes ?? "",
-    } as any),
+    promoCode: raw?.promoCode,
+    paymentMethod: raw?.paymentMethod,
+    fulfillmentType: raw?.fulfillmentType,
+    statusHistory: (raw?.statusHistory ?? []).map((h: any) => ({
+      id: h.id,
+      fromStatus: h.fromStatus,
+      toStatus: h.toStatus,
+      note: h.note,
+      changedBy: h.changedBy,
+      changedAt: h.changedAt,
+    })),
   } as OrderRecord;
 }
 
@@ -117,6 +150,7 @@ export interface ListOrdersResult {
 }
 
 export async function listOrders(params: ListOrdersParams = {}): Promise<ListOrdersResult> {
+  // Backend filter param is "status" with OrderStatus enum value — pass through directly.
   const data = await getJson<{ content?: any[]; totalElements?: number; totalPages?: number } | any[]>(
     `/api/v1/admin/orders${qs(params as Record<string, unknown>)}`,
   );
@@ -129,31 +163,50 @@ export async function getOrder(id: string): Promise<{ order: OrderRecord | undef
   return { order: normalizeOrder(raw), source: "live" };
 }
 
-
+// Backend PATCH /api/v1/admin/orders/{id}/status
+// Body: { status: OrderStatus, staffNotes?: string }
 export async function updateOrderStatus(
   id: string,
   status: OrderStatus,
+  staffNotes?: string,
 ): Promise<{ order: OrderRecord | undefined; source: Source }> {
   const res = await adminFetch(`/api/v1/admin/orders/${encodeURIComponent(id)}/status`, {
     method: "PATCH",
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({ status, staffNotes }),
   });
   if (!res.ok) throw new ApiError({ status: res.status, message: res.statusText });
-  const order = (await res.json()) as OrderRecord;
-  return { order, source: "live" };
+  const raw = await res.json();
+  return { order: normalizeOrder(raw), source: "live" };
 }
 
+// Backend PATCH /api/v1/admin/orders/{id}/assign
+// Body: { assignedTo: string }  ← backend field name is assignedTo, not assigneeId
 export async function assignOrder(
   id: string,
-  assigneeId: string,
+  assignedTo: string,
 ): Promise<{ order: OrderRecord | undefined; source: Source }> {
   const res = await adminFetch(`/api/v1/admin/orders/${encodeURIComponent(id)}/assign`, {
     method: "PATCH",
-    body: JSON.stringify({ assigneeId }),
+    body: JSON.stringify({ assignedTo }),
   });
   if (!res.ok) throw new ApiError({ status: res.status, message: res.statusText });
-  const order = (await res.json()) as OrderRecord;
-  return { order, source: "live" };
+  const raw = await res.json();
+  return { order: normalizeOrder(raw), source: "live" };
+}
+
+// Backend PATCH /api/v1/admin/orders/{id}/refund  (@IsAdmin only)
+// Body: { reason: string }
+export async function refundOrder(
+  id: string,
+  reason: string,
+): Promise<{ order: OrderRecord | undefined; source: Source }> {
+  const res = await adminFetch(`/api/v1/admin/orders/${encodeURIComponent(id)}/refund`, {
+    method: "PATCH",
+    body: JSON.stringify({ reason }),
+  });
+  if (!res.ok) throw new ApiError({ status: res.status, message: res.statusText });
+  const raw = await res.json();
+  return { order: normalizeOrder(raw), source: "live" };
 }
 
 // ---------- Payments ----------
@@ -174,9 +227,9 @@ export interface ListPaymentsResult {
 }
 
 export async function listPayments(params: ListPaymentsParams = {}): Promise<ListPaymentsResult> {
-  const data = await getJson<{ content?: PaymentRecord[]; totalElements?: number; totalPages?: number } | PaymentRecord[]>(
-    `/api/v1/admin/payments${qs(params as Record<string, unknown>)}`,
-  );
+  const data = await getJson<
+    { content?: PaymentRecord[]; totalElements?: number; totalPages?: number } | PaymentRecord[]
+  >(`/api/v1/admin/payments${qs(params as Record<string, unknown>)}`);
   return { ...unwrapPage(data), source: "live" };
 }
 
@@ -209,9 +262,9 @@ export interface ListCustomersResult {
 }
 
 export async function listCustomers(params: ListCustomersParams = {}): Promise<ListCustomersResult> {
-  const data = await getJson<{ content?: CustomerRecord[]; totalElements?: number; totalPages?: number } | CustomerRecord[]>(
-    `/api/v1/admin/customers${qs(params as Record<string, unknown>)}`,
-  );
+  const data = await getJson<
+    { content?: CustomerRecord[]; totalElements?: number; totalPages?: number } | CustomerRecord[]
+  >(`/api/v1/admin/customers${qs(params as Record<string, unknown>)}`);
   return { ...unwrapPage(data), source: "live" };
 }
 
@@ -242,12 +295,16 @@ export async function exportOrders(params: ListOrdersParams = {}): Promise<{ row
   return { rows: res.rows, source: res.source };
 }
 
-export async function exportPayments(params: ListPaymentsParams = {}): Promise<{ rows: PaymentRecord[]; source: Source }> {
+export async function exportPayments(
+  params: ListPaymentsParams = {},
+): Promise<{ rows: PaymentRecord[]; source: Source }> {
   const res = await listPayments({ ...params, size: 1000 });
   return { rows: res.rows, source: res.source };
 }
 
-export async function exportCustomers(params: ListCustomersParams = {}): Promise<{ rows: CustomerRecord[]; source: Source }> {
+export async function exportCustomers(
+  params: ListCustomersParams = {},
+): Promise<{ rows: CustomerRecord[]; source: Source }> {
   const res = await listCustomers({ ...params, size: 1000 });
   return { rows: res.rows, source: res.source };
 }
