@@ -521,7 +521,7 @@ function ProductsPage() {
         )}
       </section>
 
-      <ConfiguratorModal product={configuring} onClose={() => setConfiguring(null)} />
+      <ConfiguratorModal product={configuring} preSelectedTierId={preTier} onClose={() => setConfiguring(null)} />
     </SiteLayout>
   );
 }
