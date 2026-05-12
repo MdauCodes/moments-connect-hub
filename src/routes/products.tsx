@@ -441,7 +441,7 @@ function ProductsPage() {
 
         {/* Grid */}
         {isLoading ? (
-          <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
@@ -499,7 +499,7 @@ function ProductsPage() {
           </div>
         ) : (
           <>
-            <div className="mt-8 grid animate-in fade-in gap-5 duration-300 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+            <div className="mt-8 grid animate-in fade-in grid-cols-2 gap-3 duration-300 sm:mt-10 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
               {grid.map((p) => (
                 <ProductCard key={p.id} product={p} onConfigure={handleConfigure} />
               ))}

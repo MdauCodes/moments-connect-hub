@@ -105,11 +105,11 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           )}
         </div>
       </div>
-      <div className="flex flex-1 flex-col p-4">
-        <span className="self-start rounded-full border border-kraft/30 bg-kraft/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-kraft">
+      <div className="flex flex-1 flex-col p-3 sm:p-4">
+        <span className="self-start rounded-full border border-kraft/30 bg-kraft/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-kraft sm:px-2.5 sm:text-[10px]">
           {p.category}
         </span>
-        <h3 className="mt-2 font-display text-base font-semibold text-foreground">
+        <h3 className="mt-1.5 font-display text-sm font-semibold leading-snug text-foreground sm:mt-2 sm:text-base">
           {p.name}
         </h3>
 
@@ -138,7 +138,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
 
         {hasTiers && activeTier ? (
           <div className="mt-2 space-y-0.5">
-            <p className="text-sm">
+            <p className="text-xs sm:text-sm">
               <span className="font-semibold text-primary">
                 KES {tierPrice(activeTier).toLocaleString()}
               </span>
@@ -147,17 +147,17 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               </span>
             </p>
             {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[10px] text-muted-foreground sm:text-[11px]">
                 Best value: KES {tierPrice(cheapestTier).toLocaleString()} / {cheapestTier.collectionName}
               </p>
             )}
           </div>
         ) : individualEnabled && p.basePrice ? (
-          <p className="mt-2 text-sm text-primary">
+          <p className="mt-2 text-xs text-primary sm:text-sm">
             KES {p.basePrice.toLocaleString()} / unit
           </p>
         ) : (
-          <p className="mt-2 text-sm text-muted-foreground">Contact for pricing</p>
+          <p className="mt-2 text-xs text-muted-foreground sm:text-sm">Contact for pricing</p>
         )}
 
         <div className="mt-auto flex flex-col gap-2 pt-3">
