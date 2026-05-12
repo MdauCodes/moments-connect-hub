@@ -28,26 +28,29 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
   const collectionTiers = useMemo(() => {
     if (!product) return [];
     return (product.pricingTiers ?? [])
-
-      .filter((t: any) => (t.collectionName && t.quantity) || t.minQty)
+      .filter((t: any) => t && t.collectionName && t.quantity)
       .map((t: any, i: number) => ({
         ...t,
-        collectionName: t.collectionName ?? `Tier ${i + 1}`,
-        quantity: t.quantity ?? t.minQty,
-        collectionPrice: t.collectionPrice ?? t.pricePerUnit * (t.quantity ?? t.minQty),
         id: t.id ?? `tier-${i}`,
+        collectionName: t.collectionName,
+        quantity: Number(t.quantity),
+        pricePerUnit: Number(t.pricePerUnit) || 0,
+        collectionPrice:
+          Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0,
+        sortOrder: t.sortOrder ?? i,
       }))
       .slice()
-      .sort((a: any, b: any) => (a.sortOrder ?? a.quantity) - (b.sortOrder ?? b.quantity));
+      .sort((a: any, b: any) => a.sortOrder - b.sortOrder);
   }, [product]);
 
   const hasCollections = collectionTiers.length > 0;
-  const individualEnabled = product ? (product.individualSalesEnabled ?? !hasCollections) : true;
+  // STRICT — never infer from absence of tiers.
+  const individualEnabled = product?.individualSalesEnabled === true;
 
   const selectedTier = useMemo(
     () =>
       hasCollections && selectedTierId
-        ? (collectionTiers.find((t: any) => (t.id ?? `tier-${collectionTiers.indexOf(t)}`) === selectedTierId) as any)
+        ? (collectionTiers.find((t: any) => t.id === selectedTierId) as any)
         : null,
     [collectionTiers, hasCollections, selectedTierId],
   );
@@ -60,9 +63,11 @@ export function ConfiguratorModal({ product, onClose }: ConfiguratorModalProps) 
     setError(null);
     setSaved(false);
     if (hasCollections) {
-      const first = collectionTiers[0] as any;
-      setSelectedTierId(first.id ?? `tier-0`);
+      setSelectedTierId((collectionTiers[0] as any).id);
       setQuantity(1);
+    } else if (individualEnabled) {
+      setSelectedTierId(null);
+      setQuantity(product.moq);
     } else {
       setSelectedTierId(null);
       setQuantity(product.moq);

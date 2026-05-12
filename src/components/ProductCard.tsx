@@ -22,6 +22,17 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
   const stock = getStockInfo(p, null, 0);
   const image = p.primaryImageUrl ?? p.image;
 
+  const tiers = (((p.pricingTiers ?? []) as any[])
+    .filter((t) => t && t.collectionName && t.quantity)
+    .slice()
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))) as Array<any>;
+  const hasTiers = tiers.length > 0;
+  const individualEnabled = p.individualSalesEnabled !== false;
+  const smallestTier = tiers[0];
+  const cheapestTier = tiers[tiers.length - 1];
+  const tierPrice = (t: any) =>
+    Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
+
   const handleCardClick = () => {
     trackClick(p.id);
     navigate({ to: "/products/$slug", params: { slug: p.slug } });
@@ -74,14 +85,49 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
         <h3 className="mt-2 font-display text-base font-semibold text-foreground">
           {p.name}
         </h3>
-        {p.basePrice ? (
+
+        {hasTiers ? (
+          tiers.length === 1 ? (
+            <p className="mt-1 text-sm text-primary">
+              KES {tierPrice(smallestTier).toLocaleString()} / {smallestTier.collectionName}
+            </p>
+          ) : (
+            <div className="mt-1 space-y-0.5">
+              <p className="text-sm text-primary">
+                From KES {tierPrice(cheapestTier).toLocaleString()} / {cheapestTier.collectionName}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Starts at KES {tierPrice(smallestTier).toLocaleString()} / {smallestTier.collectionName}
+              </p>
+            </div>
+          )
+        ) : individualEnabled && p.basePrice ? (
           <p className="mt-1 text-sm text-primary">
-            From KES {p.basePrice.toLocaleString()} / unit
+            KES {p.basePrice.toLocaleString()} / unit
           </p>
         ) : (
-          <p className="mt-1 text-sm text-primary">KES —</p>
+          <p className="mt-1 text-sm text-muted-foreground">Contact for pricing</p>
         )}
-        <p className="mt-0.5 text-xs text-muted-foreground">
+
+        {hasTiers && (
+          <div className="mt-1.5 flex flex-wrap gap-1">
+            {tiers.slice(0, 3).map((t: any) => (
+              <span
+                key={t.id ?? t.collectionName}
+                className="rounded-full border border-border bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground"
+              >
+                {t.collectionName}
+              </span>
+            ))}
+            {tiers.length > 3 && (
+              <span className="rounded-full border border-border bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">
+                +{tiers.length - 3} more
+              </span>
+            )}
+          </div>
+        )}
+
+        <p className="mt-1 text-xs text-muted-foreground">
           Min. {p.moq.toLocaleString()} units
         </p>
         <button
@@ -92,7 +138,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           }}
           className="mt-3 w-full rounded-full bg-accent px-3 py-2 text-xs font-semibold text-accent-foreground transition-opacity hover:opacity-90"
         >
-          Configure & add
+          {hasTiers ? "Choose collection" : "Configure & add"}
         </button>
       </div>
     </article>

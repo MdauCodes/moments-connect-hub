@@ -95,7 +95,7 @@ export function emptyProductValues(): ProductFormValues {
     basePrice: undefined,
     compareAtPrice: undefined,
     stock: 0,
-    lowStockThreshold: 50,
+    lowStockThreshold: 10,
     trackInventory: true,
     variants: [],
     individualSalesEnabled: true,
@@ -130,7 +130,7 @@ export function productToFormValues(p: Product): ProductFormValues {
     basePrice: p.basePrice,
     compareAtPrice: (p as Product & { compareAtPrice?: number }).compareAtPrice,
     stock: (p as Product & { stock?: number }).stock ?? 0,
-    lowStockThreshold: (p as Product & { lowStockThreshold?: number }).lowStockThreshold ?? 50,
+    lowStockThreshold: (p as Product & { lowStockThreshold?: number }).lowStockThreshold ?? 10,
     trackInventory: (p as Product & { trackInventory?: boolean }).trackInventory ?? true,
     variants: (p as Product & { variants?: ProductVariant[] }).variants
       ? [...((p as Product & { variants?: ProductVariant[] }).variants ?? [])]
@@ -775,7 +775,7 @@ export function ProductEditor({
                     type="number"
                     min={0}
                     style={styles.input}
-                    value={values.lowStockThreshold ?? 50}
+                    value={values.lowStockThreshold ?? 10}
                     onChange={(e) => set("lowStockThreshold", Number(e.target.value) || 0)}
                   />
                   <span style={styles.helper}>Alert when stock drops below this number.</span>

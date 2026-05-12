@@ -22,6 +22,19 @@ type ProductApiDto = Partial<Product> & {
 };
 
 function toBackendPayload(input: Partial<ProductDraft>) {
+  const tiersIn = ((input as any).pricingTiers ?? []) as Array<any>;
+  const pricingTiers = tiersIn
+    .filter((t) => t && t.collectionName)
+    .map((t, index) => {
+      const base: Record<string, unknown> = {
+        collectionName: String(t.collectionName),
+        quantity: Number(t.quantity) || 0,
+        pricePerUnit: Number(t.pricePerUnit) || 0,
+        sortOrder: index,
+      };
+      if (t.id) base.id = t.id;
+      return base;
+    });
   return {
     slug: input.slug,
     name: input.name,
@@ -44,11 +57,11 @@ function toBackendPayload(input: Partial<ProductDraft>) {
     basePrice: input.basePrice,
     compareAtPrice: input.compareAtPrice,
     stock: input.stock,
-    lowStockThreshold: input.lowStockThreshold,
+    lowStockThreshold: Number((input as any).lowStockThreshold ?? 10),
     trackInventory: input.trackInventory,
     variants: input.variants ?? [],
-    individualSalesEnabled: (input as any).individualSalesEnabled ?? false,
-    pricingTiers: (input as any).pricingTiers ?? [],
+    individualSalesEnabled: (input as any).individualSalesEnabled ?? true,
+    pricingTiers,
   };
 }
 
@@ -58,6 +71,26 @@ function normalizeIndustryIds(p: ProductApiDto): string[] {
     .map((industry) => industry.id ?? industry.displayId ?? industries.find((i) => i.slug === industry.slug)?.id)
     .filter((id): id is string | number => id !== undefined && id !== null)
     .map(String);
+}
+
+function normalizePricingTiers(raw: any): Array<any> {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((t) => t && (t.collectionName || t.quantity != null))
+    .map((t, i) => {
+      const quantity = Number(t.quantity ?? 0) || 0;
+      const pricePerUnit = Number(t.pricePerUnit ?? 0) || 0;
+      const collectionPrice = Number(t.collectionPrice ?? quantity * pricePerUnit) || 0;
+      return {
+        id: String(t.id ?? `tier-${i}`),
+        collectionName: String(t.collectionName ?? `Tier ${i + 1}`),
+        quantity,
+        pricePerUnit,
+        collectionPrice,
+        sortOrder: t.sortOrder != null ? Number(t.sortOrder) : i,
+      };
+    })
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 function normalizeProduct(p: ProductApiDto): Product {
@@ -79,8 +112,8 @@ function normalizeProduct(p: ProductApiDto): Product {
     monthlyClicks: p.monthlyClicks ?? 0,
     totalEnquiries: p.totalEnquiries ?? 0,
     monthlyEnquiries: p.monthlyEnquiries ?? 0,
-    individualSalesEnabled: (p as any).individualSalesEnabled ?? false,
-    pricingTiers: (p as any).pricingTiers ?? [],
+    individualSalesEnabled: (p as any).individualSalesEnabled ?? true,
+    pricingTiers: normalizePricingTiers((p as any).pricingTiers),
   } as Product;
 }
 
