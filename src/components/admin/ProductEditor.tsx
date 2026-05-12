@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
-import { adminJson, adminFetch } from "@/services/adminApi";
+import { adminJson } from "@/services/adminApi";
+import { adminResources } from "@/services/adminResources";
 import { api } from "@/services/api";
 import type { Product, ProductTag } from "@/data/products";
 import { categories } from "@/data/products";
@@ -464,21 +465,8 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
     setUploadError(null);
     setUploading(true);
     try {
-      const form = new FormData();
-      form.append("file", file);
-
-      const res = await adminFetch("/api/v1/admin/uploads/image?entity=products", {
-        method: "POST",
-        body: form,
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error((err as any).message || `Upload failed (${res.status})`);
-      }
-
-      const data = (await res.json()) as { url: string; publicId: string };
-      onChange(data.url);
+      const result = await adminResources.uploadImage(file, "products");
+      onChange(result.url);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -682,7 +670,14 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
   const pricingTiers = values.pricingTiers ?? [];
 
   return (
-    <form style={s.wrap} onSubmit={handleSubmit}>
+    <form style={s.wrap} onSubmit={handleSubmit} data-admin-editor-grid>
+      <style>{`
+        [data-admin-editor-grid] { grid-template-columns: minmax(0,1.35fr) minmax(320px,0.75fr); }
+        @media (max-width: 860px) {
+          [data-admin-editor-grid] { grid-template-columns: 1fr !important; }
+          [data-admin-row] { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       {/* ── LEFT COLUMN ─────────────────────────────────────────────────── */}
       <div style={s.mainCol}>
         {/* Core details */}
