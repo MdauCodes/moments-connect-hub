@@ -106,6 +106,11 @@ function ProductsPage() {
   const [query, setQuery] = useState(q ?? "");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [configuring, setConfiguring] = useState<Product | null>(null);
+  const [preTier, setPreTier] = useState<string | null>(null);
+  const handleConfigure = (p: Product, tierId?: string) => {
+    setPreTier(tierId ?? null);
+    setConfiguring(p);
+  };
   const [loadState, setLoadState] = useState<LoadState>("ok");
   const [retryTick, setRetryTick] = useState(0);
 
