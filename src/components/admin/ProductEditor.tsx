@@ -143,25 +143,23 @@ export function productToFormValues(p: Product): ProductFormValues {
 // ---------------------------------------------------------------------------
 
 function buildCreateRequest(values: ProductFormValues, productId?: string) {
-  const images = values.images.length ? values.images : values.image ? [values.image] : [];
   const slug = values.slug || slugifyDraft(values.name);
+  const imageUrls = values.images.length ? values.images : values.image ? [values.image] : [];
 
-  // Map client-side industry IDs → UUID strings expected by backend
-  // industries[] from @/data/products has { id, slug, ... }
+  // Resolve client-side industry string IDs → UUID strings (backend is List<UUID>)
   const industryIds = values.industryIds
-    .map((clientId) => {
-      const ind = industries.find((i) => String(i.id) === String(clientId));
-      return ind?.id ?? clientId; // already a UUID if backend populated it
-    })
+    .map((clientId) => industries.find((i) => String(i.id) === String(clientId))?.id ?? clientId)
     .filter(Boolean);
 
   const pricingTiers = (values.pricingTiers ?? [])
-    .filter((t) => t.collectionName.trim())
+    .filter((t) => t.collectionName.trim() && t.quantity > 0 && t.pricePerUnit > 0)
     .map((t, i) => ({
-      ...(t.id && !t.id.startsWith("tier-") ? { id: t.id } : {}),
+      // only include id if it's a real UUID, not our "tier-N" client placeholder
+      ...(t.id && /^[0-9a-f-]{36}$/i.test(t.id) ? { id: t.id } : {}),
       collectionName: t.collectionName,
       quantity: t.quantity,
       pricePerUnit: t.pricePerUnit,
+      collectionPrice: t.quantity * t.pricePerUnit,
       sortOrder: t.sortOrder ?? i,
     }));
 
@@ -174,29 +172,23 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
     moq: values.moq,
     sizes: values.sizes,
     tags: values.tags,
-    image: values.image,
-    images,
+    keywords: values.keywords?.length ? values.keywords : [],
+    primaryImageUrl: values.image || undefined,   // backend field name
+    imageUrls,                                     // backend field name
     isDiscount: values.isDiscount,
     discountPercent: values.isDiscount ? values.discountPercent : undefined,
     isNewArrival: values.isNewArrival,
     isFastMoving: values.isFastMoving,
     industryIds,
-    totalClicks: values.totalClicks,
-    monthlyClicks: values.monthlyClicks,
-    totalEnquiries: values.totalEnquiries,
-    monthlyEnquiries: values.monthlyEnquiries,
     material: values.material || undefined,
     finish: values.finish || undefined,
-    keywords: values.keywords?.length ? values.keywords : undefined,
-    sku: values.sku || undefined,
-    basePrice: values.basePrice,
-    compareAtPrice: values.compareAtPrice,
-    stock: values.trackInventory ? (values.stock ?? 0) : undefined,
+    basePrice: values.basePrice ?? undefined,
+    stockCount: values.trackInventory ? (values.stock ?? 0) : undefined,   // backend field name
     lowStockThreshold: values.trackInventory ? (values.lowStockThreshold ?? 10) : undefined,
-    trackInventory: values.trackInventory ?? true,
-    variants: (values.variants ?? []).filter((v) => v.label.trim()),
     individualSalesEnabled: values.individualSalesEnabled ?? true,
     pricingTiers,
+    // fields not in ProductCreateRequest/ProductUpdateRequest — intentionally omitted:
+    // sku, compareAtPrice, trackInventory, variants, totalClicks, monthlyClicks, totalEnquiries, monthlyEnquiries
   };
 }
 
