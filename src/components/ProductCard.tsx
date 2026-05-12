@@ -23,7 +23,14 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
   const image = p.primaryImageUrl ?? p.image;
 
   const tiers = (((p.pricingTiers ?? []) as any[])
-    .filter((t) => t && t.collectionName && t.quantity)
+    .filter((t) => {
+      if (!t || !t.collectionName) return false;
+      if (t.collectionName === "Legacy Tier") return false;
+      const qty = Number(t.quantity);
+      const price =
+        Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity));
+      return qty > 0 && price > 0;
+    })
     .slice()
     .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))) as Array<any>;
   const hasTiers = tiers.length > 0;
