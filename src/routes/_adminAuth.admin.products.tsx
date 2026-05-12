@@ -39,7 +39,7 @@ function AdminProductsPage() {
     void load();
   }, [page, filters.industryId, filters.category, filters.isDiscount, filters.isNewArrival, filters.isFastMoving]);
 
-  const beginCreate = () => navigate({ to: "/admin/products_/new" });
+  const beginCreate = () => navigate({ to: "/admin/products/new" });
   const beginEdit = (p: ProductDto) => navigate({ to: "/admin/products/$id", params: { id: p.id } });
   const remove = async (p: ProductDto) => {
     if (!isAdmin || !confirm(`Delete ${p.name}?`)) return;
