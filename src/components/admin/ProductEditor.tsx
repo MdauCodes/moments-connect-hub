@@ -775,7 +775,7 @@ export function ProductEditor({
                     type="number"
                     min={0}
                     style={styles.input}
-                    value={values.lowStockThreshold ?? 50}
+                    value={values.lowStockThreshold ?? 10}
                     onChange={(e) => set("lowStockThreshold", Number(e.target.value) || 0)}
                   />
                   <span style={styles.helper}>Alert when stock drops below this number.</span>
