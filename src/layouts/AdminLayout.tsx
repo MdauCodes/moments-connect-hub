@@ -37,22 +37,50 @@ interface NavItem {
   requires?: Permission;
 }
 
-const mainNav: NavItem[] = [
-  { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
-  { label: "Payments", to: "/admin/payments", icon: CreditCard },
-  { label: "Reviews", to: "/admin/reviews", icon: Star, requires: "review:moderate" },
-  { label: "Customers", to: "/admin/customers", icon: Users, requires: "customer:view" },
-  { label: "Products", to: "/admin/products", icon: Package },
-  { label: "Blogs", to: "/admin/blogs", icon: FileText },
-  { label: "Enquiries", to: "/admin/enquiries", icon: LayoutList },
-  { label: "Industries", to: "/admin/industries", icon: Factory },
-  { label: "Analytics", to: "/admin/analytics", icon: BarChart3 },
-];
+interface NavSection {
+  label: string;
+  items: NavItem[];
+}
 
-const manageNav: NavItem[] = [
-  { label: "Users", to: "/admin/users", icon: Users, requires: "staff:manage" },
-  { label: "Settings", to: "/admin/settings", icon: Settings, requires: "settings:manage" },
+// Sections ordered by priority: daily ops first, catalogue, audience, content, system.
+const navSections: NavSection[] = [
+  {
+    label: "Overview",
+    items: [
+      { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard },
+      { label: "Analytics", to: "/admin/analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Commerce",
+    items: [
+      { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
+      { label: "Payments", to: "/admin/payments", icon: CreditCard },
+      { label: "Products", to: "/admin/products", icon: Package },
+      { label: "Industries", to: "/admin/industries", icon: Factory },
+    ],
+  },
+  {
+    label: "Audience",
+    items: [
+      { label: "Customers", to: "/admin/customers", icon: Users, requires: "customer:view" },
+      { label: "Enquiries", to: "/admin/enquiries", icon: LayoutList },
+      { label: "Reviews", to: "/admin/reviews", icon: Star, requires: "review:moderate" },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { label: "Blogs", to: "/admin/blogs", icon: FileText },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { label: "Users", to: "/admin/users", icon: Users, requires: "staff:manage" },
+      { label: "Settings", to: "/admin/settings", icon: Settings, requires: "settings:manage" },
+    ],
+  },
 ];
 
 const styles: Record<string, CSSProperties> = {
@@ -319,23 +347,20 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
         </div>
 
         <nav style={styles.nav}>
-          <div style={styles.sectionLabel}>Main</div>
-          {mainNav
-            .filter((item) => !item.requires || can(user?.role, item.requires))
-            .map((item) => (
-              <NavLink key={item.to} item={item} active={isActive(item.to)} />
-            ))}
-
-          {manageNav.some((item) => !item.requires || can(user?.role, item.requires)) && (
-            <>
-              <div style={styles.sectionLabel}>Manage</div>
-              {manageNav
-                .filter((item) => !item.requires || can(user?.role, item.requires))
-                .map((item) => (
+          {navSections.map((section) => {
+            const visible = section.items.filter(
+              (item) => !item.requires || can(user?.role, item.requires)
+            );
+            if (visible.length === 0) return null;
+            return (
+              <div key={section.label} style={{ marginBottom: 6 }}>
+                <div style={styles.sectionLabel}>{section.label}</div>
+                {visible.map((item) => (
                   <NavLink key={item.to} item={item} active={isActive(item.to)} />
                 ))}
-            </>
-          )}
+              </div>
+            );
+          })}
         </nav>
 
         <div style={styles.sidebarBottom}>
