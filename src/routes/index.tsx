@@ -199,7 +199,7 @@ function FeaturedProducts() {
           </Link>
         </div>
 
-        <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
           {products === null ? (
             Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
           ) : products.length === 0 ? (
