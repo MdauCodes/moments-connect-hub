@@ -155,14 +155,15 @@ export function productToFormValues(p: Product): ProductFormValues {
 const styles: Record<string, CSSProperties> = {
   wrap: {
     maxWidth: 1240,
+    width: "100%",
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1.35fr) minmax(320px, 0.75fr)",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 520px), 1fr))",
     gap: 20,
     alignItems: "start",
   },
-  row: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" },
-  rowThree: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr 1fr" },
-  field: { display: "flex", flexDirection: "column", gap: 6 },
+  row: { display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))" },
+  rowThree: { display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))" },
+  field: { display: "flex", flexDirection: "column", gap: 6, minWidth: 0 },
   label: {
     fontSize: 11,
     textTransform: "uppercase",
