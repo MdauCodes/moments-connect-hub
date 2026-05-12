@@ -179,12 +179,8 @@ export const productStore = {
 
   getById: async (id: string): Promise<Product | null> => {
     if (!USE_MOCKS) {
-      try {
-        const data = await adminJson<Product>(`/products/${encodeURIComponent(id)}`);
-        return normalizeProduct(data);
-      } catch {
-        return null;
-      }
+      const data = await adminJson<Product>(`/products/${encodeURIComponent(id)}`);
+      return normalizeProduct(data);
     }
     return readAll().find((p) => p.id === id) ?? null;
   },
