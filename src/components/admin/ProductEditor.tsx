@@ -1017,6 +1017,7 @@ export function ProductEditor({
             </div>
           </div>
         </div>
+      </div>
 
       <div style={styles.sideColumn}>
         {/* Sizes & material */}
