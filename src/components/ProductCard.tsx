@@ -138,7 +138,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
 
         {hasTiers && activeTier ? (
           <div className="mt-2 space-y-0.5">
-            <p className="text-sm">
+            <p className="text-xs sm:text-sm">
               <span className="font-semibold text-primary">
                 KES {tierPrice(activeTier).toLocaleString()}
               </span>
@@ -147,17 +147,17 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               </span>
             </p>
             {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[10px] text-muted-foreground sm:text-[11px]">
                 Best value: KES {tierPrice(cheapestTier).toLocaleString()} / {cheapestTier.collectionName}
               </p>
             )}
           </div>
         ) : individualEnabled && p.basePrice ? (
-          <p className="mt-2 text-sm text-primary">
+          <p className="mt-2 text-xs text-primary sm:text-sm">
             KES {p.basePrice.toLocaleString()} / unit
           </p>
         ) : (
-          <p className="mt-2 text-sm text-muted-foreground">Contact for pricing</p>
+          <p className="mt-2 text-xs text-muted-foreground sm:text-sm">Contact for pricing</p>
         )}
 
         <div className="mt-auto flex flex-col gap-2 pt-3">
