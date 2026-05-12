@@ -207,6 +207,7 @@ function AdminProductsPage() {
           </button>
         </div>
       </div>
+      <Outlet />
     </AdminLayout>
   );
 }
