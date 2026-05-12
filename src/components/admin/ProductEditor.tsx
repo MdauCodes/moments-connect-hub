@@ -130,7 +130,7 @@ export function productToFormValues(p: Product): ProductFormValues {
     basePrice: p.basePrice,
     compareAtPrice: (p as Product & { compareAtPrice?: number }).compareAtPrice,
     stock: (p as Product & { stock?: number }).stock ?? 0,
-    lowStockThreshold: (p as Product & { lowStockThreshold?: number }).lowStockThreshold ?? 50,
+    lowStockThreshold: (p as Product & { lowStockThreshold?: number }).lowStockThreshold ?? 10,
     trackInventory: (p as Product & { trackInventory?: boolean }).trackInventory ?? true,
     variants: (p as Product & { variants?: ProductVariant[] }).variants
       ? [...((p as Product & { variants?: ProductVariant[] }).variants ?? [])]
