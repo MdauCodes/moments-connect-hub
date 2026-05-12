@@ -208,8 +208,8 @@ export function readAdminSession(): AdminSession | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as AdminSession;
     if (!parsed.refreshToken || !isAdminRole(parsed.role)) return null;
-    if (parsed.token && !accessTokenMemory) accessTokenMemory = parsed.token;
-    return { ...parsed, token: accessTokenMemory ?? parsed.token, roles: parsed.roles ?? [toBackendRole(parsed.role)] };
+    if (parsed.token) accessTokenMemory = parsed.token;
+    return { ...parsed, roles: parsed.roles ?? [toBackendRole(parsed.role)] };
   } catch {
     clearAdminSession();
     return null;
@@ -219,8 +219,7 @@ export function readAdminSession(): AdminSession | null {
 export function writeAdminSession(session: AdminSession): void {
   accessTokenMemory = session.token;
   if (!isBrowser()) return;
-  const persisted: AdminSession = { ...session, token: "__MEMORY_ONLY__" };
-  window.localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, JSON.stringify(persisted));
+  window.localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, JSON.stringify(session));
   notifySessionChanged();
 }
 
