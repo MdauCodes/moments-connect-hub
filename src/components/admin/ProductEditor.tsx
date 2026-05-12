@@ -155,14 +155,15 @@ export function productToFormValues(p: Product): ProductFormValues {
 const styles: Record<string, CSSProperties> = {
   wrap: {
     maxWidth: 1240,
+    width: "100%",
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1.35fr) minmax(320px, 0.75fr)",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 520px), 1fr))",
     gap: 20,
     alignItems: "start",
   },
-  row: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" },
-  rowThree: { display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr 1fr" },
-  field: { display: "flex", flexDirection: "column", gap: 6 },
+  row: { display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))" },
+  rowThree: { display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))" },
+  field: { display: "flex", flexDirection: "column", gap: 6, minWidth: 0 },
   label: {
     fontSize: 11,
     textTransform: "uppercase",
@@ -179,6 +180,10 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 13,
     fontFamily: "inherit",
     outline: "none",
+    width: "100%",
+    maxWidth: "100%",
+    minWidth: 0,
+    boxSizing: "border-box",
   },
   textarea: {
     background: "color-mix(in oklab, var(--admin-bg) 82%, var(--admin-surface) 18%)",
@@ -191,6 +196,10 @@ const styles: Record<string, CSSProperties> = {
     outline: "none",
     resize: "vertical",
     minHeight: 90,
+    width: "100%",
+    maxWidth: "100%",
+    minWidth: 0,
+    boxSizing: "border-box",
   },
   select: {
     background: "var(--admin-bg)",
@@ -201,6 +210,10 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 13,
     fontFamily: "inherit",
     outline: "none",
+    width: "100%",
+    maxWidth: "100%",
+    minWidth: 0,
+    boxSizing: "border-box",
   },
   card: {
     background:
@@ -791,9 +804,10 @@ export function ProductEditor({
                     key={idx}
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "1.4fr 0.9fr 0.7fr 0.7fr auto",
+                      gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 0.7fr) minmax(0, 0.7fr) auto",
                       gap: 6,
                       alignItems: "center",
+                      minWidth: 0,
                     }}
                   >
                     <input
@@ -885,7 +899,7 @@ export function ProductEditor({
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
+                      gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 0.7fr) minmax(0, 0.8fr) minmax(0, 0.9fr) auto",
                       gap: 6,
                       fontSize: 10,
                       textTransform: "uppercase",
@@ -907,7 +921,7 @@ export function ProductEditor({
                         key={idx}
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
+                          gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 0.7fr) minmax(0, 0.8fr) minmax(0, 0.9fr) auto",
                           gap: 6,
                           alignItems: "center",
                         }}
