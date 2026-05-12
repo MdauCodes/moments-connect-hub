@@ -431,14 +431,14 @@ function HomePage() {
         </div>
       </section>
 
+      {/* FEATURED PRODUCTS — products lead */}
+      <FeaturedProducts />
+
       {/* CATEGORY GRID — Swiss image tiles */}
       <CategoryGrid />
 
-      {/* FEATURED PRODUCTS */}
-      <FeaturedProducts />
-
-      {/* PERSONA PICKER */}
-      <PersonaSegmentPicker />
+      {/* AUDIENCES WE SERVE — informational */}
+      <AudiencesWeServe />
 
       {/* BLOGS */}
       <LatestBlogsStrip />
