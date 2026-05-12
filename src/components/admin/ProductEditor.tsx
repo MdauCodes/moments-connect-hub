@@ -165,7 +165,6 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
   return {
     ...(productId ? { id: productId } : {}),
     name: values.name,
-    slug,
     category: values.category,
     description: values.description,
     moq: values.moq,
@@ -586,6 +585,18 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [liveIndustries, setLiveIndustries] = useState<Array<{ id: string; name: string; slug: string }>>([]);
+
+  useEffect(() => {
+    api
+      .getIndustries()
+      .then((data) => {
+        setLiveIndustries(
+          data.map((ind) => ({ id: String(ind.id), name: ind.name, slug: ind.slug })),
+        );
+      })
+      .catch(() => {}); // non-fatal — industries chip section just stays empty
+  }, []);
 
   const isDirty = useMemo(() => JSON.stringify(values) !== JSON.stringify(initial), [initial, values]);
   const validationIssues = useMemo(() => validateProduct(values), [values]);
