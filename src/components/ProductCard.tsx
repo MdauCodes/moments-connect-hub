@@ -113,32 +113,8 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           {p.name}
         </h3>
 
-        {hasTiers && activeTier ? (
-          <div className="mt-1 space-y-0.5">
-            <p className="text-sm">
-              <span className="font-semibold text-primary">
-                KES {tierPrice(activeTier).toLocaleString()}
-              </span>
-              <span className="ml-1 text-muted-foreground">
-                / {activeTier.collectionName} ({Number(activeTier.quantity).toLocaleString()} units)
-              </span>
-            </p>
-            {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && (
-              <p className="text-[11px] text-muted-foreground">
-                Best value: KES {tierPrice(cheapestTier).toLocaleString()} / {cheapestTier.collectionName}
-              </p>
-            )}
-          </div>
-        ) : individualEnabled && p.basePrice ? (
-          <p className="mt-1 text-sm text-primary">
-            KES {p.basePrice.toLocaleString()} / unit
-          </p>
-        ) : (
-          <p className="mt-1 text-sm text-muted-foreground">Contact for pricing</p>
-        )}
-
         {hasTiers && (
-          <div className="mt-1.5 flex flex-wrap gap-1">
+          <div className="mt-2 flex flex-wrap gap-1">
             {tiers.map((t: any) => {
               const id = tierKey(t);
               const isActive = id === activeTierId;
@@ -160,20 +136,46 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           </div>
         )}
 
-        <p className="mt-1 text-xs text-muted-foreground">
-          Min. {p.moq.toLocaleString()} units
-        </p>
-        <button
-          type="button"
-          onClick={handleCTAClick}
-          className="mt-3 w-full rounded-full bg-accent px-3 py-2 text-xs font-semibold text-accent-foreground transition-opacity hover:opacity-90"
-        >
-          {hasTiers
-            ? activeTier
-              ? `Add ${activeTier.collectionName} to cart`
-              : "Choose collection"
-            : "Configure & add"}
-        </button>
+        {hasTiers && activeTier ? (
+          <div className="mt-2 space-y-0.5">
+            <p className="text-sm">
+              <span className="font-semibold text-primary">
+                KES {tierPrice(activeTier).toLocaleString()}
+              </span>
+              <span className="ml-1 text-muted-foreground">
+                / {activeTier.collectionName} ({Number(activeTier.quantity).toLocaleString()} units)
+              </span>
+            </p>
+            {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && (
+              <p className="text-[11px] text-muted-foreground">
+                Best value: KES {tierPrice(cheapestTier).toLocaleString()} / {cheapestTier.collectionName}
+              </p>
+            )}
+          </div>
+        ) : individualEnabled && p.basePrice ? (
+          <p className="mt-2 text-sm text-primary">
+            KES {p.basePrice.toLocaleString()} / unit
+          </p>
+        ) : (
+          <p className="mt-2 text-sm text-muted-foreground">Contact for pricing</p>
+        )}
+
+        <div className="mt-auto flex flex-col gap-2 pt-3">
+          <p className="text-xs text-muted-foreground">
+            Min. {p.moq.toLocaleString()} units
+          </p>
+          <button
+            type="button"
+            onClick={handleCTAClick}
+            className="w-full rounded-full bg-accent px-3 py-2 text-xs font-semibold text-accent-foreground transition-opacity hover:opacity-90"
+          >
+            {hasTiers && activeTier
+              ? `Add to cart · ${activeTier.collectionName}`
+              : individualEnabled && p.basePrice
+              ? "Add to cart"
+              : "Get a quote"}
+          </button>
+        </div>
       </div>
     </article>
   );
