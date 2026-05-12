@@ -64,7 +64,10 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
     setError(null);
     setSaved(false);
     if (hasCollections) {
-      setSelectedTierId((collectionTiers[0] as any).id);
+      const match = preSelectedTierId
+        ? (collectionTiers as any[]).find((t) => String(t.id) === String(preSelectedTierId))
+        : null;
+      setSelectedTierId(match ? match.id : (collectionTiers[0] as any).id);
       setQuantity(1);
     } else if (individualEnabled) {
       setSelectedTierId(null);
@@ -73,7 +76,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
       setSelectedTierId(null);
       setQuantity(product.moq);
     }
-  }, [product]);
+  }, [product, preSelectedTierId]);
 
   const unitPrice = selectedTier ? Number(selectedTier.pricePerUnit) || 0 : (product?.basePrice ?? 0);
   const collectionQty = selectedTier ? Number(selectedTier.quantity) || 0 : 0;
