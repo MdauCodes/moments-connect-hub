@@ -352,7 +352,13 @@ function CheckoutModal() {
                           type="text"
                           className={inputCls}
                           required={!selectedZone}
-                          value={zoneOpen ? zoneSearch : selectedZone?.zoneName ?? ""}
+                          value={
+                            zoneOpen
+                              ? zoneSearch
+                              : selectedZone
+                                ? `${selectedZone.zoneName} (${selectedZone.county}) — KES ${Number(selectedZone.feeAmount).toLocaleString()}`
+                                : ""
+                          }
                           placeholder="Search delivery zone…"
                           onFocus={() => {
                             setZoneOpen(true);
