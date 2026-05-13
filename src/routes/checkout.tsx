@@ -159,6 +159,7 @@ function CheckoutModal() {
           },
           shippingFee,
           paymentMethod: "MPESA",
+          fulfillmentType: "ZONE_DELIVERY",
         });
         id = order.id ?? order.reference;
         ref = order.reference;
