@@ -243,7 +243,7 @@ function CheckoutModal() {
 
   if (items.length === 0 && payState === "idle") return null;
 
-  const shippingFee = computeShippingFee(cartTotal);
+  const shippingFee = selectedZone ? selectedZone.feeAmount : 0;
   const total = cartTotal + shippingFee;
 
   // Brand ring color via CSS var
