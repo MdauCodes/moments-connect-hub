@@ -224,6 +224,7 @@ export const orderStore = {
       city: input.customer.city,
       county: input.customer.county,
       paymentMethod: input.paymentMethod,
+      fulfillmentType: input.fulfillmentType ?? "ZONE_DELIVERY",
       items: input.items.map((it) => ({
         productId: it.productId,
         quantity: it.quantity,
