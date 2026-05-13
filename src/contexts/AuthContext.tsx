@@ -32,8 +32,33 @@ export function getAccessToken(): string | null {
   return accessTokenMem ?? getAuthToken();
 }
 
+// Decode JWT payload and extract AuthUser from claims.
+// Returns null if token is missing, malformed, or expired.
+function decodeJwt(token: string | null): AuthUser | null {
+  if (!token) return null;
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    // Check expiry
+    if (payload.exp && payload.exp * 1000 < Date.now()) return null;
+    // Must have the claims we added in JwtService
+    if (!payload.sub || !payload.userId || !payload.firstName) return null;
+    return {
+      id: payload.userId,
+      email: payload.sub,
+      firstName: payload.firstName,
+      lastName: payload.lastName ?? "",
+      roles: Array.isArray(payload.roles) ? payload.roles : [],
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  // Initialise user instantly from existing token — no network call needed
+  const [user, setUser] = useState<AuthUser | null>(() => decodeJwt(getAuthToken()));
   const [accessToken, setAccessTokenState] = useState<string | null>(getAuthToken());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -41,6 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     accessTokenMem = token;
     setAuthToken(token);
     setAccessTokenState(token);
+    // Always sync user from token so they stay in step
+    setUser(decodeJwt(token));
   };
 
   const refreshToken = useCallback(async (): Promise<string | null> => {
@@ -56,11 +83,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await res.json();
       if (data.accessToken) setAccessToken(data.accessToken);
       if (data.refreshToken) window.localStorage.setItem(RT_KEY, data.refreshToken);
-      if (data.user) setUser(data.user);
       return data.accessToken ?? null;
     } catch {
       setAccessToken(null);
-      setUser(null);
       try {
         window.localStorage.removeItem(RT_KEY);
       } catch {
@@ -70,10 +95,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Try refresh on mount if refresh token exists
+  // On mount: if token is expired but refresh token exists, trigger refresh
   useEffect(() => {
+    const token = getAuthToken();
     const rt = typeof window !== "undefined" ? window.localStorage.getItem(RT_KEY) : null;
-    if (rt) refreshToken();
+    if (rt && !decodeJwt(token)) {
+      // Token missing or expired — refresh silently
+      void refreshToken();
+    }
   }, [refreshToken]);
 
   // Auto-refresh interval
@@ -81,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (intervalRef.current) clearInterval(intervalRef.current);
     if (!accessToken) return;
     intervalRef.current = setInterval(() => {
-      refreshToken();
+      void refreshToken();
     }, REFRESH_INTERVAL_MS);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -96,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.message ?? "Login failed");
+      throw new Error((err as { message?: string }).message ?? "Login failed");
     }
     const data = await res.json();
     if (data.accessToken) setAccessToken(data.accessToken);
@@ -107,8 +136,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         /* ignore */
       }
     }
-    if (data.user) setUser(data.user);
-    return (data.user as AuthUser) ?? null;
+    // user is set by setAccessToken via decodeJwt
+    // but login response also has data.user as fallback
+    if (!decodeJwt(data.accessToken) && data.user) setUser(data.user);
+    return decodeJwt(data.accessToken) ?? (data.user as AuthUser) ?? null;
   };
 
   const logout = async () => {
@@ -123,7 +154,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
     setAccessToken(null);
-    setUser(null);
     try {
       window.localStorage.removeItem(RT_KEY);
     } catch {
