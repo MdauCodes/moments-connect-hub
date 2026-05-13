@@ -59,6 +59,7 @@ const navSections: NavSection[] = [
       { label: "Payments", to: "/admin/payments", icon: CreditCard },
       { label: "Products", to: "/admin/products", icon: Package },
       { label: "Industries", to: "/admin/industries", icon: Factory },
+      { label: "Delivery Zones", to: "/admin/delivery-zones", icon: Truck, requires: "settings:manage" as Permission },
     ],
   },
   {
