@@ -430,7 +430,17 @@ export const orderStore = {
           }
       >(`/api/v1/customer/orders?page=${page}&size=${size}`, undefined, true);
       if (live) {
-        const rows = Array.isArray(live) ? live : (live.content ?? []);
+        const rawRows = Array.isArray(live) ? live : (live.content ?? []);
+        const rows = rawRows.map((o: any) => ({
+          ...o,
+          customerName: o.contactName ?? o.customerName ?? "",
+          customerEmail: o.email ?? o.customerEmail ?? "",
+          customerPhone: o.phone ?? o.customerPhone ?? "",
+          shippingAddress: o.deliveryAddress ?? o.shippingAddress ?? "",
+          shippingFee: Number(o.deliveryFee ?? o.shippingFee ?? 0),
+          total: Number(o.totalAmount ?? o.total ?? 0),
+          subtotal: Number(o.subtotal ?? 0),
+        }));
         const totalElements = Array.isArray(live) ? rows.length : (live.totalElements ?? rows.length);
         const totalPages = Array.isArray(live) ? 1 : (live.totalPages ?? 1);
         const number = Array.isArray(live) ? page : (live.number ?? page);
