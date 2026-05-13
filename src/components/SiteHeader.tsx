@@ -59,8 +59,7 @@ export function SiteHeader() {
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       const tag = target?.tagName;
-      const isTyping =
-        tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable;
+      const isTyping = tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setSearchSeed("");
@@ -119,12 +118,7 @@ export function SiteHeader() {
 
           <nav className="ml-auto hidden items-center gap-1 md:flex">
             {/* Shop dropdown */}
-            <div
-              ref={dropdownRef}
-              className="relative"
-              onMouseEnter={openDropdown}
-              onMouseLeave={scheduleClose}
-            >
+            <div ref={dropdownRef} className="relative" onMouseEnter={openDropdown} onMouseLeave={scheduleClose}>
               <Link
                 to="/products"
                 className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-secondary hover:text-foreground lg:px-4"
@@ -322,9 +316,7 @@ export function SiteHeader() {
                     aria-label="Toggle categories"
                     className="grid h-10 w-10 place-items-center rounded-md text-foreground/60 hover:bg-secondary"
                   >
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${mobileShopOpen ? "rotate-180" : ""}`}
-                    />
+                    <ChevronDown className={`h-4 w-4 transition-transform ${mobileShopOpen ? "rotate-180" : ""}`} />
                   </button>
                 </div>
                 {mobileShopOpen && (
@@ -366,14 +358,51 @@ export function SiteHeader() {
                 </Link>
               ))}
 
-              <Link
-                to={isAuthenticated ? "/account/profile" : "/account/login"}
-                onClick={() => setOpen(false)}
-                className="mt-2 inline-flex items-center gap-2 rounded-md border border-border px-3 py-3 text-sm text-foreground/80 hover:bg-secondary"
-              >
-                <User className="h-4 w-4" />
-                {isAuthenticated ? "My account" : "Sign in"}
-              </Link>
+              {isAuthenticated ? (
+                <div className="mt-2 border-t border-border pt-2">
+                  <p className="px-3 py-1.5 text-xs text-muted-foreground">Hi {user?.firstName ?? "there"}</p>
+                  <Link
+                    to="/account/orders"
+                    onClick={() => setOpen(false)}
+                    className="block rounded-md px-3 py-2.5 text-sm text-foreground/80 hover:bg-secondary"
+                  >
+                    My Orders
+                  </Link>
+                  <Link
+                    to="/account/profile"
+                    onClick={() => setOpen(false)}
+                    className="block rounded-md px-3 py-2.5 text-sm text-foreground/80 hover:bg-secondary"
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    to="/account/wishlist"
+                    onClick={() => setOpen(false)}
+                    className="block rounded-md px-3 py-2.5 text-sm text-foreground/80 hover:bg-secondary"
+                  >
+                    Wishlist
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setOpen(false);
+                      await logout();
+                      navigate({ to: "/" });
+                    }}
+                    className="block w-full rounded-md px-3 py-2.5 text-left text-sm font-medium text-accent hover:bg-secondary"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  to="/account/login"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 inline-flex items-center gap-2 rounded-md border border-border px-3 py-3 text-sm text-foreground/80 hover:bg-secondary"
+                >
+                  <User className="h-4 w-4" /> Sign in
+                </Link>
+              )}
             </div>
           </div>
         )}
