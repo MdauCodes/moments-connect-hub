@@ -43,7 +43,7 @@ function AdminPaymentsPage() {
 
   const stats = useMemo(() => {
     if (!data) return null;
-    const success = data.rows.filter((p) => p.status === "SUCCESS");
+    const success = data.rows.filter((p) => p.status === "PAID");
     const failed = data.rows.filter((p) => p.status === "FAILED");
     const refunded = data.rows.filter((p) => p.status === "REFUNDED");
     return {
