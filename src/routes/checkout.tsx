@@ -4,7 +4,8 @@ import { ArrowRight, ArrowLeft, X, Smartphone, CheckCircle2, XCircle, ShieldChec
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderStore, computeShippingFee, SHIPPING_THRESHOLD_KES } from "@/services/orderStore";
+import { orderStore } from "@/services/orderStore";
+import { fetchDeliveryZones, type DeliveryZone } from "@/services/deliveryZoneService";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
