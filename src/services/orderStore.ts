@@ -473,7 +473,24 @@ export const orderStore = {
         undefined,
         true,
       );
-      if (live) return { order: live, source: "live" };
+      // if (live) return { order: live, source: "live" };
+
+      if (live) {
+        const o = live as any;
+        return {
+          order: {
+            ...o,
+            customerName: o.contactName ?? o.customerName ?? "",
+            customerEmail: o.email ?? o.customerEmail ?? "",
+            customerPhone: o.phone ?? o.customerPhone ?? "",
+            shippingAddress: o.deliveryAddress ?? o.shippingAddress ?? "",
+            shippingFee: Number(o.deliveryFee ?? o.shippingFee ?? 0),
+            total: Number(o.totalAmount ?? o.total ?? 0),
+            subtotal: Number(o.subtotal ?? 0),
+          },
+          source: "live",
+        };
+      }
     }
     const found = readAll().find((o) => o.reference === reference) ?? null;
     return { order: found, source: "mock" };
