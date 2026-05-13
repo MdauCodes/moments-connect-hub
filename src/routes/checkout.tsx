@@ -71,6 +71,20 @@ function CheckoutModal() {
   const [address, setAddress] = useState("");
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [selectedZone, setSelectedZone] = useState<DeliveryZone | null>(null);
+  const [zoneSearch, setZoneSearch] = useState("");
+  const [zoneOpen, setZoneOpen] = useState(false);
+  const zoneRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!zoneOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (zoneRef.current && !zoneRef.current.contains(e.target as Node)) {
+        setZoneOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [zoneOpen]);
 
   // Payment state
   const [payState, setPayState] = useState<PayState>("idle");
@@ -338,23 +352,63 @@ function CheckoutModal() {
                   <label className={labelCls}>Delivery zone</label>
                   {zones.length > 0 ? (
                     <>
-                      <select
-                        className={inputCls}
-                        required
-                        value={selectedZone?.id ?? ""}
-                        onChange={(e) => {
-                          const z = zones.find((x) => x.id === e.target.value) ?? null;
-                          setSelectedZone(z);
-                          setCounty(z?.county ?? "");
-                        }}
-                      >
-                        <option value="">Select delivery zone…</option>
-                        {zones.map((z) => (
-                          <option key={z.id} value={z.id}>
-                            {z.zoneName} ({z.county}) — KES {Number(z.feeAmount).toLocaleString()}
-                          </option>
-                        ))}
-                      </select>
+                      <div ref={zoneRef} className="relative">
+                        <input
+                          type="text"
+                          className={inputCls}
+                          required={!selectedZone}
+                          value={zoneOpen ? zoneSearch : selectedZone?.zoneName ?? ""}
+                          placeholder="Search delivery zone…"
+                          onFocus={() => {
+                            setZoneOpen(true);
+                            setZoneSearch("");
+                          }}
+                          onChange={(e) => {
+                            setZoneSearch(e.target.value);
+                            setZoneOpen(true);
+                          }}
+                        />
+                        {zoneOpen && (
+                          <ul
+                            className="absolute z-20 mt-1 w-full overflow-y-auto rounded-md border border-border bg-popover shadow-lg"
+                            style={{ maxHeight: 240, scrollBehavior: "smooth" }}
+                          >
+                            {(() => {
+                              const q = zoneSearch.trim().toLowerCase();
+                              const filtered = q
+                                ? zones.filter(
+                                    (z) =>
+                                      z.zoneName.toLowerCase().includes(q) ||
+                                      z.county.toLowerCase().includes(q),
+                                  )
+                                : zones;
+                              if (filtered.length === 0) {
+                                return (
+                                  <li className="px-3 py-2 text-sm text-muted-foreground">
+                                    No zones found
+                                  </li>
+                                );
+                              }
+                              return filtered.map((z) => (
+                                <li key={z.id}>
+                                  <button
+                                    type="button"
+                                    className="block w-full px-3 py-2 text-left text-sm hover:bg-secondary"
+                                    onClick={() => {
+                                      setSelectedZone(z);
+                                      setCounty(z.county);
+                                      setZoneSearch("");
+                                      setZoneOpen(false);
+                                    }}
+                                  >
+                                    {z.zoneName} — KES {Number(z.feeAmount).toLocaleString()}
+                                  </button>
+                                </li>
+                              ));
+                            })()}
+                          </ul>
+                        )}
+                      </div>
                       {selectedZone?.description && (
                         <p className="mt-1 text-xs text-muted-foreground">{selectedZone.description}</p>
                       )}
