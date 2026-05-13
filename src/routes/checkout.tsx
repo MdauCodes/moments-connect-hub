@@ -4,7 +4,8 @@ import { ArrowRight, ArrowLeft, X, Smartphone, CheckCircle2, XCircle, ShieldChec
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderStore, computeShippingFee, SHIPPING_THRESHOLD_KES } from "@/services/orderStore";
+import { orderStore } from "@/services/orderStore";
+import { fetchDeliveryZones, type DeliveryZone } from "@/services/deliveryZoneService";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -68,6 +69,8 @@ function CheckoutModal() {
   const [county, setCounty] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [address, setAddress] = useState("");
+  const [zones, setZones] = useState<DeliveryZone[]>([]);
+  const [selectedZone, setSelectedZone] = useState<DeliveryZone | null>(null);
 
   // Payment state
   const [payState, setPayState] = useState<PayState>("idle");
@@ -94,6 +97,10 @@ function CheckoutModal() {
 
   useEffect(() => () => clearAllTimers(), []);
 
+  useEffect(() => {
+    fetchDeliveryZones().then(setZones).catch(() => {});
+  }, []);
+
   function clearAllTimers() {
     const t = timersRef.current;
     if (t.poll) clearTimeout(t.poll);
@@ -109,7 +116,7 @@ function CheckoutModal() {
 
   function validateContact(): boolean {
     if (!name.trim() || !email.trim() || !address.trim() || !city.trim() || !county.trim()) {
-      toast.error("Please fill all required fields");
+      toast.error("Please fill all required fields including delivery zone");
       return false;
     }
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
@@ -152,6 +159,7 @@ function CheckoutModal() {
           },
           shippingFee,
           paymentMethod: "MPESA",
+          fulfillmentType: "ZONE_DELIVERY",
         });
         id = order.id ?? order.reference;
         ref = order.reference;
@@ -235,7 +243,7 @@ function CheckoutModal() {
 
   if (items.length === 0 && payState === "idle") return null;
 
-  const shippingFee = computeShippingFee(cartTotal);
+  const shippingFee = selectedZone ? selectedZone.feeAmount : 0;
   const total = cartTotal + shippingFee;
 
   // Brand ring color via CSS var
@@ -326,8 +334,39 @@ function CheckoutModal() {
                   <input className={inputCls} required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Nairobi" />
                 </div>
                 <div>
-                  <label className={labelCls}>County</label>
-                  <input className={inputCls} required value={county} onChange={(e) => setCounty(e.target.value)} placeholder="Nairobi" />
+                  <label className={labelCls}>Delivery zone</label>
+                  {zones.length > 0 ? (
+                    <>
+                      <select
+                        className={inputCls}
+                        required
+                        value={selectedZone?.id ?? ""}
+                        onChange={(e) => {
+                          const z = zones.find((x) => x.id === e.target.value) ?? null;
+                          setSelectedZone(z);
+                          setCounty(z?.county ?? "");
+                        }}
+                      >
+                        <option value="">Select delivery zone…</option>
+                        {zones.map((z) => (
+                          <option key={z.id} value={z.id}>
+                            {z.zoneName} ({z.county}) — KES {Number(z.feeAmount).toLocaleString()}
+                          </option>
+                        ))}
+                      </select>
+                      {selectedZone?.description && (
+                        <p className="mt-1 text-xs text-muted-foreground">{selectedZone.description}</p>
+                      )}
+                    </>
+                  ) : (
+                    <input
+                      className={inputCls}
+                      required
+                      value={county}
+                      onChange={(e) => setCounty(e.target.value)}
+                      placeholder="County"
+                    />
+                  )}
                 </div>
                 <div className="sm:col-span-2">
                   <label className={labelCls}>Postal code (optional)</label>
@@ -382,7 +421,7 @@ function CheckoutModal() {
                     <dl className="mt-4 space-y-1.5 border-t border-border pt-3 text-sm">
                       <Row label="Subtotal" value={fmt(cartTotal)} />
                       <Row
-                        label="Shipping"
+                        label={selectedZone ? `Delivery — ${selectedZone.zoneName}` : "Delivery"}
                         value={shippingFee === 0 ? "Free" : fmt(shippingFee)}
                       />
                       <div className="flex justify-between border-t border-border pt-2.5 font-display text-base">
@@ -390,9 +429,6 @@ function CheckoutModal() {
                         <dd className="tabular-nums">{fmt(total)}</dd>
                       </div>
                     </dl>
-                    <p className="mt-2 text-[11px] text-muted-foreground">
-                      Free shipping on orders over {fmt(SHIPPING_THRESHOLD_KES)}.
-                    </p>
                   </div>
 
                   <button
