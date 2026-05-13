@@ -44,22 +44,28 @@ function MyOrdersPage() {
     <SiteLayout>
       <section className="mx-auto max-w-5xl px-5 py-12 lg:px-8 lg:py-16">
         <h1 className="font-display text-3xl sm:text-4xl">My orders</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Recent orders and their payment status.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">Recent orders and their payment status.</p>
 
         {orders === null || loading ? (
           <p className="mt-10 text-sm text-muted-foreground">Loading…</p>
         ) : orders.length === 0 ? (
           <div className="mt-10 rounded-2xl border border-dashed border-border bg-card p-8 text-center">
             <p className="text-sm text-muted-foreground">You haven't placed any orders yet.</p>
-            <Link to="/products" className="mt-4 inline-block rounded-full bg-primary px-5 py-2.5 text-sm text-primary-foreground hover:bg-primary/90">Browse catalogue</Link>
+            <Link
+              to="/products"
+              className="mt-4 inline-block rounded-full bg-primary px-5 py-2.5 text-sm text-primary-foreground hover:bg-primary/90"
+            >
+              Browse catalogue
+            </Link>
           </div>
         ) : (
           <>
             <ul className="mt-8 space-y-3">
               {orders.map((o) => (
-                <li key={o.reference} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
+                <li
+                  key={o.reference}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4"
+                >
                   <Link
                     to="/account/orders/$reference"
                     params={{ reference: o.reference }}
@@ -67,19 +73,31 @@ function MyOrdersPage() {
                   >
                     <p className="font-display text-lg">{o.reference}</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(o.createdAt).toLocaleString("en-KE")} · {o.items.length} item{o.items.length !== 1 ? "s" : ""}
+                      {new Date(o.createdAt).toLocaleString("en-KE")} · {o.items.length} item
+                      {o.items.length !== 1 ? "s" : ""}
                     </p>
                   </Link>
                   <div className="flex items-center gap-3">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone(o.status)}`}>{o.status.replace(/_/g, " ")}</span>
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone(o.status)}`}>
+                      {o.status.replace(/_/g, " ")}
+                    </span>
                     <span className="font-semibold">{fmt(o.total)}</span>
-                    <Link
-                      to="/orders/track"
-                      search={{ ref: o.reference }}
-                      className="rounded-full border border-border px-3 py-1 text-xs hover:bg-secondary"
-                    >
-                      Track
-                    </Link>
+                    {o.status === "PENDING_PAYMENT" || o.status === "PAYMENT_FAILED" ? (
+                      <Link
+                        to="/checkout"
+                        className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+                      >
+                        Pay now
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/account/orders/$reference"
+                        params={{ reference: o.reference }}
+                        className="rounded-full border border-border px-3 py-1 text-xs hover:bg-secondary"
+                      >
+                        Track
+                      </Link>
+                    )}
                   </div>
                 </li>
               ))}
@@ -94,7 +112,9 @@ function MyOrdersPage() {
                 >
                   Previous
                 </button>
-                <span className="text-xs text-muted-foreground">Page {page + 1} of {totalPages}</span>
+                <span className="text-xs text-muted-foreground">
+                  Page {page + 1} of {totalPages}
+                </span>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   disabled={page >= totalPages - 1}
