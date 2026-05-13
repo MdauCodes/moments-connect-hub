@@ -92,7 +92,7 @@ export interface PlaceOrderInput {
   paymentMethod: CheckoutPaymentMethod;
   promoCode?: string;
   sessionId?: string;
-  fulfillmentType?: string;
+  fulfillmentType?: "ZONE_DELIVERY" | "PICKUP";
 }
 
 // ── Normalised status the UI cares about ─────────────────────────────────────
@@ -224,6 +224,7 @@ export const orderStore = {
       city: input.customer.city,
       county: input.customer.county,
       paymentMethod: input.paymentMethod,
+      fulfillmentType: input.fulfillmentType ?? "ZONE_DELIVERY",
       items: input.items.map((it) => ({
         productId: it.productId,
         quantity: it.quantity,
@@ -505,8 +506,4 @@ export const orderStore = {
 };
 
 // ── Shipping helpers ──────────────────────────────────────────────────────────
-export const SHIPPING_FLAT_KES = 350; // fallback only
-export function computeShippingFee(subtotal: number, zoneFee?: number): number {
-  if (zoneFee !== undefined) return zoneFee;
-  return SHIPPING_FLAT_KES;
-}
+export const SHIPPING_FLAT_KES = 350; // kept as fallback only
