@@ -419,6 +419,11 @@ function CheckoutModal() {
                   )}
                 </div>
                 <div className="sm:col-span-2">
+                  <label className={labelCls}>Specific delivery location</label>
+                  <input className={inputCls} required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. Huruma, Three Rings Plaza au hapo kwa Shell ya Makutano" />
+                  <p className="mt-1 text-xs text-muted-foreground">Provide a well-known landmark near your delivery point — e.g. a petrol station, roundabout, flyover, river, police station, market, church, or school. Must be accessible by road within your selected delivery zone.</p>
+                </div>
+                <div className="sm:col-span-2">
                   <label className={labelCls}>Postal code (optional)</label>
                   <input className={inputCls} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="00100" />
                 </div>
