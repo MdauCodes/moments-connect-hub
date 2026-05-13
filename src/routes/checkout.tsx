@@ -402,7 +402,7 @@ function CheckoutModal() {
                                       setZoneOpen(false);
                                     }}
                                   >
-                                    {z.zoneName} — KES {Number(z.feeAmount).toLocaleString()}
+                                    {z.zoneName} ({z.county}) — KES {Number(z.feeAmount).toLocaleString()}
                                   </button>
                                 </li>
                               ));
