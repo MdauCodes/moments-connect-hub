@@ -71,6 +71,20 @@ function CheckoutModal() {
   const [address, setAddress] = useState("");
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [selectedZone, setSelectedZone] = useState<DeliveryZone | null>(null);
+  const [zoneSearch, setZoneSearch] = useState("");
+  const [zoneOpen, setZoneOpen] = useState(false);
+  const zoneRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!zoneOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (zoneRef.current && !zoneRef.current.contains(e.target as Node)) {
+        setZoneOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [zoneOpen]);
 
   // Payment state
   const [payState, setPayState] = useState<PayState>("idle");
