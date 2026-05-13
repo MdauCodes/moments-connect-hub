@@ -116,7 +116,7 @@ function CheckoutModal() {
 
   function validateContact(): boolean {
     if (!name.trim() || !email.trim() || !address.trim() || !city.trim() || !county.trim()) {
-      toast.error("Please fill all required fields");
+      toast.error("Please fill all required fields including delivery zone");
       return false;
     }
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
