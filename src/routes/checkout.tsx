@@ -69,6 +69,8 @@ function CheckoutModal() {
   const [county, setCounty] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [address, setAddress] = useState("");
+  const [zones, setZones] = useState<DeliveryZone[]>([]);
+  const [selectedZone, setSelectedZone] = useState<DeliveryZone | null>(null);
 
   // Payment state
   const [payState, setPayState] = useState<PayState>("idle");
