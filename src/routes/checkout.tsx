@@ -334,8 +334,39 @@ function CheckoutModal() {
                   <input className={inputCls} required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Nairobi" />
                 </div>
                 <div>
-                  <label className={labelCls}>County</label>
-                  <input className={inputCls} required value={county} onChange={(e) => setCounty(e.target.value)} placeholder="Nairobi" />
+                  <label className={labelCls}>Delivery zone</label>
+                  {zones.length > 0 ? (
+                    <>
+                      <select
+                        className={inputCls}
+                        required
+                        value={selectedZone?.id ?? ""}
+                        onChange={(e) => {
+                          const z = zones.find((x) => x.id === e.target.value) ?? null;
+                          setSelectedZone(z);
+                          setCounty(z?.county ?? "");
+                        }}
+                      >
+                        <option value="">Select delivery zone…</option>
+                        {zones.map((z) => (
+                          <option key={z.id} value={z.id}>
+                            {z.zoneName} ({z.county}) — KES {Number(z.feeAmount).toLocaleString()}
+                          </option>
+                        ))}
+                      </select>
+                      {selectedZone?.description && (
+                        <p className="mt-1 text-xs text-muted-foreground">{selectedZone.description}</p>
+                      )}
+                    </>
+                  ) : (
+                    <input
+                      className={inputCls}
+                      required
+                      value={county}
+                      onChange={(e) => setCounty(e.target.value)}
+                      placeholder="County"
+                    />
+                  )}
                 </div>
                 <div className="sm:col-span-2">
                   <label className={labelCls}>Postal code (optional)</label>
