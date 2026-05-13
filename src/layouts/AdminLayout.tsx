@@ -17,6 +17,7 @@ import {
   ShoppingCart,
   CreditCard,
   BarChart3,
+  Truck,
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can, type Permission } from "@/lib/permissions";
