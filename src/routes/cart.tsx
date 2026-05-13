@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, Trash2, ShoppingBag } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useCart } from "@/contexts/CartContext";
-import { computeShippingFee, SHIPPING_THRESHOLD_KES } from "@/services/orderStore";
 import { WHATSAPP_NUMBER } from "@/data/products";
 
 export const Route = createFileRoute("/cart")({
