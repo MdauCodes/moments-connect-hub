@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, Trash2, ShoppingBag } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useCart } from "@/contexts/CartContext";
-import { computeShippingFee, SHIPPING_THRESHOLD_KES } from "@/services/orderStore";
 import { WHATSAPP_NUMBER } from "@/data/products";
 
 export const Route = createFileRoute("/cart")({
@@ -24,14 +23,13 @@ function CartPage() {
   const { items, updateQuantity, removeItem, cartTotal, cartLoading } = useCart();
   const navigate = useNavigate();
 
-  const shippingFee = computeShippingFee(cartTotal);
-  const total = cartTotal + shippingFee;
-
   function handleWhatsApp() {
     const lines = items.map((it, i) =>
       `${i + 1}. ${it.productName} — Qty ${it.quantity}, Size ${it.size}, Material ${it.material}, Finish ${it.finish}`,
     ).join("\n");
-    const message = `Hi Moments Packaging, I'd like to enquire about a custom quote:\n\n${lines}\n\nTotal estimate: ${fmt(total)}\n\nCould you confirm pricing and lead time?`;
+    const message = `Hi Moments Packaging, I'd like to enquire about a custom quote:\n\n${lines}\n\nSubtotal: ${fmt(cartTotal)} (shipping calculated at checkout)\n\nCould you confirm pricing and lead time?`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+  }
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
   }
 
@@ -173,18 +171,9 @@ function CartPage() {
               <h2 className="font-display text-xl">Order summary</h2>
               <dl className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal</dt><dd>{fmt(cartTotal)}</dd></div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Shipping</dt>
-                  <dd>{shippingFee === 0 ? <span className="text-accent">Free</span> : fmt(shippingFee)}</dd>
-                </div>
-                {shippingFee > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    Free shipping on orders over {fmt(SHIPPING_THRESHOLD_KES)}.
-                  </p>
-                )}
-                <div className="flex justify-between border-t border-border pt-3 font-display text-base">
-                  <dt>Total</dt><dd>{fmt(total)}</dd>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  Shipping calculated at checkout based on your delivery zone.
+                </p>
               </dl>
               <button
                 type="button"
