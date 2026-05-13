@@ -97,6 +97,10 @@ function CheckoutModal() {
 
   useEffect(() => () => clearAllTimers(), []);
 
+  useEffect(() => {
+    fetchDeliveryZones().then(setZones).catch(() => {});
+  }, []);
+
   function clearAllTimers() {
     const t = timersRef.current;
     if (t.poll) clearTimeout(t.poll);
