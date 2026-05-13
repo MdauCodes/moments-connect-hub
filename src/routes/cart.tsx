@@ -23,14 +23,13 @@ function CartPage() {
   const { items, updateQuantity, removeItem, cartTotal, cartLoading } = useCart();
   const navigate = useNavigate();
 
-  const shippingFee = computeShippingFee(cartTotal);
-  const total = cartTotal + shippingFee;
-
   function handleWhatsApp() {
     const lines = items.map((it, i) =>
       `${i + 1}. ${it.productName} — Qty ${it.quantity}, Size ${it.size}, Material ${it.material}, Finish ${it.finish}`,
     ).join("\n");
-    const message = `Hi Moments Packaging, I'd like to enquire about a custom quote:\n\n${lines}\n\nTotal estimate: ${fmt(total)}\n\nCould you confirm pricing and lead time?`;
+    const message = `Hi Moments Packaging, I'd like to enquire about a custom quote:\n\n${lines}\n\nSubtotal: ${fmt(cartTotal)} (shipping calculated at checkout)\n\nCould you confirm pricing and lead time?`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+  }
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
   }
 
