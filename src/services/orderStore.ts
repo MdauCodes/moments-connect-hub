@@ -92,6 +92,7 @@ export interface PlaceOrderInput {
   paymentMethod: CheckoutPaymentMethod;
   promoCode?: string;
   sessionId?: string;
+  fulfillmentType?: string;
 }
 
 // ── Normalised status the UI cares about ─────────────────────────────────────
