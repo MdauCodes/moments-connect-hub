@@ -421,7 +421,7 @@ function CheckoutModal() {
                     <dl className="mt-4 space-y-1.5 border-t border-border pt-3 text-sm">
                       <Row label="Subtotal" value={fmt(cartTotal)} />
                       <Row
-                        label="Shipping"
+                        label={selectedZone ? `Delivery — ${selectedZone.zoneName}` : "Delivery"}
                         value={shippingFee === 0 ? "Free" : fmt(shippingFee)}
                       />
                       <div className="flex justify-between border-t border-border pt-2.5 font-display text-base">
@@ -429,9 +429,6 @@ function CheckoutModal() {
                         <dd className="tabular-nums">{fmt(total)}</dd>
                       </div>
                     </dl>
-                    <p className="mt-2 text-[11px] text-muted-foreground">
-                      Free shipping on orders over {fmt(SHIPPING_THRESHOLD_KES)}.
-                    </p>
                   </div>
 
                   <button
