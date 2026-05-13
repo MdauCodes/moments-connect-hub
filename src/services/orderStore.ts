@@ -504,8 +504,8 @@ export const orderStore = {
 };
 
 // ── Shipping helpers ──────────────────────────────────────────────────────────
-export const SHIPPING_THRESHOLD_KES = 5000;
-export const SHIPPING_FLAT_KES = 350;
-export function computeShippingFee(subtotal: number): number {
-  return subtotal >= SHIPPING_THRESHOLD_KES ? 0 : SHIPPING_FLAT_KES;
+export const SHIPPING_FLAT_KES = 350; // fallback only
+export function computeShippingFee(subtotal: number, zoneFee?: number): number {
+  if (zoneFee !== undefined) return zoneFee;
+  return SHIPPING_FLAT_KES;
 }
