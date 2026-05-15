@@ -57,6 +57,8 @@ export interface Industry {
   tagline?: string;
   /** Synonyms / colloquialisms to broaden search recall. */
   keywords?: string[];
+  /** Editorial photo used on /industries cards and the home Industries strip. */
+  image?: string;
 }
 
 /**
