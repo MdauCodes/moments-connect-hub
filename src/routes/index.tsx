@@ -114,7 +114,6 @@ function FirstVisitSplash() {
 // ── Mobile floating action button ──
 function MobileFab() {
   const [open, setOpen] = useState(false);
-  const ref = useState<HTMLDivElement | null>(null);
   useEffect(() => {
     if (!open) return;
     const onDocClick = (e: MouseEvent) => {
