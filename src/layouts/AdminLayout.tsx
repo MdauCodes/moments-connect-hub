@@ -43,7 +43,7 @@ interface NavSection {
   items: NavItem[];
 }
 
-// Sections ordered by priority: daily ops first, catalogue, audience, content, system.
+// Sections regrouped for clarity: Overview → Sales → Catalogue → Audience → Content → System.
 const navSections: NavSection[] = [
   {
     label: "Overview",
@@ -53,10 +53,15 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    label: "Commerce",
+    label: "Sales",
     items: [
       { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
       { label: "Payments", to: "/admin/payments", icon: CreditCard },
+    ],
+  },
+  {
+    label: "Catalogue",
+    items: [
       { label: "Products", to: "/admin/products", icon: Package },
       { label: "Industries", to: "/admin/industries", icon: Factory },
       { label: "Delivery Zones", to: "/admin/delivery-zones", icon: Truck, requires: "settings:manage" as Permission },
