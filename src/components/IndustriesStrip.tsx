@@ -38,25 +38,38 @@ export function IndustriesStrip() {
                 <Link
                   to="/products"
                   search={{ industry: ind.slug }}
-                  className="group flex h-full flex-col rounded-2xl border border-border bg-background p-5 transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-md"
+                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-background transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-md"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
+                    {ind.image ? (
+                      <img
+                        src={ind.image}
+                        alt={`${ind.name} packaging in context`}
+                        loading="lazy"
+                        width={1024}
+                        height={768}
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                      />
+                    ) : null}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
                     <span
-                      className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-foreground transition-colors group-hover:bg-accent/10 group-hover:text-accent"
+                      className="absolute left-3 top-3 grid h-9 w-9 place-items-center rounded-xl bg-background/90 text-foreground shadow-sm backdrop-blur-sm transition-colors group-hover:bg-accent group-hover:text-accent-foreground"
                       aria-hidden
                     >
-                      <Icon className="h-5 w-5" strokeWidth={1.75} />
+                      <Icon className="h-4 w-4" strokeWidth={1.75} />
                     </span>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
+                    <ArrowRight className="absolute right-3 top-3 h-4 w-4 text-background/90 transition-transform group-hover:translate-x-0.5" />
                   </div>
-                  <h3 className="mt-4 font-display text-lg text-foreground">{ind.name}</h3>
-                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                    {ind.tagline ?? ind.description}
-                  </p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-accent">
-                    Shop {ind.name.toLowerCase()} packaging
-                    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-                  </span>
+                  <div className="flex flex-1 flex-col p-4 sm:p-5">
+                    <h3 className="font-display text-lg text-foreground">{ind.name}</h3>
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                      {ind.tagline ?? ind.description}
+                    </p>
+                    <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent">
+                      Shop {ind.name.toLowerCase()} packaging
+                      <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </div>
                 </Link>
               </li>
             );
