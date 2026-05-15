@@ -694,6 +694,13 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
           [data-admin-editor-grid] { grid-template-columns: 1fr !important; }
           [data-admin-row] { grid-template-columns: 1fr !important; }
         }
+        @media (max-width: 720px) {
+          [data-tier-row], [data-tier-header] { grid-template-columns: 1fr !important; }
+          [data-tier-header] { display: none !important; }
+          [data-tier-row] { padding: 10px; border: 1px solid var(--admin-border); border-radius: 10px; background: color-mix(in oklab,var(--admin-bg) 60%,var(--admin-surface) 40%); }
+          [data-tier-row] [data-tier-cell]::before { content: attr(data-label); display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--admin-muted); margin-bottom: 4px; }
+          [data-variant-row] { grid-template-columns: 1fr 1fr !important; }
+        }
       `}</style>
       {/* ── LEFT COLUMN ─────────────────────────────────────────────────── */}
       <div style={s.mainCol}>
