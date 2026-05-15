@@ -1,9 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Boxes, Gift, Percent, Ticket } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { MockBanner, formatKes } from "@/components/admin/commerceUi";
 import { getDashboardStats, type DashboardResult } from "@/services/commerceApi";
+
+const upcomingModules = [
+  { icon: Boxes, label: "Stock & Inventory", desc: "Live stock levels, low-stock alerts, batch & variant tracking." },
+  { icon: Gift, label: "Referrals", desc: "Customer referral codes, rewards wallet & redemption flow." },
+  { icon: Percent, label: "Commissions", desc: "Sales rep & partner commission tracking and payouts." },
+  { icon: Ticket, label: "Coupons & Promos", desc: "Discount codes, campaign rules and usage analytics." },
+];
 
 export const Route = createFileRoute("/_adminAuth/admin/")({ component: AdminDashboardPage });
 
@@ -80,6 +88,40 @@ export function AdminDashboardPage() {
               </div>
             ))}
             {!loading && topProducts.length === 0 && <div className="admin-empty" style={{ padding: 16 }}>No sales data yet.</div>}
+          </div>
+        </div>
+
+        {/* Coming soon */}
+        <div className="admin-panel" style={{ padding: 18 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4, gap: 12, flexWrap: "wrap" }}>
+            <h2 style={{ margin: 0, fontFamily: "var(--font-display)" }}>Coming soon</h2>
+            <span style={{ fontSize: 11, color: "var(--admin-muted)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Roadmap · Q3</span>
+          </div>
+          <p style={{ margin: "0 0 14px", fontSize: 12, color: "var(--admin-muted)" }}>
+            Modules currently in design — they'll appear in the sidebar once shipped.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
+            {upcomingModules.map(({ icon: Icon, label, desc }) => (
+              <div
+                key={label}
+                style={{
+                  position: "relative",
+                  padding: 14,
+                  border: "1px dashed var(--admin-border)",
+                  borderRadius: 10,
+                  background: "var(--admin-surface-2, transparent)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--admin-accent)", color: "var(--cream)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon size={14} />
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--admin-text)" }}>{label}</div>
+                  <span style={{ marginLeft: "auto", fontSize: 9, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: "var(--admin-clay)", color: "var(--cream)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Soon</span>
+                </div>
+                <div style={{ fontSize: 12, color: "var(--admin-muted)", lineHeight: 1.45 }}>{desc}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

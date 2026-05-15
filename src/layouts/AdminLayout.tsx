@@ -43,7 +43,7 @@ interface NavSection {
   items: NavItem[];
 }
 
-// Sections ordered by priority: daily ops first, catalogue, audience, content, system.
+// Sections regrouped for clarity: Overview → Sales → Catalogue → Audience → Content → System.
 const navSections: NavSection[] = [
   {
     label: "Overview",
@@ -53,10 +53,15 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    label: "Commerce",
+    label: "Sales",
     items: [
       { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
       { label: "Payments", to: "/admin/payments", icon: CreditCard },
+    ],
+  },
+  {
+    label: "Catalogue",
+    items: [
       { label: "Products", to: "/admin/products", icon: Package },
       { label: "Industries", to: "/admin/industries", icon: Factory },
       { label: "Delivery Zones", to: "/admin/delivery-zones", icon: Truck, requires: "settings:manage" as Permission },
@@ -132,11 +137,20 @@ const styles: Record<string, CSSProperties> = {
   brandSub: { fontSize: 10, color: "var(--admin-sidebar-muted)", lineHeight: 1.2 },
   nav: { flex: 1, overflowY: "auto", padding: "10px 8px" },
   sectionLabel: {
-    fontSize: 11,
+    fontSize: 10,
+    fontWeight: 700,
     textTransform: "uppercase",
-    letterSpacing: "0.1em",
+    letterSpacing: "0.14em",
     color: "var(--admin-sidebar-muted)",
-    padding: "10px 16px 4px",
+    padding: "14px 16px 6px",
+    opacity: 0.75,
+  },
+  sectionDivider: {
+    height: 1,
+    margin: "4px 12px 0",
+    background: "var(--admin-sidebar-border)",
+    opacity: 0.6,
+    border: "none",
   },
   navItem: {
     display: "flex",
@@ -349,13 +363,14 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
         </div>
 
         <nav style={styles.nav}>
-          {navSections.map((section) => {
+          {navSections.map((section, sectionIdx) => {
             const visible = section.items.filter(
               (item) => !item.requires || can(user?.role, item.requires)
             );
             if (visible.length === 0) return null;
             return (
-              <div key={section.label} style={{ marginBottom: 6 }}>
+              <div key={section.label} style={{ marginBottom: 4 }}>
+                {sectionIdx > 0 && <hr style={styles.sectionDivider} />}
                 <div style={styles.sectionLabel}>{section.label}</div>
                 {visible.map((item) => (
                   <NavLink key={item.to} item={item} active={isActive(item.to)} />
