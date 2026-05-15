@@ -168,15 +168,15 @@ function Hero() {
         <style>{`
           .mpk-hero-img-a, .mpk-hero-img-b {
             right: -14%;
-            top: 50%;
+            top: calc(50% + 24px);
             transform: translateY(-50%);
             width: 78%;
             max-height: 58%;
           }
           @media (min-width: 768px) {
             .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 14%;
-              top: 50%;
+              right: 18%;
+              top: calc(50% + 30px);
               transform: translateY(-50%);
               width: 40%;
               max-height: 86%;
@@ -184,7 +184,7 @@ function Hero() {
           }
           @media (min-width: 1280px) {
             .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 16%;
+              right: 22%;
               width: 38%;
             }
           }
@@ -326,7 +326,7 @@ function Hero() {
         {/* Hero text content — sits inside the same max-w-7xl stage */}
         <div className="absolute inset-0 mx-auto max-w-7xl px-5 lg:px-8" style={{ zIndex: 4 }}>
           <div
-            className="md:absolute md:top-1/2 md:-translate-y-1/2 md:left-5 lg:left-8 md:w-[58%] lg:w-[56%]"
+            className="md:absolute md:top-1/2 md:-translate-y-1/2 md:left-8 lg:left-12 md:w-[54%] lg:w-[52%]"
             style={{ paddingTop: "120px", paddingBottom: "40px" }}
           >
             <p
