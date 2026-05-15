@@ -33,6 +33,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
         <main className="flex-1">{children}</main>
         <SiteFooter />
         <WhatsAppFloat />
+        <MobileFab />
         <EmailInsiderPrompt />
       </div>
     </>
