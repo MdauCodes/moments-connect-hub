@@ -586,17 +586,26 @@ function FeaturedProducts() {
   );
 }
 
-// ── Category image grid (preserved from previous version) ──
+// ── Category image grid (editorial Kenyan tile photography) ──
+import catPaperBagsImg from "@/assets/categories/cat-paper-bags.jpg";
+import catBoxesCartonsImg from "@/assets/categories/cat-boxes-cartons.jpg";
+import catCupsSleevesImg from "@/assets/categories/cat-cups-sleeves.jpg";
+import catMailersPouchesImg from "@/assets/categories/cat-mailers-pouches.jpg";
+import catLabelsStickersImg from "@/assets/categories/cat-labels-stickers.jpg";
+import catFoodContainersImg from "@/assets/categories/cat-food-containers.jpg";
+import catGiftEventImg from "@/assets/categories/cat-gift-event.jpg";
+import catBeautyPharmaImg from "@/assets/categories/cat-beauty-pharma.jpg";
+
 type CategoryTile = { label: string; image: string; search: Record<string, string> };
 const categoryTiles: CategoryTile[] = [
-  { label: "Paper bags", image: "https://images.unsplash.com/photo-1591085686350-798c0f9faa7f?w=600&q=80", search: { category: "bags" } },
-  { label: "Boxes & cartons", image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80", search: { category: "boxes" } },
-  { label: "Cups & sleeves", image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80", search: { category: "cups" } },
-  { label: "Mailers & pouches", image: "https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=600&q=80", search: { category: "mailers" } },
-  { label: "Labels & stickers", image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80", search: { category: "labels" } },
-  { label: "Food containers", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80", search: { category: "boxes" } },
-  { label: "Gift & event", image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80", search: { category: "gifting" } },
-  { label: "Beauty & pharma", image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80", search: { category: "gifting" } },
+  { label: "Paper bags", image: catPaperBagsImg, search: { category: "bags" } },
+  { label: "Boxes & cartons", image: catBoxesCartonsImg, search: { category: "boxes" } },
+  { label: "Cups & sleeves", image: catCupsSleevesImg, search: { category: "cups" } },
+  { label: "Mailers & pouches", image: catMailersPouchesImg, search: { category: "mailers" } },
+  { label: "Labels & stickers", image: catLabelsStickersImg, search: { category: "labels" } },
+  { label: "Food containers", image: catFoodContainersImg, search: { category: "boxes" } },
+  { label: "Gift & event", image: catGiftEventImg, search: { category: "gifting" } },
+  { label: "Beauty & pharma", image: catBeautyPharmaImg, search: { category: "gifting" } },
 ];
 
 function CategoryGrid() {
