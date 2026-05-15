@@ -6,7 +6,7 @@ import { AdminLayout } from "@/layouts/AdminLayout";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { adminResources, type IndustryDto, type ProductDto } from "@/services/adminResources";
 
-export const Route = createFileRoute("/_adminAuth/admin/products")({ component: AdminProductsPage });
+export const Route = createFileRoute("/_adminAuth/admin/products/")({ component: AdminProductsPage });
 
 function AdminProductsPage() {
   const navigate = useNavigate();
