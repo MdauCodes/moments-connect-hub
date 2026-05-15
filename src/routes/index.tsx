@@ -23,6 +23,14 @@ import {
   Gift,
   ChevronRight,
 } from "lucide-react";
+import { Check } from "lucide-react";
+import {
+  DotGrid,
+  PaperTexture,
+  ArcStroke,
+  CornerLines,
+  SignatureDivider,
+} from "@/components/BrandDecor";
 import { api } from "@/services/api";
 import type { Product } from "@/data/products";
 import cloudV3 from "@/assets/packaging-cloud-hero-v3.png";
