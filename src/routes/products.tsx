@@ -62,7 +62,7 @@ export const Route = createFileRoute("/products")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Packaging Catalogue — Order Custom Paper Packaging Online | Moments Packaging Kenya" },
+      { title: "Packaging Catalogue — Moments Packaging Kenya" },
       {
         name: "description",
         content:
@@ -72,10 +72,11 @@ export const Route = createFileRoute("/products")({
       {
         property: "og:description",
         content:
-          "Custom paper packaging catalogue — configure online, pay with M-Pesa, delivered across Kenya.",
+          "Custom paper packaging — configure online, pay with M-Pesa, delivered across Kenya.",
       },
+      { property: "og:url", content: "https://momentspackaging.com/products" },
     ],
-    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/products" }],
+    links: [{ rel: "canonical", href: "https://momentspackaging.com/products" }],
   }),
   component: ProductsPage,
 });

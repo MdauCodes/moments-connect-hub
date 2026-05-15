@@ -11,19 +11,20 @@ import { apiUrl } from "@/config/api";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Get a Custom Packaging Quote — Moments Packaging Kenya | Nairobi" },
+      { title: "Get a Custom Packaging Quote — Moments Packaging Kenya" },
       {
         name: "description",
         content:
-          "Tell us about your packaging needs and get a tailored quote within 24 hours. Call +254 119 556688, WhatsApp us, or fill the form. Ukwala Road, OTC, Nairobi.",
+          "Tell us about your packaging needs and get a tailored quote within 24 hours. Call, WhatsApp or fill the form. Based at Ukwala Road, OTC, Nairobi.",
       },
       { property: "og:title", content: "Get a Custom Quote — Moments Packaging Kenya" },
       {
         property: "og:description",
         content: "Request a custom packaging quote — answered within 24 hours by our Nairobi team.",
       },
+      { property: "og:url", content: "https://momentspackaging.com/contact" },
     ],
-    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/contact" }],
+    links: [{ rel: "canonical", href: "https://momentspackaging.com/contact" }],
   }),
   component: ContactPage,
 });

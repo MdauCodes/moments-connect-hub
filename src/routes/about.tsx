@@ -6,17 +6,18 @@ import { ArrowRight } from "lucide-react";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Moments Packaging Kenya — Nairobi Custom Packaging Manufacturer" },
+      { title: "About — Moments Packaging Kenya" },
       {
         name: "description",
         content:
-          "Moments Packaging (K) Limited is a Nairobi-based custom packaging manufacturer trusted by restaurants, retailers and brands across East Africa. Learn about our story, capacity and craftsmanship.",
+          "Nairobi-based custom packaging manufacturer trusted by restaurants, retailers and brands across East Africa. Our story, capacity and craftsmanship.",
       },
       { property: "og:title", content: "About Moments Packaging Kenya" },
       { property: "og:description", content: "Nairobi-based custom packaging manufacturer for Kenya's leading brands." },
+      { property: "og:url", content: "https://momentspackaging.com/about" },
       { property: "og:image", content: aboutImg },
     ],
-    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/about" }],
+    links: [{ rel: "canonical", href: "https://momentspackaging.com/about" }],
   }),
   component: AboutPage,
 });
