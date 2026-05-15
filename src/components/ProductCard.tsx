@@ -137,18 +137,24 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
             {tiers.map((t: any) => {
               const id = tierKey(t);
               const isActive = id === activeTierId;
+              const save = tierSavingsPct(t);
               return (
                 <button
                   key={id}
                   type="button"
                   onClick={(e) => handlePillClick(e, id)}
-                  className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition-colors ${
+                  className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition-colors ${
                     isActive
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border bg-secondary text-muted-foreground hover:border-foreground/30"
                   }`}
                 >
-                  {t.collectionName}
+                  <span>{t.collectionName}</span>
+                  {save > 0 && (
+                    <span className="rounded-full bg-forest/15 px-1.5 py-px text-[9px] font-semibold text-forest">
+                      −{save}%
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -165,9 +171,17 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                 / {activeTier.collectionName}
               </span>
             </p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              KES {Math.round(tierUnitPrice(activeTier)).toLocaleString()}/unit
+              {tierSavingsPct(activeTier) > 0 && (
+                <span className="ml-1 font-semibold text-forest">
+                  · Save {tierSavingsPct(activeTier)}% vs {smallestTier.collectionName}
+                </span>
+              )}
+            </p>
             {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && (
               <p className="mt-0.5 hidden text-[11px] text-muted-foreground sm:block">
-                Best value: KES {tierPrice(cheapestTier).toLocaleString()} / {cheapestTier.collectionName}
+                Best value: {cheapestTier.collectionName} · −{tierSavingsPct(cheapestTier)}% per unit
               </p>
             )}
           </div>
