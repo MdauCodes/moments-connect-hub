@@ -77,6 +77,7 @@ export const industries: Industry[] = [
     description: "Restaurants, cafés, cloud kitchens & takeaways.",
     tagline: "From the first sip to the last bite.",
     keywords: ["restaurant", "cafe", "coffee", "takeaway", "delivery", "fnb", "kitchen", "bakery", "juice", "drinks"],
+    image: indFoodBevImg,
   },
   {
     id: "2",
@@ -86,6 +87,7 @@ export const industries: Industry[] = [
     description: "Farm produce, seeds, agro-processed goods & exports.",
     tagline: "Field to shelf — packed to last.",
     keywords: ["farm", "agro", "produce", "seeds", "grain", "tea", "coffee beans", "horticulture", "export"],
+    image: indAgricultureImg,
   },
   {
     id: "3",
@@ -95,6 +97,7 @@ export const industries: Industry[] = [
     description: "Fashion brands, tailors, fabric & garment exporters.",
     tagline: "Packaging your customers want to keep.",
     keywords: ["fashion", "clothing", "garments", "boutique", "tailor", "fabric", "apparel"],
+    image: indTextileImg,
   },
   {
     id: "4",
@@ -104,6 +107,7 @@ export const industries: Industry[] = [
     description: "Online sellers, D2C brands & courier-ready packs.",
     tagline: "Built for the unboxing reel.",
     keywords: ["online store", "d2c", "shipping", "courier", "instagram shop", "tiktok shop", "mailer"],
+    image: indEcommerceImg,
   },
   {
     id: "5",
@@ -113,6 +117,7 @@ export const industries: Industry[] = [
     description: "Weddings, birthdays, corporate hampers & event swag.",
     tagline: "Make the moment memorable.",
     keywords: ["wedding", "birthday", "hamper", "gift", "events", "corporate gifting", "swag", "favours"],
+    image: indGiftingImg,
   },
   {
     id: "6",
@@ -122,6 +127,7 @@ export const industries: Industry[] = [
     description: "Skincare, haircare, candles, soap & wellness brands.",
     tagline: "Shelf-ready packaging that sells itself.",
     keywords: ["skincare", "cosmetics", "haircare", "candles", "soap", "spa", "wellness", "beauty"],
+    image: indBeautyImg,
   },
   {
     id: "7",
@@ -131,6 +137,7 @@ export const industries: Industry[] = [
     description: "Pharmacies, supplements, clinics & medical supplies.",
     tagline: "Compliant. Tamper-evident. On time.",
     keywords: ["pharmacy", "medicine", "supplements", "clinic", "medical", "health", "drugs"],
+    image: indPharmaImg,
   },
   {
     id: "8",
@@ -140,6 +147,7 @@ export const industries: Industry[] = [
     description: "Manufacturers, hardware brands & B2B suppliers.",
     tagline: "Heavy-duty packs that survive the warehouse.",
     keywords: ["industrial", "hardware", "manufacturing", "tools", "spares", "b2b", "wholesale"],
+    image: indIndustrialImg,
   },
 ];
 
