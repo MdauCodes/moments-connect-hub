@@ -35,30 +35,14 @@ import type { Product } from "@/data/products";
 
 
 // ── JSON-LD ───────────────────────────────────────────────────────────────────
-const orgLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Moments Packaging (K) Limited",
-  url: "https://www.momentspackaging.com",
-  logo: "https://www.momentspackaging.com/og-image.jpg",
-  email: "sales@momentspackaging.co.ke",
-  telephone: "+254119556688",
-  address: {
-    "@type": "PostalAddress",
-    addressCountry: "KE",
-    addressLocality: "Nairobi",
-  },
-  sameAs: [],
-};
-
 const siteLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Moments Packaging (K) Limited",
-  url: "https://www.momentspackaging.com",
+  url: "https://momentspackaging.com",
   potentialAction: {
     "@type": "SearchAction",
-    target: "https://www.momentspackaging.com/products?q={search_term_string}",
+    target: "https://momentspackaging.com/products?q={search_term_string}",
     "query-input": "required name=search_term_string",
   },
 };
@@ -66,24 +50,24 @@ const siteLd = {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Moments Packaging (K) Limited — Order Quality Paper Packaging Online | Nairobi" },
+      { title: "Moments Packaging Kenya — Order Paper Packaging Online" },
       {
         name: "description",
         content:
-          "Order quality paper packaging online — bags, boxes, cups, mailers and gifting packaging. Same day delivery within Nairobi, upto 3 days countrywide. Pay with M-Pesa.",
+          "Order quality paper packaging online — bags, boxes, cups, mailers and gifting. Same-day Nairobi delivery, M-Pesa checkout.",
       },
-      { property: "og:title", content: "Moments Packaging (K) Limited — Quality Packaging Online" },
+      { property: "og:title", content: "Moments Packaging Kenya — Quality Packaging Online" },
       {
         property: "og:description",
         content:
-          "Quality packaging for Kenyan brands. Order online, pay with M-Pesa, delivered same day within Nairobi.",
+          "Quality packaging for Kenyan brands. Order online, pay with M-Pesa, same-day Nairobi delivery.",
       },
-      { property: "og:image", content: "https://www.momentspackaging.com/og-image.jpg" },
-      { name: "twitter:image", content: "https://www.momentspackaging.com/og-image.jpg" },
+      { property: "og:url", content: "https://momentspackaging.com/" },
+      { property: "og:image", content: "https://momentspackaging.com/og-image.jpg" },
+      { name: "twitter:image", content: "https://momentspackaging.com/og-image.jpg" },
     ],
-    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/" }],
+    links: [{ rel: "canonical", href: "https://momentspackaging.com/" }],
     scripts: [
-      { type: "application/ld+json", children: JSON.stringify(orgLd) },
       { type: "application/ld+json", children: JSON.stringify(siteLd) },
     ],
   }),
