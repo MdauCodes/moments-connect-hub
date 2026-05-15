@@ -1140,36 +1140,18 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
               <span style={s.switchLabel}>Fast-moving ("Trending")</span>
             </label>
             <div style={s.row3} data-admin-row>
-              <div style={s.col}>
-                <label style={s.label}>Monthly clicks</label>
-                <input
-                  type="number"
-                  min={0}
-                  style={s.input}
-                  value={values.monthlyClicks}
-                  onChange={(e) => set("monthlyClicks", Number(e.target.value) || 0)}
-                />
-                <span style={s.helper}>Popularity tie-breaker in search.</span>
+              <div style={{ ...s.col, ...disabledColStyle }} title="Read-only metric tracked automatically">
+                <label style={s.label}>Monthly clicks<span style={s.unsupportedBadge}>Auto</span></label>
+                <input type="number" disabled style={{ ...s.input, ...disabledInputStyle }} value={values.monthlyClicks} readOnly />
+                <span style={s.helper}>Tracked automatically.</span>
               </div>
-              <div style={s.col}>
-                <label style={s.label}>Total clicks</label>
-                <input
-                  type="number"
-                  min={0}
-                  style={s.input}
-                  value={values.totalClicks}
-                  onChange={(e) => set("totalClicks", Number(e.target.value) || 0)}
-                />
+              <div style={{ ...s.col, ...disabledColStyle }} title="Read-only metric tracked automatically">
+                <label style={s.label}>Total clicks<span style={s.unsupportedBadge}>Auto</span></label>
+                <input type="number" disabled style={{ ...s.input, ...disabledInputStyle }} value={values.totalClicks} readOnly />
               </div>
-              <div style={s.col}>
-                <label style={s.label}>Monthly enquiries</label>
-                <input
-                  type="number"
-                  min={0}
-                  style={s.input}
-                  value={values.monthlyEnquiries}
-                  onChange={(e) => set("monthlyEnquiries", Number(e.target.value) || 0)}
-                />
+              <div style={{ ...s.col, ...disabledColStyle }} title="Read-only metric tracked automatically">
+                <label style={s.label}>Monthly enquiries<span style={s.unsupportedBadge}>Auto</span></label>
+                <input type="number" disabled style={{ ...s.input, ...disabledInputStyle }} value={values.monthlyEnquiries} readOnly />
               </div>
             </div>
           </div>
