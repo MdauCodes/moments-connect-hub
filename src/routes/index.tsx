@@ -217,7 +217,7 @@ function Hero() {
                   display: "inline-block",
                   width: "112px",
                   height: "26px",
-                  background: "color-mix(in oklab, var(--forest) 8%, white 92%)",
+                  background: "#a8e0a0",
                   WebkitMaskImage: `url(${logoUrl})`,
                   maskImage: `url(${logoUrl})`,
                   WebkitMaskSize: "contain",
