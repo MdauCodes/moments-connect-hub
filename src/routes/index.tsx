@@ -175,11 +175,17 @@ function Hero() {
           }
           @media (min-width: 768px) {
             .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 4%;
+              right: 8%;
               top: 50%;
               transform: translateY(-50%);
-              width: 42%;
+              width: 38%;
               max-height: 84%;
+            }
+          }
+          @media (min-width: 1280px) {
+            .mpk-hero-img-a, .mpk-hero-img-b {
+              right: 10%;
+              width: 36%;
             }
           }
         `}</style>
@@ -320,7 +326,7 @@ function Hero() {
         {/* Hero text content — sits inside the same max-w-7xl stage */}
         <div className="absolute inset-0 mx-auto max-w-7xl px-5 lg:px-8" style={{ zIndex: 4 }}>
           <div
-            className="md:absolute md:top-1/2 md:-translate-y-1/2 md:left-5 lg:left-8 md:w-[52%] lg:w-[50%]"
+            className="md:absolute md:top-1/2 md:-translate-y-1/2 md:left-5 lg:left-8 md:w-[58%] lg:w-[56%]"
             style={{ paddingTop: "120px", paddingBottom: "40px" }}
           >
             <p
