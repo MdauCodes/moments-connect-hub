@@ -175,11 +175,17 @@ function Hero() {
           }
           @media (min-width: 768px) {
             .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 4%;
+              right: 8%;
               top: 50%;
               transform: translateY(-50%);
-              width: 42%;
+              width: 38%;
               max-height: 84%;
+            }
+          }
+          @media (min-width: 1280px) {
+            .mpk-hero-img-a, .mpk-hero-img-b {
+              right: 10%;
+              width: 36%;
             }
           }
         `}</style>
