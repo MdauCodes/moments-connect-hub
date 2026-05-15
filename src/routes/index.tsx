@@ -695,6 +695,7 @@ function HomePage() {
         </main>
         <SiteFooter />
         <WhatsAppFloat />
+        <MobileFab />
         <EmailInsiderPrompt />
       </div>
     </>
