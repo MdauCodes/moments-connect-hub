@@ -249,9 +249,17 @@ function Hero() {
           }
         `}</style>
 
-        {/* Gradient scrim */}
+        {/* Gradient scrim — stronger on mobile for text legibility over image */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 md:hidden"
+          style={{
+            zIndex: 3,
+            background:
+              "linear-gradient(180deg, rgba(26,14,8,0.88) 0%, rgba(26,14,8,0.78) 55%, rgba(26,14,8,0.92) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 hidden md:block"
           style={{
             zIndex: 3,
             background:
