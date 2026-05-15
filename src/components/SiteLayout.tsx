@@ -5,6 +5,7 @@ import { WhatsAppFloat } from "./WhatsAppFloat";
 import { PageProgressBar } from "./PageProgressBar";
 import { EmailInsiderPrompt } from "./EmailInsiderPrompt";
 import { AppSplash } from "./AppSplash";
+import { MobileFab } from "./MobileFab";
 
 const SPLASH_KEY = "moments_splash_shown";
 
@@ -32,6 +33,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
         <main className="flex-1">{children}</main>
         <SiteFooter />
         <WhatsAppFloat />
+        <MobileFab />
         <EmailInsiderPrompt />
       </div>
     </>
