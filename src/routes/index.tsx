@@ -210,14 +210,40 @@ function Hero() {
           }}
         >
           <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-            <Link to="/" aria-label="Moments Packaging Kenya — Home" className="flex items-center">
-              <img
-                src={logoUrl}
-                alt="Moments Packaging Kenya"
-                width={140}
-                height={36}
-                className="h-6 w-auto sm:h-7 brightness-0 invert"
+            <Link to="/" aria-label="Moments Packaging (K) Limited — Home" className="flex items-center gap-2 sm:gap-3">
+              <span
+                aria-hidden
+                style={{
+                  display: "inline-block",
+                  width: "112px",
+                  height: "26px",
+                  background: "color-mix(in oklab, var(--forest) 30%, white 70%)",
+                  WebkitMaskImage: `url(${logoUrl})`,
+                  maskImage: `url(${logoUrl})`,
+                  WebkitMaskSize: "contain",
+                  maskSize: "contain",
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskPosition: "left center",
+                  maskPosition: "left center",
+                }}
+                className="sm:!w-[128px] sm:!h-[30px]"
               />
+              <span
+                className="hidden sm:inline-block"
+                style={{
+                  fontSize: "11px",
+                  letterSpacing: "0.16em",
+                  textTransform: "uppercase",
+                  color: "rgba(255,255,255,0.62)",
+                  borderLeft: "1px solid rgba(255,255,255,0.22)",
+                  paddingLeft: "12px",
+                  lineHeight: 1.2,
+                  fontWeight: 500,
+                }}
+              >
+                Packaging<br />(K) Limited
+              </span>
             </Link>
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white">
               <Link to="/products" className="hover:opacity-80">Shop</Link>
