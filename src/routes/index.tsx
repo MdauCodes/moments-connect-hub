@@ -709,7 +709,6 @@ function HomePage() {
       <div className="flex min-h-screen flex-col" style={{ background: "var(--background)" }}>
         <main className="flex-1">
           <Hero />
-          <TrustBar />
           <CategoryRow />
           <FeaturedProducts />
           <CategoryGrid />
