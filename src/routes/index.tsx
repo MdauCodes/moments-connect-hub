@@ -35,6 +35,7 @@ import { api } from "@/services/api";
 import type { Product } from "@/data/products";
 import cloudV3 from "@/assets/packaging-cloud-hero-v3.png";
 import cloudKraft from "@/assets/packaging-cloud-hero.png";
+import logoUrl from "@/assets/moments-logo.png";
 
 const SPLASH_KEY = "moments_splash_shown";
 
