@@ -217,7 +217,7 @@ function Hero() {
                   display: "inline-block",
                   width: "112px",
                   height: "26px",
-                  background: "color-mix(in oklab, var(--forest) 30%, white 70%)",
+                  background: "color-mix(in oklab, var(--forest) 8%, white 92%)",
                   WebkitMaskImage: `url(${logoUrl})`,
                   maskImage: `url(${logoUrl})`,
                   WebkitMaskSize: "contain",
@@ -230,16 +230,16 @@ function Hero() {
                 className="sm:!w-[128px] sm:!h-[30px]"
               />
               <span
-                className="hidden sm:inline-block"
+                className="inline-block"
                 style={{
-                  fontSize: "11px",
-                  letterSpacing: "0.16em",
+                  fontSize: "10px",
+                  letterSpacing: "0.18em",
                   textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.62)",
-                  borderLeft: "1px solid rgba(255,255,255,0.22)",
-                  paddingLeft: "12px",
-                  lineHeight: 1.2,
-                  fontWeight: 500,
+                  color: "rgba(255,255,255,0.85)",
+                  borderLeft: "1px solid rgba(255,255,255,0.35)",
+                  paddingLeft: "10px",
+                  lineHeight: 1.15,
+                  fontWeight: 600,
                 }}
               >
                 Packaging<br />(K) Limited
