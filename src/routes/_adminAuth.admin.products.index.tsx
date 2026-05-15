@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Outlet } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -6,7 +6,7 @@ import { AdminLayout } from "@/layouts/AdminLayout";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { adminResources, type IndustryDto, type ProductDto } from "@/services/adminResources";
 
-export const Route = createFileRoute("/_adminAuth/admin/products")({ component: AdminProductsPage });
+export const Route = createFileRoute("/_adminAuth/admin/products/")({ component: AdminProductsPage });
 
 function AdminProductsPage() {
   const navigate = useNavigate();
@@ -207,7 +207,7 @@ function AdminProductsPage() {
           </button>
         </div>
       </div>
-      <Outlet />
+      
     </AdminLayout>
   );
 }
