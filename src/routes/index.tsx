@@ -249,9 +249,17 @@ function Hero() {
           }
         `}</style>
 
-        {/* Gradient scrim */}
+        {/* Gradient scrim — stronger on mobile for text legibility over image */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 md:hidden"
+          style={{
+            zIndex: 3,
+            background:
+              "linear-gradient(180deg, rgba(26,14,8,0.88) 0%, rgba(26,14,8,0.78) 55%, rgba(26,14,8,0.92) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 hidden md:block"
           style={{
             zIndex: 3,
             background:
@@ -298,36 +306,43 @@ function Hero() {
           style={{
             top: "62px",
             zIndex: 20,
-            background: "color-mix(in oklab, var(--forest) 88%, transparent)",
-            backdropFilter: "blur(4px)",
+            background:
+              "linear-gradient(90deg, color-mix(in oklab, var(--forest) 96%, black) 0%, var(--forest) 50%, color-mix(in oklab, var(--forest) 92%, black) 100%)",
+            borderTop: "1px solid color-mix(in oklab, var(--forest) 70%, white 6%)",
+            borderBottom: "1px solid rgba(0,0,0,0.18)",
+            boxShadow: "0 1px 0 rgba(255,255,255,0.06) inset, 0 4px 14px rgba(0,0,0,0.18)",
           }}
         >
           {/* Desktop row */}
           <div
             className="hidden md:flex items-center justify-center overflow-hidden whitespace-nowrap"
-            style={{ gap: "32px", padding: "7px 40px" }}
+            style={{ gap: "28px", padding: "8px 40px" }}
           >
             {ANNOUNCE_ITEMS.map((item, i) => (
-              <span key={item} className="flex items-center" style={{ gap: "32px" }}>
-                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.88)" }}>{item}</span>
+              <span key={item} className="flex items-center" style={{ gap: "28px" }}>
+                <span style={{ fontSize: "11px", letterSpacing: "0.04em", color: "rgba(255,255,255,0.94)", fontWeight: 500 }}>
+                  {item}
+                </span>
                 {i < ANNOUNCE_ITEMS.length - 1 && (
                   <span
-                    className="inline-block h-1 w-1 rounded-full"
-                    style={{ background: "color-mix(in oklab, var(--forest) 40%, white)" }}
+                    className="inline-block rounded-full"
+                    style={{ width: "3px", height: "3px", background: "var(--accent)", opacity: 0.85 }}
                   />
                 )}
               </span>
             ))}
           </div>
           {/* Mobile marquee */}
-          <div className="md:hidden overflow-hidden" style={{ padding: "7px 0" }}>
-            <div className="mpk-marquee-track flex" style={{ gap: "24px", width: "max-content", whiteSpace: "nowrap" }}>
+          <div className="md:hidden overflow-hidden" style={{ padding: "8px 0" }}>
+            <div className="mpk-marquee-track flex" style={{ gap: "22px", width: "max-content", whiteSpace: "nowrap" }}>
               {[...ANNOUNCE_ITEMS, ...ANNOUNCE_ITEMS].map((item, idx) => (
-                <span key={`${item}-${idx}`} className="flex items-center" style={{ gap: "24px" }}>
-                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.88)" }}>{item}</span>
+                <span key={`${item}-${idx}`} className="flex items-center" style={{ gap: "22px" }}>
+                  <span style={{ fontSize: "11px", letterSpacing: "0.04em", color: "rgba(255,255,255,0.94)", fontWeight: 500 }}>
+                    {item}
+                  </span>
                   <span
-                    className="inline-block h-1 w-1 rounded-full"
-                    style={{ background: "color-mix(in oklab, var(--forest) 40%, white)" }}
+                    className="inline-block rounded-full"
+                    style={{ width: "3px", height: "3px", background: "var(--accent)", opacity: 0.85 }}
                   />
                 </span>
               ))}
@@ -709,7 +724,6 @@ function HomePage() {
       <div className="flex min-h-screen flex-col" style={{ background: "var(--background)" }}>
         <main className="flex-1">
           <Hero />
-          <TrustBar />
           <CategoryRow />
           <FeaturedProducts />
           <CategoryGrid />
