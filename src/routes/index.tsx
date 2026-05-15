@@ -135,8 +135,8 @@ function MobileFab() {
   return (
     <div
       id="mpk-fab-root"
-      className="md:hidden fixed right-4 bottom-4 flex flex-col items-end"
-      style={{ zIndex: 50 }}
+      className="md:hidden fixed right-4 flex flex-col items-end"
+      style={{ zIndex: 50, bottom: "76px" }}
     >
       {open && (
         <div
@@ -244,11 +244,11 @@ function Hero() {
           }
           @media (min-width: 768px) {
             .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 0;
+              right: 4%;
               top: 50%;
               transform: translateY(-50%);
-              width: 46%;
-              max-height: 86%;
+              width: 42%;
+              max-height: 84%;
             }
           }
         `}</style>
