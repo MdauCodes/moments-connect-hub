@@ -232,12 +232,11 @@ function Hero() {
         {/* Responsive image positioning — scaled down, right-centered, never overflows section */}
         <style>{`
           .mpk-hero-img-a, .mpk-hero-img-b {
-            right: -22%;
-            top: 58%;
+            right: -18%;
+            top: 50%;
             transform: translateY(-50%);
-            width: 88%;
-            max-height: 70%;
-            opacity: 0.55;
+            width: 78%;
+            max-height: 65%;
           }
           @media (min-width: 768px) {
             .mpk-hero-img-a, .mpk-hero-img-b {
@@ -246,12 +245,7 @@ function Hero() {
               transform: translateY(-50%);
               width: 44%;
               max-height: 82%;
-              opacity: 1;
             }
-          }
-          .mpk-hero-img-b { opacity: 0 !important; }
-          @media (min-width: 768px) {
-            .mpk-hero-img-a { opacity: 1; }
           }
         `}</style>
 
