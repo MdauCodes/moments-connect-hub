@@ -20,6 +20,14 @@ import pharmaTamperLabelsImg from "@/assets/prod-pharma-tamper-labels.jpg";
 import pharmaSupplementCartonImg from "@/assets/prod-pharma-supplement-carton.jpg";
 import industrialPartsCartonImg from "@/assets/prod-industrial-parts-carton.jpg";
 import industrialHardwareSachetImg from "@/assets/prod-industrial-hardware-sachet.jpg";
+import indFoodBevImg from "@/assets/industries/food-beverage.jpg";
+import indAgricultureImg from "@/assets/industries/agriculture.jpg";
+import indTextileImg from "@/assets/industries/textile-apparel.jpg";
+import indEcommerceImg from "@/assets/industries/ecommerce-mailers.jpg";
+import indGiftingImg from "@/assets/industries/gifting-events.jpg";
+import indBeautyImg from "@/assets/industries/beauty-personal-care.jpg";
+import indPharmaImg from "@/assets/industries/pharma-health.jpg";
+import indIndustrialImg from "@/assets/industries/industrial-hardware.jpg";
 import {
   UtensilsCrossed,
   Wheat,
