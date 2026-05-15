@@ -10,6 +10,14 @@ import { LatestBlogsStrip } from "@/components/blog/LatestBlogsStrip";
 import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { ProductCard } from "@/components/ProductCard";
 import { ConfiguratorModal } from "@/components/ConfiguratorModal";
+import catPaperBagsImg from "@/assets/categories/cat-paper-bags.jpg";
+import catBoxesCartonsImg from "@/assets/categories/cat-boxes-cartons.jpg";
+import catCupsSleevesImg from "@/assets/categories/cat-cups-sleeves.jpg";
+import catMailersPouchesImg from "@/assets/categories/cat-mailers-pouches.jpg";
+import catLabelsStickersImg from "@/assets/categories/cat-labels-stickers.jpg";
+import catFoodContainersImg from "@/assets/categories/cat-food-containers.jpg";
+import catGiftEventImg from "@/assets/categories/cat-gift-event.jpg";
+import catBeautyPharmaImg from "@/assets/categories/cat-beauty-pharma.jpg";
 import {
   ArrowRight,
   Search,
