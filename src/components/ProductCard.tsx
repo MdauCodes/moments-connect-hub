@@ -181,7 +181,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
             </p>
             {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && (
               <p className="mt-0.5 hidden text-[11px] text-muted-foreground sm:block">
-                Best value: {cheapestTier.collectionName} · −{tierSavingsPct(cheapestTier)}% per unit
+                Select {cheapestTier.collectionName} and get −{tierSavingsPct(cheapestTier)}% discount.
               </p>
             )}
           </div>
