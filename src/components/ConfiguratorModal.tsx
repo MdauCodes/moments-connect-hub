@@ -155,17 +155,30 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                 className="h-full w-full object-cover"
               />
             </div>
-            <div>
-              <span className="rounded-full border border-kraft/30 bg-kraft/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-kraft">
-                {product.category}
-              </span>
-              <p className="mt-1 text-xs text-muted-foreground">Min. {product.moq.toLocaleString()} units</p>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="rounded-full border border-kraft/30 bg-kraft/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-kraft">
+                  {product.category}
+                </span>
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                    hasCollections
+                      ? "bg-primary/10 text-primary"
+                      : individualEnabled
+                      ? "bg-forest/10 text-forest"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {hasCollections ? "Collections" : individualEnabled ? "Per-unit order" : "Quote only"}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">Min. {product.moq.toLocaleString()} units</p>
             </div>
           </div>
 
-          {/* Collection tier selection */}
+          {/* Collection tier selection — only when collections exist */}
           {hasCollections && (
-            <Section label="Choose how to buy">
+            <Section label="Choose how to buy" note="Pick a collection bundle">
               <div className="grid gap-2 grid-cols-2">
                 {collectionTiers.map((t: any, i: number) => {
                   const key = t.id ?? `tier-${i}`;
@@ -214,6 +227,25 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                 )}
               </div>
             </Section>
+          )}
+
+          {/* Per-unit hint when there are no collections */}
+          {!hasCollections && individualEnabled && (
+            <div className="rounded-xl border border-forest/20 bg-forest/5 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-forest">Per-unit ordering</p>
+              <p className="mt-1 text-sm text-foreground/80">
+                Order any quantity from {product.moq.toLocaleString()} units upward at{" "}
+                <span className="font-semibold">KES {(product.basePrice ?? 0).toLocaleString()}/unit</span>.
+              </p>
+            </div>
+          )}
+          {!hasCollections && !individualEnabled && (
+            <div className="rounded-xl border border-border bg-secondary px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quote only</p>
+              <p className="mt-1 text-sm text-foreground/80">
+                This product is custom-priced. Tell us what you need and we'll send a quote within one business day.
+              </p>
+            </div>
           )}
 
           {product.sizes && product.sizes.length > 0 && (
