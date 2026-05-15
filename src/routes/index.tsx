@@ -591,6 +591,105 @@ function FeaturedProducts() {
   );
 }
 
+// ── Category image grid (preserved from previous version) ──
+type CategoryTile = { label: string; image: string; search: Record<string, string> };
+const categoryTiles: CategoryTile[] = [
+  { label: "Paper bags", image: "https://images.unsplash.com/photo-1591085686350-798c0f9faa7f?w=600&q=80", search: { category: "bags" } },
+  { label: "Boxes & cartons", image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80", search: { category: "boxes" } },
+  { label: "Cups & sleeves", image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80", search: { category: "cups" } },
+  { label: "Mailers & pouches", image: "https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=600&q=80", search: { category: "mailers" } },
+  { label: "Labels & stickers", image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80", search: { category: "labels" } },
+  { label: "Food containers", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80", search: { category: "boxes" } },
+  { label: "Gift & event", image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80", search: { category: "gifting" } },
+  { label: "Beauty & pharma", image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80", search: { category: "gifting" } },
+];
+
+function CategoryGrid() {
+  return (
+    <section className="relative overflow-hidden bg-cream">
+      <PaperTexture opacity={0.06} />
+      <CornerLines className="left-4 top-4" opacity={0.1} />
+      <CornerLines className="bottom-4 right-4 rotate-180" opacity={0.1} />
+      <div className="relative mx-auto max-w-7xl px-5 py-14 sm:py-20 lg:px-8">
+        <SignatureDivider className="mb-10" />
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Browse</p>
+            <h2 className="mt-2 font-display text-3xl font-medium text-foreground sm:text-4xl">Shop by category</h2>
+          </div>
+          <Link to="/products" className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent">
+            See everything <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-4 md:grid-cols-4">
+          {categoryTiles.map((tile) => (
+            <Link
+              key={tile.label}
+              to="/products"
+              search={tile.search as never}
+              className="group relative overflow-hidden rounded-2xl aspect-square sm:aspect-[4/3] block"
+            >
+              <img src={tile.image} alt={tile.label} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <span className="absolute bottom-3 left-3 right-3 font-display text-sm font-semibold text-white sm:text-base">
+                {tile.label}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Audiences we serve (preserved) ──
+const audienceColumns = [
+  { Icon: Gift, role: "Individuals", blurb: "Weddings, birthdays, anniversaries and personal gifting — order what you need, no minimums.", examples: ["Wedding favours", "Birthday gift boxes", "One-off event packs"] },
+  { Icon: ShoppingBag, role: "Small businesses & shops", blurb: "Cafés, restaurants, retail and online sellers — quality packaging on a turnaround that fits your week.", examples: ["Takeaway cups & boxes", "Branded carrier bags", "E-commerce mailers"] },
+  { Icon: Package, role: "Companies & enterprise", blurb: "Volume orders, contracts and procurement — formal quotes and a dedicated contact for every rollout.", examples: ["10,000+ unit runs", "National brand rollouts", "Scheduled deliveries"] },
+];
+
+function AudiencesWeServe() {
+  return (
+    <section className="relative overflow-hidden bg-cream">
+      <DotGrid opacity={0.04} size={14} />
+      <ArcStroke className="-right-32 top-1/2 h-80 w-80 -translate-y-1/2" color="kraft" opacity={0.06} />
+      <div className="relative mx-auto max-w-6xl px-5 py-14 sm:py-20 lg:px-8">
+        <div className="max-w-2xl">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Who we pack for</p>
+          <h2 className="mt-2 font-display text-3xl font-medium text-foreground sm:text-4xl">
+            Whether you&apos;re an individual, a small business, or a large enterprise — we serve all of you.
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+            One catalogue, one production line, three kinds of customers. Same quality, same craft — scaled to whatever you&apos;re ordering.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-8 border-t border-border pt-10 sm:grid-cols-3 sm:gap-6">
+          {audienceColumns.map((col) => (
+            <div key={col.role} className="flex flex-col">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <col.Icon className="h-5 w-5" strokeWidth={1.75} />
+              </span>
+              <h3 className="mt-4 font-display text-lg font-semibold text-foreground">{col.role}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{col.blurb}</p>
+              <ul className="mt-4 space-y-1.5 border-t border-border/60 pt-4">
+                {col.examples.map((ex) => (
+                  <li key={ex} className="flex items-start gap-2 text-xs text-foreground/75">
+                    <Check className="mt-0.5 h-3 w-3 shrink-0 text-accent" />
+                    <span>{ex}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Page ──
 function HomePage() {
   return (
@@ -603,6 +702,8 @@ function HomePage() {
           <TrustBar />
           <CategoryRow />
           <FeaturedProducts />
+          <CategoryGrid />
+          <AudiencesWeServe />
           <LatestBlogsStrip />
         </main>
         <SiteFooter />
