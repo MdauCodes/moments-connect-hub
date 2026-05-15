@@ -210,10 +210,9 @@ function Hero() {
           className="mpk-hero-img-a absolute pointer-events-none select-none"
           style={{
             zIndex: 1,
-            top: "50%",
-            transform: "translateY(-46%)",
             transition: "opacity 1.5s ease-in-out",
             filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
+            objectFit: "contain",
             opacity: 1,
           }}
         />
@@ -223,19 +222,36 @@ function Hero() {
           className="mpk-hero-img-b absolute pointer-events-none select-none"
           style={{
             zIndex: 1,
-            top: "50%",
-            transform: "translateY(-46%)",
             transition: "opacity 1.5s ease-in-out",
             filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
+            objectFit: "contain",
             opacity: 0,
           }}
         />
 
-        {/* Responsive image positioning via inline style isn't enough for breakpoints — use class */}
+        {/* Responsive image positioning — scaled down, right-centered, never overflows section */}
         <style>{`
-          .mpk-hero-img-a, .mpk-hero-img-b { right: -15%; width: 105%; }
+          .mpk-hero-img-a, .mpk-hero-img-b {
+            right: -22%;
+            top: 58%;
+            transform: translateY(-50%);
+            width: 88%;
+            max-height: 70%;
+            opacity: 0.55;
+          }
           @media (min-width: 768px) {
-            .mpk-hero-img-a, .mpk-hero-img-b { right: -4%; width: 58%; }
+            .mpk-hero-img-a, .mpk-hero-img-b {
+              right: 2%;
+              top: 50%;
+              transform: translateY(-50%);
+              width: 44%;
+              max-height: 82%;
+              opacity: 1;
+            }
+          }
+          .mpk-hero-img-b { opacity: 0 !important; }
+          @media (min-width: 768px) {
+            .mpk-hero-img-a { opacity: 1; }
           }
         `}</style>
 
