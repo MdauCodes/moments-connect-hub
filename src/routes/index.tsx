@@ -397,7 +397,7 @@ function Hero() {
           <path d="M0 60 L0 35 Q360 5 720 30 Q1080 55 1440 22 L1440 60 Z" fill="var(--ink)" />
         </svg>
 
-        <MobileFab />
+        
       </div>
     </section>
   );
