@@ -12,8 +12,8 @@ export function AppSplash() {
 
   useEffect(() => {
     const openTimer = requestAnimationFrame(() => setOpen(true));
-    const fadeTimer = setTimeout(() => setHidden(true), 750);
-    const removeTimer = setTimeout(() => setRemoved(true), 1200);
+    const fadeTimer = setTimeout(() => setHidden(true), 2750);
+    const removeTimer = setTimeout(() => setRemoved(true), 3200);
     return () => {
       cancelAnimationFrame(openTimer);
       clearTimeout(fadeTimer);
