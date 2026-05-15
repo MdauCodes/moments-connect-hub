@@ -1,9 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Boxes, Gift, Percent, Ticket } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { MockBanner, formatKes } from "@/components/admin/commerceUi";
 import { getDashboardStats, type DashboardResult } from "@/services/commerceApi";
+
+const upcomingModules = [
+  { icon: Boxes, label: "Stock & Inventory", desc: "Live stock levels, low-stock alerts, batch & variant tracking." },
+  { icon: Gift, label: "Referrals", desc: "Customer referral codes, rewards wallet & redemption flow." },
+  { icon: Percent, label: "Commissions", desc: "Sales rep & partner commission tracking and payouts." },
+  { icon: Ticket, label: "Coupons & Promos", desc: "Discount codes, campaign rules and usage analytics." },
+];
 
 export const Route = createFileRoute("/_adminAuth/admin/")({ component: AdminDashboardPage });
 
