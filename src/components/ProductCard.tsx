@@ -67,9 +67,9 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
   return (
     <article
       onClick={handleCardClick}
-      className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-xl"
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-lg sm:rounded-2xl"
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-secondary">
+      <div className="relative aspect-square w-full overflow-hidden bg-secondary sm:aspect-[4/3]">
         <img
           src={image}
           alt={p.name}
@@ -77,44 +77,43 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           style={{ objectPosition: "center" }}
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute left-3 top-3 flex flex-col gap-1.5">
-          {p.isNewArrival && (
-            <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
-              New
-            </span>
-          )}
-          {p.isDiscount && (
-            <span className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-foreground">
-              -{p.discountPercent ?? 10}%
-            </span>
-          )}
-          {p.isFastMoving && (
-            <span className="rounded-full bg-kraft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-kraft-foreground">
-              Hot
-            </span>
-          )}
-          {stock.state === "out_of_stock" && (
-            <span className="rounded-full bg-destructive px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-destructive-foreground">
+        {/* Single most-relevant badge to reduce clutter on mobile */}
+        <div className="absolute left-2 top-2 flex flex-wrap gap-1 sm:left-3 sm:top-3">
+          {stock.state === "out_of_stock" ? (
+            <span className="rounded-full bg-destructive px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
               Backorder
             </span>
-          )}
-          {stock.state === "low_stock" && (
-            <span className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-foreground">
+          ) : p.isDiscount ? (
+            <span className="rounded-full bg-accent px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-accent-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
+              -{p.discountPercent ?? 10}%
+            </span>
+          ) : p.isNewArrival ? (
+            <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
+              New
+            </span>
+          ) : p.isFastMoving ? (
+            <span className="rounded-full bg-kraft px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-kraft-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
+              Hot
+            </span>
+          ) : null}
+          {stock.state === "low_stock" && stock.state !== "out_of_stock" && (
+            <span className="hidden rounded-full bg-accent/90 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-accent-foreground sm:inline-block sm:px-2.5 sm:py-1 sm:text-[10px]">
               Low stock
             </span>
           )}
         </div>
       </div>
-      <div className="flex flex-1 flex-col p-3 sm:p-4">
-        <span className="self-start rounded-full border border-kraft/30 bg-kraft/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-kraft sm:px-2.5 sm:text-[10px]">
+      <div className="flex flex-1 flex-col p-2.5 sm:p-4">
+        <span className="hidden self-start rounded-full border border-kraft/30 bg-kraft/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-kraft sm:inline-block">
           {p.category}
         </span>
-        <h3 className="mt-1.5 font-display text-sm font-semibold leading-snug text-foreground sm:mt-2 sm:text-base">
+        <h3 className="font-display text-sm font-semibold leading-snug text-foreground line-clamp-2 sm:mt-2 sm:text-base">
           {p.name}
         </h3>
 
+        {/* Tier pills: hide on smallest screens to keep card uncluttered */}
         {hasTiers && (
-          <div className="mt-2 flex flex-wrap gap-1">
+          <div className="mt-1.5 hidden flex-wrap gap-1 sm:mt-2 sm:flex">
             {tiers.map((t: any) => {
               const id = tierKey(t);
               const isActive = id === activeTierId;
@@ -137,43 +136,48 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
         )}
 
         {hasTiers && activeTier ? (
-          <div className="mt-2 space-y-0.5">
-            <p className="text-xs sm:text-sm">
+          <div className="mt-1.5 sm:mt-2">
+            <p className="text-[13px] sm:text-sm">
               <span className="font-semibold text-primary">
                 KES {tierPrice(activeTier).toLocaleString()}
               </span>
-              <span className="ml-1 text-muted-foreground">
-                / {activeTier.collectionName} ({Number(activeTier.quantity).toLocaleString()} units)
+              <span className="ml-1 text-[11px] text-muted-foreground sm:text-xs">
+                / {activeTier.collectionName}
               </span>
             </p>
             {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && (
-              <p className="text-[10px] text-muted-foreground sm:text-[11px]">
+              <p className="mt-0.5 hidden text-[11px] text-muted-foreground sm:block">
                 Best value: KES {tierPrice(cheapestTier).toLocaleString()} / {cheapestTier.collectionName}
               </p>
             )}
           </div>
         ) : individualEnabled && p.basePrice ? (
-          <p className="mt-2 text-xs text-primary sm:text-sm">
-            KES {p.basePrice.toLocaleString()} / unit
+          <p className="mt-1.5 text-[13px] font-semibold text-primary sm:mt-2 sm:text-sm">
+            KES {p.basePrice.toLocaleString()} <span className="font-normal text-muted-foreground">/ unit</span>
           </p>
         ) : (
-          <p className="mt-2 text-xs text-muted-foreground sm:text-sm">Contact for pricing</p>
+          <p className="mt-1.5 text-[11px] text-muted-foreground sm:mt-2 sm:text-sm">Contact for pricing</p>
         )}
 
-        <div className="mt-auto flex flex-col gap-2 pt-3">
-          <p className="text-xs text-muted-foreground">
+        <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:gap-2 sm:pt-3">
+          <p className="text-[10px] text-muted-foreground sm:text-xs">
             Min. {p.moq.toLocaleString()} units
           </p>
           <button
             type="button"
             onClick={handleCTAClick}
-            className="w-full rounded-full bg-accent px-3 py-2 text-xs font-semibold text-accent-foreground transition-opacity hover:opacity-90"
+            className="w-full rounded-full bg-accent px-2 py-2 text-[11px] font-semibold leading-tight text-accent-foreground transition-opacity hover:opacity-90 sm:px-3 sm:text-xs"
           >
-            {hasTiers && activeTier
-              ? `Add to cart · ${activeTier.collectionName}`
-              : individualEnabled && p.basePrice
-              ? "Add to cart"
-              : "Get a quote"}
+            <span className="sm:hidden">
+              {hasTiers || (individualEnabled && p.basePrice) ? "Add to cart" : "Get a quote"}
+            </span>
+            <span className="hidden sm:inline">
+              {hasTiers && activeTier
+                ? `Add to cart · ${activeTier.collectionName}`
+                : individualEnabled && p.basePrice
+                ? "Add to cart"
+                : "Get a quote"}
+            </span>
           </button>
         </div>
       </div>
