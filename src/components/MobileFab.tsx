@@ -29,7 +29,7 @@ export function MobileFab() {
   return (
     <div
       id="mpk-fab-root"
-      className="md:hidden fixed right-4 flex flex-col items-end"
+      className="fixed right-4 flex flex-col items-end"
       style={{ zIndex: 50, bottom: "76px" }}
     >
       {open && (
