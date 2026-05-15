@@ -137,11 +137,20 @@ const styles: Record<string, CSSProperties> = {
   brandSub: { fontSize: 10, color: "var(--admin-sidebar-muted)", lineHeight: 1.2 },
   nav: { flex: 1, overflowY: "auto", padding: "10px 8px" },
   sectionLabel: {
-    fontSize: 11,
+    fontSize: 10,
+    fontWeight: 700,
     textTransform: "uppercase",
-    letterSpacing: "0.1em",
+    letterSpacing: "0.14em",
     color: "var(--admin-sidebar-muted)",
-    padding: "10px 16px 4px",
+    padding: "14px 16px 6px",
+    opacity: 0.75,
+  },
+  sectionDivider: {
+    height: 1,
+    margin: "4px 12px 0",
+    background: "var(--admin-sidebar-border)",
+    opacity: 0.6,
+    border: "none",
   },
   navItem: {
     display: "flex",
