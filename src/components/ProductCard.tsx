@@ -110,6 +110,11 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
         <h3 className="font-display text-sm font-semibold leading-snug text-foreground line-clamp-2 sm:mt-2 sm:text-base">
           {p.name}
         </h3>
+        {p.description && (
+          <p className="mt-1 hidden text-[11px] leading-snug text-muted-foreground line-clamp-2 sm:line-clamp-2 sm:block sm:text-xs">
+            {p.description}
+          </p>
+        )}
 
         {/* Tier pills: hide on smallest screens to keep card uncluttered */}
         {hasTiers && (
