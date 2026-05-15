@@ -433,7 +433,24 @@ const s: Record<string, CSSProperties> = {
   },
   switchLabel: { fontSize: 12.5, color: "var(--admin-text)", flex: 1 },
   divider: { borderTop: "1px solid var(--admin-border)", paddingTop: 14, marginTop: 4 },
+  unsupportedBadge: {
+    display: "inline-block",
+    fontSize: 9.5,
+    fontWeight: 600,
+    textTransform: "uppercase",
+    letterSpacing: "0.1em",
+    color: "var(--admin-muted)",
+    background: "color-mix(in oklab,var(--admin-border) 60%,transparent)",
+    border: "1px solid var(--admin-border)",
+    borderRadius: 999,
+    padding: "1px 7px",
+    marginLeft: 8,
+    verticalAlign: "middle",
+  },
 };
+
+const disabledColStyle: CSSProperties = { opacity: 0.5, pointerEvents: "none" };
+const disabledInputStyle: CSSProperties = { background: "transparent", color: "var(--admin-muted)", cursor: "not-allowed" };
 
 function chip(active: boolean): CSSProperties {
   return {
@@ -677,6 +694,13 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
           [data-admin-editor-grid] { grid-template-columns: 1fr !important; }
           [data-admin-row] { grid-template-columns: 1fr !important; }
         }
+        @media (max-width: 720px) {
+          [data-tier-row], [data-tier-header] { grid-template-columns: 1fr !important; }
+          [data-tier-header] { display: none !important; }
+          [data-tier-row] { padding: 10px; border: 1px solid var(--admin-border); border-radius: 10px; background: color-mix(in oklab,var(--admin-bg) 60%,var(--admin-surface) 40%); }
+          [data-tier-row] [data-tier-cell]::before { content: attr(data-label); display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--admin-muted); margin-bottom: 4px; }
+          [data-variant-row] { grid-template-columns: 1fr 1fr !important; }
+        }
       `}</style>
       {/* ── LEFT COLUMN ─────────────────────────────────────────────────── */}
       <div style={s.mainCol}>
@@ -759,13 +783,13 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {/* SKU / base price / compare-at */}
             <div style={s.row3} data-admin-row>
-              <div style={s.col}>
-                <label style={s.label}>SKU</label>
+              <div style={{ ...s.col, ...disabledColStyle }} title="Not yet supported by backend">
+                <label style={s.label}>SKU<span style={s.unsupportedBadge}>Soon</span></label>
                 <input
-                  style={s.input}
-                  value={values.sku ?? ""}
-                  onChange={(e) => set("sku", e.target.value)}
-                  placeholder="KRB-MD-001"
+                  style={{ ...s.input, ...disabledInputStyle }}
+                  value=""
+                  disabled
+                  placeholder="Not yet supported"
                 />
               </div>
               <div style={s.col}>
@@ -779,15 +803,15 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                   placeholder="0"
                 />
               </div>
-              <div style={s.col}>
-                <label style={s.label}>Compare-at price</label>
+              <div style={{ ...s.col, ...disabledColStyle }} title="Not yet supported by backend">
+                <label style={s.label}>Compare-at price<span style={s.unsupportedBadge}>Soon</span></label>
                 <input
                   type="number"
                   min={0}
-                  style={s.input}
-                  value={values.compareAtPrice ?? ""}
-                  onChange={(e) => set("compareAtPrice", e.target.value ? Number(e.target.value) : undefined)}
-                  placeholder="strike-through"
+                  style={{ ...s.input, ...disabledInputStyle }}
+                  value=""
+                  disabled
+                  placeholder="Not yet supported"
                 />
               </div>
             </div>
@@ -828,90 +852,19 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
               </div>
             )}
 
-            {/* Variants */}
-            <div style={s.col}>
-              <label style={s.label}>Variants (size / material)</label>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {variants.map((variant, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1.4fr 0.9fr 0.7fr 0.7fr auto",
-                      gap: 6,
-                      alignItems: "center",
-                    }}
-                  >
-                    <input
-                      style={s.input}
-                      placeholder="Label (e.g. Small / Kraft)"
-                      value={variant.label}
-                      onChange={(e) => {
-                        const n = [...variants];
-                        n[idx] = { ...variant, label: e.target.value };
-                        set("variants", n);
-                      }}
-                    />
-                    <input
-                      style={s.input}
-                      placeholder="SKU"
-                      value={variant.sku ?? ""}
-                      onChange={(e) => {
-                        const n = [...variants];
-                        n[idx] = { ...variant, sku: e.target.value };
-                        set("variants", n);
-                      }}
-                    />
-                    <input
-                      type="number"
-                      min={0}
-                      style={s.input}
-                      placeholder="Price"
-                      value={variant.price ?? ""}
-                      onChange={(e) => {
-                        const n = [...variants];
-                        n[idx] = { ...variant, price: e.target.value ? Number(e.target.value) : undefined };
-                        set("variants", n);
-                      }}
-                    />
-                    <input
-                      type="number"
-                      min={0}
-                      style={s.input}
-                      placeholder="Stock"
-                      value={variant.stock ?? ""}
-                      onChange={(e) => {
-                        const n = [...variants];
-                        n[idx] = { ...variant, stock: e.target.value ? Number(e.target.value) : undefined };
-                        set("variants", n);
-                      }}
-                    />
-                    <button
-                      type="button"
-                      style={s.removeX}
-                      onClick={() =>
-                        set(
-                          "variants",
-                          variants.filter((_, i) => i !== idx),
-                        )
-                      }
-                      aria-label="Remove variant"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  style={s.ghostBtn}
-                  onClick={() =>
-                    set("variants", [...variants, { label: "", sku: "", price: undefined, stock: undefined }])
-                  }
-                >
-                  + Add variant
-                </button>
+            {/* Variants — not yet supported by backend */}
+            <div style={{ ...s.col, ...disabledColStyle }} title="Not yet supported by backend">
+              <label style={s.label}>Variants (size / material)<span style={s.unsupportedBadge}>Soon</span></label>
+              <div style={{
+                padding: "14px 16px",
+                border: "1px dashed var(--admin-border)",
+                borderRadius: 10,
+                background: "color-mix(in oklab,var(--admin-bg) 70%,transparent)",
+                color: "var(--admin-muted)",
+                fontSize: 12,
+              }}>
+                Per-variant SKUs, pricing and stock will be available once the backend ships variant support. Use pricing tiers below for collection-based pricing in the meantime.
               </div>
-              <span style={s.helper}>Leave empty if this is a single-SKU product.</span>
             </div>
 
             {/* Pricing tiers — INSIDE the same card, separated by a divider */}
@@ -933,6 +886,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
 
                 {pricingTiers.length > 0 && (
                   <div
+                    data-tier-header
                     style={{
                       display: "grid",
                       gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
@@ -959,6 +913,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                     return (
                       <div
                         key={idx}
+                        data-tier-row
                         style={{
                           display: "grid",
                           gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
@@ -966,55 +921,63 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                           alignItems: "center",
                         }}
                       >
-                        <input
-                          style={s.input}
-                          placeholder="Dozen"
-                          value={row.collectionName}
-                          onChange={(e) => {
-                            const n = [...pricingTiers];
-                            n[idx] = { ...row, collectionName: e.target.value };
-                            set("pricingTiers", n);
-                          }}
-                        />
-                        <input
-                          type="number"
-                          min={1}
-                          style={s.input}
-                          placeholder="12"
-                          value={row.quantity || ""}
-                          onChange={(e) => {
-                            const n = [...pricingTiers];
-                            n[idx] = { ...row, quantity: Number(e.target.value) || 0 };
-                            set("pricingTiers", n);
-                          }}
-                        />
-                        <input
-                          type="number"
-                          min={0}
-                          step="0.01"
-                          style={s.input}
-                          placeholder="8.50"
-                          value={row.pricePerUnit || ""}
-                          onChange={(e) => {
-                            const n = [...pricingTiers];
-                            n[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
-                            set("pricingTiers", n);
-                          }}
-                        />
-                        <div
-                          style={{
-                            ...s.input,
-                            background: "transparent",
-                            color: "var(--admin-muted)",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          KES {total.toLocaleString()}
+                        <div data-tier-cell data-label="Collection">
+                          <input
+                            style={{ ...s.input, width: "100%" }}
+                            placeholder="Dozen"
+                            value={row.collectionName}
+                            onChange={(e) => {
+                              const n = [...pricingTiers];
+                              n[idx] = { ...row, collectionName: e.target.value };
+                              set("pricingTiers", n);
+                            }}
+                          />
+                        </div>
+                        <div data-tier-cell data-label="Qty">
+                          <input
+                            type="number"
+                            min={1}
+                            style={{ ...s.input, width: "100%" }}
+                            placeholder="12"
+                            value={row.quantity || ""}
+                            onChange={(e) => {
+                              const n = [...pricingTiers];
+                              n[idx] = { ...row, quantity: Number(e.target.value) || 0 };
+                              set("pricingTiers", n);
+                            }}
+                          />
+                        </div>
+                        <div data-tier-cell data-label="Price / unit">
+                          <input
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            style={{ ...s.input, width: "100%" }}
+                            placeholder="8.50"
+                            value={row.pricePerUnit || ""}
+                            onChange={(e) => {
+                              const n = [...pricingTiers];
+                              n[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
+                              set("pricingTiers", n);
+                            }}
+                          />
+                        </div>
+                        <div data-tier-cell data-label="Total">
+                          <div
+                            style={{
+                              ...s.input,
+                              background: "transparent",
+                              color: "var(--admin-muted)",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            KES {total.toLocaleString()}
+                          </div>
                         </div>
                         <button
                           type="button"
-                          style={s.removeX}
+                          style={{ ...s.removeX, justifySelf: "end" }}
                           onClick={() =>
                             set(
                               "pricingTiers",
@@ -1177,36 +1140,18 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
               <span style={s.switchLabel}>Fast-moving ("Trending")</span>
             </label>
             <div style={s.row3} data-admin-row>
-              <div style={s.col}>
-                <label style={s.label}>Monthly clicks</label>
-                <input
-                  type="number"
-                  min={0}
-                  style={s.input}
-                  value={values.monthlyClicks}
-                  onChange={(e) => set("monthlyClicks", Number(e.target.value) || 0)}
-                />
-                <span style={s.helper}>Popularity tie-breaker in search.</span>
+              <div style={{ ...s.col, ...disabledColStyle }} title="Read-only metric tracked automatically">
+                <label style={s.label}>Monthly clicks<span style={s.unsupportedBadge}>Auto</span></label>
+                <input type="number" disabled style={{ ...s.input, ...disabledInputStyle }} value={values.monthlyClicks} readOnly />
+                <span style={s.helper}>Tracked automatically.</span>
               </div>
-              <div style={s.col}>
-                <label style={s.label}>Total clicks</label>
-                <input
-                  type="number"
-                  min={0}
-                  style={s.input}
-                  value={values.totalClicks}
-                  onChange={(e) => set("totalClicks", Number(e.target.value) || 0)}
-                />
+              <div style={{ ...s.col, ...disabledColStyle }} title="Read-only metric tracked automatically">
+                <label style={s.label}>Total clicks<span style={s.unsupportedBadge}>Auto</span></label>
+                <input type="number" disabled style={{ ...s.input, ...disabledInputStyle }} value={values.totalClicks} readOnly />
               </div>
-              <div style={s.col}>
-                <label style={s.label}>Monthly enquiries</label>
-                <input
-                  type="number"
-                  min={0}
-                  style={s.input}
-                  value={values.monthlyEnquiries}
-                  onChange={(e) => set("monthlyEnquiries", Number(e.target.value) || 0)}
-                />
+              <div style={{ ...s.col, ...disabledColStyle }} title="Read-only metric tracked automatically">
+                <label style={s.label}>Monthly enquiries<span style={s.unsupportedBadge}>Auto</span></label>
+                <input type="number" disabled style={{ ...s.input, ...disabledInputStyle }} value={values.monthlyEnquiries} readOnly />
               </div>
             </div>
           </div>
