@@ -166,6 +166,7 @@ function RootComponent() {
               <PersonaProvider>
                 <Outlet />
                 <Toaster />
+                <SiteLockOverlay />
               </PersonaProvider>
             </AdminAuthProvider>
           </WishlistProvider>
