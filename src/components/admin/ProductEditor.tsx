@@ -886,6 +886,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
 
                 {pricingTiers.length > 0 && (
                   <div
+                    data-tier-header
                     style={{
                       display: "grid",
                       gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
@@ -912,6 +913,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                     return (
                       <div
                         key={idx}
+                        data-tier-row
                         style={{
                           display: "grid",
                           gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
@@ -919,55 +921,63 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                           alignItems: "center",
                         }}
                       >
-                        <input
-                          style={s.input}
-                          placeholder="Dozen"
-                          value={row.collectionName}
-                          onChange={(e) => {
-                            const n = [...pricingTiers];
-                            n[idx] = { ...row, collectionName: e.target.value };
-                            set("pricingTiers", n);
-                          }}
-                        />
-                        <input
-                          type="number"
-                          min={1}
-                          style={s.input}
-                          placeholder="12"
-                          value={row.quantity || ""}
-                          onChange={(e) => {
-                            const n = [...pricingTiers];
-                            n[idx] = { ...row, quantity: Number(e.target.value) || 0 };
-                            set("pricingTiers", n);
-                          }}
-                        />
-                        <input
-                          type="number"
-                          min={0}
-                          step="0.01"
-                          style={s.input}
-                          placeholder="8.50"
-                          value={row.pricePerUnit || ""}
-                          onChange={(e) => {
-                            const n = [...pricingTiers];
-                            n[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
-                            set("pricingTiers", n);
-                          }}
-                        />
-                        <div
-                          style={{
-                            ...s.input,
-                            background: "transparent",
-                            color: "var(--admin-muted)",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          KES {total.toLocaleString()}
+                        <div data-tier-cell data-label="Collection">
+                          <input
+                            style={{ ...s.input, width: "100%" }}
+                            placeholder="Dozen"
+                            value={row.collectionName}
+                            onChange={(e) => {
+                              const n = [...pricingTiers];
+                              n[idx] = { ...row, collectionName: e.target.value };
+                              set("pricingTiers", n);
+                            }}
+                          />
+                        </div>
+                        <div data-tier-cell data-label="Qty">
+                          <input
+                            type="number"
+                            min={1}
+                            style={{ ...s.input, width: "100%" }}
+                            placeholder="12"
+                            value={row.quantity || ""}
+                            onChange={(e) => {
+                              const n = [...pricingTiers];
+                              n[idx] = { ...row, quantity: Number(e.target.value) || 0 };
+                              set("pricingTiers", n);
+                            }}
+                          />
+                        </div>
+                        <div data-tier-cell data-label="Price / unit">
+                          <input
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            style={{ ...s.input, width: "100%" }}
+                            placeholder="8.50"
+                            value={row.pricePerUnit || ""}
+                            onChange={(e) => {
+                              const n = [...pricingTiers];
+                              n[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
+                              set("pricingTiers", n);
+                            }}
+                          />
+                        </div>
+                        <div data-tier-cell data-label="Total">
+                          <div
+                            style={{
+                              ...s.input,
+                              background: "transparent",
+                              color: "var(--admin-muted)",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            KES {total.toLocaleString()}
+                          </div>
                         </div>
                         <button
                           type="button"
-                          style={s.removeX}
+                          style={{ ...s.removeX, justifySelf: "end" }}
                           onClick={() =>
                             set(
                               "pricingTiers",
