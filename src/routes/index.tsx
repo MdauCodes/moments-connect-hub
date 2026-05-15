@@ -35,6 +35,7 @@ import { api } from "@/services/api";
 import type { Product } from "@/data/products";
 import cloudV3 from "@/assets/packaging-cloud-hero-v3.png";
 import cloudKraft from "@/assets/packaging-cloud-hero.png";
+import logoUrl from "@/assets/moments-logo.png";
 
 const SPLASH_KEY = "moments_splash_shown";
 
@@ -134,8 +135,8 @@ function MobileFab() {
   return (
     <div
       id="mpk-fab-root"
-      className="md:hidden absolute right-[18px] bottom-6 flex flex-col items-end"
-      style={{ zIndex: 10 }}
+      className="md:hidden fixed right-4 bottom-4 flex flex-col items-end"
+      style={{ zIndex: 50 }}
     >
       {open && (
         <div
@@ -198,53 +199,56 @@ function Hero() {
         @keyframes mpk-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .mpk-marquee-track { animation: mpk-marquee 18s linear infinite; }
         @media (max-width: 767px) {
-          .mpk-hero-section { min-height: 480px !important; }
+          .mpk-hero-section { min-height: 620px !important; }
         }
       `}</style>
 
-      <div className="mpk-hero-section relative" style={{ minHeight: "520px" }}>
-        {/* Crossfading hero images */}
-        <img
-          src={cloudV3}
-          alt="A diverse cluster of branded paper packaging — bags, boxes, cups and more"
-          className="mpk-hero-img-a absolute pointer-events-none select-none"
-          style={{
-            zIndex: 1,
-            transition: "opacity 1.5s ease-in-out",
-            filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
-            objectFit: "contain",
-            opacity: 1,
-          }}
-        />
-        <img
-          src={cloudKraft}
-          alt="A cluster of kraft paper packaging — bags, boxes, cups"
-          className="mpk-hero-img-b absolute pointer-events-none select-none"
-          style={{
-            zIndex: 1,
-            transition: "opacity 1.5s ease-in-out",
-            filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
-            objectFit: "contain",
-            opacity: 0,
-          }}
-        />
+      <div className="mpk-hero-section relative" style={{ minHeight: "560px" }}>
+        {/* Centered max-width stage so text + image share the same gutter on desktop */}
+        <div className="absolute inset-0 mx-auto max-w-7xl px-5 lg:px-8">
+          {/* Crossfading hero images */}
+          <img
+            src={cloudV3}
+            alt="A diverse cluster of branded paper packaging — bags, boxes, cups and more"
+            className="mpk-hero-img-a absolute pointer-events-none select-none"
+            style={{
+              zIndex: 1,
+              transition: "opacity 1.5s ease-in-out",
+              filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
+              objectFit: "contain",
+              opacity: 1,
+            }}
+          />
+          <img
+            src={cloudKraft}
+            alt="A cluster of kraft paper packaging — bags, boxes, cups"
+            className="mpk-hero-img-b absolute pointer-events-none select-none"
+            style={{
+              zIndex: 1,
+              transition: "opacity 1.5s ease-in-out",
+              filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
+              objectFit: "contain",
+              opacity: 0,
+            }}
+          />
+        </div>
 
-        {/* Responsive image positioning — scaled down, right-centered, never overflows section */}
+        {/* Responsive image positioning — sits inside the max-w-7xl stage */}
         <style>{`
           .mpk-hero-img-a, .mpk-hero-img-b {
-            right: -18%;
+            right: -14%;
             top: 50%;
             transform: translateY(-50%);
             width: 78%;
-            max-height: 65%;
+            max-height: 58%;
           }
           @media (min-width: 768px) {
             .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 2%;
+              right: 0;
               top: 50%;
               transform: translateY(-50%);
-              width: 44%;
-              max-height: 82%;
+              width: 46%;
+              max-height: 86%;
             }
           }
         `}</style>
@@ -255,7 +259,7 @@ function Hero() {
           style={{
             zIndex: 3,
             background:
-              "linear-gradient(180deg, rgba(26,14,8,0.88) 0%, rgba(26,14,8,0.78) 55%, rgba(26,14,8,0.92) 100%)",
+              "linear-gradient(180deg, rgba(26,14,8,0.92) 0%, rgba(26,14,8,0.82) 55%, rgba(26,14,8,0.96) 100%)",
           }}
         />
         <div
@@ -263,7 +267,7 @@ function Hero() {
           style={{
             zIndex: 3,
             background:
-              "linear-gradient(100deg, rgba(26,14,8,0.92) 0%, rgba(26,14,8,0.80) 30%, rgba(26,14,8,0.28) 60%, rgba(26,14,8,0.0) 76%)",
+              "linear-gradient(100deg, rgba(26,14,8,0.92) 0%, rgba(26,14,8,0.78) 32%, rgba(26,14,8,0.22) 58%, rgba(26,14,8,0.0) 74%)",
           }}
         />
 
@@ -276,8 +280,14 @@ function Hero() {
           }}
         >
           <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-            <Link to="/" className="font-display text-xl font-semibold text-white tracking-tight">
-              Moments
+            <Link to="/" aria-label="Moments Packaging Kenya — Home" className="flex items-center">
+              <img
+                src={logoUrl}
+                alt="Moments Packaging Kenya"
+                width={140}
+                height={36}
+                className="h-6 w-auto sm:h-7 brightness-0 invert"
+              />
             </Link>
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white">
               <Link to="/products" className="hover:opacity-80">Shop</Link>
@@ -350,22 +360,19 @@ function Hero() {
           </div>
         </div>
 
-        {/* Hero text content */}
-        <div
-          className="absolute md:top-1/2 md:-translate-y-1/2 md:left-10 md:w-[48%]"
-          style={{ zIndex: 4 }}
-        >
+        {/* Hero text content — sits inside the same max-w-7xl stage */}
+        <div className="absolute inset-0 mx-auto max-w-7xl px-5 lg:px-8" style={{ zIndex: 4 }}>
           <div
-            className="px-5 md:px-0"
-            style={{ paddingTop: "100px" }}
+            className="md:absolute md:top-1/2 md:-translate-y-1/2 md:left-5 lg:left-8 md:w-[52%] lg:w-[50%]"
+            style={{ paddingTop: "120px", paddingBottom: "40px" }}
           >
             <p
               className="uppercase font-medium"
               style={{
                 fontSize: "10px",
                 letterSpacing: "0.18em",
-                color: "rgba(255,255,255,0.52)",
-                marginBottom: "16px",
+                color: "rgba(255,255,255,0.55)",
+                marginBottom: "18px",
               }}
             >
               QUALITY PACKAGING · NAIROBI, KENYA
@@ -373,8 +380,8 @@ function Hero() {
             <h1
               className="font-display"
               style={{
-                fontSize: "clamp(34px, 5vw, 52px)",
-                lineHeight: 1.08,
+                fontSize: "clamp(32px, 4.6vw, 50px)",
+                lineHeight: 1.1,
                 letterSpacing: "-0.03em",
                 color: "white",
                 fontWeight: 500,
@@ -388,9 +395,9 @@ function Hero() {
               style={{
                 fontSize: "14px",
                 lineHeight: 1.7,
-                color: "rgba(255,255,255,0.68)",
-                maxWidth: "380px",
-                margin: "20px 0 28px",
+                color: "rgba(255,255,255,0.72)",
+                maxWidth: "400px",
+                margin: "22px 0 30px",
               }}
             >
               Bags, boxes, cups and more — order online, pay with M-Pesa. Delivered same day within Nairobi, up to 3 days countrywide.
@@ -426,7 +433,7 @@ function Hero() {
             <div
               className="inline-flex items-center"
               style={{
-                marginTop: "20px",
+                marginTop: "22px",
                 gap: "8px",
                 background: "rgba(255,255,255,0.09)",
                 border: "1px solid rgba(141,201,106,0.28)",
