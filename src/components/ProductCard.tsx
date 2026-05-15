@@ -96,7 +96,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               Hot
             </span>
           ) : null}
-          {stock.state === "low_stock" && stock.state !== "out_of_stock" && (
+          {stock.state === "low_stock" && (
             <span className="hidden rounded-full bg-accent/90 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-accent-foreground sm:inline-block sm:px-2.5 sm:py-1 sm:text-[10px]">
               Low stock
             </span>
