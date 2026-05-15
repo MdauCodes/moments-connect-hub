@@ -17,9 +17,23 @@ export const Route = createFileRoute("/blog/$slug")({
     if (!blog || blog.status !== "published") throw notFound();
     return { blog };
   },
-  head: ({ loaderData }) => {
+  head: ({ params, loaderData }) => {
     const blog = loaderData?.blog;
     if (!blog) return { meta: [] };
+    const url = `https://momentspackaging.com/blog/${params.slug}`;
+    const articleLd = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: blog.title,
+      description: blog.excerpt,
+      image: blog.coverImage.url,
+      datePublished: blog.publishedAt,
+      mainEntityOfPage: url,
+      publisher: {
+        "@type": "Organization",
+        name: "Moments Packaging Kenya",
+      },
+    };
     return {
       meta: [
         { title: `${blog.title} — Moments Packaging Kenya` },
@@ -28,7 +42,12 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:description", content: blog.excerpt },
         { property: "og:image", content: blog.coverImage.url },
         { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
         { name: "twitter:image", content: blog.coverImage.url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        { type: "application/ld+json", children: JSON.stringify(articleLd) },
       ],
     };
   },

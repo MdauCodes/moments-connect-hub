@@ -10,11 +10,11 @@ import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 
-const SITE_URL = "https://www.momentspackaging.com";
+const SITE_URL = "https://momentspackaging.com";
 const SITE_NAME = "Moments Packaging Kenya";
-const DEFAULT_TITLE = "Moments Packaging Kenya — Custom Branded Paper Packaging | Nairobi";
+const DEFAULT_TITLE = "Moments Packaging Kenya — Custom Paper Packaging";
 const DEFAULT_DESCRIPTION =
-  "Moments Packaging Kenya Ltd manufactures custom-branded paper bags, food boxes, cups, mailers, labels and gifting packaging in Nairobi. Low MOQ from 100 units, fast turnaround, nationwide delivery across Kenya.";
+  "Custom-branded paper bags, boxes, cups, mailers and labels manufactured in Nairobi. Low MOQ, fast turnaround, nationwide delivery.";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 const ORGANIZATION_JSONLD = {
@@ -114,7 +114,6 @@ export const Route = createRootRoute({
       { property: "og:title", content: DEFAULT_TITLE },
       { property: "og:description", content: DEFAULT_DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: SITE_URL },
       { property: "og:locale", content: "en_KE" },
 
       { name: "twitter:card", content: "summary_large_image" },
@@ -126,7 +125,6 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/favicon.png" },
-      { rel: "canonical", href: SITE_URL },
     ],
     scripts: [
       {

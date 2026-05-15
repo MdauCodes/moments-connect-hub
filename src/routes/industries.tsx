@@ -6,20 +6,21 @@ import { industries } from "@/data/products";
 export const Route = createFileRoute("/industries")({
   head: () => ({
     meta: [
-      { title: "Industries We Serve — Packaging for Every Market in Kenya | Moments Packaging" },
+      { title: "Industries We Serve — Moments Packaging Kenya" },
       {
         name: "description",
         content:
-          "Custom packaging for Food & Beverage, Agriculture, Textile, E-commerce, Gifting, Beauty, Pharma and Industrial brands across Kenya. Tailored MOQs, finishes and lead times for every sector.",
+          "Custom packaging for Food & Beverage, Agriculture, Textile, E-commerce, Gifting, Beauty, Pharma and Industrial brands across Kenya.",
       },
       { property: "og:title", content: "Industries We Serve — Moments Packaging Kenya" },
       {
         property: "og:description",
         content:
-          "Eight industries, one production line. Packaging built for Kenyan restaurants, farms, fashion brands, online stores, gifting, beauty, pharma and hardware.",
+          "Eight industries, one production line. Packaging built for Kenyan brands across food, retail, beauty, pharma and more.",
       },
+      { property: "og:url", content: "https://momentspackaging.com/industries" },
     ],
-    links: [{ rel: "canonical", href: "https://www.momentspackaging.com/industries" }],
+    links: [{ rel: "canonical", href: "https://momentspackaging.com/industries" }],
   }),
   component: IndustriesPage,
 });
