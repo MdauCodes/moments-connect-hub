@@ -112,74 +112,7 @@ function FirstVisitSplash() {
   return <AppSplash />;
 }
 
-// ── Mobile floating action button ──
-function MobileFab() {
-  const [open, setOpen] = useState(false);
-  useEffect(() => {
-    if (!open) return;
-    const onDocClick = (e: MouseEvent) => {
-      const el = document.getElementById("mpk-fab-root");
-      if (el && !el.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
-  }, [open]);
-
-  const items = [
-    { label: "WhatsApp", Icon: MessageCircle, href: "https://wa.me/254700000000", iconClass: "text-forest" },
-    { label: "Enterprise", Icon: Briefcase, to: "/enterprise-quote", iconClass: "text-ink" },
-    { label: "Deals", Icon: Tag, to: "/products", iconClass: "text-accent" },
-    { label: "Shop", Icon: ShoppingBag, to: "/products", iconClass: "text-ink" },
-  ];
-
-  return (
-    <div
-      id="mpk-fab-root"
-      className="md:hidden fixed right-4 flex flex-col items-end"
-      style={{ zIndex: 50, bottom: "76px" }}
-    >
-      {open && (
-        <div
-          className="mb-2 flex flex-col items-end gap-2 rounded-2xl p-2"
-          style={{ backdropFilter: "blur(4px)", background: "rgba(0,0,0,0.18)" }}
-        >
-          {items.map((it) => {
-            const pill = (
-              <span className="rounded-full bg-[color:var(--ink)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
-                {it.label}
-              </span>
-            );
-            const icon = (
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-white shadow-md">
-                <it.Icon className={`h-4 w-4 ${it.iconClass}`} strokeWidth={1.8} style={it.label === "Deals" ? { color: "var(--accent)" } : it.label === "WhatsApp" ? { color: "var(--forest)" } : { color: "var(--ink)" }} />
-              </span>
-            );
-            return it.to ? (
-              <Link key={it.label} to={it.to} className="flex items-center gap-2" onClick={() => setOpen(false)}>
-                {pill}
-                {icon}
-              </Link>
-            ) : (
-              <a key={it.label} href={it.href} target="_blank" rel="noreferrer" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-                {pill}
-                {icon}
-              </a>
-            );
-          })}
-        </div>
-      )}
-      <button
-        type="button"
-        aria-label={open ? "Close menu" : "Open menu"}
-        onClick={() => setOpen((v) => !v)}
-        className="grid h-11 w-11 place-items-center rounded-full text-white shadow-lg"
-        style={{ background: "var(--accent)" }}
-      >
-        {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </button>
-    </div>
-  );
-}
+// MobileFab now lives globally in SiteLayout — see src/components/MobileFab.tsx
 
 // ── Hero with overlay nav + announcement ──
 function Hero() {
