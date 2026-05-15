@@ -18,25 +18,9 @@ import catLabelsStickersImg from "@/assets/categories/cat-labels-stickers.jpg";
 import catFoodContainersImg from "@/assets/categories/cat-food-containers.jpg";
 import catGiftEventImg from "@/assets/categories/cat-gift-event.jpg";
 import catBeautyPharmaImg from "@/assets/categories/cat-beauty-pharma.jpg";
-import {
-  ArrowRight,
-  Search,
-  ShoppingBag,
-  Tag,
-  Briefcase,
-  Coffee,
-  Package,
-  Gift,
-  ChevronRight,
-} from "lucide-react";
+import { ArrowRight, Search, ShoppingBag, Tag, Briefcase, Coffee, Package, Gift, ChevronRight } from "lucide-react";
 import { Check } from "lucide-react";
-import {
-  DotGrid,
-  PaperTexture,
-  ArcStroke,
-  CornerLines,
-  SignatureDivider,
-} from "@/components/BrandDecor";
+import { DotGrid, PaperTexture, ArcStroke, CornerLines, SignatureDivider } from "@/components/BrandDecor";
 import { api } from "@/services/api";
 import type { Product } from "@/data/products";
 import cloudV3 from "@/assets/packaging-cloud-hero-v3.png";
@@ -69,8 +53,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Moments Packaging Kenya — Quality Packaging Online" },
       {
         property: "og:description",
-        content:
-          "Quality packaging for Kenyan brands. Order online, pay with M-Pesa, same-day Nairobi delivery.",
+        content: "Quality packaging for Kenyan brands. Order online, pay with M-Pesa, same-day Nairobi delivery.",
       },
       { property: "og:url", content: "https://momentspackaging.com/" },
       { property: "og:image", content: "https://momentspackaging.com/og-image.jpg" },
@@ -257,13 +240,26 @@ function Hero() {
                   fontWeight: 600,
                 }}
               >
-                Packaging<br />(K) Limited
+                Packaging
+                <br />
+                (K) Limited
               </span>
             </Link>
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white">
-              <Link to="/products" className="hover:opacity-80">Shop</Link>
-              <Link to="/products" search={{ deals: true } as never} style={{ color: "var(--accent)" }} className="hover:opacity-80">Deals</Link>
-              <Link to="/enterprise-quote" className="hover:opacity-80">Enterprise</Link>
+              <Link to="/products" className="hover:opacity-80">
+                Shop
+              </Link>
+              <Link
+                to="/products"
+                search={{ deals: true } as never}
+                style={{ color: "var(--accent)" }}
+                className="hover:opacity-80"
+              >
+                Deals
+              </Link>
+              <Link to="/enterprise-quote" className="hover:opacity-80">
+                Enterprise
+              </Link>
             </div>
             <div className="flex items-center gap-4 text-white">
               <button aria-label="Search" className="hover:opacity-80">
@@ -276,7 +272,9 @@ function Hero() {
                   style={{ background: "var(--accent)" }}
                 />
               </Link>
-              <Link to="/login" className="hidden md:inline text-sm hover:opacity-80">Sign in</Link>
+              <Link to="/login" className="hidden md:inline text-sm hover:opacity-80">
+                Sign in
+              </Link>
             </div>
           </div>
         </nav>
@@ -301,7 +299,14 @@ function Hero() {
           >
             {ANNOUNCE_ITEMS.map((item, i) => (
               <span key={item} className="flex items-center" style={{ gap: "28px" }}>
-                <span style={{ fontSize: "11px", letterSpacing: "0.04em", color: "rgba(255,255,255,0.94)", fontWeight: 500 }}>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    letterSpacing: "0.04em",
+                    color: "rgba(255,255,255,0.94)",
+                    fontWeight: 500,
+                  }}
+                >
                   {item}
                 </span>
                 {i < ANNOUNCE_ITEMS.length - 1 && (
@@ -318,7 +323,14 @@ function Hero() {
             <div className="mpk-marquee-track flex" style={{ gap: "22px", width: "max-content", whiteSpace: "nowrap" }}>
               {[...ANNOUNCE_ITEMS, ...ANNOUNCE_ITEMS].map((item, idx) => (
                 <span key={`${item}-${idx}`} className="flex items-center" style={{ gap: "22px" }}>
-                  <span style={{ fontSize: "11px", letterSpacing: "0.04em", color: "rgba(255,255,255,0.94)", fontWeight: 500 }}>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      letterSpacing: "0.04em",
+                      color: "rgba(255,255,255,0.94)",
+                      fontWeight: 500,
+                    }}
+                  >
                     {item}
                   </span>
                   <span
@@ -358,9 +370,12 @@ function Hero() {
                 fontWeight: 500,
               }}
             >
-              Packaging for<br />
+              Packaging for
+              <br />
               Kenyan brands —<br />
-              <em className="italic" style={{ color: "var(--accent)" }}>unforgettable.</em>
+              <em className="italic" style={{ color: "var(--accent)" }}>
+                unforgettable. Utafurahia
+              </em>
             </h1>
             <p
               style={{
@@ -371,7 +386,8 @@ function Hero() {
                 margin: "22px 0 30px",
               }}
             >
-              Bags, boxes, cups and more — order online, pay with M-Pesa. Delivered same day within Nairobi, up to 3 days countrywide.
+              Bags, boxes, cups and more — order online, pay with M-Pesa. Delivered same day within Nairobi, up to 3
+              days countrywide.
             </p>
             <div className="flex flex-col md:flex-row gap-3 max-w-sm md:max-w-none">
               <Link
@@ -417,9 +433,7 @@ function Hero() {
                 className="inline-block rounded-full"
                 style={{ width: "6px", height: "6px", background: "#00A651" }}
               />
-              <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.82)" }}>
-                M-Pesa accepted at checkout
-              </span>
+              <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.82)" }}>M-Pesa accepted at checkout</span>
             </div>
           </div>
         </div>
@@ -434,8 +448,6 @@ function Hero() {
         >
           <path d="M0 60 L0 35 Q360 5 720 30 Q1080 55 1440 22 L1440 60 Z" fill="var(--ink)" />
         </svg>
-
-        
       </div>
     </section>
   );
@@ -459,9 +471,7 @@ function TrustBar() {
             <div className="font-display" style={{ fontSize: "22px", color: "var(--accent)" }}>
               {s.num}
             </div>
-            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.45)", marginTop: "4px" }}>
-              {s.label}
-            </div>
+            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.45)", marginTop: "4px" }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -480,9 +490,7 @@ function TrustBar() {
             <div className="font-display" style={{ fontSize: "17px", color: "var(--accent)" }}>
               {s.num}
             </div>
-            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.45)", marginTop: "4px" }}>
-              {s.label}
-            </div>
+            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.45)", marginTop: "4px" }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -504,8 +512,10 @@ function CategoryRow() {
             style={{
               padding: "14px 20px",
               gap: "12px",
-              borderRight: i < CATEGORIES.length - 1 ? "1px solid color-mix(in oklab, var(--ink) 8%, transparent)" : "none",
-              borderBottom: i < CATEGORIES.length - 1 ? "1px solid color-mix(in oklab, var(--ink) 8%, transparent)" : "none",
+              borderRight:
+                i < CATEGORIES.length - 1 ? "1px solid color-mix(in oklab, var(--ink) 8%, transparent)" : "none",
+              borderBottom:
+                i < CATEGORIES.length - 1 ? "1px solid color-mix(in oklab, var(--ink) 8%, transparent)" : "none",
             }}
           >
             <span
@@ -523,7 +533,10 @@ function CategoryRow() {
               <span className="block" style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink)" }}>
                 {c.name}
               </span>
-              <span className="block" style={{ fontSize: "10.5px", color: "color-mix(in oklab, var(--ink) 55%, transparent)" }}>
+              <span
+                className="block"
+                style={{ fontSize: "10.5px", color: "color-mix(in oklab, var(--ink) 55%, transparent)" }}
+              >
                 {c.desc}
               </span>
             </span>
@@ -621,7 +634,10 @@ function CategoryGrid() {
             <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Browse</p>
             <h2 className="mt-2 font-display text-3xl font-medium text-foreground sm:text-4xl">Shop by category</h2>
           </div>
-          <Link to="/products" className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent">
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-accent"
+          >
             See everything <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -634,7 +650,12 @@ function CategoryGrid() {
               search={tile.search as never}
               className="group relative overflow-hidden rounded-2xl aspect-square sm:aspect-[4/3] block"
             >
-              <img src={tile.image} alt={tile.label} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <img
+                src={tile.image}
+                alt={tile.label}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <span className="absolute bottom-3 left-3 right-3 font-display text-sm font-semibold text-white sm:text-base">
                 {tile.label}
@@ -649,9 +670,24 @@ function CategoryGrid() {
 
 // ── Audiences we serve (preserved) ──
 const audienceColumns = [
-  { Icon: Gift, role: "Individuals", blurb: "Weddings, birthdays, anniversaries and personal gifting — order what you need, no minimums.", examples: ["Wedding favours", "Birthday gift boxes", "One-off event packs"] },
-  { Icon: ShoppingBag, role: "Small businesses & shops", blurb: "Cafés, restaurants, retail and online sellers — quality packaging on a turnaround that fits your week.", examples: ["Takeaway cups & boxes", "Branded carrier bags", "E-commerce mailers"] },
-  { Icon: Package, role: "Companies & enterprise", blurb: "Volume orders, contracts and procurement — formal quotes and a dedicated contact for every rollout.", examples: ["10,000+ unit runs", "National brand rollouts", "Scheduled deliveries"] },
+  {
+    Icon: Gift,
+    role: "Individuals",
+    blurb: "Weddings, birthdays, anniversaries and personal gifting — order what you need, no minimums.",
+    examples: ["Wedding favours", "Birthday gift boxes", "One-off event packs"],
+  },
+  {
+    Icon: ShoppingBag,
+    role: "Small businesses & shops",
+    blurb: "Cafés, restaurants, retail and online sellers — quality packaging on a turnaround that fits your week.",
+    examples: ["Takeaway cups & boxes", "Branded carrier bags", "E-commerce mailers"],
+  },
+  {
+    Icon: Package,
+    role: "Companies & enterprise",
+    blurb: "Volume orders, contracts and procurement — formal quotes and a dedicated contact for every rollout.",
+    examples: ["10,000+ unit runs", "National brand rollouts", "Scheduled deliveries"],
+  },
 ];
 
 function AudiencesWeServe() {
@@ -666,7 +702,8 @@ function AudiencesWeServe() {
             Whether you&apos;re an individual, a small business, or a large enterprise — we serve all of you.
           </h2>
           <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-            One catalogue, one production line, three kinds of customers. Same quality, same craft — scaled to whatever you&apos;re ordering.
+            One catalogue, one production line, three kinds of customers. Same quality, same craft — scaled to whatever
+            you&apos;re ordering.
           </p>
         </div>
 
