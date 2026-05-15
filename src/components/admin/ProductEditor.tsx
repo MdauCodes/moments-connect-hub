@@ -852,90 +852,19 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
               </div>
             )}
 
-            {/* Variants */}
-            <div style={s.col}>
-              <label style={s.label}>Variants (size / material)</label>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {variants.map((variant, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1.4fr 0.9fr 0.7fr 0.7fr auto",
-                      gap: 6,
-                      alignItems: "center",
-                    }}
-                  >
-                    <input
-                      style={s.input}
-                      placeholder="Label (e.g. Small / Kraft)"
-                      value={variant.label}
-                      onChange={(e) => {
-                        const n = [...variants];
-                        n[idx] = { ...variant, label: e.target.value };
-                        set("variants", n);
-                      }}
-                    />
-                    <input
-                      style={s.input}
-                      placeholder="SKU"
-                      value={variant.sku ?? ""}
-                      onChange={(e) => {
-                        const n = [...variants];
-                        n[idx] = { ...variant, sku: e.target.value };
-                        set("variants", n);
-                      }}
-                    />
-                    <input
-                      type="number"
-                      min={0}
-                      style={s.input}
-                      placeholder="Price"
-                      value={variant.price ?? ""}
-                      onChange={(e) => {
-                        const n = [...variants];
-                        n[idx] = { ...variant, price: e.target.value ? Number(e.target.value) : undefined };
-                        set("variants", n);
-                      }}
-                    />
-                    <input
-                      type="number"
-                      min={0}
-                      style={s.input}
-                      placeholder="Stock"
-                      value={variant.stock ?? ""}
-                      onChange={(e) => {
-                        const n = [...variants];
-                        n[idx] = { ...variant, stock: e.target.value ? Number(e.target.value) : undefined };
-                        set("variants", n);
-                      }}
-                    />
-                    <button
-                      type="button"
-                      style={s.removeX}
-                      onClick={() =>
-                        set(
-                          "variants",
-                          variants.filter((_, i) => i !== idx),
-                        )
-                      }
-                      aria-label="Remove variant"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  style={s.ghostBtn}
-                  onClick={() =>
-                    set("variants", [...variants, { label: "", sku: "", price: undefined, stock: undefined }])
-                  }
-                >
-                  + Add variant
-                </button>
+            {/* Variants — not yet supported by backend */}
+            <div style={{ ...s.col, ...disabledColStyle }} title="Not yet supported by backend">
+              <label style={s.label}>Variants (size / material)<span style={s.unsupportedBadge}>Soon</span></label>
+              <div style={{
+                padding: "14px 16px",
+                border: "1px dashed var(--admin-border)",
+                borderRadius: 10,
+                background: "color-mix(in oklab,var(--admin-bg) 70%,transparent)",
+                color: "var(--admin-muted)",
+                fontSize: 12,
+              }}>
+                Per-variant SKUs, pricing and stock will be available once the backend ships variant support. Use pricing tiers below for collection-based pricing in the meantime.
               </div>
-              <span style={s.helper}>Leave empty if this is a single-SKU product.</span>
             </div>
 
             {/* Pricing tiers — INSIDE the same card, separated by a divider */}
