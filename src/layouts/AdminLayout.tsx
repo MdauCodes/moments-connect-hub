@@ -363,13 +363,14 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
         </div>
 
         <nav style={styles.nav}>
-          {navSections.map((section) => {
+          {navSections.map((section, sectionIdx) => {
             const visible = section.items.filter(
               (item) => !item.requires || can(user?.role, item.requires)
             );
             if (visible.length === 0) return null;
             return (
-              <div key={section.label} style={{ marginBottom: 6 }}>
+              <div key={section.label} style={{ marginBottom: 4 }}>
+                {sectionIdx > 0 && <hr style={styles.sectionDivider} />}
                 <div style={styles.sectionLabel}>{section.label}</div>
                 {visible.map((item) => (
                   <NavLink key={item.to} item={item} active={isActive(item.to)} />
