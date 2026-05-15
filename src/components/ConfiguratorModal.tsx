@@ -264,55 +264,76 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             </Section>
           )}
 
-          <Section
-            label={selectedTier ? `Number of ${selectedTier.collectionName}s` : "Quantity"}
-            note={selectedTier ? `(${collectionQty} units each)` : `(Min. ${minQty.toLocaleString()})`}
-          >
-            <input
-              type="number"
-              min={minQty}
-              step={1}
-              value={quantity}
-              onChange={(e) => handleQtyChange(e.target.value)}
-              onBlur={() => {
-                if (quantity < minQty) {
-                  setQuantity(minQty);
-                  setError(null);
-                }
-              }}
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-            {error && <p className="mt-1.5 text-xs text-accent">{error}</p>}
-          </Section>
+          {(hasCollections || individualEnabled) && (
+            <Section
+              label={
+                selectedTier
+                  ? `Number of ${selectedTier.collectionName}s`
+                  : hasCollections
+                  ? "Quantity"
+                  : "Number of units"
+              }
+              note={selectedTier ? `(${collectionQty} units each)` : `(Min. ${minQty.toLocaleString()})`}
+            >
+              <input
+                type="number"
+                min={minQty}
+                step={1}
+                value={quantity}
+                onChange={(e) => handleQtyChange(e.target.value)}
+                onBlur={() => {
+                  if (quantity < minQty) {
+                    setQuantity(minQty);
+                    setError(null);
+                  }
+                }}
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              {error && <p className="mt-1.5 text-xs text-accent">{error}</p>}
+            </Section>
+          )}
 
-          <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
-            {selectedTier ? (
-              <p className="text-sm">
-                {quantity.toLocaleString()} × {selectedTier.collectionName} ({collectionQty} units) ={" "}
-                <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
-                <span className="ml-2 text-xs opacity-80">
-                  · {(quantity * collectionQty).toLocaleString()} total units
-                </span>
-              </p>
-            ) : unitPrice > 0 ? (
-              <p className="text-sm">
-                {quantity.toLocaleString()} units × KES {unitPrice.toLocaleString()} ={" "}
-                <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
-              </p>
-            ) : (
-              <p className="text-sm">Price calculated on order — our team will confirm.</p>
-            )}
-          </div>
+          {(hasCollections || individualEnabled) && (
+            <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
+              {selectedTier ? (
+                <p className="text-sm">
+                  {quantity.toLocaleString()} × {selectedTier.collectionName} ({collectionQty} units) ={" "}
+                  <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
+                  <span className="ml-2 text-xs opacity-80">
+                    · {(quantity * collectionQty).toLocaleString()} total units
+                  </span>
+                </p>
+              ) : unitPrice > 0 ? (
+                <p className="text-sm">
+                  {quantity.toLocaleString()} units × KES {unitPrice.toLocaleString()} ={" "}
+                  <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
+                </p>
+              ) : null}
+            </div>
+          )}
 
           <p className="text-xs text-muted-foreground">Production: 7–14 business days</p>
 
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="w-full rounded-full bg-accent px-6 py-3.5 text-sm font-semibold text-accent-foreground shadow-sm transition-opacity hover:opacity-90"
-          >
-            Add to cart
-          </button>
+          {hasCollections || individualEnabled ? (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="w-full rounded-full bg-accent px-6 py-3.5 text-sm font-semibold text-accent-foreground shadow-sm transition-opacity hover:opacity-90"
+            >
+              Add to cart
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                navigate({ to: "/enterprise-quote" });
+              }}
+              className="w-full rounded-full bg-accent px-6 py-3.5 text-sm font-semibold text-accent-foreground shadow-sm transition-opacity hover:opacity-90"
+            >
+              Request a quote
+            </button>
+          )}
 
           <button
             type="button"
