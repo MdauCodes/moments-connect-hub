@@ -40,7 +40,22 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
   const cheapestTier = tiers[tiers.length - 1];
   const tierPrice = (t: any) =>
     Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
+  const tierUnitPrice = (t: any) => {
+    const qty = Number(t.quantity) || 0;
+    if (!qty) return 0;
+    return tierPrice(t) / qty;
+  };
   const tierKey = (t: any) => String(t.id ?? t.collectionName);
+  // Baseline = highest per-unit price (smallest bundle) — savings measured against this.
+  const baselineUnit = hasTiers
+    ? Math.max(...tiers.map((t) => tierUnitPrice(t)))
+    : 0;
+  const tierSavingsPct = (t: any) => {
+    if (!baselineUnit) return 0;
+    const u = tierUnitPrice(t);
+    if (!u || u >= baselineUnit) return 0;
+    return Math.round(((baselineUnit - u) / baselineUnit) * 100);
+  };
 
   const [activeTierId, setActiveTierId] = useState<string | null>(
     hasTiers ? tierKey(tiers[0]) : null,
