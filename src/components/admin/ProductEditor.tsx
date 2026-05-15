@@ -783,13 +783,13 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {/* SKU / base price / compare-at */}
             <div style={s.row3} data-admin-row>
-              <div style={s.col}>
-                <label style={s.label}>SKU</label>
+              <div style={{ ...s.col, ...disabledColStyle }} title="Not yet supported by backend">
+                <label style={s.label}>SKU<span style={s.unsupportedBadge}>Soon</span></label>
                 <input
-                  style={s.input}
-                  value={values.sku ?? ""}
-                  onChange={(e) => set("sku", e.target.value)}
-                  placeholder="KRB-MD-001"
+                  style={{ ...s.input, ...disabledInputStyle }}
+                  value=""
+                  disabled
+                  placeholder="Not yet supported"
                 />
               </div>
               <div style={s.col}>
@@ -803,15 +803,15 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                   placeholder="0"
                 />
               </div>
-              <div style={s.col}>
-                <label style={s.label}>Compare-at price</label>
+              <div style={{ ...s.col, ...disabledColStyle }} title="Not yet supported by backend">
+                <label style={s.label}>Compare-at price<span style={s.unsupportedBadge}>Soon</span></label>
                 <input
                   type="number"
                   min={0}
-                  style={s.input}
-                  value={values.compareAtPrice ?? ""}
-                  onChange={(e) => set("compareAtPrice", e.target.value ? Number(e.target.value) : undefined)}
-                  placeholder="strike-through"
+                  style={{ ...s.input, ...disabledInputStyle }}
+                  value=""
+                  disabled
+                  placeholder="Not yet supported"
                 />
               </div>
             </div>
