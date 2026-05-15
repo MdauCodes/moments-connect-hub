@@ -433,7 +433,24 @@ const s: Record<string, CSSProperties> = {
   },
   switchLabel: { fontSize: 12.5, color: "var(--admin-text)", flex: 1 },
   divider: { borderTop: "1px solid var(--admin-border)", paddingTop: 14, marginTop: 4 },
+  unsupportedBadge: {
+    display: "inline-block",
+    fontSize: 9.5,
+    fontWeight: 600,
+    textTransform: "uppercase",
+    letterSpacing: "0.1em",
+    color: "var(--admin-muted)",
+    background: "color-mix(in oklab,var(--admin-border) 60%,transparent)",
+    border: "1px solid var(--admin-border)",
+    borderRadius: 999,
+    padding: "1px 7px",
+    marginLeft: 8,
+    verticalAlign: "middle",
+  },
 };
+
+const disabledColStyle: CSSProperties = { opacity: 0.5, pointerEvents: "none" };
+const disabledInputStyle: CSSProperties = { background: "transparent", color: "var(--admin-muted)", cursor: "not-allowed" };
 
 function chip(active: boolean): CSSProperties {
   return {
