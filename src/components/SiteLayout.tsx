@@ -5,6 +5,7 @@ import { WhatsAppFloat } from "./WhatsAppFloat";
 import { PageProgressBar } from "./PageProgressBar";
 import { EmailInsiderPrompt } from "./EmailInsiderPrompt";
 import { AppSplash } from "./AppSplash";
+import { MobileFab } from "./MobileFab";
 
 const SPLASH_KEY = "moments_splash_shown";
 
