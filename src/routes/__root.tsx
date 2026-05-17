@@ -8,6 +8,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteLockOverlay } from "@/components/SiteLockOverlay";
+import { SITE_LOCK_ENABLED } from "@/config/siteLock";
 
 import appCss from "../styles.css?url";
 
@@ -167,7 +168,7 @@ function RootComponent() {
               <PersonaProvider>
                 <Outlet />
                 <Toaster />
-                <SiteLockOverlay />
+                {SITE_LOCK_ENABLED && <SiteLockOverlay />}
               </PersonaProvider>
             </AdminAuthProvider>
           </WishlistProvider>
