@@ -132,6 +132,10 @@ function Hero() {
           <img
             src={cloudV3}
             alt="A diverse cluster of branded paper packaging — bags, boxes, cups and more"
+            width={1600}
+            height={1000}
+            fetchPriority="high"
+            decoding="async"
             className="mpk-hero-img-a absolute pointer-events-none select-none"
             style={{
               zIndex: 1,
