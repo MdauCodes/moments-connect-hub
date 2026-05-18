@@ -170,20 +170,25 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                 KES {tierPrice(activeTier).toLocaleString()}
               </span>
               <span className="ml-1 text-[11px] text-muted-foreground sm:text-xs">
-                / {activeTier.collectionName}
+                / {activeTier.uomName ?? activeTier.collectionName}
               </span>
             </p>
+            {activeTier.uomDescription && (
+              <p className="mt-0.5 text-[11px] italic text-muted-foreground">
+                {activeTier.uomDescription}
+              </p>
+            )}
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              KES {Math.round(tierUnitPrice(activeTier)).toLocaleString()}/unit
+              KES {Math.round(tierUnitPrice(activeTier)).toLocaleString()}/piece
               {tierSavingsPct(activeTier) > 0 && (
                 <span className="ml-1 font-semibold text-forest">
-                  · Save {tierSavingsPct(activeTier)}% vs {smallestTier.collectionName}
+                  · Save {tierSavingsPct(activeTier)}% vs {smallestTier.uomName ?? smallestTier.collectionName}
                 </span>
               )}
             </p>
             {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && (
               <p className="mt-0.5 hidden text-[11px] text-muted-foreground sm:block">
-                Select {cheapestTier.collectionName} and get −{tierSavingsPct(cheapestTier)}% discount.
+                Select {cheapestTier.uomName ?? cheapestTier.collectionName} and get −{tierSavingsPct(cheapestTier)}% discount.
               </p>
             )}
           </div>
