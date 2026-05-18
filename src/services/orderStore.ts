@@ -245,6 +245,9 @@ export const orderStore = {
       })),
       shippingFee: input.shippingFee,
     };
+    if (input.courierType) body.courierType = input.courierType;
+    if (input.courierServiceName) body.courierServiceName = input.courierServiceName;
+    if (input.courierStageOrOffice) body.courierStageOrOffice = input.courierStageOrOffice;
     if (input.customer.postalCode) body.postalCode = input.customer.postalCode;
     if (input.customer.notes) body.notes = input.customer.notes;
     if (input.promoCode) body.promoCode = input.promoCode;
