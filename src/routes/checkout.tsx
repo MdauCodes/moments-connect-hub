@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowRight, ArrowLeft, X, Smartphone, CheckCircle2, XCircle, ShieldCheck, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { ArrowRight, ArrowLeft, X, Smartphone, CheckCircle2, XCircle, ShieldCheck, Loader2, Store, Truck, PackageCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderStore } from "@/services/orderStore";
+import { orderStore, type FulfillmentType, type CourierType } from "@/services/orderStore";
 import { fetchDeliveryZones, type DeliveryZone } from "@/services/deliveryZoneService";
+import { CountySelect } from "@/components/CountySelect";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
