@@ -135,10 +135,13 @@ export function productToFormValues(p: Product): ProductFormValues {
       .filter((t: any) => t?.collectionName)
       .map((t: any, i: number) => ({
         id: t.id,
-        collectionName: String(t.collectionName ?? ""),
+        collectionName: String(t.uomName ?? t.collectionName ?? ""),
         quantity: Number(t.quantity ?? 0),
         pricePerUnit: Number(t.pricePerUnit ?? 0),
         sortOrder: t.sortOrder ?? i,
+        uomId: t.uomId ? String(t.uomId) : undefined,
+        uomDescription: t.uomDescription ?? "",
+        enabled: t.enabled !== false,
       })),
   };
 }
