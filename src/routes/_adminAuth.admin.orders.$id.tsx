@@ -275,7 +275,53 @@ function AdminOrderDetailPage() {
                   <div style={{ marginTop: 4, fontSize: 13, fontFamily: "monospace" }}>{order.trackingNumber}</div>
                 </>
               )}
+              {(order as any).fulfillmentType && (
+                <>
+                  <div style={{ marginTop: 10 }} className="admin-label">
+                    Fulfillment
+                  </div>
+                  <div style={{ marginTop: 4, fontSize: 13 }}>
+                    {String((order as any).fulfillmentType).replace(/_/g, " ")}
+                  </div>
+                </>
+              )}
             </div>
+
+            {/* Courier details — only when OWN_COURIER */}
+            {(order as any).fulfillmentType === "OWN_COURIER" && (
+              <div className="admin-panel" style={{ padding: 16 }}>
+                <div className="admin-label">Courier details</div>
+                <div style={{ marginTop: 8, fontSize: 13 }}>
+                  <div>
+                    <b>Type:</b>{" "}
+                    {String((order as any).courierType ?? "—").replace(/_/g, " ")}
+                  </div>
+                  {(order as any).courierServiceName && (
+                    <div style={{ marginTop: 4 }}>
+                      <b>Service:</b> {(order as any).courierServiceName}
+                    </div>
+                  )}
+                  {(order as any).courierStageOrOffice && (
+                    <div style={{ marginTop: 4 }}>
+                      <b>Stage / office:</b> {(order as any).courierStageOrOffice}
+                    </div>
+                  )}
+                </div>
+                <div
+                  style={{
+                    marginTop: 10,
+                    padding: "8px 10px",
+                    fontSize: 12,
+                    borderRadius: 6,
+                    background: "rgba(245, 158, 11, 0.08)",
+                    border: "1px dashed rgba(245, 158, 11, 0.5)",
+                    color: "var(--admin-fg)",
+                  }}
+                >
+                  Transport cost to be confirmed at dispatch.
+                </div>
+              </div>
+            )}
 
             {/* Status update */}
             <div className="admin-panel" style={{ padding: 16 }}>
