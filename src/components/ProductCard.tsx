@@ -26,6 +26,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
   const tiers = (((p.pricingTiers ?? []) as any[])
     .filter((t) =>
       t &&
+      t.enabled !== false &&
       t.collectionName &&
       t.collectionName !== "Legacy Tier" &&
       Number(t.quantity) > 0 &&
