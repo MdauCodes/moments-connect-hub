@@ -188,14 +188,21 @@ function CheckoutModal() {
             name: name.trim(),
             email: email.trim(),
             phone: phoneNormalized,
-            address: address.trim(),
-            city: city.trim(),
-            county: county.trim(),
+            address: fulfillment === "PICKUP" ? "" : address.trim(),
+            city: fulfillment === "PICKUP" ? "" : city.trim(),
+            county: fulfillment === "PICKUP" ? "" : county.trim(),
             postalCode: postalCode.trim() || undefined,
           },
           shippingFee,
           paymentMethod: "MPESA",
-          fulfillmentType: "ZONE_DELIVERY",
+          fulfillmentType: fulfillment,
+          ...(fulfillment === "OWN_COURIER" && courierType
+            ? {
+                courierType: courierType as CourierType,
+                courierServiceName: courierServiceName.trim() || undefined,
+                courierStageOrOffice: courierStageOrOffice.trim() || undefined,
+              }
+            : {}),
         });
         id = order.id ?? order.reference;
         ref = order.reference;
