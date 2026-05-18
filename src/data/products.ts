@@ -41,8 +41,10 @@ import {
 } from "lucide-react";
 
 export const WHATSAPP_NUMBER = "254119556688";
-export const COMPANY_EMAIL = "sales@momentspackaging.co.ke";
-export const COMPANY_PHONE = "0119 556 688";
+export const COMPANY_EMAIL = "pkihara2008@gmail.com";
+export const COMPANY_PHONE = "+254 119 556 688";
+export const INSTAGRAM_URL = "https://instagram.com/momentspackaging";
+export const TIKTOK_URL = "https://tiktok.com/@momentspackaging";
 
 export type ProductTag = "Trending" | "New" | "Discounted" | "Featured";
 
