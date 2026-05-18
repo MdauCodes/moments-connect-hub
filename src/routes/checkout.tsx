@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, ArrowLeft, X, Smartphone, CheckCircle2, XCircle, ShieldCheck, Loader2, Store, Truck, PackageCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
