@@ -575,8 +575,9 @@ function CheckoutModal() {
                     No delivery fee — we'll prepare your order and call you when it's ready for pickup at our shop.
                   </div>
                 )}
-                </div>
               </div>
+
+
 
               <button
                 type="submit"
