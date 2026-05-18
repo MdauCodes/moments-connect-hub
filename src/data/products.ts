@@ -204,6 +204,12 @@ export interface PricingTier {
   pricePerUnit: number;
   collectionPrice: number;
   sortOrder: number;
+  /** UOM linkage (new) */
+  uomId?: string;
+  uomCode?: string;
+  uomName?: string;
+  uomDescription?: string;
+  enabled?: boolean;
 }
 
 /**
@@ -219,6 +225,12 @@ export type ProductPricingTierLike = {
   pricePerUnit: number;
   collectionPrice?: number;
   sortOrder?: number;
+  /** UOM linkage (new) */
+  uomId?: string;
+  uomCode?: string;
+  uomName?: string;
+  uomDescription?: string;
+  enabled?: boolean;
   /** Legacy mock-data fields — never sent to backend. */
   minQty?: number;
   maxQty?: number;

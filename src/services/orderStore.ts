@@ -50,6 +50,9 @@ export interface CustomerOrderItem {
 
 export type CheckoutPaymentMethod = "PAYHERO" | "CASH_ON_DELIVERY" | "BANK_TRANSFER" | "MPESA" | "CARD" | "BANK";
 
+export type FulfillmentType = "ZONE_DELIVERY" | "PICKUP" | "OWN_COURIER";
+export type CourierType = "MATATU" | "PARCEL_SERVICE" | "BOLT_SEND" | "RIDER" | "OTHER";
+
 export interface CustomerOrder {
   id?: string;
   reference: string;
@@ -63,6 +66,7 @@ export interface CustomerOrder {
   customerPhone: string;
   shippingAddress: string;
   city: string;
+  county?: string;
   notes?: string;
   items: CustomerOrderItem[];
   subtotal: number;
@@ -74,6 +78,10 @@ export interface CustomerOrder {
   trackingNumber?: string;
   receiptNumber?: string;
   trackingEvents?: { at: string; label: string; description?: string }[];
+  fulfillmentType?: FulfillmentType;
+  courierType?: CourierType;
+  courierServiceName?: string;
+  courierStageOrOffice?: string;
 }
 
 export interface PlaceOrderInput {
@@ -92,7 +100,10 @@ export interface PlaceOrderInput {
   paymentMethod: CheckoutPaymentMethod;
   promoCode?: string;
   sessionId?: string;
-  fulfillmentType?: "ZONE_DELIVERY" | "PICKUP";
+  fulfillmentType?: FulfillmentType;
+  courierType?: CourierType;
+  courierServiceName?: string;
+  courierStageOrOffice?: string;
 }
 
 // ── Normalised status the UI cares about ─────────────────────────────────────
@@ -234,6 +245,9 @@ export const orderStore = {
       })),
       shippingFee: input.shippingFee,
     };
+    if (input.courierType) body.courierType = input.courierType;
+    if (input.courierServiceName) body.courierServiceName = input.courierServiceName;
+    if (input.courierStageOrOffice) body.courierStageOrOffice = input.courierStageOrOffice;
     if (input.customer.postalCode) body.postalCode = input.customer.postalCode;
     if (input.customer.notes) body.notes = input.customer.notes;
     if (input.promoCode) body.promoCode = input.promoCode;

@@ -138,18 +138,20 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               const id = tierKey(t);
               const isActive = id === activeTierId;
               const save = tierSavingsPct(t);
+              const label = t.uomName ?? t.collectionName;
               return (
                 <button
                   key={id}
                   type="button"
                   onClick={(e) => handlePillClick(e, id)}
+                  title={t.uomDescription ?? undefined}
                   className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition-colors ${
                     isActive
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border bg-secondary text-muted-foreground hover:border-foreground/30"
                   }`}
                 >
-                  <span>{t.collectionName}</span>
+                  <span>{label}</span>
                   {save > 0 && (
                     <span className="rounded-full bg-forest/15 px-1.5 py-px text-[9px] font-semibold text-forest">
                       −{save}%
@@ -168,20 +170,25 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                 KES {tierPrice(activeTier).toLocaleString()}
               </span>
               <span className="ml-1 text-[11px] text-muted-foreground sm:text-xs">
-                / {activeTier.collectionName}
+                / {activeTier.uomName ?? activeTier.collectionName}
               </span>
             </p>
+            {activeTier.uomDescription && (
+              <p className="mt-0.5 text-[11px] italic text-muted-foreground">
+                {activeTier.uomDescription}
+              </p>
+            )}
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              KES {Math.round(tierUnitPrice(activeTier)).toLocaleString()}/unit
+              KES {Math.round(tierUnitPrice(activeTier)).toLocaleString()}/piece
               {tierSavingsPct(activeTier) > 0 && (
                 <span className="ml-1 font-semibold text-forest">
-                  · Save {tierSavingsPct(activeTier)}% vs {smallestTier.collectionName}
+                  · Save {tierSavingsPct(activeTier)}% vs {smallestTier.uomName ?? smallestTier.collectionName}
                 </span>
               )}
             </p>
             {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && (
               <p className="mt-0.5 hidden text-[11px] text-muted-foreground sm:block">
-                Select {cheapestTier.collectionName} and get −{tierSavingsPct(cheapestTier)}% discount.
+                Select {cheapestTier.uomName ?? cheapestTier.collectionName} and get −{tierSavingsPct(cheapestTier)}% discount.
               </p>
             )}
           </div>
@@ -207,7 +214,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
             </span>
             <span className="hidden sm:inline">
               {hasTiers && activeTier
-                ? `Add to cart · ${activeTier.collectionName}`
+                ? `Add to cart · ${activeTier.uomName ?? activeTier.collectionName}`
                 : individualEnabled && p.basePrice
                 ? "Add to cart"
                 : "Get a quote"}
