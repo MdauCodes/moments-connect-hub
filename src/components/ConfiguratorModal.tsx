@@ -178,12 +178,13 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
 
           {/* Collection tier selection — only when collections exist */}
           {hasCollections && (
-            <Section label="Choose how to buy" note="Pick a collection bundle">
+            <Section label="Choose how to buy" note="Pick a unit of measure">
               <div className="grid gap-2 grid-cols-2">
                 {collectionTiers.map((t: any, i: number) => {
                   const key = t.id ?? `tier-${i}`;
                   const active = key === selectedTierId;
                   const cPrice = Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
+                  const label = t.uomName ?? t.collectionName;
                   return (
                     <button
                       key={key}
@@ -195,15 +196,20 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                           : "border-border bg-card hover:border-foreground/40"
                       }`}
                     >
-                      <span className="font-display text-sm text-foreground">{t.collectionName}</span>
+                      <span className="font-display text-sm text-foreground">{label}</span>
                       <span className="mt-0.5 text-[11px] text-muted-foreground">
-                        {Number(t.quantity).toLocaleString()} units
+                        {Number(t.quantity).toLocaleString()} pieces each
                       </span>
+                      {t.uomDescription && (
+                        <span className="mt-0.5 text-[10px] italic text-muted-foreground line-clamp-2">
+                          {t.uomDescription}
+                        </span>
+                      )}
                       <span className="mt-1.5 text-sm font-semibold text-foreground">
                         KES {cPrice.toLocaleString()}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
-                        KES {Number(t.pricePerUnit).toLocaleString()}/unit
+                        KES {Number(t.pricePerUnit).toLocaleString()}/piece
                       </span>
                     </button>
                   );
@@ -218,10 +224,10 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                         : "border-border bg-card hover:border-foreground/40"
                     }`}
                   >
-                    <span className="font-display text-sm text-foreground">Individual units</span>
+                    <span className="font-display text-sm text-foreground">Individual pieces</span>
                     <span className="mt-0.5 text-[11px] text-muted-foreground">Buy any quantity</span>
                     <span className="mt-1.5 text-sm font-semibold text-foreground">
-                      KES {(product.basePrice ?? 0).toLocaleString()}/unit
+                      KES {(product.basePrice ?? 0).toLocaleString()}/piece
                     </span>
                   </button>
                 )}
