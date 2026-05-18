@@ -1291,3 +1291,135 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
 }
 
 export default ProductEditor;
+
+function UomManagerDialog({
+  uoms,
+  onClose,
+  onCreated,
+}: {
+  uoms: Uom[];
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!code.trim() || !name.trim()) {
+      setErr("Code and name are required");
+      return;
+    }
+    setBusy(true);
+    setErr(null);
+    try {
+      await adminCreateUom({
+        code: code.trim().toUpperCase(),
+        name: name.trim(),
+        description: description.trim() || undefined,
+      });
+      setCode("");
+      setName("");
+      setDescription("");
+      onCreated();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed to create UOM");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.4)",
+        zIndex: 1000,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "var(--admin-bg, white)",
+          border: "1px solid var(--admin-border)",
+          borderRadius: 10,
+          maxWidth: 460,
+          width: "100%",
+          padding: 18,
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Manage units of measure</h3>
+          <button type="button" onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer" }}>
+            ×
+          </button>
+        </div>
+
+        <div style={{ fontSize: 12, color: "var(--admin-muted)" }}>
+          {uoms.length === 0 ? "No UOMs defined yet." : `${uoms.length} UOM${uoms.length === 1 ? "" : "s"} available`}
+        </div>
+        {uoms.length > 0 && (
+          <ul style={{ listStyle: "none", padding: 0, margin: 0, maxHeight: 160, overflowY: "auto", fontSize: 13, border: "1px solid var(--admin-border)", borderRadius: 6 }}>
+            {uoms.map((u) => (
+              <li key={u.id} style={{ padding: "6px 10px", borderBottom: "1px solid var(--admin-border)" }}>
+                <strong>{u.name}</strong> <span style={{ color: "var(--admin-muted)" }}>· {u.code}</span>
+                {u.description && <div style={{ fontSize: 11, color: "var(--admin-muted)" }}>{u.description}</div>}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 8, borderTop: "1px solid var(--admin-border)", paddingTop: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 600 }}>Add a new UOM</div>
+          <input
+            placeholder="Code (e.g. SACK)"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            style={{ padding: "8px 10px", border: "1px solid var(--admin-border)", borderRadius: 6, fontSize: 13 }}
+          />
+          <input
+            placeholder="Name (e.g. Sack)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={{ padding: "8px 10px", border: "1px solid var(--admin-border)", borderRadius: 6, fontSize: 13 }}
+          />
+          <input
+            placeholder="Description (optional)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            style={{ padding: "8px 10px", border: "1px solid var(--admin-border)", borderRadius: 6, fontSize: 13 }}
+          />
+          {err && <div style={{ fontSize: 12, color: "crimson" }}>{err}</div>}
+          <button
+            type="submit"
+            disabled={busy}
+            style={{
+              padding: "8px 14px",
+              background: "var(--admin-primary, #1a472a)",
+              color: "white",
+              border: "none",
+              borderRadius: 6,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: busy ? "wait" : "pointer",
+            }}
+          >
+            {busy ? "Saving…" : "Add UOM"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
