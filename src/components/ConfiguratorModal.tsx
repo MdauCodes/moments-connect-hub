@@ -274,12 +274,12 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             <Section
               label={
                 selectedTier
-                  ? `Number of ${selectedTier.collectionName}s`
+                  ? `Number of ${selectedTier.uomName ?? selectedTier.collectionName}s`
                   : hasCollections
                   ? "Quantity"
-                  : "Number of units"
+                  : "Number of pieces"
               }
-              note={selectedTier ? `(${collectionQty} units each)` : `(Min. ${minQty.toLocaleString()})`}
+              note={selectedTier ? `(× ${collectionQty} pieces each)` : `(Min. ${minQty.toLocaleString()})`}
             >
               <input
                 type="number"
@@ -303,15 +303,15 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
               {selectedTier ? (
                 <p className="text-sm">
-                  {quantity.toLocaleString()} × {selectedTier.collectionName} ({collectionQty} units) ={" "}
+                  {quantity.toLocaleString()} × {selectedTier.uomName ?? selectedTier.collectionName} (× {collectionQty} pieces each) ={" "}
                   <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
                   <span className="ml-2 text-xs opacity-80">
-                    · {(quantity * collectionQty).toLocaleString()} total units
+                    · {(quantity * collectionQty).toLocaleString()} total pieces
                   </span>
                 </p>
               ) : unitPrice > 0 ? (
                 <p className="text-sm">
-                  {quantity.toLocaleString()} units × KES {unitPrice.toLocaleString()} ={" "}
+                  {quantity.toLocaleString()} pieces × KES {unitPrice.toLocaleString()} ={" "}
                   <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
                 </p>
               ) : null}
