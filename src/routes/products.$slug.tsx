@@ -402,6 +402,7 @@ function ProductDetail() {
                     const key = t.id ?? `tier-${i}`;
                     const active = key === selectedTierId;
                     const cPrice = Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
+                    const label = t.uomName ?? t.collectionName;
                     return (
                       <button
                         key={key}
@@ -413,15 +414,20 @@ function ProductDetail() {
                             : "border-border bg-card hover:border-foreground/40"
                         }`}
                       >
-                        <span className="font-display text-base text-foreground">{t.collectionName}</span>
+                        <span className="font-display text-base text-foreground">{label}</span>
                         <span className="mt-0.5 text-xs text-muted-foreground">
-                          {Number(t.quantity).toLocaleString()} units
+                          {Number(t.quantity).toLocaleString()} pieces each
                         </span>
+                        {t.uomDescription && (
+                          <span className="mt-0.5 text-[11px] italic text-muted-foreground">
+                            {t.uomDescription}
+                          </span>
+                        )}
                         <span className="mt-2 text-sm font-semibold text-foreground">
                           KES {cPrice.toLocaleString()}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
-                          KES {Number(t.pricePerUnit).toLocaleString()}/unit
+                          KES {Number(t.pricePerUnit).toLocaleString()}/piece
                         </span>
                       </button>
                     );
@@ -436,10 +442,10 @@ function ProductDetail() {
                           : "border-border bg-card hover:border-foreground/40"
                       }`}
                     >
-                      <span className="font-display text-base text-foreground">Individual units</span>
+                      <span className="font-display text-base text-foreground">Individual pieces</span>
                       <span className="mt-0.5 text-xs text-muted-foreground">Buy any quantity</span>
                       <span className="mt-2 text-sm font-semibold text-foreground">
-                        KES {(product.basePrice ?? 0).toLocaleString()}/unit
+                        KES {(product.basePrice ?? 0).toLocaleString()}/piece
                       </span>
                     </button>
                   )}
