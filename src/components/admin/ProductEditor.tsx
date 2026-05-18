@@ -634,6 +634,8 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [liveIndustries, setLiveIndustries] = useState<Array<{ id: string; name: string; slug: string }>>([]);
+  const [uoms, setUoms] = useState<Uom[]>([]);
+  const [showUomDialog, setShowUomDialog] = useState(false);
 
   useEffect(() => {
     api
@@ -644,6 +646,11 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
         );
       })
       .catch(() => {}); // non-fatal — industries chip section just stays empty
+  }, []);
+
+  const loadUoms = () => fetchPublicUoms().then(setUoms).catch(() => {});
+  useEffect(() => {
+    loadUoms();
   }, []);
 
   const isDirty = useMemo(() => JSON.stringify(values) !== JSON.stringify(initial), [initial, values]);
