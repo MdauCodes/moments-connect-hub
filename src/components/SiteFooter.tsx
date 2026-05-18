@@ -59,10 +59,24 @@ export function SiteFooter() {
             Contact
           </h4>
           <ul className="mt-4 space-y-2 text-sm text-primary-foreground/80">
-            <li>{COMPANY_PHONE}</li>
-            <li>{COMPANY_EMAIL}</li>
+            <li>
+              <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:text-accent">{COMPANY_PHONE}</a>
+            </li>
+            <li>
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
+                WhatsApp: {COMPANY_PHONE}
+              </a>
+            </li>
+            <li>
+              <a href={`mailto:${COMPANY_EMAIL}`} className="hover:text-accent break-all">{COMPANY_EMAIL}</a>
+            </li>
             <li>Industrial Area, Nairobi</li>
           </ul>
+          <div className="mt-5 flex items-center gap-3 text-sm">
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Instagram @momentspackaging" className="hover:text-accent">Instagram</a>
+            <span className="text-primary-foreground/30">·</span>
+            <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" aria-label="TikTok @momentspackaging" className="hover:text-accent">TikTok</a>
+          </div>
           <div className="mt-6">
             <p className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/50">
               We accept
@@ -76,9 +90,13 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-primary-foreground/10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-5 py-6 text-xs text-primary-foreground/60 sm:flex-row lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-6 text-xs text-primary-foreground/60 sm:flex-row lg:px-8">
           <p>© {new Date().getFullYear()} Moments Packaging Kenya Ltd. All rights reserved.</p>
-          <p>Custom packaging • Nationwide delivery</p>
+          <nav className="flex items-center gap-4">
+            <Link to="/privacy" className="hover:text-accent">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-accent">Terms of Service</Link>
+            <Link to="/contact" className="hover:text-accent">Contact</Link>
+          </nav>
         </div>
       </div>
     </footer>
