@@ -193,6 +193,18 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
                 {o.fulfillmentType && <Row label="Fulfillment" value={o.fulfillmentType.replace(/_/g, " ")} />}
               </Section>
 
+              {/* Courier details — only for OWN_COURIER orders */}
+              {o.fulfillmentType === "OWN_COURIER" && (
+                <Section title="Courier details">
+                  <Row label="Courier type" value={(o.courierType ?? "—").toString().replace(/_/g, " ")} />
+                  {o.courierServiceName && <Row label="Service name" value={o.courierServiceName} />}
+                  {o.courierStageOrOffice && <Row label="Stage / office" value={o.courierStageOrOffice} />}
+                  <div className="mt-2 rounded-md border border-dashed bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                    Transport cost to be confirmed at dispatch.
+                  </div>
+                </Section>
+              )}
+
               {/* Update status */}
               <Section title="Update order status">
                 <div className="space-y-3 pt-1">
