@@ -26,6 +26,9 @@ export interface PricingTierRow {
   quantity: number;
   pricePerUnit: number;
   sortOrder?: number;
+  uomId?: string;
+  uomDescription?: string;
+  enabled?: boolean;
 }
 
 export interface ProductFormValues {
