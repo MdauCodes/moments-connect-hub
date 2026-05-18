@@ -168,6 +168,9 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
       pricePerUnit: t.pricePerUnit,
       collectionPrice: t.quantity * t.pricePerUnit,
       sortOrder: t.sortOrder ?? i,
+      ...(t.uomId ? { uomId: t.uomId } : {}),
+      ...(t.uomDescription ? { uomDescription: t.uomDescription } : {}),
+      enabled: t.enabled !== false,
     }));
 
   return {
