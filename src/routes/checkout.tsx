@@ -62,6 +62,12 @@ function CheckoutModal() {
 
   const [step, setStep] = useState<Step>("contact");
 
+  // Fulfillment
+  const [fulfillment, setFulfillment] = useState<FulfillmentType>("ZONE_DELIVERY");
+  const [courierType, setCourierType] = useState<CourierType | "">("");
+  const [courierServiceName, setCourierServiceName] = useState("");
+  const [courierStageOrOffice, setCourierStageOrOffice] = useState("");
+
   // Contact / delivery
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
