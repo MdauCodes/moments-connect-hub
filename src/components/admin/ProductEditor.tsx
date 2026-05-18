@@ -1074,7 +1074,6 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                   onCreated={() => loadUoms()}
                 />
               )}
-              </div>
             </div>
           </div>
         </div>
