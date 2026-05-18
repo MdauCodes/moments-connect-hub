@@ -4,6 +4,7 @@ import { adminResources } from "@/services/adminResources";
 import { api } from "@/services/api";
 import type { Product, ProductTag } from "@/data/products";
 import { categories } from "@/data/products";
+import { fetchPublicUoms, adminCreateUom, type Uom } from "@/services/uomService";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,6 +26,9 @@ export interface PricingTierRow {
   quantity: number;
   pricePerUnit: number;
   sortOrder?: number;
+  uomId?: string;
+  uomDescription?: string;
+  enabled?: boolean;
 }
 
 export interface ProductFormValues {
@@ -131,10 +135,13 @@ export function productToFormValues(p: Product): ProductFormValues {
       .filter((t: any) => t?.collectionName)
       .map((t: any, i: number) => ({
         id: t.id,
-        collectionName: String(t.collectionName ?? ""),
+        collectionName: String(t.uomName ?? t.collectionName ?? ""),
         quantity: Number(t.quantity ?? 0),
         pricePerUnit: Number(t.pricePerUnit ?? 0),
         sortOrder: t.sortOrder ?? i,
+        uomId: t.uomId ? String(t.uomId) : undefined,
+        uomDescription: t.uomDescription ?? "",
+        enabled: t.enabled !== false,
       })),
   };
 }
@@ -161,6 +168,9 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
       pricePerUnit: t.pricePerUnit,
       collectionPrice: t.quantity * t.pricePerUnit,
       sortOrder: t.sortOrder ?? i,
+      ...(t.uomId ? { uomId: t.uomId } : {}),
+      ...(t.uomDescription ? { uomDescription: t.uomDescription } : {}),
+      enabled: t.enabled !== false,
     }));
 
   return {
@@ -624,6 +634,8 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [liveIndustries, setLiveIndustries] = useState<Array<{ id: string; name: string; slug: string }>>([]);
+  const [uoms, setUoms] = useState<Uom[]>([]);
+  const [showUomDialog, setShowUomDialog] = useState(false);
 
   useEffect(() => {
     api
@@ -634,6 +646,11 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
         );
       })
       .catch(() => {}); // non-fatal — industries chip section just stays empty
+  }, []);
+
+  const loadUoms = () => fetchPublicUoms().then(setUoms).catch(() => {});
+  useEffect(() => {
+    loadUoms();
   }, []);
 
   const isDirty = useMemo(() => JSON.stringify(values) !== JSON.stringify(initial), [initial, values]);
@@ -879,132 +896,184 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
               </label>
 
               <div style={{ ...s.col, marginTop: 12 }}>
-                <label style={s.label}>Pricing tiers (collections)</label>
+                <label style={s.label}>Pricing tiers (units of measure)</label>
                 <span style={s.helper}>
-                  e.g. "Dozen = 12 units at KES 8.50 each". Customers pick a tier or buy individually.
+                  Pick a UOM (Packet, Carton, Bale…), set how many pieces and the price per unit. Disabled tiers are hidden from the storefront.
                 </span>
 
-                {pricingTiers.length > 0 && (
-                  <div
-                    data-tier-header
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
-                      gap: 6,
-                      fontSize: 10,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.1em",
-                      color: "var(--admin-muted)",
-                      paddingInline: 4,
-                      marginTop: 8,
-                    }}
-                  >
-                    <span>Collection</span>
-                    <span>Qty</span>
-                    <span>Price/unit</span>
-                    <span>Total</span>
-                    <span />
-                  </div>
-                )}
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
                   {pricingTiers.map((row, idx) => {
                     const total = (Number(row.quantity) || 0) * (Number(row.pricePerUnit) || 0);
+                    const enabled = row.enabled !== false;
                     return (
                       <div
                         key={idx}
                         data-tier-row
                         style={{
-                          display: "grid",
-                          gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
-                          gap: 6,
-                          alignItems: "center",
+                          border: "1px solid var(--admin-border)",
+                          borderRadius: 8,
+                          padding: 10,
+                          background: enabled ? "transparent" : "rgba(0,0,0,0.03)",
+                          opacity: enabled ? 1 : 0.7,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 8,
                         }}
                       >
-                        <div data-tier-cell data-label="Collection">
-                          <input
-                            style={{ ...s.input, width: "100%" }}
-                            placeholder="Dozen"
-                            value={row.collectionName}
-                            onChange={(e) => {
-                              const n = [...pricingTiers];
-                              n[idx] = { ...row, collectionName: e.target.value };
-                              set("pricingTiers", n);
-                            }}
-                          />
-                        </div>
-                        <div data-tier-cell data-label="Qty">
-                          <input
-                            type="number"
-                            min={1}
-                            style={{ ...s.input, width: "100%" }}
-                            placeholder="12"
-                            value={row.quantity || ""}
-                            onChange={(e) => {
-                              const n = [...pricingTiers];
-                              n[idx] = { ...row, quantity: Number(e.target.value) || 0 };
-                              set("pricingTiers", n);
-                            }}
-                          />
-                        </div>
-                        <div data-tier-cell data-label="Price / unit">
-                          <input
-                            type="number"
-                            min={0}
-                            step="0.01"
-                            style={{ ...s.input, width: "100%" }}
-                            placeholder="8.50"
-                            value={row.pricePerUnit || ""}
-                            onChange={(e) => {
-                              const n = [...pricingTiers];
-                              n[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
-                              set("pricingTiers", n);
-                            }}
-                          />
-                        </div>
-                        <div data-tier-cell data-label="Total">
-                          <div
-                            style={{
-                              ...s.input,
-                              background: "transparent",
-                              color: "var(--admin-muted)",
-                              display: "flex",
-                              alignItems: "center",
-                            }}
-                          >
-                            KES {total.toLocaleString()}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          style={{ ...s.removeX, justifySelf: "end" }}
-                          onClick={() =>
-                            set(
-                              "pricingTiers",
-                              pricingTiers.filter((_, i) => i !== idx),
-                            )
-                          }
-                          aria-label="Remove tier"
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1.4fr 0.7fr 0.9fr 0.9fr auto",
+                            gap: 6,
+                            alignItems: "center",
+                          }}
                         >
-                          ×
-                        </button>
+                          <div data-tier-cell data-label="UOM">
+                            <select
+                              style={{ ...s.input, width: "100%" }}
+                              value={row.uomId ?? ""}
+                              onChange={(e) => {
+                                const n = [...pricingTiers];
+                                const selectedId = e.target.value;
+                                const u = uoms.find((x) => x.id === selectedId);
+                                n[idx] = {
+                                  ...row,
+                                  uomId: selectedId || undefined,
+                                  collectionName: u?.name ?? row.collectionName,
+                                  uomDescription: u?.description ?? row.uomDescription,
+                                };
+                                set("pricingTiers", n);
+                              }}
+                            >
+                              <option value="">— Select UOM —</option>
+                              {uoms.map((u) => (
+                                <option key={u.id} value={u.id}>
+                                  {u.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div data-tier-cell data-label="Pieces / unit">
+                            <input
+                              type="number"
+                              min={1}
+                              style={{ ...s.input, width: "100%" }}
+                              placeholder="25"
+                              value={row.quantity || ""}
+                              onChange={(e) => {
+                                const n = [...pricingTiers];
+                                n[idx] = { ...row, quantity: Number(e.target.value) || 0 };
+                                set("pricingTiers", n);
+                              }}
+                            />
+                          </div>
+                          <div data-tier-cell data-label="Price / unit (KES)">
+                            <input
+                              type="number"
+                              min={0}
+                              step="0.01"
+                              style={{ ...s.input, width: "100%" }}
+                              placeholder="8.50"
+                              value={row.pricePerUnit || ""}
+                              onChange={(e) => {
+                                const n = [...pricingTiers];
+                                n[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
+                                set("pricingTiers", n);
+                              }}
+                            />
+                          </div>
+                          <div data-tier-cell data-label="Total">
+                            <div
+                              style={{
+                                ...s.input,
+                                background: "transparent",
+                                color: "var(--admin-muted)",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              KES {total.toLocaleString()}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            style={{ ...s.removeX, justifySelf: "end" }}
+                            onClick={() =>
+                              set(
+                                "pricingTiers",
+                                pricingTiers.filter((_, i) => i !== idx),
+                              )
+                            }
+                            aria-label="Remove tier"
+                          >
+                            ×
+                          </button>
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 6, alignItems: "center" }}>
+                          <input
+                            style={{ ...s.input, width: "100%" }}
+                            placeholder="Short description (e.g. 25 pieces per packet)"
+                            value={row.uomDescription ?? ""}
+                            onChange={(e) => {
+                              const n = [...pricingTiers];
+                              n[idx] = { ...row, uomDescription: e.target.value };
+                              set("pricingTiers", n);
+                            }}
+                          />
+                          <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12 }}>
+                            <input
+                              type="checkbox"
+                              checked={enabled}
+                              onChange={(e) => {
+                                const n = [...pricingTiers];
+                                n[idx] = { ...row, enabled: e.target.checked };
+                                set("pricingTiers", n);
+                              }}
+                            />
+                            Enabled
+                          </label>
+                        </div>
                       </div>
                     );
                   })}
-                  <button
-                    type="button"
-                    style={s.ghostBtn}
-                    onClick={() =>
-                      set("pricingTiers", [
-                        ...pricingTiers,
-                        { collectionName: "", quantity: 0, pricePerUnit: 0, sortOrder: pricingTiers.length },
-                      ])
-                    }
-                  >
-                    + Add pricing tier
-                  </button>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      style={s.ghostBtn}
+                      onClick={() =>
+                        set("pricingTiers", [
+                          ...pricingTiers,
+                          {
+                            collectionName: "",
+                            quantity: 0,
+                            pricePerUnit: 0,
+                            sortOrder: pricingTiers.length,
+                            enabled: true,
+                          },
+                        ])
+                      }
+                    >
+                      + Add pricing tier
+                    </button>
+                    <button
+                      type="button"
+                      style={s.ghostBtn}
+                      onClick={() => setShowUomDialog(true)}
+                    >
+                      Manage UOMs
+                    </button>
+                  </div>
                 </div>
               </div>
+
+              {showUomDialog && (
+                <UomManagerDialog
+                  uoms={uoms}
+                  onClose={() => setShowUomDialog(false)}
+                  onCreated={() => loadUoms()}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -1222,3 +1291,135 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
 }
 
 export default ProductEditor;
+
+function UomManagerDialog({
+  uoms,
+  onClose,
+  onCreated,
+}: {
+  uoms: Uom[];
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!code.trim() || !name.trim()) {
+      setErr("Code and name are required");
+      return;
+    }
+    setBusy(true);
+    setErr(null);
+    try {
+      await adminCreateUom({
+        code: code.trim().toUpperCase(),
+        name: name.trim(),
+        description: description.trim() || undefined,
+      });
+      setCode("");
+      setName("");
+      setDescription("");
+      onCreated();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed to create UOM");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.4)",
+        zIndex: 1000,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "var(--admin-bg, white)",
+          border: "1px solid var(--admin-border)",
+          borderRadius: 10,
+          maxWidth: 460,
+          width: "100%",
+          padding: 18,
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Manage units of measure</h3>
+          <button type="button" onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer" }}>
+            ×
+          </button>
+        </div>
+
+        <div style={{ fontSize: 12, color: "var(--admin-muted)" }}>
+          {uoms.length === 0 ? "No UOMs defined yet." : `${uoms.length} UOM${uoms.length === 1 ? "" : "s"} available`}
+        </div>
+        {uoms.length > 0 && (
+          <ul style={{ listStyle: "none", padding: 0, margin: 0, maxHeight: 160, overflowY: "auto", fontSize: 13, border: "1px solid var(--admin-border)", borderRadius: 6 }}>
+            {uoms.map((u) => (
+              <li key={u.id} style={{ padding: "6px 10px", borderBottom: "1px solid var(--admin-border)" }}>
+                <strong>{u.name}</strong> <span style={{ color: "var(--admin-muted)" }}>· {u.code}</span>
+                {u.description && <div style={{ fontSize: 11, color: "var(--admin-muted)" }}>{u.description}</div>}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 8, borderTop: "1px solid var(--admin-border)", paddingTop: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 600 }}>Add a new UOM</div>
+          <input
+            placeholder="Code (e.g. SACK)"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            style={{ padding: "8px 10px", border: "1px solid var(--admin-border)", borderRadius: 6, fontSize: 13 }}
+          />
+          <input
+            placeholder="Name (e.g. Sack)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={{ padding: "8px 10px", border: "1px solid var(--admin-border)", borderRadius: 6, fontSize: 13 }}
+          />
+          <input
+            placeholder="Description (optional)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            style={{ padding: "8px 10px", border: "1px solid var(--admin-border)", borderRadius: 6, fontSize: 13 }}
+          />
+          {err && <div style={{ fontSize: 12, color: "crimson" }}>{err}</div>}
+          <button
+            type="submit"
+            disabled={busy}
+            style={{
+              padding: "8px 14px",
+              background: "var(--admin-primary, #1a472a)",
+              color: "white",
+              border: "none",
+              borderRadius: 6,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: busy ? "wait" : "pointer",
+            }}
+          >
+            {busy ? "Saving…" : "Add UOM"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

@@ -38,6 +38,39 @@ function OrderConfirmationPage() {
 
   const receipt = order?.paymentReference ?? order?.receiptNumber;
 
+  const fulfillment = order?.fulfillmentType ?? "ZONE_DELIVERY";
+  const isPickup = fulfillment === "PICKUP";
+  const isCourier = fulfillment === "OWN_COURIER";
+
+  const heading = isPickup
+    ? "Thank you — ready for pickup"
+    : isCourier
+      ? "Thank you — order confirmed"
+      : "Thank you — order confirmed";
+
+  const subcopy = isPickup ? (
+    <>
+      We've received your payment. Order{" "}
+      <span className="font-semibold text-foreground">{ref}</span> will be packed and ready
+      for collection at our shop. We'll call you when it's ready — usually within 24 hours.
+    </>
+  ) : isCourier ? (
+    <>
+      We've received payment for your goods. Order{" "}
+      <span className="font-semibold text-foreground">{ref}</span> is now in production.{" "}
+      <strong className="text-foreground">
+        Our team will call you at dispatch to confirm the transport cost.
+      </strong>{" "}
+      You can choose to pay it then, or collect from our shop.
+    </>
+  ) : (
+    <>
+      We've received your payment. Your order{" "}
+      <span className="font-semibold text-foreground">{ref}</span> is now in production.
+      We'll be in touch within 24 hours with proofs and a delivery ETA.
+    </>
+  );
+
   return (
     <SiteLayout>
       <section className="mx-auto max-w-2xl px-5 py-16 lg:px-8 lg:py-20">
@@ -48,19 +81,35 @@ function OrderConfirmationPage() {
           >
             <CheckCircle2 className="h-9 w-9" style={{ color: BRAND }} />
           </div>
-          <h1 className="mt-6 font-display text-3xl sm:text-4xl">Thank you — order confirmed</h1>
-          <p className="mt-3 text-muted-foreground">
-            We've received your payment. Your order{" "}
-            <span className="font-semibold text-foreground">{ref}</span> is now in production.
-            We'll be in touch within 24 hours with proofs and a delivery ETA.
-          </p>
+          <h1 className="mt-6 font-display text-3xl sm:text-4xl">{heading}</h1>
+          <p className="mt-3 text-muted-foreground">{subcopy}</p>
 
           {order && (
             <dl className="mx-auto mt-8 max-w-sm space-y-2 rounded-2xl border border-border bg-background p-5 text-left text-sm">
               <Row label="Order reference" value={ref} mono />
               {receipt && <Row label="M-Pesa receipt" value={receipt} mono />}
-              <Row label="Total paid" value={fmt(order.total)} />
-              <Row label="Delivery to" value={`${order.shippingAddress}, ${order.city}`} />
+              <Row label="Goods paid" value={fmt(order.total)} />
+              {isPickup ? (
+                <Row label="Fulfillment" value="Pickup at shop" />
+              ) : isCourier ? (
+                <>
+                  <Row label="Fulfillment" value="Own courier" />
+                  <Row label="Transport cost" value="To be confirmed at dispatch" />
+                  {order.courierType && (
+                    <Row
+                      label="Courier"
+                      value={`${order.courierType.replace(/_/g, " ")}${
+                        order.courierServiceName ? ` — ${order.courierServiceName}` : ""
+                      }`}
+                    />
+                  )}
+                  {order.courierStageOrOffice && (
+                    <Row label="Stage / office" value={order.courierStageOrOffice} />
+                  )}
+                </>
+              ) : (
+                <Row label="Delivery to" value={`${order.shippingAddress}, ${order.city}`} />
+              )}
             </dl>
           )}
 

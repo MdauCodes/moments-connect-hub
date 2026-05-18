@@ -10,7 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { KENYA_COUNTIES } from "@/data/kenyaCounties";
+import { KENYA_COUNTY_NAMES_NAIROBI_FIRST } from "@/data/kenyaCounties";
 
 interface CountySelectProps {
   value: string;
@@ -31,7 +31,7 @@ export function CountySelect({
   id,
 }: CountySelectProps) {
   const [open, setOpen] = useState(false);
-  const counties = useMemo(() => KENYA_COUNTIES, []);
+  const counties = useMemo(() => KENYA_COUNTY_NAMES_NAIROBI_FIRST, []);
 
   return (
     <>

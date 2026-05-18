@@ -159,7 +159,7 @@ function ProductDetail() {
   const collectionTiers = useMemo(
     () =>
       tiers
-        .filter((t: any) => t.collectionName && t.quantity)
+        .filter((t: any) => t && t.enabled !== false && t.collectionName && t.quantity)
         .slice()
         .sort((a: any, b: any) => (a.sortOrder ?? a.quantity) - (b.sortOrder ?? b.quantity)),
     [tiers],

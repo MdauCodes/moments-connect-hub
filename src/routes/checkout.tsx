@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowRight, ArrowLeft, X, Smartphone, CheckCircle2, XCircle, ShieldCheck, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, X, Smartphone, CheckCircle2, XCircle, ShieldCheck, Loader2, Store, Truck, PackageCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderStore } from "@/services/orderStore";
+import { orderStore, type FulfillmentType, type CourierType } from "@/services/orderStore";
 import { fetchDeliveryZones, type DeliveryZone } from "@/services/deliveryZoneService";
+import { CountySelect } from "@/components/CountySelect";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -60,6 +61,12 @@ function CheckoutModal() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>("contact");
+
+  // Fulfillment
+  const [fulfillment, setFulfillment] = useState<FulfillmentType>("ZONE_DELIVERY");
+  const [courierType, setCourierType] = useState<CourierType | "">("");
+  const [courierServiceName, setCourierServiceName] = useState("");
+  const [courierStageOrOffice, setCourierStageOrOffice] = useState("");
 
   // Contact / delivery
   const [name, setName] = useState("");
@@ -129,8 +136,8 @@ function CheckoutModal() {
   }
 
   function validateContact(): boolean {
-    if (!name.trim() || !email.trim() || !address.trim() || !city.trim() || !county.trim()) {
-      toast.error("Please fill all required fields including delivery zone");
+    if (!name.trim() || !email.trim()) {
+      toast.error("Please fill all required fields");
       return false;
     }
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
@@ -140,6 +147,21 @@ function CheckoutModal() {
     if (!isValidKenyanPhone(phone)) {
       toast.error("Enter a valid Kenyan phone (07XXXXXXXX or +2547XXXXXXXX)");
       return false;
+    }
+    if (fulfillment === "ZONE_DELIVERY") {
+      if (!address.trim() || !city.trim() || !county.trim() || !selectedZone) {
+        toast.error("Select a delivery zone and fill in the address");
+        return false;
+      }
+    } else if (fulfillment === "OWN_COURIER") {
+      if (!address.trim() || !city.trim() || !county.trim()) {
+        toast.error("Please provide the pickup/handoff address for the courier");
+        return false;
+      }
+      if (!courierType) {
+        toast.error("Please select a courier type");
+        return false;
+      }
     }
     return true;
   }
@@ -166,14 +188,21 @@ function CheckoutModal() {
             name: name.trim(),
             email: email.trim(),
             phone: phoneNormalized,
-            address: address.trim(),
-            city: city.trim(),
-            county: county.trim(),
+            address: fulfillment === "PICKUP" ? "" : address.trim(),
+            city: fulfillment === "PICKUP" ? "" : city.trim(),
+            county: fulfillment === "PICKUP" ? "" : county.trim(),
             postalCode: postalCode.trim() || undefined,
           },
           shippingFee,
           paymentMethod: "MPESA",
-          fulfillmentType: "ZONE_DELIVERY",
+          fulfillmentType: fulfillment,
+          ...(fulfillment === "OWN_COURIER" && courierType
+            ? {
+                courierType: courierType as CourierType,
+                courierServiceName: courierServiceName.trim() || undefined,
+                courierStageOrOffice: courierStageOrOffice.trim() || undefined,
+              }
+            : {}),
         });
         id = order.id ?? order.reference;
         ref = order.reference;
@@ -257,8 +286,25 @@ function CheckoutModal() {
 
   if (items.length === 0 && payState === "idle") return null;
 
-  const shippingFee = selectedZone ? selectedZone.feeAmount : 0;
+  const shippingFee =
+    fulfillment === "ZONE_DELIVERY" && selectedZone ? selectedZone.feeAmount : 0;
   const total = cartTotal + shippingFee;
+  const shippingLabel =
+    fulfillment === "PICKUP"
+      ? "Pickup at shop"
+      : fulfillment === "OWN_COURIER"
+        ? "Courier — to be confirmed"
+        : selectedZone
+          ? `Delivery — ${selectedZone.zoneName}`
+          : "Delivery";
+  const shippingValue =
+    fulfillment === "PICKUP"
+      ? "Free"
+      : fulfillment === "OWN_COURIER"
+        ? "To be confirmed"
+        : shippingFee === 0
+          ? "Free"
+          : fmt(shippingFee);
 
   // Brand ring color via CSS var
   const brandStyle = { ["--brand-ring" as string]: BRAND } as React.CSSProperties;
@@ -305,10 +351,10 @@ function CheckoutModal() {
           {step === "contact" && (
             <form onSubmit={handleContactSubmit} className="space-y-5">
               <div>
-                <h2 className="font-display text-2xl text-foreground">Where are we shipping to?</h2>
+                <h2 className="font-display text-2xl text-foreground">How would you like to receive your order?</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {isAuthenticated ? (
-                    "Confirm your delivery details below."
+                    "Choose a fulfillment option, then confirm your details."
                   ) : (
                     <>
                       Checking out as a guest.{" "}
@@ -326,6 +372,31 @@ function CheckoutModal() {
                 </p>
               </div>
 
+              {/* Fulfillment selector — radio cards */}
+              <div className="grid gap-3 sm:grid-cols-3">
+                <FulfillmentCard
+                  active={fulfillment === "ZONE_DELIVERY"}
+                  onClick={() => setFulfillment("ZONE_DELIVERY")}
+                  icon={<Truck className="h-5 w-5" />}
+                  title="Deliver to me"
+                  desc="We deliver to your address — fee shown by zone."
+                />
+                <FulfillmentCard
+                  active={fulfillment === "OWN_COURIER"}
+                  onClick={() => setFulfillment("OWN_COURIER")}
+                  icon={<PackageCheck className="h-5 w-5" />}
+                  title="Deliver via courier"
+                  desc="We hand off to your chosen courier. Transport cost confirmed at dispatch."
+                />
+                <FulfillmentCard
+                  active={fulfillment === "PICKUP"}
+                  onClick={() => setFulfillment("PICKUP")}
+                  icon={<Store className="h-5 w-5" />}
+                  title="Pick up at shop"
+                  desc="Collect from our shop. No delivery fee."
+                />
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <label className={labelCls}>Full name</label>
@@ -339,101 +410,174 @@ function CheckoutModal() {
                   <label className={labelCls}>Phone (M-Pesa)</label>
                   <input className={inputCls} required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0712 345 678" inputMode="tel" />
                 </div>
-                <div>
-                  <label className={labelCls}>City / town</label>
-                  <input className={inputCls} required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Nairobi" />
-                </div>
-                <div>
-                  <label className={labelCls}>Delivery zone</label>
-                  {zones.length > 0 ? (
-                    <>
-                      <div ref={zoneRef} className="relative">
-                        <input
-                          type="text"
-                          className={inputCls}
-                          required={!selectedZone}
-                          value={
-                            zoneOpen
-                              ? zoneSearch
-                              : selectedZone
-                                ? `${selectedZone.zoneName} (${selectedZone.county}) — KES ${Number(selectedZone.feeAmount).toLocaleString()}`
-                                : ""
-                          }
-                          placeholder="Search delivery zone…"
-                          onFocus={() => {
-                            setZoneOpen(true);
-                            setZoneSearch("");
-                          }}
-                          onChange={(e) => {
-                            setZoneSearch(e.target.value);
-                            setZoneOpen(true);
-                          }}
-                        />
-                        {zoneOpen && (
-                          <ul
-                            className="absolute z-20 mt-1 w-full overflow-y-auto rounded-md border border-border bg-popover shadow-lg"
-                            style={{ maxHeight: 240, scrollBehavior: "smooth" }}
-                          >
-                            {(() => {
-                              const q = zoneSearch.trim().toLowerCase();
-                              const filtered = q
-                                ? zones.filter(
-                                    (z) =>
-                                      z.zoneName.toLowerCase().includes(q) ||
-                                      z.county.toLowerCase().includes(q),
-                                  )
-                                : zones;
-                              if (filtered.length === 0) {
-                                return (
-                                  <li className="px-3 py-2 text-sm text-muted-foreground">
-                                    No zones found
-                                  </li>
-                                );
+
+                {fulfillment !== "PICKUP" && (
+                  <>
+                    <div>
+                      <label className={labelCls}>City / town</label>
+                      <input className={inputCls} required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Nairobi" />
+                    </div>
+                    <div>
+                      <label className={labelCls}>County</label>
+                      {fulfillment === "ZONE_DELIVERY" && zones.length > 0 ? (
+                        <>
+                          <div ref={zoneRef} className="relative">
+                            <input
+                              type="text"
+                              className={inputCls}
+                              required={!selectedZone}
+                              value={
+                                zoneOpen
+                                  ? zoneSearch
+                                  : selectedZone
+                                    ? `${selectedZone.zoneName} (${selectedZone.county}) — KES ${Number(selectedZone.feeAmount).toLocaleString()}`
+                                    : ""
                               }
-                              return filtered.map((z) => (
-                                <li key={z.id}>
-                                  <button
-                                    type="button"
-                                    className="block w-full px-3 py-2 text-left text-sm hover:bg-secondary"
-                                    onClick={() => {
-                                      setSelectedZone(z);
-                                      setCounty(z.county);
-                                      setZoneSearch("");
-                                      setZoneOpen(false);
-                                    }}
-                                  >
-                                    {z.zoneName} ({z.county}) — KES {Number(z.feeAmount).toLocaleString()}
-                                  </button>
-                                </li>
-                              ));
-                            })()}
-                          </ul>
-                        )}
-                      </div>
-                      {selectedZone?.description && (
-                        <p className="mt-1 text-xs text-muted-foreground">{selectedZone.description}</p>
+                              placeholder="Search delivery zone…"
+                              onFocus={() => {
+                                setZoneOpen(true);
+                                setZoneSearch("");
+                              }}
+                              onChange={(e) => {
+                                setZoneSearch(e.target.value);
+                                setZoneOpen(true);
+                              }}
+                            />
+                            {zoneOpen && (
+                              <ul
+                                className="absolute z-20 mt-1 w-full overflow-y-auto rounded-md border border-border bg-popover shadow-lg"
+                                style={{ maxHeight: 240, scrollBehavior: "smooth" }}
+                              >
+                                {(() => {
+                                  const q = zoneSearch.trim().toLowerCase();
+                                  const filtered = q
+                                    ? zones.filter(
+                                        (z) =>
+                                          z.zoneName.toLowerCase().includes(q) ||
+                                          z.county.toLowerCase().includes(q),
+                                      )
+                                    : zones;
+                                  if (filtered.length === 0) {
+                                    return (
+                                      <li className="px-3 py-2 text-sm text-muted-foreground">
+                                        No zones found
+                                      </li>
+                                    );
+                                  }
+                                  return filtered.map((z) => (
+                                    <li key={z.id}>
+                                      <button
+                                        type="button"
+                                        className="block w-full px-3 py-2 text-left text-sm hover:bg-secondary"
+                                        onClick={() => {
+                                          setSelectedZone(z);
+                                          setCounty(z.county);
+                                          setZoneSearch("");
+                                          setZoneOpen(false);
+                                        }}
+                                      >
+                                        {z.zoneName} ({z.county}) — KES {Number(z.feeAmount).toLocaleString()}
+                                      </button>
+                                    </li>
+                                  ));
+                                })()}
+                              </ul>
+                            )}
+                          </div>
+                          {selectedZone?.description && (
+                            <p className="mt-1 text-xs text-muted-foreground">{selectedZone.description}</p>
+                          )}
+                        </>
+                      ) : (
+                        <CountySelect value={county} onChange={setCounty} required placeholder="Select county…" />
                       )}
-                    </>
-                  ) : (
-                    <input
-                      className={inputCls}
-                      required
-                      value={county}
-                      onChange={(e) => setCounty(e.target.value)}
-                      placeholder="County"
-                    />
-                  )}
-                </div>
-                <div className="sm:col-span-2">
-                  <label className={labelCls}>Specific delivery location</label>
-                  <input className={inputCls} required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. Huruma, Three Rings Plaza au hapo kwa Shell ya Makutano" />
-                  <p className="mt-1 text-xs text-muted-foreground">Provide a well-known landmark near your delivery point — e.g. a petrol station, roundabout, flyover, river, police station, market, church, or school. Must be accessible by road within your selected delivery zone.</p>
-                </div>
-                <div className="sm:col-span-2">
-                  <label className={labelCls}>Postal code (optional)</label>
-                  <input className={inputCls} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="00100" />
-                </div>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className={labelCls}>
+                        {fulfillment === "OWN_COURIER" ? "Pickup / handoff address" : "Specific delivery location"}
+                      </label>
+                      <input
+                        className={inputCls}
+                        required
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="e.g. Huruma, Three Rings Plaza or near Shell Makutano"
+                      />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Provide a well-known landmark — petrol station, roundabout, market, church, or school.
+                      </p>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className={labelCls}>Postal code (optional)</label>
+                      <input className={inputCls} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="00100" />
+                    </div>
+                  </>
+                )}
+
+                {fulfillment === "OWN_COURIER" && (
+                  <div className="sm:col-span-2 space-y-3 rounded-2xl border border-dashed border-border bg-secondary/30 p-4">
+                    <div>
+                      <div className={labelCls}>Courier type</div>
+                      <div className="flex flex-wrap gap-2">
+                        {(
+                          [
+                            { v: "MATATU", label: "Matatu / SGR" },
+                            { v: "PARCEL_SERVICE", label: "Parcel Service" },
+                            { v: "BOLT_SEND", label: "Bolt / Uber" },
+                            { v: "RIDER", label: "Boda / Rider" },
+                            { v: "OTHER", label: "Other" },
+                          ] as { v: CourierType; label: string }[]
+                        ).map((c) => (
+                          <button
+                            key={c.v}
+                            type="button"
+                            onClick={() => setCourierType(c.v)}
+                            className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                              courierType === c.v
+                                ? "border-transparent text-white"
+                                : "border-border bg-background text-foreground hover:bg-secondary"
+                            }`}
+                            style={courierType === c.v ? { backgroundColor: BRAND } : undefined}
+                          >
+                            {c.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <label className={labelCls}>Service name (optional)</label>
+                        <input
+                          className={inputCls}
+                          value={courierServiceName}
+                          onChange={(e) => setCourierServiceName(e.target.value)}
+                          placeholder="e.g. G4S, Easy Coach, Pickup Mtaani"
+                        />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Stage / office (optional)</label>
+                        <input
+                          className={inputCls}
+                          value={courierStageOrOffice}
+                          onChange={(e) => setCourierStageOrOffice(e.target.value)}
+                          placeholder="e.g. Machakos Country Bus stage"
+                        />
+                      </div>
+                    </div>
+                    <div className="rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                      <strong>Transport cost to be confirmed at dispatch.</strong> Our team will call you to confirm the courier fee — you can pay it or collect from our shop.
+                    </div>
+                  </div>
+                )}
+
+                {fulfillment === "PICKUP" && (
+                  <div className="sm:col-span-2 rounded-2xl border border-border bg-secondary/30 p-4 text-sm text-muted-foreground">
+                    No delivery fee — we'll prepare your order and call you when it's ready for pickup at our shop.
+                  </div>
+                )}
               </div>
+
+
 
               <button
                 type="submit"
@@ -481,10 +625,7 @@ function CheckoutModal() {
                     </ul>
                     <dl className="mt-4 space-y-1.5 border-t border-border pt-3 text-sm">
                       <Row label="Subtotal" value={fmt(cartTotal)} />
-                      <Row
-                        label={selectedZone ? `Delivery — ${selectedZone.zoneName}` : "Delivery"}
-                        value={shippingFee === 0 ? "Free" : fmt(shippingFee)}
-                      />
+                      <Row label={shippingLabel} value={shippingValue} />
                       <div className="flex justify-between border-t border-border pt-2.5 font-display text-base">
                         <dt>Total</dt>
                         <dd className="tabular-nums">{fmt(total)}</dd>
@@ -659,5 +800,42 @@ function CenteredState({ icon, title, subtitle }: { icon: React.ReactNode; title
       <h2 className="mt-5 font-display text-2xl text-foreground">{title}</h2>
       <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
     </div>
+  );
+}
+
+function FulfillmentCard({
+  active,
+  onClick,
+  icon,
+  title,
+  desc,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`group flex h-full flex-col items-start gap-2 rounded-2xl border p-4 text-left transition ${
+        active
+          ? "border-transparent bg-secondary shadow-sm ring-2"
+          : "border-border bg-card hover:border-foreground/30"
+      }`}
+      style={active ? ({ ["--tw-ring-color" as string]: BRAND, color: "inherit" } as React.CSSProperties) : undefined}
+    >
+      <span
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full"
+        style={{ backgroundColor: active ? BRAND : "transparent", color: active ? "#fff" : undefined, border: active ? "none" : "1px solid var(--border)" }}
+      >
+        {icon}
+      </span>
+      <span className="font-semibold text-foreground">{title}</span>
+      <span className="text-xs text-muted-foreground leading-snug">{desc}</span>
+    </button>
   );
 }

@@ -29,7 +29,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
   const collectionTiers = useMemo(() => {
     if (!product) return [];
     return (product.pricingTiers ?? [])
-      .filter((t: any) => t && t.collectionName && t.quantity)
+      .filter((t: any) => t && t.enabled !== false && t.collectionName && t.quantity)
       .map((t: any, i: number) => ({
         ...t,
         id: t.id ?? `tier-${i}`,
