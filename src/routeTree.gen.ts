@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -65,6 +66,11 @@ import { Route as AdminAuthAdminCustomersIdRouteImport } from './routes/_adminAu
 import { Route as AdminAuthAdminBlogsNewRouteImport } from './routes/_adminAuth.admin.blogs.new'
 import { Route as AdminAuthAdminBlogsIdRouteImport } from './routes/_adminAuth.admin.blogs.$id'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
   path: '/staff',
@@ -361,6 +367,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRouteWithChildren
   '/staff': typeof StaffRoute
+  '/terms': typeof TermsRoute
   '/account/dashboard': typeof AccountDashboardRoute
   '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/login': typeof AccountLoginRoute
@@ -417,6 +424,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRouteWithChildren
   '/staff': typeof StaffRoute
+  '/terms': typeof TermsRoute
   '/account/dashboard': typeof AccountDashboardRoute
   '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/login': typeof AccountLoginRoute
@@ -475,6 +483,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRouteWithChildren
   '/staff': typeof StaffRoute
+  '/terms': typeof TermsRoute
   '/account/dashboard': typeof AccountDashboardRoute
   '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/login': typeof AccountLoginRoute
@@ -533,6 +542,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/products'
     | '/staff'
+    | '/terms'
     | '/account/dashboard'
     | '/account/forgot-password'
     | '/account/login'
@@ -589,6 +599,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/products'
     | '/staff'
+    | '/terms'
     | '/account/dashboard'
     | '/account/forgot-password'
     | '/account/login'
@@ -646,6 +657,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/products'
     | '/staff'
+    | '/terms'
     | '/account/dashboard'
     | '/account/forgot-password'
     | '/account/login'
@@ -704,6 +716,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ProductsRoute: typeof ProductsRouteWithChildren
   StaffRoute: typeof StaffRoute
+  TermsRoute: typeof TermsRoute
   AccountDashboardRoute: typeof AccountDashboardRoute
   AccountForgotPasswordRoute: typeof AccountForgotPasswordRoute
   AccountLoginRoute: typeof AccountLoginRoute
@@ -722,6 +735,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/staff': {
       id: '/staff'
       path: '/staff'
@@ -1262,6 +1282,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ProductsRoute: ProductsRouteWithChildren,
   StaffRoute: StaffRoute,
+  TermsRoute: TermsRoute,
   AccountDashboardRoute: AccountDashboardRoute,
   AccountForgotPasswordRoute: AccountForgotPasswordRoute,
   AccountLoginRoute: AccountLoginRoute,
