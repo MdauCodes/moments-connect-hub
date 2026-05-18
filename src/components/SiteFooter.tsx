@@ -1,5 +1,15 @@
 import { Link } from "@tanstack/react-router";
+import { Phone, Mail, MapPin, Instagram, MessageCircle } from "lucide-react";
 import { COMPANY_EMAIL, COMPANY_PHONE, WHATSAPP_NUMBER, INSTAGRAM_URL, TIKTOK_URL, categories } from "@/data/products";
+
+// TikTok icon (not in lucide-react)
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.66a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-.09z"/>
+    </svg>
+  );
+}
 
 export function SiteFooter() {
   return (
@@ -60,22 +70,47 @@ export function SiteFooter() {
           </h4>
           <ul className="mt-4 space-y-2 text-sm text-primary-foreground/80">
             <li>
-              <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:text-accent">{COMPANY_PHONE}</a>
-            </li>
-            <li>
-              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
-                WhatsApp: {COMPANY_PHONE}
+              <a href={`tel:+${WHATSAPP_NUMBER}`} className="flex items-center gap-2 hover:text-accent">
+                <Phone className="h-4 w-4 shrink-0" aria-hidden />
+                <span>{COMPANY_PHONE}</span>
               </a>
             </li>
             <li>
-              <a href={`mailto:${COMPANY_EMAIL}`} className="hover:text-accent break-all">{COMPANY_EMAIL}</a>
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-accent">
+                <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
+                <span>WhatsApp: {COMPANY_PHONE}</span>
+              </a>
             </li>
-            <li>Industrial Area, Nairobi</li>
+            <li>
+              <a href={`mailto:${COMPANY_EMAIL}`} className="flex items-center gap-2 hover:text-accent">
+                <Mail className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="break-all">{COMPANY_EMAIL}</span>
+              </a>
+            </li>
+            <li className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 shrink-0" aria-hidden />
+              <span>Industrial Area, Nairobi</span>
+            </li>
           </ul>
-          <div className="mt-5 flex items-center gap-3 text-sm">
-            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Instagram @momentspackaging" className="hover:text-accent">Instagram</a>
-            <span className="text-primary-foreground/30">·</span>
-            <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" aria-label="TikTok @momentspackaging" className="hover:text-accent">TikTok</a>
+          <div className="mt-5 flex items-center gap-2">
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram @momentspackaging"
+              className="grid h-9 w-9 place-items-center rounded-full border border-primary-foreground/20 transition hover:border-accent hover:text-accent"
+            >
+              <Instagram className="h-4 w-4" aria-hidden />
+            </a>
+            <a
+              href={TIKTOK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="TikTok @momentspackaging"
+              className="grid h-9 w-9 place-items-center rounded-full border border-primary-foreground/20 transition hover:border-accent hover:text-accent"
+            >
+              <TikTokIcon className="h-4 w-4" />
+            </a>
           </div>
           <div className="mt-6">
             <p className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/50">
