@@ -4,6 +4,7 @@ import { adminResources } from "@/services/adminResources";
 import { api } from "@/services/api";
 import type { Product, ProductTag } from "@/data/products";
 import { categories } from "@/data/products";
+import { fetchPublicUoms, adminCreateUom, type Uom } from "@/services/uomService";
 
 // ---------------------------------------------------------------------------
 // Types
