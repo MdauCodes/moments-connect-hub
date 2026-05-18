@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { COMPANY_EMAIL, COMPANY_PHONE, categories } from "@/data/products";
+import { COMPANY_EMAIL, COMPANY_PHONE, WHATSAPP_NUMBER, INSTAGRAM_URL, TIKTOK_URL, categories } from "@/data/products";
 
 export function SiteFooter() {
   return (
