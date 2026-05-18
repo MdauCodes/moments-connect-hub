@@ -805,3 +805,40 @@ function CenteredState({ icon, title, subtitle }: { icon: React.ReactNode; title
     </div>
   );
 }
+
+function FulfillmentCard({
+  active,
+  onClick,
+  icon,
+  title,
+  desc,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`group flex h-full flex-col items-start gap-2 rounded-2xl border p-4 text-left transition ${
+        active
+          ? "border-transparent bg-secondary shadow-sm ring-2"
+          : "border-border bg-card hover:border-foreground/30"
+      }`}
+      style={active ? ({ ["--tw-ring-color" as string]: BRAND, color: "inherit" } as React.CSSProperties) : undefined}
+    >
+      <span
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full"
+        style={{ backgroundColor: active ? BRAND : "transparent", color: active ? "#fff" : undefined, border: active ? "none" : "1px solid var(--border)" }}
+      >
+        {icon}
+      </span>
+      <span className="font-semibold text-foreground">{title}</span>
+      <span className="text-xs text-muted-foreground leading-snug">{desc}</span>
+    </button>
+  );
+}
