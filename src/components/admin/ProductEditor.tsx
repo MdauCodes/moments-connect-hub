@@ -896,131 +896,184 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
               </label>
 
               <div style={{ ...s.col, marginTop: 12 }}>
-                <label style={s.label}>Pricing tiers (collections)</label>
+                <label style={s.label}>Pricing tiers (units of measure)</label>
                 <span style={s.helper}>
-                  e.g. "Dozen = 12 units at KES 8.50 each". Customers pick a tier or buy individually.
+                  Pick a UOM (Packet, Carton, Bale…), set how many pieces and the price per unit. Disabled tiers are hidden from the storefront.
                 </span>
 
-                {pricingTiers.length > 0 && (
-                  <div
-                    data-tier-header
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
-                      gap: 6,
-                      fontSize: 10,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.1em",
-                      color: "var(--admin-muted)",
-                      paddingInline: 4,
-                      marginTop: 8,
-                    }}
-                  >
-                    <span>Collection</span>
-                    <span>Qty</span>
-                    <span>Price/unit</span>
-                    <span>Total</span>
-                    <span />
-                  </div>
-                )}
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
                   {pricingTiers.map((row, idx) => {
                     const total = (Number(row.quantity) || 0) * (Number(row.pricePerUnit) || 0);
+                    const enabled = row.enabled !== false;
                     return (
                       <div
                         key={idx}
                         data-tier-row
                         style={{
-                          display: "grid",
-                          gridTemplateColumns: "1.4fr 0.7fr 0.8fr 0.9fr auto",
-                          gap: 6,
-                          alignItems: "center",
+                          border: "1px solid var(--admin-border)",
+                          borderRadius: 8,
+                          padding: 10,
+                          background: enabled ? "transparent" : "rgba(0,0,0,0.03)",
+                          opacity: enabled ? 1 : 0.7,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 8,
                         }}
                       >
-                        <div data-tier-cell data-label="Collection">
-                          <input
-                            style={{ ...s.input, width: "100%" }}
-                            placeholder="Dozen"
-                            value={row.collectionName}
-                            onChange={(e) => {
-                              const n = [...pricingTiers];
-                              n[idx] = { ...row, collectionName: e.target.value };
-                              set("pricingTiers", n);
-                            }}
-                          />
-                        </div>
-                        <div data-tier-cell data-label="Qty">
-                          <input
-                            type="number"
-                            min={1}
-                            style={{ ...s.input, width: "100%" }}
-                            placeholder="12"
-                            value={row.quantity || ""}
-                            onChange={(e) => {
-                              const n = [...pricingTiers];
-                              n[idx] = { ...row, quantity: Number(e.target.value) || 0 };
-                              set("pricingTiers", n);
-                            }}
-                          />
-                        </div>
-                        <div data-tier-cell data-label="Price / unit">
-                          <input
-                            type="number"
-                            min={0}
-                            step="0.01"
-                            style={{ ...s.input, width: "100%" }}
-                            placeholder="8.50"
-                            value={row.pricePerUnit || ""}
-                            onChange={(e) => {
-                              const n = [...pricingTiers];
-                              n[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
-                              set("pricingTiers", n);
-                            }}
-                          />
-                        </div>
-                        <div data-tier-cell data-label="Total">
-                          <div
-                            style={{
-                              ...s.input,
-                              background: "transparent",
-                              color: "var(--admin-muted)",
-                              display: "flex",
-                              alignItems: "center",
-                            }}
-                          >
-                            KES {total.toLocaleString()}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          style={{ ...s.removeX, justifySelf: "end" }}
-                          onClick={() =>
-                            set(
-                              "pricingTiers",
-                              pricingTiers.filter((_, i) => i !== idx),
-                            )
-                          }
-                          aria-label="Remove tier"
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1.4fr 0.7fr 0.9fr 0.9fr auto",
+                            gap: 6,
+                            alignItems: "center",
+                          }}
                         >
-                          ×
-                        </button>
+                          <div data-tier-cell data-label="UOM">
+                            <select
+                              style={{ ...s.input, width: "100%" }}
+                              value={row.uomId ?? ""}
+                              onChange={(e) => {
+                                const n = [...pricingTiers];
+                                const selectedId = e.target.value;
+                                const u = uoms.find((x) => x.id === selectedId);
+                                n[idx] = {
+                                  ...row,
+                                  uomId: selectedId || undefined,
+                                  collectionName: u?.name ?? row.collectionName,
+                                  uomDescription: u?.description ?? row.uomDescription,
+                                };
+                                set("pricingTiers", n);
+                              }}
+                            >
+                              <option value="">— Select UOM —</option>
+                              {uoms.map((u) => (
+                                <option key={u.id} value={u.id}>
+                                  {u.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div data-tier-cell data-label="Pieces / unit">
+                            <input
+                              type="number"
+                              min={1}
+                              style={{ ...s.input, width: "100%" }}
+                              placeholder="25"
+                              value={row.quantity || ""}
+                              onChange={(e) => {
+                                const n = [...pricingTiers];
+                                n[idx] = { ...row, quantity: Number(e.target.value) || 0 };
+                                set("pricingTiers", n);
+                              }}
+                            />
+                          </div>
+                          <div data-tier-cell data-label="Price / unit (KES)">
+                            <input
+                              type="number"
+                              min={0}
+                              step="0.01"
+                              style={{ ...s.input, width: "100%" }}
+                              placeholder="8.50"
+                              value={row.pricePerUnit || ""}
+                              onChange={(e) => {
+                                const n = [...pricingTiers];
+                                n[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
+                                set("pricingTiers", n);
+                              }}
+                            />
+                          </div>
+                          <div data-tier-cell data-label="Total">
+                            <div
+                              style={{
+                                ...s.input,
+                                background: "transparent",
+                                color: "var(--admin-muted)",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              KES {total.toLocaleString()}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            style={{ ...s.removeX, justifySelf: "end" }}
+                            onClick={() =>
+                              set(
+                                "pricingTiers",
+                                pricingTiers.filter((_, i) => i !== idx),
+                              )
+                            }
+                            aria-label="Remove tier"
+                          >
+                            ×
+                          </button>
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 6, alignItems: "center" }}>
+                          <input
+                            style={{ ...s.input, width: "100%" }}
+                            placeholder="Short description (e.g. 25 pieces per packet)"
+                            value={row.uomDescription ?? ""}
+                            onChange={(e) => {
+                              const n = [...pricingTiers];
+                              n[idx] = { ...row, uomDescription: e.target.value };
+                              set("pricingTiers", n);
+                            }}
+                          />
+                          <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12 }}>
+                            <input
+                              type="checkbox"
+                              checked={enabled}
+                              onChange={(e) => {
+                                const n = [...pricingTiers];
+                                n[idx] = { ...row, enabled: e.target.checked };
+                                set("pricingTiers", n);
+                              }}
+                            />
+                            Enabled
+                          </label>
+                        </div>
                       </div>
                     );
                   })}
-                  <button
-                    type="button"
-                    style={s.ghostBtn}
-                    onClick={() =>
-                      set("pricingTiers", [
-                        ...pricingTiers,
-                        { collectionName: "", quantity: 0, pricePerUnit: 0, sortOrder: pricingTiers.length },
-                      ])
-                    }
-                  >
-                    + Add pricing tier
-                  </button>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      style={s.ghostBtn}
+                      onClick={() =>
+                        set("pricingTiers", [
+                          ...pricingTiers,
+                          {
+                            collectionName: "",
+                            quantity: 0,
+                            pricePerUnit: 0,
+                            sortOrder: pricingTiers.length,
+                            enabled: true,
+                          },
+                        ])
+                      }
+                    >
+                      + Add pricing tier
+                    </button>
+                    <button
+                      type="button"
+                      style={s.ghostBtn}
+                      onClick={() => setShowUomDialog(true)}
+                    >
+                      Manage UOMs
+                    </button>
+                  </div>
                 </div>
+              </div>
+
+              {showUomDialog && (
+                <UomManagerDialog
+                  uoms={uoms}
+                  onClose={() => setShowUomDialog(false)}
+                  onCreated={() => loadUoms()}
+                />
+              )}
               </div>
             </div>
           </div>
