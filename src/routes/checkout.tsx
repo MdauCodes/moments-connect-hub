@@ -136,8 +136,8 @@ function CheckoutModal() {
   }
 
   function validateContact(): boolean {
-    if (!name.trim() || !email.trim() || !address.trim() || !city.trim() || !county.trim()) {
-      toast.error("Please fill all required fields including delivery zone");
+    if (!name.trim() || !email.trim()) {
+      toast.error("Please fill all required fields");
       return false;
     }
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
@@ -147,6 +147,21 @@ function CheckoutModal() {
     if (!isValidKenyanPhone(phone)) {
       toast.error("Enter a valid Kenyan phone (07XXXXXXXX or +2547XXXXXXXX)");
       return false;
+    }
+    if (fulfillment === "ZONE_DELIVERY") {
+      if (!address.trim() || !city.trim() || !county.trim() || !selectedZone) {
+        toast.error("Select a delivery zone and fill in the address");
+        return false;
+      }
+    } else if (fulfillment === "OWN_COURIER") {
+      if (!address.trim() || !city.trim() || !county.trim()) {
+        toast.error("Please provide the pickup/handoff address for the courier");
+        return false;
+      }
+      if (!courierType) {
+        toast.error("Please select a courier type");
+        return false;
+      }
     }
     return true;
   }
