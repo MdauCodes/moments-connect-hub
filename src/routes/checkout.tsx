@@ -286,8 +286,25 @@ function CheckoutModal() {
 
   if (items.length === 0 && payState === "idle") return null;
 
-  const shippingFee = selectedZone ? selectedZone.feeAmount : 0;
+  const shippingFee =
+    fulfillment === "ZONE_DELIVERY" && selectedZone ? selectedZone.feeAmount : 0;
   const total = cartTotal + shippingFee;
+  const shippingLabel =
+    fulfillment === "PICKUP"
+      ? "Pickup at shop"
+      : fulfillment === "OWN_COURIER"
+        ? "Courier — to be confirmed"
+        : selectedZone
+          ? `Delivery — ${selectedZone.zoneName}`
+          : "Delivery";
+  const shippingValue =
+    fulfillment === "PICKUP"
+      ? "Free"
+      : fulfillment === "OWN_COURIER"
+        ? "To be confirmed"
+        : shippingFee === 0
+          ? "Free"
+          : fmt(shippingFee);
 
   // Brand ring color via CSS var
   const brandStyle = { ["--brand-ring" as string]: BRAND } as React.CSSProperties;
