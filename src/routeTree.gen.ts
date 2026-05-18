@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OrderConfirmationRouteImport } from './routes/order-confirmation'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndustriesRouteImport } from './routes/industries'
@@ -72,6 +73,11 @@ const StaffRoute = StaffRouteImport.update({
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrderConfirmationRoute = OrderConfirmationRouteImport.update({
@@ -352,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/industries': typeof IndustriesRoute
   '/login': typeof LoginRoute
   '/order-confirmation': typeof OrderConfirmationRoute
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRouteWithChildren
   '/staff': typeof StaffRoute
   '/account/dashboard': typeof AccountDashboardRoute
@@ -407,6 +414,7 @@ export interface FileRoutesByTo {
   '/industries': typeof IndustriesRoute
   '/login': typeof LoginRoute
   '/order-confirmation': typeof OrderConfirmationRoute
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRouteWithChildren
   '/staff': typeof StaffRoute
   '/account/dashboard': typeof AccountDashboardRoute
@@ -464,6 +472,7 @@ export interface FileRoutesById {
   '/industries': typeof IndustriesRoute
   '/login': typeof LoginRoute
   '/order-confirmation': typeof OrderConfirmationRoute
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRouteWithChildren
   '/staff': typeof StaffRoute
   '/account/dashboard': typeof AccountDashboardRoute
@@ -521,6 +530,7 @@ export interface FileRouteTypes {
     | '/industries'
     | '/login'
     | '/order-confirmation'
+    | '/privacy'
     | '/products'
     | '/staff'
     | '/account/dashboard'
@@ -576,6 +586,7 @@ export interface FileRouteTypes {
     | '/industries'
     | '/login'
     | '/order-confirmation'
+    | '/privacy'
     | '/products'
     | '/staff'
     | '/account/dashboard'
@@ -632,6 +643,7 @@ export interface FileRouteTypes {
     | '/industries'
     | '/login'
     | '/order-confirmation'
+    | '/privacy'
     | '/products'
     | '/staff'
     | '/account/dashboard'
@@ -689,6 +701,7 @@ export interface RootRouteChildren {
   IndustriesRoute: typeof IndustriesRoute
   LoginRoute: typeof LoginRoute
   OrderConfirmationRoute: typeof OrderConfirmationRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProductsRoute: typeof ProductsRouteWithChildren
   StaffRoute: typeof StaffRoute
   AccountDashboardRoute: typeof AccountDashboardRoute
@@ -721,6 +734,13 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/order-confirmation': {
@@ -1239,6 +1259,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndustriesRoute: IndustriesRoute,
   LoginRoute: LoginRoute,
   OrderConfirmationRoute: OrderConfirmationRoute,
+  PrivacyRoute: PrivacyRoute,
   ProductsRoute: ProductsRouteWithChildren,
   StaffRoute: StaffRoute,
   AccountDashboardRoute: AccountDashboardRoute,
