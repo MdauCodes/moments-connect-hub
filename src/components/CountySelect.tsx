@@ -31,7 +31,7 @@ export function CountySelect({
   id,
 }: CountySelectProps) {
   const [open, setOpen] = useState(false);
-  const counties = useMemo(() => KENYA_COUNTIES, []);
+  const counties = useMemo(() => KENYA_COUNTY_NAMES_NAIROBI_FIRST, []);
 
   return (
     <>
