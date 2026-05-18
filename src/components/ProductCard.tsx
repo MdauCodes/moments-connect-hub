@@ -138,18 +138,20 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               const id = tierKey(t);
               const isActive = id === activeTierId;
               const save = tierSavingsPct(t);
+              const label = t.uomName ?? t.collectionName;
               return (
                 <button
                   key={id}
                   type="button"
                   onClick={(e) => handlePillClick(e, id)}
+                  title={t.uomDescription ?? undefined}
                   className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition-colors ${
                     isActive
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border bg-secondary text-muted-foreground hover:border-foreground/30"
                   }`}
                 >
-                  <span>{t.collectionName}</span>
+                  <span>{label}</span>
                   {save > 0 && (
                     <span className="rounded-full bg-forest/15 px-1.5 py-px text-[9px] font-semibold text-forest">
                       −{save}%
