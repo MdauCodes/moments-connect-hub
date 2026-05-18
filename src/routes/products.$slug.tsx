@@ -552,8 +552,8 @@ function ProductDetail() {
             )}
 
             <ConfigField
-              label={selectedTier ? `Number of ${selectedTier.collectionName}s` : "Quantity"}
-              note={selectedTier ? `(${collectionQty} units each)` : `(Min. ${product.moq.toLocaleString()} units)`}
+              label={selectedTier ? `Number of ${selectedTier.uomName ?? selectedTier.collectionName}s` : "Quantity"}
+              note={selectedTier ? `(× ${collectionQty} pieces each)` : `(Min. ${product.moq.toLocaleString()} pieces)`}
             >
               <input
                 type="number"
@@ -573,10 +573,10 @@ function ProductDetail() {
             <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
               {selectedTier ? (
                 <p className="text-sm">
-                  {qty.toLocaleString()} × {selectedTier.collectionName} ({collectionQty} units) ={" "}
+                  {qty.toLocaleString()} × {selectedTier.uomName ?? selectedTier.collectionName} (× {collectionQty} pieces each) ={" "}
                   <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
                   <span className="ml-2 text-xs opacity-80">
-                    · {(qty * collectionQty).toLocaleString()} total units
+                    · {(qty * collectionQty).toLocaleString()} total pieces
                   </span>
                 </p>
               ) : unitPrice > 0 ? (
