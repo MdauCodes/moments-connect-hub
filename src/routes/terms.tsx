@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { COMPANY_EMAIL, COMPANY_PHONE } from "@/data/products";
+import { LegalPageLayout, type LegalSection } from "@/components/LegalPageLayout";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -23,29 +24,23 @@ export const Route = createFileRoute("/terms")({
 });
 
 function TermsPage() {
-  const updated = "May 19, 2026";
-  return (
-    <main className="mx-auto max-w-3xl px-5 py-12 sm:py-16 lg:px-8">
-      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Legal</p>
-      <h1 className="mt-2 font-display text-4xl tracking-tight sm:text-5xl">Terms of Service</h1>
-      <p className="mt-3 text-sm text-muted-foreground">Last updated: {updated}</p>
-
-      <div className="prose prose-neutral mt-8 max-w-none text-foreground/90">
-        <p>
-          These Terms govern your use of <strong>momentspackaging.com</strong> and the purchase of
-          custom-branded paper packaging from Moments Packaging Kenya Ltd
-          (&ldquo;Moments Packaging&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;). By placing an order or
-          using the site, you agree to these Terms.
-        </p>
-
-        <h2>1. Who we are</h2>
+  const sections: LegalSection[] = [
+    {
+      id: "who-we-are",
+      title: "Who we are",
+      body: (
         <p>
           Moments Packaging Kenya Ltd is a Kenyan-registered business based in Industrial Area,
-          Nairobi. We design, print and deliver custom paper packaging — bags, boxes, wraps and
-          related products — to restaurants, retailers and brands across Kenya.
+          Nairobi. We design, print and deliver custom paper packaging — bags, boxes, cups,
+          mailers, labels and gifting packaging — to restaurants, retailers and brands across
+          Kenya.
         </p>
-
-        <h2>2. Quotes &amp; orders</h2>
+      ),
+    },
+    {
+      id: "quotes-orders",
+      title: "Quotes & orders",
+      body: (
         <ul>
           <li>
             Catalogue prices on the site apply to standard stock and standard print. Custom
@@ -56,28 +51,38 @@ function TermsPage() {
             to paper or print-cost movements.
           </li>
           <li>
-            An order is only confirmed once we receive payment (or the agreed deposit) and you have
-            approved the final artwork proof.
+            An order is only confirmed once we receive payment (or the agreed deposit) and you
+            have approved the final artwork proof.
           </li>
         </ul>
-
-        <h2>3. Pricing &amp; payment</h2>
+      ),
+    },
+    {
+      id: "pricing-payment",
+      title: "Pricing & payment",
+      body: (
         <ul>
           <li>All prices are in Kenya Shillings (KES) and, where stated, include VAT.</li>
           <li>
-            We accept M-Pesa, bank transfer, and (for select customers) cash on delivery. For large
-            or enterprise orders we may require a 50% deposit before production starts.
+            We accept <strong>M-Pesa</strong>, <strong>bank transfer</strong>, and (for select
+            customers) <strong>cash on delivery</strong>. For large or enterprise orders we may
+            require a 50% deposit before production starts.
           </li>
           <li>
             M-Pesa payments are processed via Safaricom. You are responsible for entering the
             correct M-Pesa number and confirming the STK push.
           </li>
         </ul>
-
-        <h2>4. Artwork approval</h2>
+      ),
+    },
+    {
+      id: "artwork",
+      title: "Artwork approval",
+      body: (
         <ul>
           <li>
-            You are responsible for the accuracy of artwork, spelling, logos and colours you supply.
+            You are responsible for the accuracy of artwork, spelling, logos and colours you
+            supply.
           </li>
           <li>
             We will send a digital proof for your approval before printing. Once you approve the
@@ -92,15 +97,23 @@ function TermsPage() {
             We are not liable for third-party IP infringement caused by artwork you provide.
           </li>
         </ul>
-
-        <h2>5. Production &amp; lead times</h2>
+      ),
+    },
+    {
+      id: "production",
+      title: "Production & lead times",
+      body: (
         <p>
           Lead times shown on a product page are estimates from the date of artwork approval and
-          payment. Lead times may be longer for very large orders, complex finishes, or during peak
-          seasons. We will keep you updated on WhatsApp or email.
+          payment. Lead times may be longer for very large orders, complex finishes, or during
+          peak seasons. We will keep you updated on WhatsApp or email.
         </p>
-
-        <h2>6. Delivery, pickup &amp; own courier</h2>
+      ),
+    },
+    {
+      id: "delivery",
+      title: "Delivery, pickup & own courier",
+      body: (
         <ul>
           <li>
             <strong>Zone delivery:</strong> we deliver within our published delivery zones at the
@@ -118,8 +131,12 @@ function TermsPage() {
           </li>
           <li>Please inspect goods on receipt and report any visible damage within 24 hours.</li>
         </ul>
-
-        <h2>7. Returns, refunds &amp; reprints</h2>
+      ),
+    },
+    {
+      id: "returns",
+      title: "Returns, refunds & reprints",
+      body: (
         <ul>
           <li>
             Custom-printed products are made specifically for you and cannot be returned for a
@@ -128,67 +145,127 @@ function TermsPage() {
           <li>
             If a product is defective or differs materially from the approved proof, contact us
             within 7 days of delivery. We will reprint or refund at our discretion after reviewing
-            the issue.
+            the issue. Full details are in our{" "}
+            <a href="/refunds">Refund &amp; Returns Policy</a>.
           </li>
           <li>
             We are not responsible for losses caused by errors in artwork you approved, or by
             third-party couriers you chose.
           </li>
         </ul>
-
-        <h2>8. Cancellations</h2>
+      ),
+    },
+    {
+      id: "cancellations",
+      title: "Cancellations",
+      body: (
         <p>
           You can cancel an order at no cost before artwork is approved and production starts.
           Once production has started, cancellation may incur charges for materials, plates and
           labour already used.
         </p>
-
-        <h2>9. Accounts</h2>
+      ),
+    },
+    {
+      id: "accounts",
+      title: "Accounts",
+      body: (
         <p>
           You are responsible for keeping your account password confidential and for all activity
-          under your account. Notify us immediately at <a href={`mailto:${COMPANY_EMAIL}`}>{COMPANY_EMAIL}</a>
-          {" "}if you suspect unauthorised access.
+          under your account. Notify us immediately at{" "}
+          <a href={`mailto:${COMPANY_EMAIL}`}>{COMPANY_EMAIL}</a> if you suspect unauthorised
+          access.
         </p>
-
-        <h2>10. Acceptable use</h2>
+      ),
+    },
+    {
+      id: "acceptable-use",
+      title: "Acceptable use",
+      body: (
         <p>
           You agree not to misuse the site (for example: hacking, scraping at abusive rates,
           uploading malware, or submitting artwork that is unlawful, defamatory or infringes
           third-party rights).
         </p>
-
-        <h2>11. Limitation of liability</h2>
+      ),
+    },
+    {
+      id: "ip",
+      title: "Intellectual property",
+      body: (
+        <p>
+          The Moments Packaging name, logo, website design, product photography and catalogue
+          copy are owned by Moments Packaging Kenya Ltd. You may not copy, republish or use them
+          commercially without our written permission. Your own artwork remains your property.
+        </p>
+      ),
+    },
+    {
+      id: "liability",
+      title: "Limitation of liability",
+      body: (
         <p>
           To the maximum extent permitted by Kenyan law, our total liability for any claim
-          relating to an order is limited to the amount you paid for that order. We are not liable
-          for indirect or consequential losses such as lost profits or lost business opportunities.
+          relating to an order is limited to the amount you paid for that order. We are not
+          liable for indirect or consequential losses such as lost profits or lost business
+          opportunities.
         </p>
-
-        <h2>12. Governing law</h2>
+      ),
+    },
+    {
+      id: "governing-law",
+      title: "Governing law",
+      body: (
         <p>
           These Terms are governed by the laws of Kenya. Any dispute will be subject to the
           exclusive jurisdiction of the courts of Kenya, sitting in Nairobi.
         </p>
-
-        <h2>13. Changes to these Terms</h2>
+      ),
+    },
+    {
+      id: "changes",
+      title: "Changes to these Terms",
+      body: (
         <p>
           We may update these Terms from time to time. The version in force is the one published
           on this page at the time you place your order.
         </p>
-
-        <h2>14. Contact</h2>
+      ),
+    },
+    {
+      id: "contact",
+      title: "Contact us",
+      body: (
         <p>
-          Moments Packaging Kenya Ltd<br />
-          Industrial Area, Nairobi, Kenya<br />
-          Email: <a href={`mailto:${COMPANY_EMAIL}`}>{COMPANY_EMAIL}</a><br />
-          Phone / WhatsApp: <a href={`tel:${COMPANY_PHONE.replace(/\s/g, "")}`}>{COMPANY_PHONE}</a>
+          Moments Packaging Kenya Ltd
+          <br />
+          Ukwala Road, opposite Salvation Army, OTC, Nairobi, Kenya
+          <br />
+          Email: <a href={`mailto:${COMPANY_EMAIL}`}>{COMPANY_EMAIL}</a>
+          <br />
+          Phone / WhatsApp:{" "}
+          <a href={`tel:${COMPANY_PHONE.replace(/\s/g, "")}`}>{COMPANY_PHONE}</a>
         </p>
+      ),
+    },
+  ];
 
-        <p className="mt-10 text-sm">
-          See also our <Link to="/privacy" className="underline">Privacy Policy</Link> and{" "}
-          <Link to="/refunds" className="underline">Refund &amp; Returns Policy</Link>.
-        </p>
-      </div>
-    </main>
+  return (
+    <LegalPageLayout
+      title="Terms of Service"
+      updated="May 19, 2026"
+      intro={
+        <>
+          The terms that govern quotes, orders, payment, production, delivery and returns when
+          you buy custom-branded paper packaging from Moments Packaging Kenya. By placing an
+          order or using the site, you agree to these Terms.
+        </>
+      }
+      sections={sections}
+      related={[
+        { to: "/privacy", label: "Privacy Policy" },
+        { to: "/refunds", label: "Refund & Returns Policy" },
+      ]}
+    />
   );
 }
