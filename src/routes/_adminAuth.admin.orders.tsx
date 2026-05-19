@@ -29,6 +29,7 @@ function AdminOrdersPage() {
   const [status, setStatus] = useState<string>("ALL");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(0);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => { document.title = "Orders · Moments admin"; }, []);
 
