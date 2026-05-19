@@ -18,12 +18,19 @@ function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [filters, setFilters] = useState({ industryId: "", category: "", isDiscount: "", isNewArrival: "", isFastMoving: "" });
+  const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(q.trim().toLowerCase()), 250);
+    return () => clearTimeout(t);
+  }, [q]);
 
   const load = async () => {
     setLoading(true);
     try {
       const [productPage, industryRows] = await Promise.all([
-        adminResources.products.list({ ...filters, page, size: 10, sort: "createdAt,desc" }),
+        adminResources.products.list({ ...filters, q: debouncedQ || undefined, page, size: 10, sort: "createdAt,desc" }),
         adminResources.industries.list(),
       ]);
       setProducts(productPage.rows);
@@ -37,7 +44,29 @@ function AdminProductsPage() {
   };
   useEffect(() => {
     void load();
-  }, [page, filters.industryId, filters.category, filters.isDiscount, filters.isNewArrival, filters.isFastMoving]);
+  }, [page, filters.industryId, filters.category, filters.isDiscount, filters.isNewArrival, filters.isFastMoving, debouncedQ]);
+
+  // Client-side guard: ensure filters/search visibly apply even if backend ignores them.
+  const visibleProducts = useMemo(() => {
+    let rows = products;
+    if (debouncedQ) {
+      rows = rows.filter((p) =>
+        [p.name, p.sku, p.category, p.description]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(debouncedQ)),
+      );
+    }
+    if (filters.category) {
+      rows = rows.filter((p) => (p.category ?? "").toLowerCase().includes(filters.category.toLowerCase()));
+    }
+    if (filters.industryId) {
+      rows = rows.filter((p) => (p.industryIds ?? []).includes(filters.industryId));
+    }
+    if (filters.isDiscount) rows = rows.filter((p) => p.isDiscount);
+    if (filters.isNewArrival) rows = rows.filter((p) => p.isNewArrival);
+    if (filters.isFastMoving) rows = rows.filter((p) => p.isFastMoving);
+    return rows;
+  }, [products, debouncedQ, filters]);
 
   const beginCreate = () => navigate({ to: "/admin/products/new" });
   const beginEdit = (p: ProductDto) => navigate({ to: "/admin/products/$id", params: { id: p.id } });
