@@ -432,6 +432,16 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
                 style={styles.searchInput}
               />
             </div>
+            <button
+              type="button"
+              style={{ ...styles.bellBtn, opacity: reloading ? 0.6 : 1 }}
+              aria-label="Reload this page's data"
+              title="Reload"
+              onClick={handleReload}
+              disabled={reloading}
+            >
+              <RefreshCw size={15} style={{ animation: reloading ? "admin-spin 0.8s linear infinite" : "none" }} />
+            </button>
             <button type="button" style={styles.bellBtn} aria-label="Notifications">
               <Bell size={15} />
               <span style={styles.bellDot} />
