@@ -373,14 +373,7 @@ function CheckoutModal() {
               </div>
 
               {/* Fulfillment selector — radio cards */}
-              <div className="grid gap-3 sm:grid-cols-3">
-                <FulfillmentCard
-                  active={fulfillment === "ZONE_DELIVERY"}
-                  onClick={() => setFulfillment("ZONE_DELIVERY")}
-                  icon={<Truck className="h-5 w-5" />}
-                  title="Deliver to me"
-                  desc="We deliver to your address — fee shown by zone."
-                />
+              <div className="grid gap-3 sm:grid-cols-2">
                 <FulfillmentCard
                   active={fulfillment === "OWN_COURIER"}
                   onClick={() => setFulfillment("OWN_COURIER")}
