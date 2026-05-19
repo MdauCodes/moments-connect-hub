@@ -159,7 +159,11 @@ function CheckoutModal() {
         return false;
       }
       if (!courierType) {
-        toast.error("Please select a courier type");
+        toast.error("Please select a courier type (sacco, parcel service, rider, etc.)");
+        return false;
+      }
+      if (!courierServiceName.trim()) {
+        toast.error("Please specify the sacco / courier service name (e.g. 2NK, Easy Coach, Tahmeed). If unsure, type ‘Not sure — call me’.");
         return false;
       }
     }
