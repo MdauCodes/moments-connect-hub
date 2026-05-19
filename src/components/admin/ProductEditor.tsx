@@ -467,7 +467,7 @@ const requiredStar: CSSProperties = {
   marginLeft: 4,
   fontWeight: 700,
 };
-function reqLabel(text: string): JSX.Element {
+function reqLabel(text: string) {
   return (
     <>
       {text}
