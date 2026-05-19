@@ -143,10 +143,10 @@ function AdminOrdersPage() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={8}><div className="admin-empty">Loading orders…</div></td></tr>
-                ) : !data || data.rows.length === 0 ? (
+                ) : !data || visibleRows.length === 0 ? (
                   <tr><td colSpan={8}><div className="admin-empty">No orders match your filters.</div></td></tr>
                 ) : (
-                  data.rows.map((o) => (
+                  visibleRows.map((o) => (
                     <tr key={o.id}>
                       <td><b>{o.reference}</b></td>
                       <td>
