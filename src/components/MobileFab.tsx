@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, Tag, Briefcase, MessageCircle, ShoppingBag, Home, LogIn } from "lucide-react";
+import { Menu, X, Tag, Briefcase, MessageCircle, ShoppingBag, Home, LogIn, Truck } from "lucide-react";
 
 /**
  * Global floating action menu shown on every page (mobile only).
@@ -22,6 +22,7 @@ export function MobileFab() {
   const items = [
     { label: "WhatsApp", Icon: MessageCircle, href: "https://wa.me/254700000000", iconColor: "var(--forest)" },
     { label: "Sign in", Icon: LogIn, to: "/account/login" as const, iconColor: "var(--accent)" },
+    { label: "Track Order", Icon: Truck, to: "/orders/track" as const, iconColor: "var(--forest)" },
     { label: "Enterprise", Icon: Briefcase, to: "/enterprise-quote" as const, iconColor: "var(--ink)" },
     { label: "Deals", Icon: Tag, to: "/products" as const, iconColor: "var(--accent)" },
     { label: "Shop", Icon: ShoppingBag, to: "/products" as const, iconColor: "var(--ink)" },
