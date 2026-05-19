@@ -177,7 +177,7 @@ function AdminProductsPage() {
                 <tr>
                   <td colSpan={7}>Loading products…</td>
                 </tr>
-              ) : products.length === 0 ? (
+              ) : visibleProducts.length === 0 ? (
                 <tr>
                   <td colSpan={7}>
                     <div className="admin-empty">
@@ -189,7 +189,7 @@ function AdminProductsPage() {
                   </td>
                 </tr>
               ) : (
-                products.map((p) => {
+                visibleProducts.map((p) => {
                   const stock = p.stock ?? 0;
                   const threshold = p.lowStockThreshold ?? 50;
                   const tracking = p.trackInventory ?? true;
