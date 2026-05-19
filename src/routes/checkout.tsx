@@ -541,8 +541,9 @@ function CheckoutModal() {
                             <option value="Not sure — please call me" />
                           </datalist>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Required. If you’re not yet sure which sacco/service to use, type{" "}
-                            <em>“Not sure — call me”</em> and our staff will help you choose.
+                            Type any sacco or courier name — the list above is just suggestions, not a
+                            fixed menu. If you’re not yet sure, type <em>“Not sure — call me”</em> and
+                            our staff will help you choose.
                           </p>
                         </div>
 
