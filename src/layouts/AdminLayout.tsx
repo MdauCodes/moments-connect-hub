@@ -27,6 +27,7 @@ interface AdminLayoutProps {
   title: string;
   actionLabel?: string;
   onAction?: () => void;
+  onReload?: () => void | Promise<void>;
   children: ReactNode;
 }
 
