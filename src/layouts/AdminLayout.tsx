@@ -18,6 +18,7 @@ import {
   CreditCard,
   BarChart3,
   Truck,
+  RefreshCw,
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can, type Permission } from "@/lib/permissions";
@@ -26,6 +27,7 @@ interface AdminLayoutProps {
   title: string;
   actionLabel?: string;
   onAction?: () => void;
+  onReload?: () => void | Promise<void>;
   children: ReactNode;
 }
 
@@ -325,11 +327,23 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   );
 }
 
-export function AdminLayout({ title, actionLabel, onAction, children }: AdminLayoutProps) {
+export function AdminLayout({ title, actionLabel, onAction, onReload, children }: AdminLayoutProps) {
   const { user, logout } = useAdminAuth();
   const location = useLocation();
   const pathname = location.pathname;
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [reloading, setReloading] = useState(false);
+
+  const handleReload = async () => {
+    if (reloading) return;
+    setReloading(true);
+    try {
+      if (onReload) await onReload();
+      window.dispatchEvent(new CustomEvent("admin:reload", { detail: { pathname } }));
+    } finally {
+      setTimeout(() => setReloading(false), 400);
+    }
+  };
 
   const isActive = (to: string): boolean => {
     if (to === "/admin/dashboard") {
@@ -418,6 +432,16 @@ export function AdminLayout({ title, actionLabel, onAction, children }: AdminLay
                 style={styles.searchInput}
               />
             </div>
+            <button
+              type="button"
+              style={{ ...styles.bellBtn, opacity: reloading ? 0.6 : 1 }}
+              aria-label="Reload this page's data"
+              title="Reload"
+              onClick={handleReload}
+              disabled={reloading}
+            >
+              <RefreshCw size={15} style={{ animation: reloading ? "admin-spin 0.8s linear infinite" : "none" }} />
+            </button>
             <button type="button" style={styles.bellBtn} aria-label="Notifications">
               <Bell size={15} />
               <span style={styles.bellDot} />

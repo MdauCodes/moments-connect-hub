@@ -485,3 +485,6 @@
     padding: 24px !important;
   }
 }
+
+@keyframes admin-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+

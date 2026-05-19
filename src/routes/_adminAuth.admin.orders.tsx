@@ -29,6 +29,7 @@ function AdminOrdersPage() {
   const [status, setStatus] = useState<string>("ALL");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(0);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => { document.title = "Orders · Moments admin"; }, []);
 
@@ -40,7 +41,7 @@ function AdminOrdersPage() {
       .catch((err) => toast.error(err instanceof Error ? err.message : "Failed to load orders"))
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [status, q, page]);
+  }, [status, q, page, reloadKey]);
 
   const totals = useMemo(() => {
     if (!data) return { revenue: 0, orders: 0 };
@@ -51,7 +52,7 @@ function AdminOrdersPage() {
   }, [data]);
 
   return (
-    <AdminLayout title="Orders">
+    <AdminLayout title="Orders" onReload={() => setReloadKey((k) => k + 1)}>
       <div className="admin-page-stack">
         {data && <MockBanner source={data.source} />}
 

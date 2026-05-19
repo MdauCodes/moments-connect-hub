@@ -56,7 +56,7 @@ function AdminProductsPage() {
   };
 
   return (
-    <AdminLayout title="Products" actionLabel="New product" onAction={beginCreate}>
+    <AdminLayout title="Products" actionLabel="New product" onAction={beginCreate} onReload={load}>
       <div className="admin-page-stack">
         <div className="admin-panel admin-toolbar" data-admin-toolbar>
           <select
