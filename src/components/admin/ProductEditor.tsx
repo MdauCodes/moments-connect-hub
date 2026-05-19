@@ -875,14 +875,19 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={s.row} data-admin-row>
               <div style={s.col}>
-                <label style={s.label}>Name</label>
+                <label style={s.label}>{reqLabel("Name")}</label>
                 <input
-                  style={s.input}
+                  style={{ ...s.input, ...invalidStyle(submitted && !values.name.trim()) }}
                   value={values.name}
                   onChange={(e) => set("name", e.target.value)}
                   placeholder="e.g. Kraft Twisted-Handle Bag"
                   required
+                  aria-required="true"
+                  aria-invalid={submitted && !values.name.trim() ? true : undefined}
                 />
+                {submitted && !values.name.trim() && (
+                  <span style={{ ...s.helper, color: "var(--admin-clay)" }}>Product name is required.</span>
+                )}
               </div>
               <div style={s.col}>
                 <label style={s.label}>URL slug</label>
@@ -897,8 +902,14 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
             </div>
             <div style={s.row} data-admin-row>
               <div style={s.col}>
-                <label style={s.label}>Category</label>
-                <select style={s.select} value={values.category} onChange={(e) => set("category", e.target.value)}>
+                <label style={s.label}>{reqLabel("Category")}</label>
+                <select
+                  style={{ ...s.select, ...invalidStyle(submitted && !values.category) }}
+                  value={values.category}
+                  onChange={(e) => set("category", e.target.value)}
+                  required
+                  aria-required="true"
+                >
                   {categories.map((c) => (
                     <option key={c.slug} value={c.slug}>
                       {c.name}
@@ -907,24 +918,36 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                 </select>
               </div>
               <div style={s.col}>
-                <label style={s.label}>MOQ</label>
+                <label style={s.label}>{reqLabel("MOQ")}</label>
                 <input
                   type="number"
                   min={1}
-                  style={s.input}
+                  style={{ ...s.input, ...invalidStyle(submitted && values.moq < 1) }}
                   value={values.moq}
                   onChange={(e) => set("moq", Number(e.target.value) || 0)}
+                  required
+                  aria-required="true"
+                  aria-invalid={submitted && values.moq < 1 ? true : undefined}
                 />
+                {submitted && values.moq < 1 && (
+                  <span style={{ ...s.helper, color: "var(--admin-clay)" }}>MOQ must be at least 1.</span>
+                )}
               </div>
             </div>
             <div style={s.col}>
-              <label style={s.label}>Description</label>
+              <label style={s.label}>{reqLabel("Description")}</label>
               <textarea
-                style={s.textarea}
+                style={{ ...s.textarea, ...invalidStyle(submitted && !values.description.trim()) }}
                 value={values.description}
                 onChange={(e) => set("description", e.target.value)}
                 placeholder="Short product summary."
+                required
+                aria-required="true"
+                aria-invalid={submitted && !values.description.trim() ? true : undefined}
               />
+              {submitted && !values.description.trim() && (
+                <span style={{ ...s.helper, color: "var(--admin-clay)" }}>Description is required.</span>
+              )}
             </div>
           </div>
         </div>
@@ -932,9 +955,13 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
         {/* Image */}
         <div style={s.card}>
           <div style={s.cardHd}>
-            <div style={s.cardTitle}>Product image</div>
+            <div style={s.cardTitle}>{reqLabel("Product image")}</div>
           </div>
-          <ImagePicker value={values.image} onChange={(url) => set("image", url)} />
+          <ImagePicker
+            value={values.image}
+            onChange={(url) => set("image", url)}
+            invalid={submitted && !values.image}
+          />
         </div>
 
         {/* Pricing & Inventory ─ single card, no broken nesting */}
