@@ -462,6 +462,28 @@ const s: Record<string, CSSProperties> = {
 const disabledColStyle: CSSProperties = { opacity: 0.5, pointerEvents: "none" };
 const disabledInputStyle: CSSProperties = { background: "transparent", color: "var(--admin-muted)", cursor: "not-allowed" };
 
+const requiredStar: CSSProperties = {
+  color: "var(--admin-clay)",
+  marginLeft: 4,
+  fontWeight: 700,
+};
+function reqLabel(text: string) {
+  return (
+    <>
+      {text}
+      <span style={requiredStar} aria-hidden="true">*</span>
+      <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>
+        (required)
+      </span>
+    </>
+  );
+}
+function invalidStyle(isInvalid: boolean): CSSProperties {
+  return isInvalid
+    ? { borderColor: "var(--admin-clay)", boxShadow: "0 0 0 3px color-mix(in oklab,var(--admin-clay) 18%,transparent)" }
+    : {};
+}
+
 function chip(active: boolean): CSSProperties {
   return {
     border: `1px solid ${active ? "var(--admin-accent-hover)" : "var(--admin-border)"}`,
@@ -479,21 +501,67 @@ function chip(active: boolean): CSSProperties {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function ImagePicker({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+function ImagePicker({
+  value,
+  onChange,
+  invalid,
+}: {
+  value: string;
+  onChange: (url: string) => void;
+  invalid?: boolean;
+}) {
   const [urlDraft, setUrlDraft] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
+  // Staged file (not yet uploaded) — preview shown locally first.
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null);
+
+  // Revoke object URL to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
+    };
+  }, [pendingPreviewUrl]);
+
+  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
 
+    // Basic client-side validation before previewing
+    const MAX_BYTES = 5 * 1024 * 1024;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+      setUploadError("Only JPEG, PNG or WebP images are allowed.");
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setUploadError("Image is larger than 5 MB.");
+      return;
+    }
+
+    setUploadError(null);
+    if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
+    setPendingFile(file);
+    setPendingPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const cancelPending = () => {
+    if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
+    setPendingFile(null);
+    setPendingPreviewUrl(null);
+    setUploadError(null);
+  };
+
+  const uploadPending = async () => {
+    if (!pendingFile) return;
     setUploadError(null);
     setUploading(true);
     try {
-      const result = await adminResources.uploadImage(file, "products");
+      const result = await adminResources.uploadImage(pendingFile, "products");
       onChange(result.url);
+      cancelPending();
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -501,16 +569,89 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
     }
   };
 
+  // What to show in the preview area: pending (local) takes precedence over uploaded value.
+  const previewSrc = pendingPreviewUrl ?? value;
+  const showInvalid = invalid && !previewSrc;
+
+  const previewBoxStyle: CSSProperties = {
+    ...s.imgPreview,
+    ...(pendingPreviewUrl ? { outline: "2px dashed var(--admin-accent)", outlineOffset: 2 } : {}),
+  };
+  const placeholderStyle: CSSProperties = {
+    ...s.imgPlaceholder,
+    ...(showInvalid ? { borderColor: "var(--admin-clay)", color: "var(--admin-clay)" } : {}),
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {value ? (
-        <img src={value} alt="Product preview" style={s.imgPreview} />
+      {previewSrc ? (
+        <div style={{ position: "relative", display: "inline-block" }}>
+          <img src={previewSrc} alt="Product preview" style={previewBoxStyle} />
+          {pendingPreviewUrl && (
+            <span
+              style={{
+                position: "absolute",
+                top: 8,
+                left: 8,
+                background: "var(--admin-accent)",
+                color: "var(--cream)",
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                padding: "3px 8px",
+                borderRadius: 999,
+              }}
+            >
+              Preview — not yet uploaded
+            </span>
+          )}
+          {uploading && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0,0,0,0.45)",
+                color: "var(--cream)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              Uploading…
+            </div>
+          )}
+        </div>
       ) : (
-        <div style={s.imgPlaceholder}>{uploading ? "Uploading…" : "No image yet"}</div>
+        <div style={placeholderStyle}>{uploading ? "Uploading…" : "No image yet"}</div>
       )}
+
+      {/* Pending file action bar */}
+      {pendingFile && (
+        <div style={{ ...s.inlineRow, gap: 8 }}>
+          <button
+            type="button"
+            style={{ ...s.primaryBtn, opacity: uploading ? 0.6 : 1, pointerEvents: uploading ? "none" : "auto" }}
+            onClick={uploadPending}
+            disabled={uploading}
+          >
+            {uploading ? "Uploading…" : "Upload to server"}
+          </button>
+          <button type="button" style={s.ghostBtn} onClick={cancelPending} disabled={uploading}>
+            Cancel
+          </button>
+          <span style={s.helper}>
+            {pendingFile.name} · {(pendingFile.size / 1024).toFixed(0)} KB
+          </span>
+        </div>
+      )}
+
       <div style={s.inlineRow}>
         <label style={{ ...s.fileBtn, opacity: uploading ? 0.6 : 1, pointerEvents: uploading ? "none" : "auto" }}>
-          {uploading ? "Uploading…" : "Upload file"}
+          {pendingFile ? "Choose a different file" : "Choose file"}
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp"
@@ -519,7 +660,7 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
             style={{ display: "none" }}
           />
         </label>
-        {value && !uploading && (
+        {value && !pendingFile && !uploading && (
           <button type="button" style={s.ghostBtn} onClick={() => onChange("")}>
             Remove
           </button>
@@ -549,8 +690,13 @@ function ImagePicker({ value, onChange }: { value: string; onChange: (url: strin
         </button>
       </div>
       {uploadError && <div style={{ ...s.helper, color: "var(--admin-clay)" }}>{uploadError}</div>}
+      {showInvalid && !uploadError && (
+        <div style={{ ...s.helper, color: "var(--admin-clay)", fontWeight: 600 }}>
+          A product image is required.
+        </div>
+      )}
       <div style={s.helper}>
-        JPEG, PNG or WebP · max 5 MB. File is uploaded to Cloudinary via the backend and the returned URL is stored.
+        JPEG, PNG or WebP · max 5 MB. Choose a file to preview it first, then click <strong>Upload to server</strong> to send it to the backend.
       </div>
     </div>
   );
@@ -729,14 +875,19 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={s.row} data-admin-row>
               <div style={s.col}>
-                <label style={s.label}>Name</label>
+                <label style={s.label}>{reqLabel("Name")}</label>
                 <input
-                  style={s.input}
+                  style={{ ...s.input, ...invalidStyle(submitted && !values.name.trim()) }}
                   value={values.name}
                   onChange={(e) => set("name", e.target.value)}
                   placeholder="e.g. Kraft Twisted-Handle Bag"
                   required
+                  aria-required="true"
+                  aria-invalid={submitted && !values.name.trim() ? true : undefined}
                 />
+                {submitted && !values.name.trim() && (
+                  <span style={{ ...s.helper, color: "var(--admin-clay)" }}>Product name is required.</span>
+                )}
               </div>
               <div style={s.col}>
                 <label style={s.label}>URL slug</label>
@@ -751,8 +902,14 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
             </div>
             <div style={s.row} data-admin-row>
               <div style={s.col}>
-                <label style={s.label}>Category</label>
-                <select style={s.select} value={values.category} onChange={(e) => set("category", e.target.value)}>
+                <label style={s.label}>{reqLabel("Category")}</label>
+                <select
+                  style={{ ...s.select, ...invalidStyle(submitted && !values.category) }}
+                  value={values.category}
+                  onChange={(e) => set("category", e.target.value)}
+                  required
+                  aria-required="true"
+                >
                   {categories.map((c) => (
                     <option key={c.slug} value={c.slug}>
                       {c.name}
@@ -761,24 +918,36 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                 </select>
               </div>
               <div style={s.col}>
-                <label style={s.label}>MOQ</label>
+                <label style={s.label}>{reqLabel("MOQ")}</label>
                 <input
                   type="number"
                   min={1}
-                  style={s.input}
+                  style={{ ...s.input, ...invalidStyle(submitted && values.moq < 1) }}
                   value={values.moq}
                   onChange={(e) => set("moq", Number(e.target.value) || 0)}
+                  required
+                  aria-required="true"
+                  aria-invalid={submitted && values.moq < 1 ? true : undefined}
                 />
+                {submitted && values.moq < 1 && (
+                  <span style={{ ...s.helper, color: "var(--admin-clay)" }}>MOQ must be at least 1.</span>
+                )}
               </div>
             </div>
             <div style={s.col}>
-              <label style={s.label}>Description</label>
+              <label style={s.label}>{reqLabel("Description")}</label>
               <textarea
-                style={s.textarea}
+                style={{ ...s.textarea, ...invalidStyle(submitted && !values.description.trim()) }}
                 value={values.description}
                 onChange={(e) => set("description", e.target.value)}
                 placeholder="Short product summary."
+                required
+                aria-required="true"
+                aria-invalid={submitted && !values.description.trim() ? true : undefined}
               />
+              {submitted && !values.description.trim() && (
+                <span style={{ ...s.helper, color: "var(--admin-clay)" }}>Description is required.</span>
+              )}
             </div>
           </div>
         </div>
@@ -786,9 +955,13 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
         {/* Image */}
         <div style={s.card}>
           <div style={s.cardHd}>
-            <div style={s.cardTitle}>Product image</div>
+            <div style={s.cardTitle}>{reqLabel("Product image")}</div>
           </div>
-          <ImagePicker value={values.image} onChange={(url) => set("image", url)} />
+          <ImagePicker
+            value={values.image}
+            onChange={(url) => set("image", url)}
+            invalid={submitted && !values.image}
+          />
         </div>
 
         {/* Pricing & Inventory ─ single card, no broken nesting */}
