@@ -758,6 +758,13 @@ function CheckoutModal() {
                     >
                       Try again
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => { setPayState("idle"); setStep("contact"); }}
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
+                    >
+                      <ArrowLeft className="h-4 w-4" /> Edit order details
+                    </button>
                     <Link
                       to="/contact"
                       className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
