@@ -23,7 +23,7 @@ export const Route = createFileRoute("/terms")({
 });
 
 function TermsPage() {
-  const updated = "May 18, 2026";
+  const updated = "May 19, 2026";
   return (
     <main className="mx-auto max-w-3xl px-5 py-12 sm:py-16 lg:px-8">
       <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Legal</p>
@@ -185,7 +185,8 @@ function TermsPage() {
         </p>
 
         <p className="mt-10 text-sm">
-          See also our <Link to="/privacy" className="underline">Privacy Policy</Link>.
+          See also our <Link to="/privacy" className="underline">Privacy Policy</Link> and{" "}
+          <Link to="/refunds" className="underline">Refund &amp; Returns Policy</Link>.
         </p>
       </div>
     </main>
