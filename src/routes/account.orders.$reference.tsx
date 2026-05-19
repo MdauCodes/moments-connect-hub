@@ -204,11 +204,59 @@ function OrderDetailPage() {
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="font-display text-lg">Delivery</h2>
+              <h2 className="font-display text-lg">
+                {order.fulfillmentType === "OWN_COURIER"
+                  ? "Delivery — via your sacco / courier"
+                  : order.fulfillmentType === "PICKUP"
+                    ? "Pickup at our shop"
+                    : "Delivery"}
+              </h2>
               <div className="mt-3 space-y-2 text-sm">
                 <p className="font-semibold">{order.customerName}</p>
-                <p className="flex items-start gap-2 text-muted-foreground"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {order.shippingAddress}, {order.city}</p>
-                <p className="flex items-center gap-2 text-muted-foreground"><Phone className="h-3.5 w-3.5" /> {order.customerPhone}</p>
+
+                {order.fulfillmentType === "OWN_COURIER" ? (
+                  <>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-3">
+                      1. Where you'll collect
+                    </p>
+                    <p className="flex items-start gap-2 text-muted-foreground">
+                      <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      {[order.city, order.county].filter(Boolean).join(", ") || "—"}
+                    </p>
+                    {order.shippingAddress && (
+                      <p className="text-xs text-muted-foreground pl-5">
+                        Nearest courier office: {order.shippingAddress}
+                      </p>
+                    )}
+
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-3">
+                      2. Sacco / courier we'll use
+                    </p>
+                    <p className="text-muted-foreground">
+                      <Truck className="mr-1 inline h-3.5 w-3.5" />
+                      {order.courierServiceName || "To confirm by phone"}
+                      {order.courierType ? ` · ${order.courierType.replace(/_/g, " ").toLowerCase()}` : ""}
+                    </p>
+                    {order.courierStageOrOffice && (
+                      <p className="text-xs text-muted-foreground pl-5">
+                        Nairobi stage / office: {order.courierStageOrOffice}
+                      </p>
+                    )}
+                    <p className="mt-2 rounded-lg bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                      Transport cost is paid directly to the sacco on collection — not included in your order total.
+                    </p>
+                  </>
+                ) : order.fulfillmentType === "PICKUP" ? (
+                  <p className="text-muted-foreground text-xs">
+                    We'll call you when your order is ready for pickup at our shop.
+                  </p>
+                ) : (
+                  <p className="flex items-start gap-2 text-muted-foreground">
+                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {order.shippingAddress}, {order.city}
+                  </p>
+                )}
+
+                <p className="flex items-center gap-2 text-muted-foreground pt-2"><Phone className="h-3.5 w-3.5" /> {order.customerPhone}</p>
                 <p className="flex items-center gap-2 text-muted-foreground"><Mail className="h-3.5 w-3.5" /> {order.customerEmail}</p>
                 {order.notes && (
                   <p className="mt-2 rounded-lg bg-secondary p-2 text-xs"><Package className="mr-1 inline h-3 w-3" /> {order.notes}</p>
