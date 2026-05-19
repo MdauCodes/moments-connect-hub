@@ -429,7 +429,7 @@ function CheckoutModal() {
                     <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
                       <div className="mb-3 flex items-baseline justify-between gap-2">
                         <h3 className="font-display text-lg text-foreground">
-                          1. Destination — where you’ll collect
+                          1. Where do you need it delivered?
                         </h3>
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                           Your side
