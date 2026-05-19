@@ -88,6 +88,26 @@ function AdminProductsPage() {
     <AdminLayout title="Products" actionLabel="New product" onAction={beginCreate} onReload={load}>
       <div className="admin-page-stack">
         <div className="admin-panel admin-toolbar" data-admin-toolbar>
+          <div style={{ position: "relative", flex: "1 1 240px", maxWidth: 320 }}>
+            <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--admin-muted)" }} />
+            <input
+              className="admin-input"
+              style={{ width: "100%", paddingLeft: 30, paddingRight: q ? 28 : 12 }}
+              placeholder="Search by name, SKU, category…"
+              value={q}
+              onChange={(e) => { setPage(0); setQ(e.target.value); }}
+            />
+            {q && (
+              <button
+                type="button"
+                onClick={() => { setQ(""); setPage(0); }}
+                aria-label="Clear search"
+                style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", background: "transparent", border: 0, cursor: "pointer", color: "var(--admin-muted)" }}
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
           <select
             className="admin-select"
             style={{ maxWidth: 220 }}
@@ -106,7 +126,7 @@ function AdminProductsPage() {
           </select>
           <input
             className="admin-input"
-            style={{ maxWidth: 220 }}
+            style={{ maxWidth: 200 }}
             placeholder="Category"
             value={filters.category}
             onChange={(e) => {
@@ -126,6 +146,18 @@ function AdminProductsPage() {
               {key.replace("is", "")}
             </button>
           ))}
+          {(q || filters.industryId || filters.category || filters.isDiscount || filters.isNewArrival || filters.isFastMoving) && (
+            <button
+              className="admin-btn admin-btn-ghost"
+              onClick={() => {
+                setQ("");
+                setPage(0);
+                setFilters({ industryId: "", category: "", isDiscount: "", isNewArrival: "", isFastMoving: "" });
+              }}
+            >
+              Clear
+            </button>
+          )}
         </div>
         <div className="admin-panel" data-admin-table-scroll>
           <table className="admin-table">
