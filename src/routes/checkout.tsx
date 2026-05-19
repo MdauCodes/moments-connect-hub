@@ -714,14 +714,23 @@ function CheckoutModal() {
                   <p className="mt-2 max-w-md text-sm text-muted-foreground">
                     {errorMsg ?? "Your M-Pesa payment was not completed."}
                   </p>
-                  <button
-                    type="button"
-                    onClick={startPayment}
-                    className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
-                    style={{ backgroundColor: BRAND }}
-                  >
-                    Try again
-                  </button>
+                  <div className="mt-6 flex flex-wrap justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={startPayment}
+                      className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
+                      style={{ backgroundColor: BRAND }}
+                    >
+                      Try again
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setPayState("idle"); setStep("contact"); }}
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-semibold text-foreground hover:bg-secondary"
+                    >
+                      <ArrowLeft className="h-4 w-4" /> Edit order details
+                    </button>
+                  </div>
                 </div>
               )}
 
