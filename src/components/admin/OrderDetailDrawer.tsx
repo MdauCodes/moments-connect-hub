@@ -129,16 +129,48 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
             </div>
 
             <div className="space-y-6 p-6">
-              {/* Customer */}
-              <Section title="Customer">
+              {/* Customer contact */}
+              <Section title="Customer contact">
                 <Row label="Name" value={o.customerName || "—"} />
                 <Row label="Email" value={o.customerEmail || "—"} />
                 <Row label="Phone" value={o.customerPhone || "—"} />
-                <Row label="Delivery address" value={o.shippingAddress || "—"} />
-                <Row label="City" value={o.city || "—"} />
-                <Row label="County" value={o.county || "—"} />
-                <Row label="Postal code" value={o.postalCode || "—"} />
               </Section>
+
+              {/* Fulfillment — adapts to type (matches checkout's two-section model) */}
+              {o.fulfillmentType === "OWN_COURIER" ? (
+                <>
+                  <Section title="1. Destination — where the customer collects">
+                    <Row label="Town" value={o.city || "—"} />
+                    <Row label="County" value={o.county || "—"} />
+                    <Row label="Nearest courier office (customer-side)" value={o.shippingAddress || "—"} />
+                    {o.postalCode && <Row label="Postal code" value={o.postalCode} />}
+                  </Section>
+
+                  <Section title="2. Dispatch — sacco / courier we use">
+                    <Row label="Courier type" value={(o.courierType ?? "—").toString().replace(/_/g, " ")} />
+                    <Row label="Sacco / service name" value={o.courierServiceName || "— (to confirm with customer)"} />
+                    <Row label="Nairobi stage / office" value={o.courierStageOrOffice || "— (to confirm)"} />
+                    <div className="mt-2 rounded-md border border-dashed bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                      Transport cost is paid by the customer directly to the sacco / courier on collection
+                      (or at dispatch, confirmed by phone). Not included in the order total.
+                    </div>
+                  </Section>
+                </>
+              ) : o.fulfillmentType === "PICKUP" ? (
+                <Section title="Fulfillment — pickup at shop">
+                  <Row label="Method" value="Customer pickup at our shop" />
+                  <div className="mt-2 rounded-md border border-dashed bg-secondary/40 px-3 py-2 text-xs text-muted-foreground">
+                    No delivery address required. Call the customer when the order is ready for pickup.
+                  </div>
+                </Section>
+              ) : (
+                <Section title="Delivery address">
+                  <Row label="Street / building" value={o.shippingAddress || "—"} />
+                  <Row label="City" value={o.city || "—"} />
+                  <Row label="County" value={o.county || "—"} />
+                  {o.postalCode && <Row label="Postal code" value={o.postalCode} />}
+                </Section>
+              )}
 
               {/* Items */}
               <Section title="Items">
@@ -177,7 +209,18 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
               {/* Financials */}
               <Section title="Financials">
                 <Row label="Subtotal" value={formatKes(o.subtotal)} />
-                <Row label="Delivery fee" value={formatKes(o.shippingFee)} />
+                <Row
+                  label="Delivery fee"
+                  value={
+                    o.fulfillmentType === "OWN_COURIER"
+                      ? "Paid to courier on collection"
+                      : o.fulfillmentType === "PICKUP"
+                        ? "Free (pickup)"
+                        : Number(o.shippingFee) === 0
+                          ? "Free"
+                          : formatKes(o.shippingFee)
+                  }
+                />
                 {Number(o.discount ?? 0) > 0 && <Row label="Discount" value={`− ${formatKes(o.discount)}`} />}
                 {o.promoCode && <Row label="Promo code" value={o.promoCode} />}
                 <Row label="Total" value={formatKes(o.total)} bold />
@@ -190,20 +233,19 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
                   <span className="text-sm text-muted-foreground">Status</span>
                   <PaymentStatusBadge status={o.paymentStatus} />
                 </div>
-                {o.fulfillmentType && <Row label="Fulfillment" value={o.fulfillmentType.replace(/_/g, " ")} />}
+                {o.fulfillmentType && (
+                  <Row
+                    label="Fulfillment type"
+                    value={
+                      o.fulfillmentType === "OWN_COURIER"
+                        ? "Customer's sacco / courier"
+                        : o.fulfillmentType === "PICKUP"
+                          ? "Pickup at shop"
+                          : "Zone delivery"
+                    }
+                  />
+                )}
               </Section>
-
-              {/* Courier details — only for OWN_COURIER orders */}
-              {o.fulfillmentType === "OWN_COURIER" && (
-                <Section title="Courier details">
-                  <Row label="Courier type" value={(o.courierType ?? "—").toString().replace(/_/g, " ")} />
-                  {o.courierServiceName && <Row label="Service name" value={o.courierServiceName} />}
-                  {o.courierStageOrOffice && <Row label="Stage / office" value={o.courierStageOrOffice} />}
-                  <div className="mt-2 rounded-md border border-dashed bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-                    Transport cost to be confirmed at dispatch.
-                  </div>
-                </Section>
-              )}
 
               {/* Update status */}
               <Section title="Update order status">
