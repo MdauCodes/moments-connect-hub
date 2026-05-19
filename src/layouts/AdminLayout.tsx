@@ -18,6 +18,7 @@ import {
   CreditCard,
   BarChart3,
   Truck,
+  RefreshCw,
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { can, type Permission } from "@/lib/permissions";
