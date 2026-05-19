@@ -193,7 +193,7 @@ function OrderDetailPage() {
               <h2 className="font-display text-lg">Summary</h2>
               <dl className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal</dt><dd>{fmt(order.subtotal)}</dd></div>
-                <div className="flex justify-between"><dt className="text-muted-foreground">Shipping</dt><dd>{order.shippingFee === 0 ? "Free" : fmt(order.shippingFee)}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">Shipping</dt><dd>{order.fulfillmentType === "OWN_COURIER" ? "Paid to courier" : order.fulfillmentType === "PICKUP" ? "Free (pickup)" : order.shippingFee === 0 ? "Free" : fmt(order.shippingFee)}</dd></div>
                 <div className="border-t border-border pt-2 flex justify-between font-semibold"><dt>Total</dt><dd>{fmt(order.total)}</dd></div>
               </dl>
               <div className="mt-4 rounded-lg bg-secondary p-3 text-xs">
