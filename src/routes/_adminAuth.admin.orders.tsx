@@ -41,7 +41,7 @@ function AdminOrdersPage() {
       .catch((err) => toast.error(err instanceof Error ? err.message : "Failed to load orders"))
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [status, q, page]);
+  }, [status, q, page, reloadKey]);
 
   const totals = useMemo(() => {
     if (!data) return { revenue: 0, orders: 0 };
