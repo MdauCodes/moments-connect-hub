@@ -429,7 +429,7 @@ function CheckoutModal() {
                     <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
                       <div className="mb-3 flex items-baseline justify-between gap-2">
                         <h3 className="font-display text-lg text-foreground">
-                          1. Destination — where you’ll collect
+                          1. Where do you need it delivered?
                         </h3>
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                           Your side
@@ -476,7 +476,7 @@ function CheckoutModal() {
                     <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
                       <div className="mb-3 flex items-baseline justify-between gap-2">
                         <h3 className="font-display text-lg text-foreground">
-                          2. Dispatch — which courier should we use
+                          2. Do you have an idea of which sacco / courier office in Nairobi we should use? (this is helpful to us)
                         </h3>
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                           Our side
@@ -541,8 +541,9 @@ function CheckoutModal() {
                             <option value="Not sure — please call me" />
                           </datalist>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Required. If you’re not yet sure which sacco/service to use, type{" "}
-                            <em>“Not sure — call me”</em> and our staff will help you choose.
+                            Type any sacco or courier name — the list above is just suggestions, not a
+                            fixed menu. If you’re not yet sure, type <em>“Not sure — call me”</em> and
+                            our staff will help you choose.
                           </p>
                         </div>
 
@@ -599,9 +600,9 @@ function CheckoutModal() {
                   <button
                     type="button"
                     onClick={() => setStep("contact")}
-                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                    className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition hover:bg-secondary"
                   >
-                    <ArrowLeft className="h-4 w-4" /> Back
+                    <ArrowLeft className="h-4 w-4" /> Edit order details
                   </button>
 
                   <div>
@@ -713,14 +714,23 @@ function CheckoutModal() {
                   <p className="mt-2 max-w-md text-sm text-muted-foreground">
                     {errorMsg ?? "Your M-Pesa payment was not completed."}
                   </p>
-                  <button
-                    type="button"
-                    onClick={startPayment}
-                    className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
-                    style={{ backgroundColor: BRAND }}
-                  >
-                    Try again
-                  </button>
+                  <div className="mt-6 flex flex-wrap justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={startPayment}
+                      className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
+                      style={{ backgroundColor: BRAND }}
+                    >
+                      Try again
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setPayState("idle"); setStep("contact"); }}
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-semibold text-foreground hover:bg-secondary"
+                    >
+                      <ArrowLeft className="h-4 w-4" /> Edit order details
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -747,6 +757,13 @@ function CheckoutModal() {
                       style={{ backgroundColor: BRAND }}
                     >
                       Try again
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setPayState("idle"); setStep("contact"); }}
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
+                    >
+                      <ArrowLeft className="h-4 w-4" /> Edit order details
                     </button>
                     <Link
                       to="/contact"
