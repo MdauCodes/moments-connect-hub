@@ -28,28 +28,46 @@ function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<string>("ALL");
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
   const [page, setPage] = useState(0);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => { document.title = "Orders · Moments admin"; }, []);
 
   useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(q.trim()), 250);
+    return () => clearTimeout(t);
+  }, [q]);
+
+  useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listOrders({ status: status === "ALL" ? undefined : status, q: q || undefined, page, size: PAGE_SIZE })
+    listOrders({ status: status === "ALL" ? undefined : status, q: debouncedQ || undefined, page, size: PAGE_SIZE })
       .then((res) => { if (!cancelled) setData(res); })
       .catch((err) => toast.error(err instanceof Error ? err.message : "Failed to load orders"))
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [status, q, page, reloadKey]);
+  }, [status, debouncedQ, page, reloadKey]);
+
+  // Client-side guard so the search field visibly filters even if the backend ignores `q`.
+  const visibleRows = useMemo(() => {
+    if (!data) return [];
+    const needle = debouncedQ.toLowerCase();
+    if (!needle) return data.rows;
+    return data.rows.filter((o) =>
+      [o.reference, o.customerName, o.customerEmail, o.customerPhone, o.city, o.trackingNumber]
+        .filter(Boolean)
+        .some((v) => String(v).toLowerCase().includes(needle)),
+    );
+  }, [data, debouncedQ]);
 
   const totals = useMemo(() => {
     if (!data) return { revenue: 0, orders: 0 };
     return {
-      revenue: data.rows.reduce((s, o) => s + Number((o as any).totalAmount ?? o.total ?? 0), 0),
-      orders: data.total,
+      revenue: visibleRows.reduce((s, o) => s + Number((o as any).totalAmount ?? o.total ?? 0), 0),
+      orders: debouncedQ ? visibleRows.length : data.total,
     };
-  }, [data]);
+  }, [data, visibleRows, debouncedQ]);
 
   return (
     <AdminLayout title="Orders" onReload={() => setReloadKey((k) => k + 1)}>
@@ -125,10 +143,10 @@ function AdminOrdersPage() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={8}><div className="admin-empty">Loading orders…</div></td></tr>
-                ) : !data || data.rows.length === 0 ? (
+                ) : !data || visibleRows.length === 0 ? (
                   <tr><td colSpan={8}><div className="admin-empty">No orders match your filters.</div></td></tr>
                 ) : (
-                  data.rows.map((o) => (
+                  visibleRows.map((o) => (
                     <tr key={o.id}>
                       <td><b>{o.reference}</b></td>
                       <td>

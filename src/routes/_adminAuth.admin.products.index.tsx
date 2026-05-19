@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Pencil, Search, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { useAuth } from "@/contexts/AdminAuthContext";
@@ -18,12 +18,19 @@ function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [filters, setFilters] = useState({ industryId: "", category: "", isDiscount: "", isNewArrival: "", isFastMoving: "" });
+  const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(q.trim().toLowerCase()), 250);
+    return () => clearTimeout(t);
+  }, [q]);
 
   const load = async () => {
     setLoading(true);
     try {
       const [productPage, industryRows] = await Promise.all([
-        adminResources.products.list({ ...filters, page, size: 10, sort: "createdAt,desc" }),
+        adminResources.products.list({ ...filters, q: debouncedQ || undefined, page, size: 10, sort: "createdAt,desc" }),
         adminResources.industries.list(),
       ]);
       setProducts(productPage.rows);
@@ -37,7 +44,29 @@ function AdminProductsPage() {
   };
   useEffect(() => {
     void load();
-  }, [page, filters.industryId, filters.category, filters.isDiscount, filters.isNewArrival, filters.isFastMoving]);
+  }, [page, filters.industryId, filters.category, filters.isDiscount, filters.isNewArrival, filters.isFastMoving, debouncedQ]);
+
+  // Client-side guard: ensure filters/search visibly apply even if backend ignores them.
+  const visibleProducts = useMemo(() => {
+    let rows = products;
+    if (debouncedQ) {
+      rows = rows.filter((p) =>
+        [p.name, p.sku, p.category, p.description]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(debouncedQ)),
+      );
+    }
+    if (filters.category) {
+      rows = rows.filter((p) => (p.category ?? "").toLowerCase().includes(filters.category.toLowerCase()));
+    }
+    if (filters.industryId) {
+      rows = rows.filter((p) => (p.industryIds ?? []).includes(filters.industryId));
+    }
+    if (filters.isDiscount) rows = rows.filter((p) => p.isDiscount);
+    if (filters.isNewArrival) rows = rows.filter((p) => p.isNewArrival);
+    if (filters.isFastMoving) rows = rows.filter((p) => p.isFastMoving);
+    return rows;
+  }, [products, debouncedQ, filters]);
 
   const beginCreate = () => navigate({ to: "/admin/products/new" });
   const beginEdit = (p: ProductDto) => navigate({ to: "/admin/products/$id", params: { id: p.id } });
@@ -59,6 +88,26 @@ function AdminProductsPage() {
     <AdminLayout title="Products" actionLabel="New product" onAction={beginCreate} onReload={load}>
       <div className="admin-page-stack">
         <div className="admin-panel admin-toolbar" data-admin-toolbar>
+          <div style={{ position: "relative", flex: "1 1 240px", maxWidth: 320 }}>
+            <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--admin-muted)" }} />
+            <input
+              className="admin-input"
+              style={{ width: "100%", paddingLeft: 30, paddingRight: q ? 28 : 12 }}
+              placeholder="Search by name, SKU, category…"
+              value={q}
+              onChange={(e) => { setPage(0); setQ(e.target.value); }}
+            />
+            {q && (
+              <button
+                type="button"
+                onClick={() => { setQ(""); setPage(0); }}
+                aria-label="Clear search"
+                style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", background: "transparent", border: 0, cursor: "pointer", color: "var(--admin-muted)" }}
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
           <select
             className="admin-select"
             style={{ maxWidth: 220 }}
@@ -77,7 +126,7 @@ function AdminProductsPage() {
           </select>
           <input
             className="admin-input"
-            style={{ maxWidth: 220 }}
+            style={{ maxWidth: 200 }}
             placeholder="Category"
             value={filters.category}
             onChange={(e) => {
@@ -97,6 +146,18 @@ function AdminProductsPage() {
               {key.replace("is", "")}
             </button>
           ))}
+          {(q || filters.industryId || filters.category || filters.isDiscount || filters.isNewArrival || filters.isFastMoving) && (
+            <button
+              className="admin-btn admin-btn-ghost"
+              onClick={() => {
+                setQ("");
+                setPage(0);
+                setFilters({ industryId: "", category: "", isDiscount: "", isNewArrival: "", isFastMoving: "" });
+              }}
+            >
+              Clear
+            </button>
+          )}
         </div>
         <div className="admin-panel" data-admin-table-scroll>
           <table className="admin-table">
@@ -116,7 +177,7 @@ function AdminProductsPage() {
                 <tr>
                   <td colSpan={7}>Loading products…</td>
                 </tr>
-              ) : products.length === 0 ? (
+              ) : visibleProducts.length === 0 ? (
                 <tr>
                   <td colSpan={7}>
                     <div className="admin-empty">
@@ -128,7 +189,7 @@ function AdminProductsPage() {
                   </td>
                 </tr>
               ) : (
-                products.map((p) => {
+                visibleProducts.map((p) => {
                   const stock = p.stock ?? 0;
                   const threshold = p.lowStockThreshold ?? 50;
                   const tracking = p.trackInventory ?? true;
