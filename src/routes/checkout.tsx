@@ -408,162 +408,168 @@ function CheckoutModal() {
                   <input className={inputCls} required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0712 345 678" inputMode="tel" />
                 </div>
 
-                {fulfillment !== "PICKUP" && (
-                  <>
-                    <div>
-                      <label className={labelCls}>City / town</label>
-                      <input className={inputCls} required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Nairobi" />
-                    </div>
-                    <div>
-                      <label className={labelCls}>County</label>
-                      {fulfillment === "ZONE_DELIVERY" && zones.length > 0 ? (
-                        <>
-                          <div ref={zoneRef} className="relative">
-                            <input
-                              type="text"
-                              className={inputCls}
-                              required={!selectedZone}
-                              value={
-                                zoneOpen
-                                  ? zoneSearch
-                                  : selectedZone
-                                    ? `${selectedZone.zoneName} (${selectedZone.county}) — KES ${Number(selectedZone.feeAmount).toLocaleString()}`
-                                    : ""
-                              }
-                              placeholder="Search delivery zone…"
-                              onFocus={() => {
-                                setZoneOpen(true);
-                                setZoneSearch("");
-                              }}
-                              onChange={(e) => {
-                                setZoneSearch(e.target.value);
-                                setZoneOpen(true);
-                              }}
-                            />
-                            {zoneOpen && (
-                              <ul
-                                className="absolute z-20 mt-1 w-full overflow-y-auto rounded-md border border-border bg-popover shadow-lg"
-                                style={{ maxHeight: 240, scrollBehavior: "smooth" }}
-                              >
-                                {(() => {
-                                  const q = zoneSearch.trim().toLowerCase();
-                                  const filtered = q
-                                    ? zones.filter(
-                                        (z) =>
-                                          z.zoneName.toLowerCase().includes(q) ||
-                                          z.county.toLowerCase().includes(q),
-                                      )
-                                    : zones;
-                                  if (filtered.length === 0) {
-                                    return (
-                                      <li className="px-3 py-2 text-sm text-muted-foreground">
-                                        No zones found
-                                      </li>
-                                    );
-                                  }
-                                  return filtered.map((z) => (
-                                    <li key={z.id}>
-                                      <button
-                                        type="button"
-                                        className="block w-full px-3 py-2 text-left text-sm hover:bg-secondary"
-                                        onClick={() => {
-                                          setSelectedZone(z);
-                                          setCounty(z.county);
-                                          setZoneSearch("");
-                                          setZoneOpen(false);
-                                        }}
-                                      >
-                                        {z.zoneName} ({z.county}) — KES {Number(z.feeAmount).toLocaleString()}
-                                      </button>
-                                    </li>
-                                  ));
-                                })()}
-                              </ul>
-                            )}
-                          </div>
-                          {selectedZone?.description && (
-                            <p className="mt-1 text-xs text-muted-foreground">{selectedZone.description}</p>
-                          )}
-                        </>
-                      ) : (
-                        <CountySelect value={county} onChange={setCounty} required placeholder="Select county…" />
-                      )}
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className={labelCls}>
-                        {fulfillment === "OWN_COURIER" ? "Pickup / handoff address" : "Specific delivery location"}
-                      </label>
-                      <input
-                        className={inputCls}
-                        required
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="e.g. Huruma, Three Rings Plaza or near Shell Makutano"
-                      />
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Provide a well-known landmark — petrol station, roundabout, market, church, or school.
+                {fulfillment === "OWN_COURIER" && (
+                  <div className="sm:col-span-2 space-y-4">
+                    {/* Friendly explainer */}
+                    <div className="rounded-2xl border border-border bg-secondary/40 p-4 text-sm leading-relaxed text-foreground/90">
+                      <p>
+                        <span className="font-semibold">How delivery works:</span> we hand your parcel
+                        to a <span className="font-semibold">sacco or parcel service</span> (e.g. 2NK,
+                        4NTE, Kukena, Easy Coach, Tahmeed, G4S, Pickup Mtaani). They handle the
+                        transport to your town, and you collect it from their office there.
+                      </p>
+                      <p className="mt-2 text-muted-foreground">
+                        The two short sections below help us get your parcel to the right place
+                        quickly. If you’re unsure about anything, just leave it blank — our team will
+                        call you to confirm before dispatch.
                       </p>
                     </div>
-                    <div className="sm:col-span-2">
-                      <label className={labelCls}>Postal code (optional)</label>
-                      <input className={inputCls} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="00100" />
-                    </div>
-                  </>
-                )}
 
-                {fulfillment === "OWN_COURIER" && (
-                  <div className="sm:col-span-2 space-y-3 rounded-2xl border border-dashed border-border bg-secondary/30 p-4">
-                    <div>
-                      <div className={labelCls}>Courier type</div>
-                      <div className="flex flex-wrap gap-2">
-                        {(
-                          [
-                            { v: "MATATU", label: "Matatu / SGR" },
-                            { v: "PARCEL_SERVICE", label: "Parcel Service" },
-                            { v: "BOLT_SEND", label: "Bolt / Uber" },
-                            { v: "RIDER", label: "Boda / Rider" },
-                            { v: "OTHER", label: "Other" },
-                          ] as { v: CourierType; label: string }[]
-                        ).map((c) => (
-                          <button
-                            key={c.v}
-                            type="button"
-                            onClick={() => setCourierType(c.v)}
-                            className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                              courierType === c.v
-                                ? "border-transparent text-white"
-                                : "border-border bg-background text-foreground hover:bg-secondary"
-                            }`}
-                            style={courierType === c.v ? { backgroundColor: BRAND } : undefined}
-                          >
-                            {c.label}
-                          </button>
-                        ))}
+                    {/* SECTION 1 — DESTINATION (customer side) */}
+                    <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+                      <div className="mb-3 flex items-baseline justify-between gap-2">
+                        <h3 className="font-display text-lg text-foreground">
+                          1. Destination — where you’ll collect
+                        </h3>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          Your side
+                        </span>
                       </div>
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div>
-                        <label className={labelCls}>Service name (optional)</label>
-                        <input
-                          className={inputCls}
-                          value={courierServiceName}
-                          onChange={(e) => setCourierServiceName(e.target.value)}
-                          placeholder="e.g. G4S, Easy Coach, Pickup Mtaani"
-                        />
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label className={labelCls}>Destination town <span className="text-destructive">*</span></label>
+                          <input
+                            className={inputCls}
+                            required
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            placeholder="e.g. Nyeri, Meru, Eldoret"
+                          />
+                        </div>
+                        <div>
+                          <label className={labelCls}>County <span className="text-destructive">*</span></label>
+                          <CountySelect value={county} onChange={setCounty} required placeholder="Select county…" />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className={labelCls}>
+                            Nearest courier office to you (optional)
+                          </label>
+                          <input
+                            className={inputCls}
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            placeholder="e.g. 2NK Nyeri town office, Easy Coach Eldoret stage"
+                          />
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            The sacco / parcel office on <em>your</em> side where you’ll pick up the
+                            parcel. Not sure which one? Leave blank — we’ll call to confirm with you.
+                          </p>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className={labelCls}>Postal code (optional)</label>
+                          <input className={inputCls} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="00100" />
+                        </div>
                       </div>
-                      <div>
-                        <label className={labelCls}>Stage / office (optional)</label>
-                        <input
-                          className={inputCls}
-                          value={courierStageOrOffice}
-                          onChange={(e) => setCourierStageOrOffice(e.target.value)}
-                          placeholder="e.g. Machakos Country Bus stage"
-                        />
+                    </section>
+
+                    {/* SECTION 2 — DISPATCH (our side) */}
+                    <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+                      <div className="mb-3 flex items-baseline justify-between gap-2">
+                        <h3 className="font-display text-lg text-foreground">
+                          2. Dispatch — which courier should we use
+                        </h3>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          Our side
+                        </span>
                       </div>
-                    </div>
-                    <div className="rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-                      <strong>Transport cost to be confirmed at dispatch.</strong> Our team will call you to confirm the courier fee — you can pay it or collect from our shop.
-                    </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <div className={labelCls}>Courier type <span className="text-destructive">*</span></div>
+                          <div className="flex flex-wrap gap-2">
+                            {(
+                              [
+                                { v: "MATATU", label: "Sacco / Matatu / SGR" },
+                                { v: "PARCEL_SERVICE", label: "Parcel Service" },
+                                { v: "BOLT_SEND", label: "Bolt / Uber" },
+                                { v: "RIDER", label: "Boda / Rider" },
+                                { v: "OTHER", label: "Other" },
+                              ] as { v: CourierType; label: string }[]
+                            ).map((c) => (
+                              <button
+                                key={c.v}
+                                type="button"
+                                onClick={() => setCourierType(c.v)}
+                                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                                  courierType === c.v
+                                    ? "border-transparent text-white"
+                                    : "border-border bg-background text-foreground hover:bg-secondary"
+                                }`}
+                                style={courierType === c.v ? { backgroundColor: BRAND } : undefined}
+                              >
+                                {c.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className={labelCls}>
+                            Sacco / courier service name <span className="text-destructive">*</span>
+                          </label>
+                          <input
+                            className={inputCls}
+                            required
+                            value={courierServiceName}
+                            onChange={(e) => setCourierServiceName(e.target.value)}
+                            placeholder="e.g. 2NK, 4NTE, Kukena, Easy Coach, Tahmeed, G4S, Pickup Mtaani"
+                            list="courier-suggestions"
+                          />
+                          <datalist id="courier-suggestions">
+                            <option value="2NK Sacco" />
+                            <option value="4NTE Sacco" />
+                            <option value="Kukena Sacco" />
+                            <option value="Easy Coach" />
+                            <option value="Tahmeed" />
+                            <option value="Mash Poa" />
+                            <option value="Modern Coast" />
+                            <option value="Guardian Coach" />
+                            <option value="Climax Coach" />
+                            <option value="G4S Courier" />
+                            <option value="Pickup Mtaani" />
+                            <option value="Wells Fargo Courier" />
+                            <option value="Not sure — please call me" />
+                          </datalist>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Required. If you’re not yet sure which sacco/service to use, type{" "}
+                            <em>“Not sure — call me”</em> and our staff will help you choose.
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className={labelCls}>
+                            Dispatch stage / office in Nairobi (optional)
+                          </label>
+                          <input
+                            className={inputCls}
+                            value={courierStageOrOffice}
+                            onChange={(e) => setCourierStageOrOffice(e.target.value)}
+                            placeholder="e.g. 2NK Accra Road, Machakos Country Bus stage, Easy Coach River Road"
+                          />
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            The stage / booking office on <em>our</em> side where we drop the parcel
+                            for dispatch. Leave blank if you don’t know — we’ll pick the standard
+                            office for that sacco.
+                          </p>
+                        </div>
+
+                        <div className="rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                          <strong>Transport cost is paid directly to the sacco / courier</strong> on
+                          collection (or at dispatch — we’ll confirm by phone). It is separate from
+                          your product total below.
+                        </div>
+                      </div>
+                    </section>
                   </div>
                 )}
 
