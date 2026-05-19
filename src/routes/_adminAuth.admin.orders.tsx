@@ -52,7 +52,7 @@ function AdminOrdersPage() {
   }, [data]);
 
   return (
-    <AdminLayout title="Orders">
+    <AdminLayout title="Orders" onReload={() => setReloadKey((k) => k + 1)}>
       <div className="admin-page-stack">
         {data && <MockBanner source={data.source} />}
 
