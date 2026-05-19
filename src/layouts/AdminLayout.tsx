@@ -327,11 +327,23 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   );
 }
 
-export function AdminLayout({ title, actionLabel, onAction, children }: AdminLayoutProps) {
+export function AdminLayout({ title, actionLabel, onAction, onReload, children }: AdminLayoutProps) {
   const { user, logout } = useAdminAuth();
   const location = useLocation();
   const pathname = location.pathname;
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [reloading, setReloading] = useState(false);
+
+  const handleReload = async () => {
+    if (reloading) return;
+    setReloading(true);
+    try {
+      if (onReload) await onReload();
+      window.dispatchEvent(new CustomEvent("admin:reload", { detail: { pathname } }));
+    } finally {
+      setTimeout(() => setReloading(false), 400);
+    }
+  };
 
   const isActive = (to: string): boolean => {
     if (to === "/admin/dashboard") {
