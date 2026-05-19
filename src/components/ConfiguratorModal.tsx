@@ -36,8 +36,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
         collectionName: t.collectionName,
         quantity: Number(t.quantity),
         pricePerUnit: Number(t.pricePerUnit) || 0,
-        collectionPrice:
-          Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0,
+        collectionPrice: Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0,
         sortOrder: t.sortOrder ?? i,
       }))
       .slice()
@@ -50,9 +49,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
 
   const selectedTier = useMemo(
     () =>
-      hasCollections && selectedTierId
-        ? (collectionTiers.find((t: any) => t.id === selectedTierId) as any)
-        : null,
+      hasCollections && selectedTierId ? (collectionTiers.find((t: any) => t.id === selectedTierId) as any) : null,
     [collectionTiers, hasCollections, selectedTierId],
   );
 
@@ -165,8 +162,8 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                     hasCollections
                       ? "bg-primary/10 text-primary"
                       : individualEnabled
-                      ? "bg-forest/10 text-forest"
-                      : "bg-muted text-muted-foreground"
+                        ? "bg-forest/10 text-forest"
+                        : "bg-muted text-muted-foreground"
                   }`}
                 >
                   {hasCollections ? "Collections" : individualEnabled ? "Per-unit order" : "Quote only"}
@@ -276,8 +273,8 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                 selectedTier
                   ? `Number of ${selectedTier.uomName ?? selectedTier.collectionName}s`
                   : hasCollections
-                  ? "Quantity"
-                  : "Number of pieces"
+                    ? "Quantity"
+                    : "Number of pieces"
               }
               note={selectedTier ? `(× ${collectionQty} pieces each)` : `(Min. ${minQty.toLocaleString()})`}
             >
@@ -303,7 +300,8 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
               {selectedTier ? (
                 <p className="text-sm">
-                  {quantity.toLocaleString()} × {selectedTier.uomName ?? selectedTier.collectionName} (× {collectionQty} pieces each) ={" "}
+                  {quantity.toLocaleString()} × {selectedTier.uomName ?? selectedTier.collectionName} (× {collectionQty}{" "}
+                  pieces each) ={" "}
                   <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
                   <span className="ml-2 text-xs opacity-80">
                     · {(quantity * collectionQty).toLocaleString()} total pieces
@@ -318,7 +316,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             </div>
           )}
 
-          <p className="text-xs text-muted-foreground">Production: 7–14 business days</p>
+          <p className="text-xs text-muted-foreground"></p>
 
           {hasCollections || individualEnabled ? (
             <button

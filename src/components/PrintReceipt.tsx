@@ -48,7 +48,9 @@ export function PrintReceipt({ order, hideTrigger = false }: PrintReceiptProps) 
               <p style={{ margin: "2px 0 0", fontSize: 12, color: "#444" }}>www.momentspackaging.com</p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <p style={{ margin: 0, fontSize: 11, textTransform: "uppercase", letterSpacing: 1.5, color: "#666" }}>Receipt</p>
+              <p style={{ margin: 0, fontSize: 11, textTransform: "uppercase", letterSpacing: 1.5, color: "#666" }}>
+                Receipt
+              </p>
               <p style={{ margin: "4px 0 0", fontFamily: "monospace", fontSize: 16 }}>{order.reference}</p>
               <p style={{ margin: "2px 0 0", fontSize: 11, color: "#444" }}>
                 {new Date(order.createdAt).toLocaleString("en-KE")}
@@ -59,13 +61,17 @@ export function PrintReceipt({ order, hideTrigger = false }: PrintReceiptProps) 
 
         <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20, fontSize: 12 }}>
           <div>
-            <p style={{ margin: 0, fontSize: 10, textTransform: "uppercase", letterSpacing: 1, color: "#666" }}>Billed to</p>
+            <p style={{ margin: 0, fontSize: 10, textTransform: "uppercase", letterSpacing: 1, color: "#666" }}>
+              Billed to
+            </p>
             <p style={{ margin: "4px 0 0", fontWeight: 600 }}>{order.customerName}</p>
             <p style={{ margin: 0 }}>{order.customerEmail}</p>
             <p style={{ margin: 0 }}>{order.customerPhone}</p>
           </div>
           <div>
-            <p style={{ margin: 0, fontSize: 10, textTransform: "uppercase", letterSpacing: 1, color: "#666" }}>Ship to</p>
+            <p style={{ margin: 0, fontSize: 10, textTransform: "uppercase", letterSpacing: 1, color: "#666" }}>
+              Ship to
+            </p>
             <p style={{ margin: "4px 0 0" }}>{order.shippingAddress}</p>
             <p style={{ margin: 0 }}>{order.city}</p>
           </div>
@@ -98,16 +104,26 @@ export function PrintReceipt({ order, hideTrigger = false }: PrintReceiptProps) 
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={3} style={{ textAlign: "right", padding: "10px 6px", color: "#555" }}>Subtotal</td>
+              <td colSpan={3} style={{ textAlign: "right", padding: "10px 6px", color: "#555" }}>
+                Subtotal
+              </td>
               <td style={{ textAlign: "right", padding: "10px 6px" }}>{fmt(order.subtotal)}</td>
             </tr>
             <tr>
-              <td colSpan={3} style={{ textAlign: "right", padding: "4px 6px", color: "#555" }}>Shipping</td>
-              <td style={{ textAlign: "right", padding: "4px 6px" }}>{order.shippingFee === 0 ? "Free" : fmt(order.shippingFee)}</td>
+              <td colSpan={3} style={{ textAlign: "right", padding: "4px 6px", color: "#555" }}>
+                Shipping
+              </td>
+              <td style={{ textAlign: "right", padding: "4px 6px" }}>
+                {order.shippingFee === 0 ? "Free" : fmt(order.shippingFee)}
+              </td>
             </tr>
             <tr style={{ borderTop: "2px solid #111" }}>
-              <td colSpan={3} style={{ textAlign: "right", padding: "10px 6px", fontWeight: 700, fontSize: 14 }}>Total ({order.currency})</td>
-              <td style={{ textAlign: "right", padding: "10px 6px", fontWeight: 700, fontSize: 14 }}>{fmt(order.total)}</td>
+              <td colSpan={3} style={{ textAlign: "right", padding: "10px 6px", fontWeight: 700, fontSize: 14 }}>
+                Total ({order.currency})
+              </td>
+              <td style={{ textAlign: "right", padding: "10px 6px", fontWeight: 700, fontSize: 14 }}>
+                {fmt(order.total)}
+              </td>
             </tr>
           </tfoot>
         </table>
@@ -118,8 +134,8 @@ export function PrintReceipt({ order, hideTrigger = false }: PrintReceiptProps) 
             {order.paymentReference ? ` · Ref ${order.paymentReference}` : ""}
           </p>
           <p style={{ margin: "8px 0 0" }}>
-            Thank you for your order. Production lead time is 7–14 business days. Returns are accepted within 14 days
-            of delivery — contact sales@momentspackaging.co.ke or visit www.momentspackaging.com/account/orders/{order.reference}.
+            Thank you for your order. We are committed to Smooth Business Experiences and Convenience. of delivery —
+            contact pkihara2008@gmail.com or visit www.momentspackaging.com/account/orders/{order.reference}.
           </p>
         </section>
       </div>
