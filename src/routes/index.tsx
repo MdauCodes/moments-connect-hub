@@ -261,6 +261,9 @@ function Hero() {
               >
                 Deals
               </Link>
+              <Link to="/orders/track" className="hover:opacity-80">
+                Track Order
+              </Link>
               <Link to="/enterprise-quote" className="hover:opacity-80">
                 Enterprise
               </Link>
