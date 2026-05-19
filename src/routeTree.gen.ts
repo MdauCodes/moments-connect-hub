@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StaffRouteImport } from './routes/staff'
+import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OrderConfirmationRouteImport } from './routes/order-confirmation'
@@ -74,6 +75,11 @@ const TermsRoute = TermsRouteImport.update({
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
   path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundsRoute = RefundsRouteImport.update({
+  id: '/refunds',
+  path: '/refunds',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -366,6 +372,7 @@ export interface FileRoutesByFullPath {
   '/order-confirmation': typeof OrderConfirmationRoute
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRouteWithChildren
+  '/refunds': typeof RefundsRoute
   '/staff': typeof StaffRoute
   '/terms': typeof TermsRoute
   '/account/dashboard': typeof AccountDashboardRoute
@@ -423,6 +430,7 @@ export interface FileRoutesByTo {
   '/order-confirmation': typeof OrderConfirmationRoute
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRouteWithChildren
+  '/refunds': typeof RefundsRoute
   '/staff': typeof StaffRoute
   '/terms': typeof TermsRoute
   '/account/dashboard': typeof AccountDashboardRoute
@@ -482,6 +490,7 @@ export interface FileRoutesById {
   '/order-confirmation': typeof OrderConfirmationRoute
   '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRouteWithChildren
+  '/refunds': typeof RefundsRoute
   '/staff': typeof StaffRoute
   '/terms': typeof TermsRoute
   '/account/dashboard': typeof AccountDashboardRoute
@@ -541,6 +550,7 @@ export interface FileRouteTypes {
     | '/order-confirmation'
     | '/privacy'
     | '/products'
+    | '/refunds'
     | '/staff'
     | '/terms'
     | '/account/dashboard'
@@ -598,6 +608,7 @@ export interface FileRouteTypes {
     | '/order-confirmation'
     | '/privacy'
     | '/products'
+    | '/refunds'
     | '/staff'
     | '/terms'
     | '/account/dashboard'
@@ -656,6 +667,7 @@ export interface FileRouteTypes {
     | '/order-confirmation'
     | '/privacy'
     | '/products'
+    | '/refunds'
     | '/staff'
     | '/terms'
     | '/account/dashboard'
@@ -715,6 +727,7 @@ export interface RootRouteChildren {
   OrderConfirmationRoute: typeof OrderConfirmationRoute
   PrivacyRoute: typeof PrivacyRoute
   ProductsRoute: typeof ProductsRouteWithChildren
+  RefundsRoute: typeof RefundsRoute
   StaffRoute: typeof StaffRoute
   TermsRoute: typeof TermsRoute
   AccountDashboardRoute: typeof AccountDashboardRoute
@@ -747,6 +760,13 @@ declare module '@tanstack/react-router' {
       path: '/staff'
       fullPath: '/staff'
       preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refunds': {
+      id: '/refunds'
+      path: '/refunds'
+      fullPath: '/refunds'
+      preLoaderRoute: typeof RefundsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -1281,6 +1301,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrderConfirmationRoute: OrderConfirmationRoute,
   PrivacyRoute: PrivacyRoute,
   ProductsRoute: ProductsRouteWithChildren,
+  RefundsRoute: RefundsRoute,
   StaffRoute: StaffRoute,
   TermsRoute: TermsRoute,
   AccountDashboardRoute: AccountDashboardRoute,
@@ -1301,12 +1322,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
