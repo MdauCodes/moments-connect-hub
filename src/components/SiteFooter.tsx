@@ -127,9 +127,10 @@ export function SiteFooter() {
       <div className="border-t border-primary-foreground/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-6 text-xs text-primary-foreground/60 sm:flex-row lg:px-8">
           <p>© {new Date().getFullYear()} Moments Packaging Kenya Ltd. All rights reserved.</p>
-          <nav className="flex items-center gap-4">
+          <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             <Link to="/privacy" className="hover:text-accent">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-accent">Terms of Service</Link>
+            <Link to="/refunds" className="hover:text-accent">Refunds &amp; Returns</Link>
             <Link to="/contact" className="hover:text-accent">Contact</Link>
           </nav>
         </div>
