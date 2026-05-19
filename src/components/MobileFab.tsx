@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, Tag, Briefcase, MessageCircle, ShoppingBag, Home, LogIn } from "lucide-react";
+import { Menu, X, Tag, Briefcase, MessageCircle, ShoppingBag, Home, LogIn, Truck } from "lucide-react";
 
 /**
  * Global floating action menu shown on every page (mobile only).
