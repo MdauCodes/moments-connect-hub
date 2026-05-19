@@ -419,9 +419,7 @@ function ProductDetail() {
                           {Number(t.quantity).toLocaleString()} pieces each
                         </span>
                         {t.uomDescription && (
-                          <span className="mt-0.5 text-[11px] italic text-muted-foreground">
-                            {t.uomDescription}
-                          </span>
+                          <span className="mt-0.5 text-[11px] italic text-muted-foreground">{t.uomDescription}</span>
                         )}
                         <span className="mt-2 text-sm font-semibold text-foreground">
                           KES {cPrice.toLocaleString()}
@@ -573,7 +571,8 @@ function ProductDetail() {
             <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
               {selectedTier ? (
                 <p className="text-sm">
-                  {qty.toLocaleString()} × {selectedTier.uomName ?? selectedTier.collectionName} (× {collectionQty} pieces each) ={" "}
+                  {qty.toLocaleString()} × {selectedTier.uomName ?? selectedTier.collectionName} (× {collectionQty}{" "}
+                  pieces each) ={" "}
                   <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
                   <span className="ml-2 text-xs opacity-80">
                     · {(qty * collectionQty).toLocaleString()} total pieces
@@ -590,7 +589,7 @@ function ProductDetail() {
             </div>
 
             <span className="inline-flex items-center rounded-full bg-cream px-3 py-1 text-xs text-foreground">
-              Production: 7–14 business days
+              We are committed to Smooth Business Experiences and Convenience.
             </span>
 
             {stock.isBackorder && !enterprise && (
