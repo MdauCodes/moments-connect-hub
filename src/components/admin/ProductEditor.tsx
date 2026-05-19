@@ -462,6 +462,28 @@ const s: Record<string, CSSProperties> = {
 const disabledColStyle: CSSProperties = { opacity: 0.5, pointerEvents: "none" };
 const disabledInputStyle: CSSProperties = { background: "transparent", color: "var(--admin-muted)", cursor: "not-allowed" };
 
+const requiredStar: CSSProperties = {
+  color: "var(--admin-clay)",
+  marginLeft: 4,
+  fontWeight: 700,
+};
+function reqLabel(text: string): JSX.Element {
+  return (
+    <>
+      {text}
+      <span style={requiredStar} aria-hidden="true">*</span>
+      <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>
+        (required)
+      </span>
+    </>
+  );
+}
+function invalidStyle(isInvalid: boolean): CSSProperties {
+  return isInvalid
+    ? { borderColor: "var(--admin-clay)", boxShadow: "0 0 0 3px color-mix(in oklab,var(--admin-clay) 18%,transparent)" }
+    : {};
+}
+
 function chip(active: boolean): CSSProperties {
   return {
     border: `1px solid ${active ? "var(--admin-accent-hover)" : "var(--admin-border)"}`,
