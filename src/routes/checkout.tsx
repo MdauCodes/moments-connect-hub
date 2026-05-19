@@ -476,7 +476,7 @@ function CheckoutModal() {
                     <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
                       <div className="mb-3 flex items-baseline justify-between gap-2">
                         <h3 className="font-display text-lg text-foreground">
-                          2. Dispatch — which courier should we use
+                          2. Do you have an idea of which sacco / courier office in Nairobi we should use? (this is helpful to us)
                         </h3>
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                           Our side
