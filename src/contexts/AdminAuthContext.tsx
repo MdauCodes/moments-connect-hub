@@ -27,7 +27,7 @@ interface AdminAuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   ensureValidSession: () => Promise<AdminUser | null>;
-  changePassword: (newPassword: string) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextValue | undefined>(undefined);
@@ -82,8 +82,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     void logoutAdmin();
   };
 
-  const changePassword = async (newPassword: string): Promise<void> => {
-    const next = await changeAdminPassword(newPassword);
+  const changePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
+    const next = await changeAdminPassword(currentPassword, newPassword);
     if (next) setUser(next);
   };
 
