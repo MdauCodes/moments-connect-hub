@@ -37,11 +37,12 @@ function ChangePasswordPage() {
   async function submit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!currentPwd) return setError("Enter your current password.");
     if (pwd.length < 8) return setError("Password must be at least 8 characters.");
     if (pwd !== confirm) return setError("Passwords do not match.");
     setSaving(true);
     try {
-      await changePassword(pwd);
+      await changePassword(currentPwd, pwd);
       await ensureValidSession();
       toast.success("Password updated");
       void navigate({ to: defaultLandingFor(permissions), replace: true });
