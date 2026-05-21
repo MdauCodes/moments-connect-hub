@@ -25,6 +25,12 @@ export interface AdminSession {
   roles: BackendRole[];
   token: string;
   refreshToken?: string;
+  // ── Extended claims (Section 1 of admin overhaul) ──
+  isStaff?: boolean;
+  staffRole?: string;          // e.g. "SUPER_ADMIN", "DISPATCHER"
+  staffRoleDisplay?: string;   // human label e.g. "Dispatcher"
+  permissions?: string[];      // permission codes (PERM.*)
+  mustChangePassword?: boolean;
 }
 
 export interface ApiErrorShape {
