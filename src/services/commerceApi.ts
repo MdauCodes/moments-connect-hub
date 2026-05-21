@@ -331,12 +331,6 @@ export async function exportOrders(params: ListOrdersParams = {}): Promise<{ row
   return { rows: res.rows, source: res.source };
 }
 
-export async function exportPayments(
-  params: ListPaymentsParams = {},
-): Promise<{ rows: PaymentRecord[]; source: Source }> {
-  const res = await listPayments({ ...params, size: 1000 });
-  return { rows: res.rows, source: res.source };
-}
 
 export async function exportCustomers(
   params: ListCustomersParams = {},
