@@ -5,7 +5,7 @@ import { Download } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { MockBanner, formatKes } from "@/components/admin/commerceUi";
 import {
-  getAnalyticsOverview, exportOrders, exportPayments, exportCustomers,
+  getAnalyticsOverview, exportOrders, exportCustomers,
   type AnalyticsResult,
 } from "@/services/commerceApi";
 import { downloadCsv, toCsv } from "@/lib/csv";
@@ -100,7 +100,7 @@ function AdminAnalyticsPage() {
   const revenueDelta = useMemo(() => data ? deltaPct(data.kpis.revenue, data.kpis.revenuePrev) : undefined, [data]);
   const ordersDelta = useMemo(() => data ? deltaPct(data.kpis.orders, data.kpis.ordersPrev) : undefined, [data]);
 
-  async function handleExport(kind: "orders" | "payments" | "customers" | "revenue") {
+  async function handleExport(kind: "orders" | "customers" | "revenue") {
     try {
       setExporting(kind);
       const stamp = new Date().toISOString().slice(0, 10);
@@ -113,13 +113,6 @@ function AdminAnalyticsPage() {
           createdAt: o.createdAt, tracking: o.trackingNumber ?? "",
         }));
         downloadCsv(`orders-${stamp}.csv`, toCsv(flat));
-      } else if (kind === "payments") {
-        const { rows } = await exportPayments();
-        downloadCsv(`payments-${stamp}.csv`, toCsv(rows.map((p) => ({
-          reference: p.reference, orderReference: p.orderReference, gateway: p.gateway,
-          status: p.status, amount: p.amount, customer: p.customerName, phone: p.customerPhone ?? "",
-          gatewayReference: p.gatewayReference ?? "", failureReason: p.failureReason ?? "", createdAt: p.createdAt,
-        }))));
       } else if (kind === "customers") {
         const { rows } = await exportCustomers();
         downloadCsv(`customers-${stamp}.csv`, toCsv(rows.map((c) => ({
@@ -158,9 +151,6 @@ function AdminAnalyticsPage() {
             </button>
             <button className="admin-btn admin-btn-ghost" disabled={!!exporting} onClick={() => handleExport("orders")}>
               <Download size={14} style={{ marginRight: 6 }} />Orders CSV
-            </button>
-            <button className="admin-btn admin-btn-ghost" disabled={!!exporting} onClick={() => handleExport("payments")}>
-              <Download size={14} style={{ marginRight: 6 }} />Payments CSV
             </button>
             <button className="admin-btn admin-btn-ghost" disabled={!!exporting} onClick={() => handleExport("customers")}>
               <Download size={14} style={{ marginRight: 6 }} />Customers CSV

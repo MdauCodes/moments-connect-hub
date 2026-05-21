@@ -265,28 +265,9 @@ export async function refundOrder(
 }
 
 // ---------- Payments ----------
+// Removed: GET /api/v1/admin/payments does not exist on the backend.
+// Payment info is available on each order via paymentStatus / paymentMethod.
 
-export interface ListPaymentsParams {
-  status?: string;
-  gateway?: string;
-  q?: string;
-  page?: number;
-  size?: number;
-}
-
-export interface ListPaymentsResult {
-  rows: PaymentRecord[];
-  total: number;
-  totalPages: number;
-  source: Source;
-}
-
-export async function listPayments(params: ListPaymentsParams = {}): Promise<ListPaymentsResult> {
-  const data = await getJson<
-    { content?: PaymentRecord[]; totalElements?: number; totalPages?: number } | PaymentRecord[]
-  >(`/api/v1/admin/payments${qs(params as Record<string, unknown>)}`);
-  return { ...unwrapPage(data), source: "live" };
-}
 
 // ---------- Dashboard ----------
 
@@ -350,12 +331,6 @@ export async function exportOrders(params: ListOrdersParams = {}): Promise<{ row
   return { rows: res.rows, source: res.source };
 }
 
-export async function exportPayments(
-  params: ListPaymentsParams = {},
-): Promise<{ rows: PaymentRecord[]; source: Source }> {
-  const res = await listPayments({ ...params, size: 1000 });
-  return { rows: res.rows, source: res.source };
-}
 
 export async function exportCustomers(
   params: ListCustomersParams = {},

@@ -15,7 +15,7 @@ import {
   Menu,
   X,
   ShoppingCart,
-  CreditCard,
+  
   BarChart3,
   Truck,
   RefreshCw,
@@ -69,7 +69,6 @@ const navSections: NavSection[] = [
     label: "Sales",
     items: [
       { label: "Orders", to: "/admin/orders", icon: ShoppingCart, requiresAny: [PERM.ORDER_VIEW, PERM.ORDER_MANAGE_ALL, PERM.ORDER_ASSIGN] },
-      { label: "Payments", to: "/admin/payments", icon: CreditCard, requiresAny: [PERM.PAYMENT_VIEW] },
     ],
   },
   {
