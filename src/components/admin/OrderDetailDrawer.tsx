@@ -98,6 +98,7 @@ export function OrderDetailDrawer({ orderId, onClose, onChanged }: Props) {
       if (res.order) {
         setOrder(res.order);
         toast.success("Staff notes saved");
+        onChanged?.();
       }
     } catch (err) {
       toast.error("Could not save notes");
