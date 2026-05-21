@@ -27,7 +27,7 @@ interface AdminAuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   ensureValidSession: () => Promise<AdminUser | null>;
-  changePassword: (newPassword: string) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextValue | undefined>(undefined);
