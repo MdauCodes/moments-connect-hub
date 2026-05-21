@@ -93,9 +93,18 @@ export const adminResources = {
   },
   users: {
     list: () => adminJson<UserDto[]>("/api/v1/admin/users"),
-    create: (body: Partial<UserDto> & { password?: string }) => adminJson<UserDto>("/api/v1/admin/users", { method: "POST", body: JSON.stringify(body) }),
-    update: (id: string, body: Partial<UserDto> & { password?: string }) => adminJson<UserDto>(`/api/v1/admin/users/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }),
+    create: (body: Partial<UserDto> & { password?: string; roleId?: string }) => adminJson<UserDto>("/api/v1/admin/users", { method: "POST", body: JSON.stringify(body) }),
+    update: (id: string, body: Partial<UserDto> & { password?: string; resetPassword?: boolean; roleId?: string }) => adminJson<UserDto>(`/api/v1/admin/users/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }),
     remove: (id: string) => adminJson<void>(`/api/v1/admin/users/${encodeURIComponent(id)}`, { method: "DELETE" }),
+    resetPassword: (id: string) => adminJson<void>(`/api/v1/admin/users/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ resetPassword: true }) }),
+    listAssignable: () => adminJson<UserDto[]>("/api/v1/admin/users/assignable"),
+  },
+  roles: {
+    list: () => adminJson<RoleDto[]>("/api/v1/admin/roles"),
+    create: (body: RoleRequest) => adminJson<RoleDto>("/api/v1/admin/roles", { method: "POST", body: JSON.stringify(body) }),
+    update: (id: string, body: RoleRequest) => adminJson<RoleDto>(`/api/v1/admin/roles/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(body) }),
+    remove: (id: string) => adminJson<void>(`/api/v1/admin/roles/${encodeURIComponent(id)}`, { method: "DELETE" }),
+    listPermissions: () => adminJson<string[]>("/api/v1/admin/permissions"),
   },
   settings: {
     list: () => adminJson<SettingDto[]>("/api/v1/admin/settings"),
