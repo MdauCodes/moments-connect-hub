@@ -19,7 +19,11 @@ function ForgotPasswordPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await passwordStore.requestReset(email.trim());
+      const res = await passwordStore.requestReset(email.trim());
+      if (!res.ok) {
+        setError(res.message ?? "Could not send reset link.");
+        return;
+      }
       setSent(true);
     } finally {
       setSubmitting(false);
