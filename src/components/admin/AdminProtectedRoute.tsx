@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { Forbidden } from "@/components/admin/Forbidden";
 import { useAuth } from "@/contexts/AdminAuthContext";
+import { AdminOrdersProvider } from "@/contexts/AdminOrdersContext";
 import type { BackendRole } from "@/services/adminApi";
 
 export interface ProtectedRouteProps {
