@@ -391,7 +391,7 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
         <nav style={styles.nav}>
           {navSections.map((section, sectionIdx) => {
             const visible = section.items.filter(
-              (item) => !item.requires || can(user?.role, item.requires)
+              (item) => !item.requiresAny || hasAnyPerm(permissions, item.requiresAny),
             );
             if (visible.length === 0) return null;
             return (
