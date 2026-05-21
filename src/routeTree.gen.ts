@@ -55,6 +55,7 @@ import { Route as AdminAuthAdminEnquiriesRouteImport } from './routes/_adminAuth
 import { Route as AdminAuthAdminDeliveryZonesRouteImport } from './routes/_adminAuth.admin.delivery-zones'
 import { Route as AdminAuthAdminDashboardRouteImport } from './routes/_adminAuth.admin.dashboard'
 import { Route as AdminAuthAdminCustomersRouteImport } from './routes/_adminAuth.admin.customers'
+import { Route as AdminAuthAdminChangePasswordRouteImport } from './routes/_adminAuth.admin.change-password'
 import { Route as AdminAuthAdminBlogsRouteImport } from './routes/_adminAuth.admin.blogs'
 import { Route as AdminAuthAdminAnalyticsRouteImport } from './routes/_adminAuth.admin.analytics'
 import { Route as AdminAuthAdminProductsIndexRouteImport } from './routes/_adminAuth.admin.products.index'
@@ -298,6 +299,12 @@ const AdminAuthAdminCustomersRoute = AdminAuthAdminCustomersRouteImport.update({
   path: '/admin/customers',
   getParentRoute: () => AdminAuthRoute,
 } as any)
+const AdminAuthAdminChangePasswordRoute =
+  AdminAuthAdminChangePasswordRouteImport.update({
+    id: '/admin/change-password',
+    path: '/admin/change-password',
+    getParentRoute: () => AdminAuthRoute,
+  } as any)
 const AdminAuthAdminBlogsRoute = AdminAuthAdminBlogsRouteImport.update({
   id: '/admin/blogs',
   path: '/admin/blogs',
@@ -395,6 +402,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/admin/change-password': typeof AdminAuthAdminChangePasswordRoute
   '/admin/customers': typeof AdminAuthAdminCustomersRouteWithChildren
   '/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/admin/delivery-zones': typeof AdminAuthAdminDeliveryZonesRoute
@@ -453,6 +461,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/admin/change-password': typeof AdminAuthAdminChangePasswordRoute
   '/admin/customers': typeof AdminAuthAdminCustomersRouteWithChildren
   '/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/admin/delivery-zones': typeof AdminAuthAdminDeliveryZonesRoute
@@ -513,6 +522,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/_adminAuth/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/_adminAuth/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/_adminAuth/admin/change-password': typeof AdminAuthAdminChangePasswordRoute
   '/_adminAuth/admin/customers': typeof AdminAuthAdminCustomersRouteWithChildren
   '/_adminAuth/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/_adminAuth/admin/delivery-zones': typeof AdminAuthAdminDeliveryZonesRoute
@@ -573,6 +583,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/admin/analytics'
     | '/admin/blogs'
+    | '/admin/change-password'
     | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/delivery-zones'
@@ -631,6 +642,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/admin/analytics'
     | '/admin/blogs'
+    | '/admin/change-password'
     | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/delivery-zones'
@@ -690,6 +702,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/_adminAuth/admin/analytics'
     | '/_adminAuth/admin/blogs'
+    | '/_adminAuth/admin/change-password'
     | '/_adminAuth/admin/customers'
     | '/_adminAuth/admin/dashboard'
     | '/_adminAuth/admin/delivery-zones'
@@ -1070,6 +1083,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuthAdminCustomersRouteImport
       parentRoute: typeof AdminAuthRoute
     }
+    '/_adminAuth/admin/change-password': {
+      id: '/_adminAuth/admin/change-password'
+      path: '/admin/change-password'
+      fullPath: '/admin/change-password'
+      preLoaderRoute: typeof AdminAuthAdminChangePasswordRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
     '/_adminAuth/admin/blogs': {
       id: '/_adminAuth/admin/blogs'
       path: '/admin/blogs'
@@ -1207,6 +1227,7 @@ const AdminAuthAdminOrdersRouteWithChildren =
 interface AdminAuthRouteChildren {
   AdminAuthAdminAnalyticsRoute: typeof AdminAuthAdminAnalyticsRoute
   AdminAuthAdminBlogsRoute: typeof AdminAuthAdminBlogsRouteWithChildren
+  AdminAuthAdminChangePasswordRoute: typeof AdminAuthAdminChangePasswordRoute
   AdminAuthAdminCustomersRoute: typeof AdminAuthAdminCustomersRouteWithChildren
   AdminAuthAdminDashboardRoute: typeof AdminAuthAdminDashboardRoute
   AdminAuthAdminDeliveryZonesRoute: typeof AdminAuthAdminDeliveryZonesRoute
@@ -1227,6 +1248,7 @@ interface AdminAuthRouteChildren {
 const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminAnalyticsRoute: AdminAuthAdminAnalyticsRoute,
   AdminAuthAdminBlogsRoute: AdminAuthAdminBlogsRouteWithChildren,
+  AdminAuthAdminChangePasswordRoute: AdminAuthAdminChangePasswordRoute,
   AdminAuthAdminCustomersRoute: AdminAuthAdminCustomersRouteWithChildren,
   AdminAuthAdminDashboardRoute: AdminAuthAdminDashboardRoute,
   AdminAuthAdminDeliveryZonesRoute: AdminAuthAdminDeliveryZonesRoute,
