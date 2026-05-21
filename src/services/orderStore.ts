@@ -437,6 +437,39 @@ export const orderStore = {
     return this.getStatus(reference);
   },
 
+  /** Public order lookup by email (paginated, masked results). */
+  async findByEmail(
+    email: string,
+    page = 0,
+    size = 10,
+  ): Promise<{ rows: CustomerOrder[]; total: number; totalPages: number; page: number }> {
+    try {
+      const res = await apiFetch(
+        `/api/v1/orders/by-email?email=${encodeURIComponent(email)}&page=${page}&size=${size}`,
+      );
+      if (!res.ok) return { rows: [], total: 0, totalPages: 0, page };
+      const data: any = await res.json().catch(() => ({}));
+      const rawRows: any[] = Array.isArray(data) ? data : (data.content ?? []);
+      const rows: CustomerOrder[] = rawRows.map((o: any) => ({
+        ...o,
+        customerName: o.contactName ?? o.customerName ?? "",
+        customerEmail: o.maskedEmail ?? o.email ?? o.customerEmail ?? "",
+        customerPhone: o.phone ?? o.customerPhone ?? "",
+        shippingAddress: o.deliveryAddress ?? o.shippingAddress ?? "",
+        shippingFee: Number(o.deliveryFee ?? o.shippingFee ?? 0),
+        total: Number(o.totalAmount ?? o.total ?? 0),
+        subtotal: Number(o.subtotal ?? 0),
+        items: o.items ?? [],
+      }));
+      const totalElements = Array.isArray(data) ? rows.length : (data.totalElements ?? rows.length);
+      const totalPages = Array.isArray(data) ? 1 : (data.totalPages ?? 1);
+      return { rows, total: totalElements, totalPages, page };
+    } catch {
+      return { rows: [], total: 0, totalPages: 0, page };
+    }
+  },
+
+
   /** Authed: list current customer's orders. */
   async listMine(
     page = 0,
