@@ -340,7 +340,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
 }
 
 export function AdminLayout({ title, actionLabel, onAction, onReload, children }: AdminLayoutProps) {
-  const { user, logout } = useAdminAuth();
+  const { user, logout, permissions } = useAdminAuth();
   const location = useLocation();
   const pathname = location.pathname;
   const [sidebarOpen, setSidebarOpen] = useState(false);
