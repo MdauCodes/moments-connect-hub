@@ -80,6 +80,7 @@ export function OrderDetailDrawer({ orderId, onClose, onChanged }: Props) {
         setOrder(res.order);
         setSelectedStatus(res.order.status);
         toast.success(`Status updated to ${statusLabel(selectedStatus)}`);
+        onChanged?.();
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");
