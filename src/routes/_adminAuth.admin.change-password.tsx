@@ -12,6 +12,7 @@ export const Route = createFileRoute("/_adminAuth/admin/change-password")({
 function ChangePasswordPage() {
   const { changePassword, mustChangePassword, permissions, ensureValidSession } = useAuth();
   const navigate = useNavigate();
+  const [currentPwd, setCurrentPwd] = useState("");
   const [pwd, setPwd] = useState("");
   const [confirm, setConfirm] = useState("");
   const [saving, setSaving] = useState(false);
