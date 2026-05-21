@@ -311,7 +311,38 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
 
               {/* Staff */}
               <Section title="Staff">
-                <Row label="Assigned to" value={o.assignedTo || "—"} />
+                {canAssign ? (
+                  <div className="space-y-2">
+                    <div className="text-xs text-muted-foreground">
+                      {o.assignedTo ? `Assigned to: ${o.assignedTo}` : "Unassigned"}
+                    </div>
+                    <select
+                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      value={o.assignedToId ?? ""}
+                      disabled={assigning}
+                      onChange={async (e) => {
+                        const id = e.target.value;
+                        const u = assignees.find((a) => a.id === id);
+                        if (!u) return;
+                        setAssigning(true);
+                        try {
+                          const res = await assignOrder(o.id, u.name, u.id);
+                          if (res.order) setOrder(res.order);
+                          toast.success(`Assigned to ${u.name}`);
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Assignment failed");
+                        } finally {
+                          setAssigning(false);
+                        }
+                      }}
+                    >
+                      <option value="" disabled>Assign to…</option>
+                      {assignees.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+                    </select>
+                  </div>
+                ) : (
+                  <Row label="Assigned to" value={o.assignedTo || "—"} />
+                )}
                 <label className="block mt-2">
                   <span className="text-xs uppercase text-muted-foreground">Staff notes</span>
                   <textarea
