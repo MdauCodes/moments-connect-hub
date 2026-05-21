@@ -86,6 +86,18 @@ function ChangePasswordPage() {
         </p>
 
         <label style={{ display: "block", marginTop: 18 }}>
+          <span className="admin-label">Current password</span>
+          <input
+            type="password"
+            className="admin-input"
+            value={currentPwd}
+            onChange={(e) => setCurrentPwd(e.target.value)}
+            required
+            autoFocus
+            autoComplete="current-password"
+          />
+        </label>
+        <label style={{ display: "block", marginTop: 12 }}>
           <span className="admin-label">New password</span>
           <input
             type="password"
@@ -94,11 +106,11 @@ function ChangePasswordPage() {
             onChange={(e) => setPwd(e.target.value)}
             minLength={8}
             required
-            autoFocus
             autoComplete="new-password"
           />
         </label>
         <label style={{ display: "block", marginTop: 12 }}>
+
           <span className="admin-label">Confirm password</span>
           <input
             type="password"
