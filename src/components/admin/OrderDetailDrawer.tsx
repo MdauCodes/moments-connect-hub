@@ -333,6 +333,7 @@ export function OrderDetailDrawer({ orderId, onClose, onChanged }: Props) {
                           const res = await assignOrder(o.id, u.name, u.id);
                           if (res.order) setOrder(res.order);
                           toast.success(`Assigned to ${u.name}`);
+                          onChanged?.();
                         } catch (err) {
                           toast.error(err instanceof Error ? err.message : "Assignment failed");
                         } finally {
