@@ -29,9 +29,20 @@ export type EnquiryDto = {
   contact?: { name?: string; email?: string; phone?: string; company?: string }; products?: Array<Record<string, unknown>>; items?: Array<Record<string, unknown>>;
 };
 
-export type UserDto = { id: string; email: string; firstName?: string; lastName?: string; enabled?: boolean; roles?: BackendRole[]; createdAt?: string; updatedAt?: string };
+export type UserDto = { id: string; email: string; firstName?: string; lastName?: string; enabled?: boolean; roles?: BackendRole[]; staffRole?: string; staffRoleDisplay?: string; roleId?: string; createdAt?: string; updatedAt?: string };
 export type SettingDto = { id?: string; key: string; value: string; description?: string };
 export type UploadResponse = { url: string; publicId: string };
+
+export type RoleDto = {
+  id: string;
+  name?: string;
+  displayName: string;
+  description?: string;
+  permissions: string[];
+  isDefault?: boolean;
+  isSystem?: boolean;
+};
+export type RoleRequest = { displayName: string; description?: string; permissions: string[] };
 
 function unwrap<T>(data: PageResponse<T> | T[]): { rows: T[]; total: number; totalPages: number } {
   if (Array.isArray(data)) return { rows: data, total: data.length, totalPages: 1 };
