@@ -198,6 +198,15 @@ export function AdminLoginPage({ redirect }: { redirect?: string }) {
           >
             {loading ? "Signing in..." : "Sign in →"}
           </button>
+
+          <div style={{ textAlign: "center", marginTop: 4 }}>
+            <Link
+              to="/account/forgot-password"
+              style={{ fontSize: 12, color: "var(--admin-muted)", textDecoration: "underline" }}
+            >
+              Forgot password?
+            </Link>
+          </div>
         </form>
       </div>
     </div>
