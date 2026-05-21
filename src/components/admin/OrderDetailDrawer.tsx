@@ -18,6 +18,8 @@ import { PERM } from "@/lib/permissions";
 interface Props {
   orderId: string | null;
   onClose: () => void;
+  /** Called after any mutation that changes the underlying order (status, notes, assignment). */
+  onChanged?: () => void;
 }
 
 // Human-readable label for any OrderStatus enum value
