@@ -8,7 +8,7 @@ import type { OrderRecord } from "@/services/commerceMock";
 interface Props {
   order: OrderRecord | null;
   onClose: () => void;
-  onDispatched: (orderId: string) => void;
+  onDispatched: (orderId: string) => void | Promise<void>;
 }
 
 const STORAGE_PREFIX = "dispatch_checklist_";
