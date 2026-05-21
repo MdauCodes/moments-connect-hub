@@ -59,7 +59,9 @@ import { Route as AdminAuthAdminChangePasswordRouteImport } from './routes/_admi
 import { Route as AdminAuthAdminBlogsRouteImport } from './routes/_adminAuth.admin.blogs'
 import { Route as AdminAuthAdminAnalyticsRouteImport } from './routes/_adminAuth.admin.analytics'
 import { Route as AdminAuthAdminProductsIndexRouteImport } from './routes/_adminAuth.admin.products.index'
+import { Route as AdminAuthAdminQueuesPreparationRouteImport } from './routes/_adminAuth.admin.queues.preparation'
 import { Route as AdminAuthAdminQueuesPaymentRouteImport } from './routes/_adminAuth.admin.queues.payment'
+import { Route as AdminAuthAdminQueuesDispatchRouteImport } from './routes/_adminAuth.admin.queues.dispatch'
 import { Route as AdminAuthAdminProductsNewRouteImport } from './routes/_adminAuth.admin.products_.new'
 import { Route as AdminAuthAdminProductsIdRouteImport } from './routes/_adminAuth.admin.products.$id'
 import { Route as AdminAuthAdminOrdersIdRouteImport } from './routes/_adminAuth.admin.orders.$id'
@@ -322,10 +324,22 @@ const AdminAuthAdminProductsIndexRoute =
     path: '/admin/products/',
     getParentRoute: () => AdminAuthRoute,
   } as any)
+const AdminAuthAdminQueuesPreparationRoute =
+  AdminAuthAdminQueuesPreparationRouteImport.update({
+    id: '/admin/queues/preparation',
+    path: '/admin/queues/preparation',
+    getParentRoute: () => AdminAuthRoute,
+  } as any)
 const AdminAuthAdminQueuesPaymentRoute =
   AdminAuthAdminQueuesPaymentRouteImport.update({
     id: '/admin/queues/payment',
     path: '/admin/queues/payment',
+    getParentRoute: () => AdminAuthRoute,
+  } as any)
+const AdminAuthAdminQueuesDispatchRoute =
+  AdminAuthAdminQueuesDispatchRouteImport.update({
+    id: '/admin/queues/dispatch',
+    path: '/admin/queues/dispatch',
     getParentRoute: () => AdminAuthRoute,
   } as any)
 const AdminAuthAdminProductsNewRoute =
@@ -431,7 +445,9 @@ export interface FileRoutesByFullPath {
   '/admin/orders/$id': typeof AdminAuthAdminOrdersIdRoute
   '/admin/products/$id': typeof AdminAuthAdminProductsIdRoute
   '/admin/products/new': typeof AdminAuthAdminProductsNewRoute
+  '/admin/queues/dispatch': typeof AdminAuthAdminQueuesDispatchRoute
   '/admin/queues/payment': typeof AdminAuthAdminQueuesPaymentRoute
+  '/admin/queues/preparation': typeof AdminAuthAdminQueuesPreparationRoute
   '/admin/products/': typeof AdminAuthAdminProductsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -491,7 +507,9 @@ export interface FileRoutesByTo {
   '/admin/orders/$id': typeof AdminAuthAdminOrdersIdRoute
   '/admin/products/$id': typeof AdminAuthAdminProductsIdRoute
   '/admin/products/new': typeof AdminAuthAdminProductsNewRoute
+  '/admin/queues/dispatch': typeof AdminAuthAdminQueuesDispatchRoute
   '/admin/queues/payment': typeof AdminAuthAdminQueuesPaymentRoute
+  '/admin/queues/preparation': typeof AdminAuthAdminQueuesPreparationRoute
   '/admin/products': typeof AdminAuthAdminProductsIndexRoute
 }
 export interface FileRoutesById {
@@ -553,7 +571,9 @@ export interface FileRoutesById {
   '/_adminAuth/admin/orders/$id': typeof AdminAuthAdminOrdersIdRoute
   '/_adminAuth/admin/products/$id': typeof AdminAuthAdminProductsIdRoute
   '/_adminAuth/admin/products_/new': typeof AdminAuthAdminProductsNewRoute
+  '/_adminAuth/admin/queues/dispatch': typeof AdminAuthAdminQueuesDispatchRoute
   '/_adminAuth/admin/queues/payment': typeof AdminAuthAdminQueuesPaymentRoute
+  '/_adminAuth/admin/queues/preparation': typeof AdminAuthAdminQueuesPreparationRoute
   '/_adminAuth/admin/products/': typeof AdminAuthAdminProductsIndexRoute
 }
 export interface FileRouteTypes {
@@ -615,7 +635,9 @@ export interface FileRouteTypes {
     | '/admin/orders/$id'
     | '/admin/products/$id'
     | '/admin/products/new'
+    | '/admin/queues/dispatch'
     | '/admin/queues/payment'
+    | '/admin/queues/preparation'
     | '/admin/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -675,7 +697,9 @@ export interface FileRouteTypes {
     | '/admin/orders/$id'
     | '/admin/products/$id'
     | '/admin/products/new'
+    | '/admin/queues/dispatch'
     | '/admin/queues/payment'
+    | '/admin/queues/preparation'
     | '/admin/products'
   id:
     | '__root__'
@@ -736,7 +760,9 @@ export interface FileRouteTypes {
     | '/_adminAuth/admin/orders/$id'
     | '/_adminAuth/admin/products/$id'
     | '/_adminAuth/admin/products_/new'
+    | '/_adminAuth/admin/queues/dispatch'
     | '/_adminAuth/admin/queues/payment'
+    | '/_adminAuth/admin/queues/preparation'
     | '/_adminAuth/admin/products/'
   fileRoutesById: FileRoutesById
 }
@@ -1124,11 +1150,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuthAdminProductsIndexRouteImport
       parentRoute: typeof AdminAuthRoute
     }
+    '/_adminAuth/admin/queues/preparation': {
+      id: '/_adminAuth/admin/queues/preparation'
+      path: '/admin/queues/preparation'
+      fullPath: '/admin/queues/preparation'
+      preLoaderRoute: typeof AdminAuthAdminQueuesPreparationRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
     '/_adminAuth/admin/queues/payment': {
       id: '/_adminAuth/admin/queues/payment'
       path: '/admin/queues/payment'
       fullPath: '/admin/queues/payment'
       preLoaderRoute: typeof AdminAuthAdminQueuesPaymentRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
+    '/_adminAuth/admin/queues/dispatch': {
+      id: '/_adminAuth/admin/queues/dispatch'
+      path: '/admin/queues/dispatch'
+      fullPath: '/admin/queues/dispatch'
+      preLoaderRoute: typeof AdminAuthAdminQueuesDispatchRouteImport
       parentRoute: typeof AdminAuthRoute
     }
     '/_adminAuth/admin/products_/new': {
@@ -1262,7 +1302,9 @@ interface AdminAuthRouteChildren {
   AdminAuthAdminIndexRoute: typeof AdminAuthAdminIndexRoute
   AdminAuthAdminProductsIdRoute: typeof AdminAuthAdminProductsIdRoute
   AdminAuthAdminProductsNewRoute: typeof AdminAuthAdminProductsNewRoute
+  AdminAuthAdminQueuesDispatchRoute: typeof AdminAuthAdminQueuesDispatchRoute
   AdminAuthAdminQueuesPaymentRoute: typeof AdminAuthAdminQueuesPaymentRoute
+  AdminAuthAdminQueuesPreparationRoute: typeof AdminAuthAdminQueuesPreparationRoute
   AdminAuthAdminProductsIndexRoute: typeof AdminAuthAdminProductsIndexRoute
 }
 
@@ -1284,7 +1326,9 @@ const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminIndexRoute: AdminAuthAdminIndexRoute,
   AdminAuthAdminProductsIdRoute: AdminAuthAdminProductsIdRoute,
   AdminAuthAdminProductsNewRoute: AdminAuthAdminProductsNewRoute,
+  AdminAuthAdminQueuesDispatchRoute: AdminAuthAdminQueuesDispatchRoute,
   AdminAuthAdminQueuesPaymentRoute: AdminAuthAdminQueuesPaymentRoute,
+  AdminAuthAdminQueuesPreparationRoute: AdminAuthAdminQueuesPreparationRoute,
   AdminAuthAdminProductsIndexRoute: AdminAuthAdminProductsIndexRoute,
 }
 
@@ -1366,3 +1410,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
