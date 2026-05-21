@@ -61,11 +61,11 @@ function AdminUsersPage() {
   const begin = (row?: UserDto) => {
     setEditing(row ?? null);
     setForm(row ? {
-      email: row.email,
+      email: row.email ?? "",
       firstName: row.firstName ?? "",
       lastName: row.lastName ?? "",
       enabled: row.enabled ?? true,
-      roleId: row.roleId ?? "",
+      roleId: row.staffRoleId ?? row.roleId ?? "",
     } : { ...emptyForm, roleId: roles[0]?.id ?? "" });
     setOpen(true);
   };
