@@ -44,15 +44,16 @@ function KpiCard({ label, value, sub, delta }: { label: string; value: string; s
 }
 
 function RevenueChart({ data }: { data: AnalyticsResult["revenueSeries"] }) {
+  const safeData = data ?? [];
   const w = 800, h = 220, pad = 32;
-  const max = Math.max(1, ...data.map((d) => d.revenue));
-  const stepX = (w - pad * 2) / Math.max(1, data.length - 1);
-  const points = data.map((d, i) => {
+  const max = Math.max(1, ...safeData.map((d) => d?.revenue ?? 0));
+  const stepX = (w - pad * 2) / Math.max(1, safeData.length - 1);
+  const points = safeData.map((d, i) => {
     const x = pad + i * stepX;
-    const y = h - pad - (d.revenue / max) * (h - pad * 2);
+    const y = h - pad - ((d?.revenue ?? 0) / max) * (h - pad * 2);
     return `${x},${y}`;
   }).join(" ");
-  const area = `${pad},${h - pad} ${points} ${pad + (data.length - 1) * stepX},${h - pad}`;
+  const area = `${pad},${h - pad} ${points} ${pad + (safeData.length - 1) * stepX},${h - pad}`;
   return (
     <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{ display: "block" }}>
       <defs>
@@ -63,9 +64,9 @@ function RevenueChart({ data }: { data: AnalyticsResult["revenueSeries"] }) {
       </defs>
       <polygon points={area} fill="url(#rev-grad)" />
       <polyline points={points} fill="none" stroke="var(--admin-accent)" strokeWidth="2" />
-      {data.map((d, i) => {
+      {safeData.map((d, i) => {
         const x = pad + i * stepX;
-        return <text key={i} x={x} y={h - 8} fontSize="9" fill="var(--admin-muted)" textAnchor="middle">{d.date}</text>;
+        return <text key={i} x={x} y={h - 8} fontSize="9" fill="var(--admin-muted)" textAnchor="middle">{d?.date ?? ""}</text>;
       })}
     </svg>
   );
@@ -97,8 +98,13 @@ function AdminAnalyticsPage() {
     return () => { cancelled = true; };
   }, [days]);
 
-  const revenueDelta = useMemo(() => data ? deltaPct(data.kpis.revenue, data.kpis.revenuePrev) : undefined, [data]);
-  const ordersDelta = useMemo(() => data ? deltaPct(data.kpis.orders, data.kpis.ordersPrev) : undefined, [data]);
+  const kpis = data?.kpis;
+  const revenueDelta = useMemo(() =>
+    kpis ? deltaPct(kpis.revenue ?? 0, kpis.revenuePrev ?? 0) : undefined,
+  [kpis]);
+  const ordersDelta = useMemo(() =>
+    kpis ? deltaPct(kpis.orders ?? 0, kpis.ordersPrev ?? 0) : undefined,
+  [kpis]);
 
   async function handleExport(kind: "orders" | "customers" | "revenue") {
     try {
@@ -107,22 +113,23 @@ function AdminAnalyticsPage() {
       if (kind === "orders") {
         const { rows } = await exportOrders();
         const flat = rows.map((o) => ({
-          reference: o.reference, status: o.status, payment: o.paymentStatus, gateway: o.paymentGateway,
-          customer: o.customerName, email: o.customerEmail, phone: o.customerPhone, city: o.city,
-          items: o.items.length, subtotal: o.subtotal, shipping: o.shippingFee, total: o.total,
-          createdAt: o.createdAt, tracking: o.trackingNumber ?? "",
+          reference: o?.reference ?? "", status: o?.status ?? "", payment: o?.paymentStatus ?? "", gateway: o?.paymentGateway ?? "",
+          customer: o?.customerName ?? "", email: o?.customerEmail ?? "", phone: o?.customerPhone ?? "", city: o?.city ?? "",
+          items: o?.items?.length ?? 0, subtotal: o?.subtotal ?? 0, shipping: o?.shippingFee ?? 0, total: o?.total ?? 0,
+          createdAt: o?.createdAt ?? "", tracking: o?.trackingNumber ?? "",
         }));
         downloadCsv(`orders-${stamp}.csv`, toCsv(flat));
       } else if (kind === "customers") {
         const { rows } = await exportCustomers();
         downloadCsv(`customers-${stamp}.csv`, toCsv(rows.map((c) => ({
-          name: c.name, email: c.email, phone: c.phone, city: c.city, segment: c.segment, status: c.status,
-          orders: c.ordersCount, lifetimeValue: c.lifetimeValue, aov: c.averageOrderValue,
-          firstOrder: c.firstOrderAt ?? "", lastOrder: c.lastOrderAt ?? "",
+          name: c?.name ?? "", email: c?.email ?? "", phone: c?.phone ?? "", city: c?.city ?? "", segment: c?.segment ?? "", status: c?.status ?? "",
+          orders: c?.ordersCount ?? 0, lifetimeValue: c?.lifetimeValue ?? 0, aov: c?.averageOrderValue ?? 0,
+          firstOrder: c?.firstOrderAt ?? "", lastOrder: c?.lastOrderAt ?? "",
         }))));
       } else if (kind === "revenue" && data) {
-        downloadCsv(`revenue-${days}d-${stamp}.csv`, toCsv(data.revenueSeries.map((r) => ({
-          date: r.iso.slice(0, 10), revenue: r.revenue, orders: r.orders, aov: r.aov,
+        const series = data?.revenueSeries ?? [];
+        downloadCsv(`revenue-${days}d-${stamp}.csv`, toCsv(series.map((r) => ({
+          date: r?.iso?.slice(0, 10) ?? "", revenue: r?.revenue ?? 0, orders: r?.orders ?? 0, aov: r?.aov ?? 0,
         }))));
       }
       toast.success(`Exported ${kind}.csv`);
@@ -133,10 +140,21 @@ function AdminAnalyticsPage() {
     }
   }
 
+  const revenueVal = kpis?.revenue ?? 0;
+  const ordersVal = kpis?.orders ?? 0;
+  const aovVal = kpis?.aov ?? 0;
+  const customersVal = kpis?.customers ?? 0;
+  const conversionRateVal = kpis?.conversionRate ?? 0;
+  const cartAbandonVal = kpis?.cartAbandonRate ?? 0;
+  const paymentSuccessVal = kpis?.paymentSuccessRate ?? 0;
+  const refundRateVal = kpis?.refundRate ?? 0;
+  const revenuePrevVal = kpis?.revenuePrev ?? 0;
+  const ordersPrevVal = kpis?.ordersPrev ?? 0;
+
   return (
     <AdminLayout title="Analytics">
       <div className="admin-page-stack">
-        {data && <MockBanner source={data.source} />}
+        {data && <MockBanner source={data?.source} />}
 
         <div className="admin-panel" style={{ padding: 14, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -160,14 +178,14 @@ function AdminAnalyticsPage() {
 
         {/* KPI grid */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 14 }} data-admin-stats>
-          <KpiCard label="Revenue" value={loading || !data ? "—" : formatKes(data.kpis.revenue)} sub={`vs ${formatKes(data?.kpis.revenuePrev ?? 0)} prior`} delta={revenueDelta} />
-          <KpiCard label="Orders" value={loading || !data ? "—" : String(data.kpis.orders)} sub={`vs ${data?.kpis.ordersPrev ?? 0} prior`} delta={ordersDelta} />
-          <KpiCard label="Avg order value" value={loading || !data ? "—" : formatKes(data.kpis.aov)} />
-          <KpiCard label="Customers" value={loading || !data ? "—" : String(data.kpis.customers)} sub="distinct buyers" />
-          <KpiCard label="Conversion rate" value={loading || !data ? "—" : `${data.kpis.conversionRate}%`} sub="sessions → paid" />
-          <KpiCard label="Cart abandon" value={loading || !data ? "—" : `${data.kpis.cartAbandonRate}%`} sub="add-to-cart → order" />
-          <KpiCard label="Payment success" value={loading || !data ? "—" : `${data.kpis.paymentSuccessRate}%`} sub="all gateways" />
-          <KpiCard label="Refund rate" value={loading || !data ? "—" : `${data.kpis.refundRate}%`} sub="of orders" />
+          <KpiCard label="Revenue" value={loading || !kpis ? "—" : formatKes(revenueVal)} sub={`vs ${formatKes(revenuePrevVal)} prior`} delta={revenueDelta} />
+          <KpiCard label="Orders" value={loading || !kpis ? "—" : String(ordersVal)} sub={`vs ${ordersPrevVal} prior`} delta={ordersDelta} />
+          <KpiCard label="Avg order value" value={loading || !kpis ? "—" : formatKes(aovVal)} />
+          <KpiCard label="Customers" value={loading || !kpis ? "—" : String(customersVal)} sub="distinct buyers" />
+          <KpiCard label="Conversion rate" value={loading || !kpis ? "—" : `${conversionRateVal}%`} sub="sessions → paid" />
+          <KpiCard label="Cart abandon" value={loading || !kpis ? "—" : `${cartAbandonVal}%`} sub="add-to-cart → order" />
+          <KpiCard label="Payment success" value={loading || !kpis ? "—" : `${paymentSuccessVal}%`} sub="all gateways" />
+          <KpiCard label="Refund rate" value={loading || !kpis ? "—" : `${refundRateVal}%`} sub="of orders" />
         </div>
 
         {/* Revenue chart */}
@@ -175,10 +193,10 @@ function AdminAnalyticsPage() {
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
             <div>
               <div className="admin-label">Revenue</div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 22 }}>{loading || !data ? "—" : formatKes(data.kpis.revenue)}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 22 }}>{loading || !kpis ? "—" : formatKes(revenueVal)}</div>
             </div>
           </div>
-          {data && <RevenueChart data={data.revenueSeries} />}
+          {data && <RevenueChart data={data?.revenueSeries ?? []} />}
         </div>
 
         {/* Two-column row */}
@@ -187,13 +205,13 @@ function AdminAnalyticsPage() {
             <div className="admin-label" style={{ marginBottom: 10 }}>Conversion funnel</div>
             {!data ? <div className="admin-empty">Loading…</div> : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {data.funnel.map((s) => (
-                  <div key={s.stage}>
+                {(data?.funnel ?? []).map((s, idx) => (
+                  <div key={idx}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
-                      <span>{s.stage}</span>
-                      <span style={{ color: "var(--admin-muted)" }}>{s.value.toLocaleString()} · {s.pct}%</span>
+                      <span>{s?.stage ?? "—"}</span>
+                      <span style={{ color: "var(--admin-muted)" }}>{(s?.value ?? 0).toLocaleString()} · {s?.pct ?? 0}%</span>
                     </div>
-                    <Bar pct={s.pct} />
+                    <Bar pct={s?.pct ?? 0} />
                   </div>
                 ))}
               </div>
@@ -204,13 +222,13 @@ function AdminAnalyticsPage() {
             <div className="admin-label" style={{ marginBottom: 10 }}>Sales channels</div>
             {!data ? <div className="admin-empty">Loading…</div> : (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {data.channels.map((c) => (
-                  <div key={c.channel}>
+                {(data?.channels ?? []).map((c, idx) => (
+                  <div key={idx}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
-                      <span>{c.channel}</span>
-                      <span style={{ color: "var(--admin-muted)" }}>{formatKes(c.revenue)} · {c.share}%</span>
+                      <span>{c?.channel ?? "—"}</span>
+                      <span style={{ color: "var(--admin-muted)" }}>{formatKes(c?.revenue ?? 0)} · {c?.share ?? 0}%</span>
                     </div>
-                    <Bar pct={c.share} />
+                    <Bar pct={c?.share ?? 0} />
                   </div>
                 ))}
               </div>
@@ -226,8 +244,8 @@ function AdminAnalyticsPage() {
               <table className="admin-table">
                 <thead><tr><th>Category</th><th>Units</th><th>Revenue</th></tr></thead>
                 <tbody>
-                  {data.categories.map((c) => (
-                    <tr key={c.category}><td>{c.category}</td><td>{c.units.toLocaleString()}</td><td><b>{formatKes(c.revenue)}</b></td></tr>
+                  {(data?.categories ?? []).map((c, idx) => (
+                    <tr key={idx}><td>{c?.category ?? "—"}</td><td>{(c?.units ?? 0).toLocaleString()}</td><td><b>{formatKes(c?.revenue ?? 0)}</b></td></tr>
                   ))}
                 </tbody>
               </table>
@@ -240,8 +258,8 @@ function AdminAnalyticsPage() {
               <table className="admin-table">
                 <thead><tr><th>City</th><th>Orders</th><th>Revenue</th></tr></thead>
                 <tbody>
-                  {data.topCities.map((c) => (
-                    <tr key={c.city}><td>{c.city}</td><td>{c.orders}</td><td><b>{formatKes(c.revenue)}</b></td></tr>
+                  {(data?.topCities ?? []).map((c, idx) => (
+                    <tr key={idx}><td>{c?.city ?? "—"}</td><td>{c?.orders ?? 0}</td><td><b>{formatKes(c?.revenue ?? 0)}</b></td></tr>
                   ))}
                 </tbody>
               </table>
@@ -254,12 +272,12 @@ function AdminAnalyticsPage() {
               <table className="admin-table">
                 <thead><tr><th>Method</th><th>Success</th><th>Failed</th><th>Revenue</th></tr></thead>
                 <tbody>
-                  {data.paymentMethods.map((m) => (
-                    <tr key={m.gateway}>
-                      <td>{m.gateway}</td>
-                      <td>{m.success} <span style={{ color: "var(--admin-muted)", fontSize: 10 }}>({m.successRate}%)</span></td>
-                      <td>{m.failed}</td>
-                      <td><b>{formatKes(m.revenue)}</b></td>
+                  {(data?.paymentMethods ?? []).map((m, idx) => (
+                    <tr key={idx}>
+                      <td>{m?.gateway ?? "—"}</td>
+                      <td>{m?.success ?? 0} <span style={{ color: "var(--admin-muted)", fontSize: 10 }}>({m?.successRate ?? 0}%)</span></td>
+                      <td>{m?.failed ?? 0}</td>
+                      <td><b>{formatKes(m?.revenue ?? 0)}</b></td>
                     </tr>
                   ))}
                 </tbody>
@@ -275,13 +293,13 @@ function AdminAnalyticsPage() {
             <table className="admin-table">
               <thead><tr><th>Product</th><th>Units sold</th><th>Revenue</th><th>Share of revenue</th></tr></thead>
               <tbody>
-                {data.topProducts.map((p) => {
-                  const share = data.kpis.revenue ? (p.revenue / data.kpis.revenue) * 100 : 0;
+                {(data?.topProducts ?? []).map((p, idx) => {
+                  const share = revenueVal ? ((p?.revenue ?? 0) / revenueVal) * 100 : 0;
                   return (
-                    <tr key={p.productId}>
-                      <td>{p.name}</td>
-                      <td>{p.units.toLocaleString()}</td>
-                      <td><b>{formatKes(p.revenue)}</b></td>
+                    <tr key={idx}>
+                      <td>{p?.name ?? "—"}</td>
+                      <td>{(p?.units ?? 0).toLocaleString()}</td>
+                      <td><b>{formatKes(p?.revenue ?? 0)}</b></td>
                       <td style={{ width: 220 }}><Bar pct={share} /></td>
                     </tr>
                   );
