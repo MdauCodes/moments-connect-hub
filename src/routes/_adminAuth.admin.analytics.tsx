@@ -152,9 +152,6 @@ function AdminAnalyticsPage() {
             <button className="admin-btn admin-btn-ghost" disabled={!!exporting} onClick={() => handleExport("orders")}>
               <Download size={14} style={{ marginRight: 6 }} />Orders CSV
             </button>
-            <button className="admin-btn admin-btn-ghost" disabled={!!exporting} onClick={() => handleExport("payments")}>
-              <Download size={14} style={{ marginRight: 6 }} />Payments CSV
-            </button>
             <button className="admin-btn admin-btn-ghost" disabled={!!exporting} onClick={() => handleExport("customers")}>
               <Download size={14} style={{ marginRight: 6 }} />Customers CSV
             </button>
