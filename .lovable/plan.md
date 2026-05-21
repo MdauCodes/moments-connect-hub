@@ -1,93 +1,71 @@
-# Implementation Plan
+# Admin Platform Overhaul — Implementation Plan
 
-## Scope
-Three workstreams: (1) UOM frontend rollout, (2) OWN_COURIER delivery journey + county dropdown, (3) SEO ranking improvements.
+## 0. Global email update
+- Replace `COMPANY_EMAIL` (and any hardcoded contact email like `hello@…`, `info@…`, `sales@…`) with `info@momentspackaging.com` across the codebase (footer, legal pages, contact page, schemas/JSON-LD, email-capture copy, transactional mock emails).
 
----
+## 1. Auth & JWT (`src/contexts/AdminAuthContext.tsx`, `src/services/adminApi.ts`)
+- Extend `AdminSession` with `isStaff`, `staffRole`, `staffRoleDisplay`, `permissions: string[]`, `mustChangePassword`, `userId`.
+- Decode these from JWT (mock decode in dev — `adminApi` already fabricates sessions; add fields to that fabrication keyed off role).
+- New `usePermissions()` hook + `hasPermission(p)` on context.
+- New route `/admin/change-password` — simple form, calls `adminApi.changePassword(newPassword)` (stub: updates local session, flips `mustChangePassword=false`).
+- `AdminProtectedRoute` gains a check: if `user.mustChangePassword` and path !== `/admin/change-password`, redirect there.
 
-## CHANGE 1 — UOM System
+## 2. Permission-driven sidebar & landing (`src/layouts/AdminLayout.tsx`)
+- Replace role-based `nav` filtering with permission predicates per item (mapping per spec).
+- New `defaultLandingFor(permissions)` helper used by `/admin` index and post-login redirect (first-match priority list per spec).
+- Hide/disable create buttons based on granular perms (`PRODUCT_MANAGE` vs `PRODUCT_VIEW`, `USER_CREATE`).
 
-### 1a. New service & types
-- Create `src/services/uomService.ts`
-  - `fetchPublicUoms(): Promise<Uom[]>` → GET `/api/v1/public/uoms`
-  - `adminCreateUom(body)` → POST `/api/v1/admin/uoms`
-- Extend `Product.pricingTiers` type in `src/data/products.ts` with: `uomId`, `uomCode`, `uomName`, `uomDescription`, `enabled`.
+## 3. Order status — add `PAYMENT_VERIFIED`
+- Update `OrderStatus` union in `src/services/orderStore.ts` + `commerceApi.ts`.
+- Add to `ORDER_STATUS_OPTIONS`, badge color map (teal), timeline labels, admin status dropdown.
+- Gate transitions in admin order detail by permission map (spec §3).
 
-### 1b. ProductCard.tsx
-- Replace tier pill label `t.collectionName` → `t.uomName ?? t.collectionName`.
-- Add tooltip (Radix Tooltip) on each pill showing `uomDescription`.
-- Under active tier price, show `uomDescription` as muted sub-label.
-- "Save X% vs {smallestTier.uomName}" label updated.
+## 4. Three new queue routes
+- `src/routes/_adminAuth.admin.queues.payment.tsx` — filter `PAID`, "Verify Payment" action with confirm dialog.
+- `src/routes/_adminAuth.admin.queues.preparation.tsx` — filter `PAYMENT_VERIFIED` + `IN_PRODUCTION`, "Start Production" / "Mark Ready".
+- `src/routes/_adminAuth.admin.queues.dispatch.tsx` — filter `READY_FOR_DISPATCH`, "Open Checklist".
+- Each guarded by required permission via `<Forbidden>` fallback.
 
-### 1c. ConfiguratorModal.tsx
-- Tier buttons use `uomName`.
-- Show `uomDescription` as small text under each tier button.
-- Quantity label: `Number of ${uomName}s`.
-- Units line: `× ${quantity} pieces each`.
+## 5. Dispatcher checklist (`src/components/admin/DispatchChecklist.tsx`)
+- Side drawer (shadcn `Sheet`), per-item checkboxes, state in `localStorage["dispatch_checklist_{orderId}"]`.
+- "Confirm & Dispatch" disabled until all ticked → opens delivery-confirmation modal (4 options) → calls mock `orderStore.dispatchConfirm()` then `updateStatus("DISPATCHED")` → clears localStorage → removes from queue.
 
-### 1d. products.$slug.tsx
-- "Choose how to buy" section: same UOM relabel + description.
+## 6. Order assignment (supervisor)
+- Extend orders with `assignedTo`, `assignedToId` (already partially present — verify).
+- Admin orders list + detail: "Assign to" dropdown using `adminResources.users.listAssignable()` (new mock returning enabled staff).
+- New filter "My assigned orders" on orders list.
+- Visible only with `ORDER_ASSIGN`.
 
-### 1e. ProductEditor.tsx (admin)
-- On mount fetch UOMs via `fetchPublicUoms`.
-- Each tier row gets:
-  - UOM `<Select>` (sets `uomId`; auto-fills `collectionName` from UOM name but editable).
-  - `uomDescription` text input.
-  - `enabled` toggle (Switch).
-- Payload includes `uomId, collectionName, uomDescription, quantity, pricePerUnit, enabled, sortOrder`.
-- Bottom "Manage UOMs" button opens a small dialog with form (code, name, description) → POST admin endpoint, then refresh list.
+## 7. User & Role management
+- Refactor `_adminAuth.admin.users.tsx`: drop password field from create form; show `staffRoleDisplay`; add Reset Password button; gate by `USER_MANAGE_ROLES`.
+- New page `_adminAuth.admin.roles.tsx`: list/create/edit/delete custom roles, grouped permission checklist; new `adminResources.roles` + `adminResources.permissions` mock stores.
 
----
+## 8. VAT display
+- Extend product schema (`vatRate`, `vatExempt`) + order schema (`taxableAmount`, `vatAmount`).
+- Product editor: VAT rate input + exempt toggle.
+- Order detail (admin + customer), order confirmation, track-by-ref view: conditional VAT rows.
+- Ensure receipt/PDF code reads new fields.
 
-## CHANGE 2 — Fulfillment & Counties
+## 9. Email order tracking (`src/routes/orders.track.tsx`)
+- Add `Tabs` (shadcn) — "By reference" / "By email".
+- Email tab: input → `orderStore.findByEmail(email, page)` (new mock) → paginated list → expandable detail reusing existing renderer.
+- Generic empty-state message regardless of cause.
 
-### 2a. Kenya counties
-- Create `src/data/kenyaCounties.ts` exporting the 47-county array (Nairobi first, then alphabetical).
-- Create `src/components/CountySelect.tsx` — searchable Combobox (shadcn Command + Popover) usable anywhere a county is collected.
-
-### 2b. checkout.tsx — fulfillment selector
-- Add three-option fulfillment selector at top of delivery section: PICKUP, OWN_COURIER, ZONE_DELIVERY.
-- PICKUP: hide address/city/county/courier fields, show pickup notice, deliveryFee = 0.
-- OWN_COURIER:
-  - Courier type pills: Matatu | Parcel Service | Bolt Send | Rider | Other.
-  - If "Other": show `courierServiceName` text field.
-  - Optional `courierStageOrOffice` input with helper text.
-  - Required address + county (via CountySelect).
-  - Info banner (prominent) + secondary "coming soon" muted note.
-  - Order summary: delivery row shows "KES 0 / To be confirmed".
-- ZONE_DELIVERY: existing flow, county via CountySelect.
-
-### 2c. orderStore.ts
-- Extend `PlaceOrderInput` and outgoing payload with `fulfillmentType`, `courierType`, `courierServiceName`, `courierStageOrOffice`. Extend `CustomerOrder` type to surface these on read.
-
-### 2d. OrderDetailDrawer.tsx + AdminOrderDetailPage
-- If `fulfillmentType === "OWN_COURIER"`, render "Courier details" section with the three fields + banner.
-
-### 2e. order-confirmation.tsx
-- Branch copy when fulfillmentType is OWN_COURIER.
+## 10. Verification pass
+- Smoke-test each persona by seeding mock users (SUPER_ADMIN, DISPATCHER, PAYMENTS_CONFIRMER, SUPERVISOR) in `adminApi` mock login.
+- Walk through flows; fix any TS errors and broken imports.
 
 ---
 
-## CHANGE 3 — SEO
+## Technical notes
+- Backend is mocked (`orderStore`, `adminApi`, `adminResources`). All "endpoints" become methods on these stores; localStorage is the source of truth in preview. The shape/naming will match the documented REST endpoints so a real backend can be swapped in.
+- Permissions live as string constants in a new `src/lib/permissions.ts` `PERM` object (kept alongside existing role helpers — old `can()` stays for back-compat during migration).
+- Sidebar gating uses a single `visibleNav(permissions)` selector — single source of truth for both sidebar render and "default landing" logic.
+- No design system changes beyond adding a teal badge token for `PAYMENT_VERIFIED`.
 
-- Audit `src/routes/index.tsx`, `products.tsx`, `products.$slug.tsx`, `about.tsx`, `contact.tsx`, `industries.tsx`, `blog.index.tsx`, `blog.$slug.tsx` to ensure each `head()` defines: unique `<title>` <60 chars, meta description <160 chars, canonical, og:title, og:description, og:image (leaf-level), twitter card.
-- Add JSON-LD:
-  - `Organization` + `WebSite` on home.
-  - `Product` schema (with offers, price, availability) on product detail.
-  - `BreadcrumbList` on category/product/blog pages.
-  - `Article` schema on blog detail.
-  - `LocalBusiness` on contact.
-- Ensure single H1 per route (audit, fix any duplicates).
-- Confirm `public/sitemap.xml` and `public/robots.txt` reference `https://momentspackaging.com` correctly; add `Sitemap:` line in robots.txt if missing.
-- Verify hero image already has fetchPriority/width/height (done last turn). Add `loading="lazy"` + `decoding="async"` to below-the-fold images where missing.
-- Add `alt` text audits on product images.
+## Questions before I start
+1. **Scope of mocks**: confirm I should keep everything in the existing localStorage mock layer (no real backend wiring). Yes/no.
+2. **Seed personas**: OK to add 4 demo logins (super admin / dispatcher / payments / supervisor) with fixed emails+passwords so you can test each flow? I'll list them in the final message.
+3. **`USER_MANAGE_ROLES` mapping**: the spec says SUPER_ADMIN gets it. Should the existing `ROLE_ADMIN` user automatically receive `USER_MANAGE_ROLES` + all other permissions (i.e. ADMIN === SUPER_ADMIN for now)?
 
----
-
-## Out of scope (will note to user)
-- Backend endpoints (already shipped per user).
-- I will NOT implement the actual UOM admin custom-creation modal styling beyond a basic Dialog — it's a utility surface.
-
-## Verification
-- Read each modified file post-edit; check build output errors only if reported.
-- Spot-check checkout flow logic by re-reading branching.
+Once you confirm I'll execute sections 0→10 in order.
