@@ -207,7 +207,7 @@ export function normalizeAdminSession(data: AuthResponse, fallback?: Partial<Adm
   if (!role) throw new Error("This account is not authorised for the admin dashboard");
 
   // Decode extended JWT claims (or fall back to top-level / user.* fields).
-  const jwt = decodeJwtPayload(token) as Record<string, unknown> | null;
+  const jwt = decodeJwtPayload(token) as unknown as Record<string, unknown> | null;
   const pickArr = (...vals: unknown[]): string[] | undefined => {
     for (const v of vals) if (Array.isArray(v)) return (v as unknown[]).map(String);
     return undefined;
