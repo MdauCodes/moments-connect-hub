@@ -62,6 +62,8 @@ export interface ProductFormValues {
   variants?: ProductVariant[];
   individualSalesEnabled?: boolean;
   pricingTiers?: PricingTierRow[];
+  vatRate?: number;     // stored as 0..1 fraction (e.g. 0.16)
+  vatExempt?: boolean;
 }
 
 export function emptyProductValues(): ProductFormValues {
