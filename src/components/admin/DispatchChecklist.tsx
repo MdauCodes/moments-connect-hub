@@ -50,8 +50,8 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
   }, [orderId]);
 
   const itemIds = useMemo(
-    () => (order?.items ?? []).map((it, idx) => itemKey(order!.id, idx, it.productId)),
-    [order],
+    () => (order?.items ?? []).map((it, idx) => itemKey(orderId ?? "", idx, it.productId)),
+    [orderId, order?.items],
   );
   const allTicked = order ? itemIds.every((id) => ticked.has(id)) : false;
 
