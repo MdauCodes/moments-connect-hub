@@ -5,14 +5,14 @@ import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import {
   GatewayChip,
-  MockBanner,
   ORDER_STATUS_OPTIONS,
   OrderStatusBadge,
   PaymentStatusBadge,
   formatDateShort,
   formatKes,
 } from "@/components/admin/commerceUi";
-import { listOrders, exportOrders, type ListOrdersResult } from "@/services/commerceApi";
+import { useAdminOrders } from "@/contexts/AdminOrdersContext";
+import { QueueFreshness } from "@/components/admin/QueueFreshness";
 import { downloadCsv, toCsv } from "@/lib/csv";
 import { Download } from "lucide-react";
 
@@ -23,14 +23,12 @@ export const Route = createFileRoute("/_adminAuth/admin/orders")({
 const PAGE_SIZE = 20;
 
 function AdminOrdersPage() {
-  const [data, setData] = useState<ListOrdersResult | null>(null);
+  const { orders, initialLoading, error, refresh } = useAdminOrders();
   const [openId, setOpenId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<string>("ALL");
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [page, setPage] = useState(0);
-  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => { document.title = "Orders · Moments admin"; }, []);
 
@@ -40,48 +38,51 @@ function AdminOrdersPage() {
   }, [q]);
 
   useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    listOrders({ status: status === "ALL" ? undefined : status, q: debouncedQ || undefined, page, size: PAGE_SIZE })
-      .then((res) => { if (!cancelled) setData(res); })
-      .catch((err) => toast.error(err instanceof Error ? err.message : "Failed to load orders"))
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [status, debouncedQ, page, reloadKey]);
+    if (error) toast.error(error);
+  }, [error]);
 
-  // Client-side guard so the search field visibly filters even if the backend ignores `q`.
-  const visibleRows = useMemo(() => {
-    if (!data) return [];
+  // Client-side filtering against the shared orders cache.
+  const filteredRows = useMemo(() => {
     const needle = debouncedQ.toLowerCase();
-    if (!needle) return data.rows;
-    return data.rows.filter((o) =>
-      [o.reference, o.customerName, o.customerEmail, o.customerPhone, o.city, o.trackingNumber]
+    return orders.filter((o) => {
+      if (status !== "ALL" && o.status !== status) return false;
+      if (!needle) return true;
+      return [o.reference, o.customerName, o.customerEmail, o.customerPhone, o.city, o.trackingNumber]
         .filter(Boolean)
-        .some((v) => String(v).toLowerCase().includes(needle)),
-    );
-  }, [data, debouncedQ]);
+        .some((v) => String(v).toLowerCase().includes(needle));
+    });
+  }, [orders, status, debouncedQ]);
 
-  const totals = useMemo(() => {
-    if (!data) return { revenue: 0, orders: 0 };
-    return {
-      revenue: visibleRows.reduce((s, o) => s + Number((o as any).totalAmount ?? o.total ?? 0), 0),
-      orders: debouncedQ ? visibleRows.length : data.total,
-    };
-  }, [data, visibleRows, debouncedQ]);
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+  const pageRows = useMemo(
+    () => filteredRows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE),
+    [filteredRows, page],
+  );
+
+  // Clamp page when filters shrink the result set.
+  useEffect(() => {
+    if (page > 0 && page >= totalPages) setPage(0);
+  }, [page, totalPages]);
+
+  const totals = useMemo(
+    () => ({
+      revenue: filteredRows.reduce((s, o) => s + Number(o.total ?? 0), 0),
+      orders: filteredRows.length,
+    }),
+    [filteredRows],
+  );
 
   return (
-    <AdminLayout title="Orders" onReload={() => setReloadKey((k) => k + 1)}>
+    <AdminLayout title="Orders" onReload={() => void refresh()}>
       <div className="admin-page-stack">
-        {data && <MockBanner source={data.source} />}
-
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 }} data-admin-stats>
           <div className="admin-panel" style={{ padding: 16 }}>
             <div className="admin-label">Total orders</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, marginTop: 6 }}>{loading ? "—" : totals.orders}</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, marginTop: 6 }}>{initialLoading ? "—" : totals.orders}</div>
           </div>
           <div className="admin-panel" style={{ padding: 16 }}>
             <div className="admin-label">Revenue (visible)</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, marginTop: 6 }}>{loading ? "—" : formatKes(totals.revenue)}</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 28, marginTop: 6 }}>{initialLoading ? "—" : formatKes(totals.revenue)}</div>
           </div>
           <div className="admin-panel" style={{ padding: 16 }}>
             <div className="admin-label">Filtered status</div>
@@ -92,6 +93,7 @@ function AdminOrdersPage() {
         </div>
 
         <div className="admin-panel">
+          <QueueFreshness />
           <div className="admin-toolbar" data-admin-toolbar>
             <div style={{ display: "flex", gap: 10, flex: 1, flexWrap: "wrap" }}>
               <input
@@ -113,15 +115,14 @@ function AdminOrdersPage() {
             </div>
             <button
               className="admin-btn admin-btn-ghost"
-              onClick={async () => {
-                const { rows } = await exportOrders({ status: status === "ALL" ? undefined : status, q: q || undefined });
-                downloadCsv(`orders-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows.map((o) => ({
+              onClick={() => {
+                downloadCsv(`orders-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(filteredRows.map((o) => ({
                   reference: o.reference, status: o.status, payment: o.paymentStatus, gateway: o.paymentGateway,
                   customer: o.customerName, email: o.customerEmail, phone: o.customerPhone, city: o.city,
                   items: o.items.length, subtotal: o.subtotal, shipping: o.shippingFee, total: o.total,
                   createdAt: o.createdAt, tracking: o.trackingNumber ?? "",
                 }))));
-                toast.success(`Exported ${rows.length} orders`);
+                toast.success(`Exported ${filteredRows.length} orders`);
               }}
             ><Download size={14} style={{ marginRight: 6 }} />Export CSV</button>
           </div>
@@ -141,12 +142,12 @@ function AdminOrdersPage() {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
+                {initialLoading ? (
                   <tr><td colSpan={8}><div className="admin-empty">Loading orders…</div></td></tr>
-                ) : !data || visibleRows.length === 0 ? (
+                ) : pageRows.length === 0 ? (
                   <tr><td colSpan={8}><div className="admin-empty">No orders match your filters.</div></td></tr>
                 ) : (
-                  visibleRows.map((o) => (
+                  pageRows.map((o) => (
                     <tr key={o.id}>
                       <td><b>{o.reference}</b></td>
                       <td>
@@ -171,20 +172,20 @@ function AdminOrdersPage() {
             </table>
           </div>
 
-          {data && data.totalPages > 1 && (
+          {totalPages > 1 && (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 14 }} data-admin-pagination>
               <div style={{ color: "var(--admin-muted)", fontSize: 12 }}>
-                Page {page + 1} of {data.totalPages} · {data.total} orders
+                Page {page + 1} of {totalPages} · {filteredRows.length} orders
               </div>
               <div style={{ display: "flex", gap: 8 }}>
                 <button className="admin-btn admin-btn-ghost" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>Previous</button>
-                <button className="admin-btn admin-btn-ghost" disabled={page + 1 >= data.totalPages} onClick={() => setPage((p) => p + 1)}>Next</button>
+                <button className="admin-btn admin-btn-ghost" disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>Next</button>
               </div>
             </div>
           )}
         </div>
       </div>
-      <OrderDetailDrawer orderId={openId} onClose={() => setOpenId(null)} />
+      <OrderDetailDrawer orderId={openId} onClose={() => setOpenId(null)} onChanged={() => void refresh()} />
     </AdminLayout>
   );
 }
