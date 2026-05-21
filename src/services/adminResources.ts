@@ -29,7 +29,24 @@ export type EnquiryDto = {
   contact?: { name?: string; email?: string; phone?: string; company?: string }; products?: Array<Record<string, unknown>>; items?: Array<Record<string, unknown>>;
 };
 
-export type UserDto = { id: string; email: string; firstName?: string; lastName?: string; enabled?: boolean; roles?: BackendRole[]; staffRole?: string; staffRoleDisplay?: string; roleId?: string; createdAt?: string; updatedAt?: string };
+export type UserDto = {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  enabled?: boolean;
+  roles?: BackendRole[];
+  staffRole?: string;
+  staffRoleId?: string;
+  staffRoleName?: string;
+  staffRoleDisplay?: string;
+  permissions?: string[];
+  isStaff?: boolean;
+  mustChangePassword?: boolean;
+  roleId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
 export type SettingDto = { id?: string; key: string; value: string; description?: string };
 export type UploadResponse = { url: string; publicId: string };
 
