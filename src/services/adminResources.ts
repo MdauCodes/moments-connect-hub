@@ -109,7 +109,10 @@ export const adminResources = {
     update: (id: string, body: Partial<EnquiryDto>) => adminJson<EnquiryDto>(`/api/v1/admin/enquiries/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }),
   },
   users: {
-    list: () => adminJson<UserDto[]>("/api/v1/admin/users"),
+    list: async (params: Record<string, string | number | boolean | undefined> = {}) => {
+      const data = await adminJson<PageResponse<UserDto> | UserDto[]>(`/api/v1/admin/users${qs(params)}`);
+      return unwrap(data).rows;
+    },
     create: (body: Partial<UserDto> & { password?: string; roleId?: string }) => adminJson<UserDto>("/api/v1/admin/users", { method: "POST", body: JSON.stringify(body) }),
     update: (id: string, body: Partial<UserDto> & { password?: string; resetPassword?: boolean; roleId?: string }) => adminJson<UserDto>(`/api/v1/admin/users/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }),
     remove: (id: string) => adminJson<void>(`/api/v1/admin/users/${encodeURIComponent(id)}`, { method: "DELETE" }),
