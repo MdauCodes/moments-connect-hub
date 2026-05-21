@@ -237,16 +237,16 @@ export function normalizeAdminSession(data: AuthResponse, fallback?: Partial<Adm
   };
 }
 
-// PATCH /api/v1/auth/change-password — body { newPassword }.
+// POST /api/v1/auth/change-password — body { currentPassword, newPassword }.
 // Returns refreshed session if backend issues new tokens; otherwise clears the
 // mustChangePassword flag locally so the user can proceed.
-export async function changeAdminPassword(newPassword: string): Promise<AdminSession | null> {
+export async function changeAdminPassword(currentPassword: string, newPassword: string): Promise<AdminSession | null> {
   const current = readAdminSession();
   if (!current) return null;
   const res = await fetch(apiUrl("/api/v1/auth/change-password"), {
-    method: "PATCH",
+    method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${current.token}` },
-    body: JSON.stringify({ newPassword }),
+    body: JSON.stringify({ currentPassword, newPassword }),
   });
   if (!res.ok) throw await parseApiError(res);
   let next: AdminSession;
