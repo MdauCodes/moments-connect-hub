@@ -219,7 +219,7 @@ function AdminUsersPage() {
                 </label>
               </div>
               <div className="admin-toolbar">
-                <button className="admin-btn admin-btn-primary" disabled={saving}>
+                <button className="admin-btn admin-btn-primary" disabled={saving || !form.roleId}>
                   {saving && <Loader2 size={14} className="animate-spin" />}
                   Save user
                 </button>
