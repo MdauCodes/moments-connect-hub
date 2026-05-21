@@ -34,7 +34,7 @@ function statusLabel(raw: string | undefined | null): string {
         .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function OrderDetailDrawer({ orderId, onClose }: Props) {
+export function OrderDetailDrawer({ orderId, onClose, onChanged }: Props) {
   const [order, setOrder] = useState<OrderRecord | null>(null);
   const [loading, setLoading] = useState(false);
   const [staffNotes, setStaffNotes] = useState("");
