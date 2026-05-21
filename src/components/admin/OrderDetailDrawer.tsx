@@ -230,7 +230,15 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
                 />
                 {Number(o.discount ?? 0) > 0 && <Row label="Discount" value={`− ${formatKes(o.discount)}`} />}
                 {o.promoCode && <Row label="Promo code" value={o.promoCode} />}
-                <Row label="Total" value={formatKes(o.total)} bold />
+                {Number(o.vatAmount ?? 0) > 0 ? (
+                  <>
+                    <Row label="Taxable amount" value={formatKes(o.taxableAmount ?? 0)} />
+                    <Row label={`VAT (${Math.round((o.vatRate ?? 0.16) * 100)}%)`} value={formatKes(o.vatAmount ?? 0)} />
+                    <Row label="Total (incl. VAT)" value={formatKes(o.total)} bold />
+                  </>
+                ) : (
+                  <Row label="Total" value={formatKes(o.total)} bold />
+                )}
               </Section>
 
               {/* Payment */}
