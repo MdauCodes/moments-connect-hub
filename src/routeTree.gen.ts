@@ -47,6 +47,7 @@ import { Route as AccountOrdersReferenceRouteImport } from './routes/account.ord
 import { Route as AdminAuthAdminUsersRouteImport } from './routes/_adminAuth.admin.users'
 import { Route as AdminAuthAdminStaffRouteImport } from './routes/_adminAuth.admin.staff'
 import { Route as AdminAuthAdminSettingsRouteImport } from './routes/_adminAuth.admin.settings'
+import { Route as AdminAuthAdminRolesRouteImport } from './routes/_adminAuth.admin.roles'
 import { Route as AdminAuthAdminReviewsRouteImport } from './routes/_adminAuth.admin.reviews'
 import { Route as AdminAuthAdminPaymentsRouteImport } from './routes/_adminAuth.admin.payments'
 import { Route as AdminAuthAdminOrdersRouteImport } from './routes/_adminAuth.admin.orders'
@@ -260,6 +261,11 @@ const AdminAuthAdminSettingsRoute = AdminAuthAdminSettingsRouteImport.update({
   path: '/admin/settings',
   getParentRoute: () => AdminAuthRoute,
 } as any)
+const AdminAuthAdminRolesRoute = AdminAuthAdminRolesRouteImport.update({
+  id: '/admin/roles',
+  path: '/admin/roles',
+  getParentRoute: () => AdminAuthRoute,
+} as any)
 const AdminAuthAdminReviewsRoute = AdminAuthAdminReviewsRouteImport.update({
   id: '/admin/reviews',
   path: '/admin/reviews',
@@ -432,6 +438,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AdminAuthAdminOrdersRouteWithChildren
   '/admin/payments': typeof AdminAuthAdminPaymentsRoute
   '/admin/reviews': typeof AdminAuthAdminReviewsRoute
+  '/admin/roles': typeof AdminAuthAdminRolesRoute
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/admin/staff': typeof AdminAuthAdminStaffRoute
   '/admin/users': typeof AdminAuthAdminUsersRoute
@@ -494,6 +501,7 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AdminAuthAdminOrdersRouteWithChildren
   '/admin/payments': typeof AdminAuthAdminPaymentsRoute
   '/admin/reviews': typeof AdminAuthAdminReviewsRoute
+  '/admin/roles': typeof AdminAuthAdminRolesRoute
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/admin/staff': typeof AdminAuthAdminStaffRoute
   '/admin/users': typeof AdminAuthAdminUsersRoute
@@ -558,6 +566,7 @@ export interface FileRoutesById {
   '/_adminAuth/admin/orders': typeof AdminAuthAdminOrdersRouteWithChildren
   '/_adminAuth/admin/payments': typeof AdminAuthAdminPaymentsRoute
   '/_adminAuth/admin/reviews': typeof AdminAuthAdminReviewsRoute
+  '/_adminAuth/admin/roles': typeof AdminAuthAdminRolesRoute
   '/_adminAuth/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/_adminAuth/admin/staff': typeof AdminAuthAdminStaffRoute
   '/_adminAuth/admin/users': typeof AdminAuthAdminUsersRoute
@@ -622,6 +631,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/payments'
     | '/admin/reviews'
+    | '/admin/roles'
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/users'
@@ -684,6 +694,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/payments'
     | '/admin/reviews'
+    | '/admin/roles'
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/users'
@@ -747,6 +758,7 @@ export interface FileRouteTypes {
     | '/_adminAuth/admin/orders'
     | '/_adminAuth/admin/payments'
     | '/_adminAuth/admin/reviews'
+    | '/_adminAuth/admin/roles'
     | '/_adminAuth/admin/settings'
     | '/_adminAuth/admin/staff'
     | '/_adminAuth/admin/users'
@@ -1066,6 +1078,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuthAdminSettingsRouteImport
       parentRoute: typeof AdminAuthRoute
     }
+    '/_adminAuth/admin/roles': {
+      id: '/_adminAuth/admin/roles'
+      path: '/admin/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminAuthAdminRolesRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
     '/_adminAuth/admin/reviews': {
       id: '/_adminAuth/admin/reviews'
       path: '/admin/reviews'
@@ -1296,6 +1315,7 @@ interface AdminAuthRouteChildren {
   AdminAuthAdminOrdersRoute: typeof AdminAuthAdminOrdersRouteWithChildren
   AdminAuthAdminPaymentsRoute: typeof AdminAuthAdminPaymentsRoute
   AdminAuthAdminReviewsRoute: typeof AdminAuthAdminReviewsRoute
+  AdminAuthAdminRolesRoute: typeof AdminAuthAdminRolesRoute
   AdminAuthAdminSettingsRoute: typeof AdminAuthAdminSettingsRoute
   AdminAuthAdminStaffRoute: typeof AdminAuthAdminStaffRoute
   AdminAuthAdminUsersRoute: typeof AdminAuthAdminUsersRoute
@@ -1320,6 +1340,7 @@ const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminOrdersRoute: AdminAuthAdminOrdersRouteWithChildren,
   AdminAuthAdminPaymentsRoute: AdminAuthAdminPaymentsRoute,
   AdminAuthAdminReviewsRoute: AdminAuthAdminReviewsRoute,
+  AdminAuthAdminRolesRoute: AdminAuthAdminRolesRoute,
   AdminAuthAdminSettingsRoute: AdminAuthAdminSettingsRoute,
   AdminAuthAdminStaffRoute: AdminAuthAdminStaffRoute,
   AdminAuthAdminUsersRoute: AdminAuthAdminUsersRoute,
