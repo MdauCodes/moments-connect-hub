@@ -39,6 +39,11 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
   const [savingNotes, setSavingNotes] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "">("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const { hasPermission } = useAuth();
+  const canAssign = hasPermission(PERM.ORDER_ASSIGN) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const [assignees, setAssignees] = useState<AssignableUser[]>([]);
+  const [assigning, setAssigning] = useState(false);
+  useEffect(() => { if (canAssign) listAssignableUsers().then(setAssignees).catch(() => {}); }, [canAssign]);
 
   useEffect(() => {
     if (!orderId) return;
