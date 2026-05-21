@@ -47,6 +47,7 @@ import { Route as AccountOrdersReferenceRouteImport } from './routes/account.ord
 import { Route as AdminAuthAdminUsersRouteImport } from './routes/_adminAuth.admin.users'
 import { Route as AdminAuthAdminStaffRouteImport } from './routes/_adminAuth.admin.staff'
 import { Route as AdminAuthAdminSettingsRouteImport } from './routes/_adminAuth.admin.settings'
+import { Route as AdminAuthAdminRolesRouteImport } from './routes/_adminAuth.admin.roles'
 import { Route as AdminAuthAdminReviewsRouteImport } from './routes/_adminAuth.admin.reviews'
 import { Route as AdminAuthAdminPaymentsRouteImport } from './routes/_adminAuth.admin.payments'
 import { Route as AdminAuthAdminOrdersRouteImport } from './routes/_adminAuth.admin.orders'
@@ -55,9 +56,13 @@ import { Route as AdminAuthAdminEnquiriesRouteImport } from './routes/_adminAuth
 import { Route as AdminAuthAdminDeliveryZonesRouteImport } from './routes/_adminAuth.admin.delivery-zones'
 import { Route as AdminAuthAdminDashboardRouteImport } from './routes/_adminAuth.admin.dashboard'
 import { Route as AdminAuthAdminCustomersRouteImport } from './routes/_adminAuth.admin.customers'
+import { Route as AdminAuthAdminChangePasswordRouteImport } from './routes/_adminAuth.admin.change-password'
 import { Route as AdminAuthAdminBlogsRouteImport } from './routes/_adminAuth.admin.blogs'
 import { Route as AdminAuthAdminAnalyticsRouteImport } from './routes/_adminAuth.admin.analytics'
 import { Route as AdminAuthAdminProductsIndexRouteImport } from './routes/_adminAuth.admin.products.index'
+import { Route as AdminAuthAdminQueuesPreparationRouteImport } from './routes/_adminAuth.admin.queues.preparation'
+import { Route as AdminAuthAdminQueuesPaymentRouteImport } from './routes/_adminAuth.admin.queues.payment'
+import { Route as AdminAuthAdminQueuesDispatchRouteImport } from './routes/_adminAuth.admin.queues.dispatch'
 import { Route as AdminAuthAdminProductsNewRouteImport } from './routes/_adminAuth.admin.products_.new'
 import { Route as AdminAuthAdminProductsIdRouteImport } from './routes/_adminAuth.admin.products.$id'
 import { Route as AdminAuthAdminOrdersIdRouteImport } from './routes/_adminAuth.admin.orders.$id'
@@ -256,6 +261,11 @@ const AdminAuthAdminSettingsRoute = AdminAuthAdminSettingsRouteImport.update({
   path: '/admin/settings',
   getParentRoute: () => AdminAuthRoute,
 } as any)
+const AdminAuthAdminRolesRoute = AdminAuthAdminRolesRouteImport.update({
+  id: '/admin/roles',
+  path: '/admin/roles',
+  getParentRoute: () => AdminAuthRoute,
+} as any)
 const AdminAuthAdminReviewsRoute = AdminAuthAdminReviewsRouteImport.update({
   id: '/admin/reviews',
   path: '/admin/reviews',
@@ -298,6 +308,12 @@ const AdminAuthAdminCustomersRoute = AdminAuthAdminCustomersRouteImport.update({
   path: '/admin/customers',
   getParentRoute: () => AdminAuthRoute,
 } as any)
+const AdminAuthAdminChangePasswordRoute =
+  AdminAuthAdminChangePasswordRouteImport.update({
+    id: '/admin/change-password',
+    path: '/admin/change-password',
+    getParentRoute: () => AdminAuthRoute,
+  } as any)
 const AdminAuthAdminBlogsRoute = AdminAuthAdminBlogsRouteImport.update({
   id: '/admin/blogs',
   path: '/admin/blogs',
@@ -312,6 +328,24 @@ const AdminAuthAdminProductsIndexRoute =
   AdminAuthAdminProductsIndexRouteImport.update({
     id: '/admin/products/',
     path: '/admin/products/',
+    getParentRoute: () => AdminAuthRoute,
+  } as any)
+const AdminAuthAdminQueuesPreparationRoute =
+  AdminAuthAdminQueuesPreparationRouteImport.update({
+    id: '/admin/queues/preparation',
+    path: '/admin/queues/preparation',
+    getParentRoute: () => AdminAuthRoute,
+  } as any)
+const AdminAuthAdminQueuesPaymentRoute =
+  AdminAuthAdminQueuesPaymentRouteImport.update({
+    id: '/admin/queues/payment',
+    path: '/admin/queues/payment',
+    getParentRoute: () => AdminAuthRoute,
+  } as any)
+const AdminAuthAdminQueuesDispatchRoute =
+  AdminAuthAdminQueuesDispatchRouteImport.update({
+    id: '/admin/queues/dispatch',
+    path: '/admin/queues/dispatch',
     getParentRoute: () => AdminAuthRoute,
   } as any)
 const AdminAuthAdminProductsNewRoute =
@@ -395,6 +429,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/admin/change-password': typeof AdminAuthAdminChangePasswordRoute
   '/admin/customers': typeof AdminAuthAdminCustomersRouteWithChildren
   '/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/admin/delivery-zones': typeof AdminAuthAdminDeliveryZonesRoute
@@ -403,6 +438,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AdminAuthAdminOrdersRouteWithChildren
   '/admin/payments': typeof AdminAuthAdminPaymentsRoute
   '/admin/reviews': typeof AdminAuthAdminReviewsRoute
+  '/admin/roles': typeof AdminAuthAdminRolesRoute
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/admin/staff': typeof AdminAuthAdminStaffRoute
   '/admin/users': typeof AdminAuthAdminUsersRoute
@@ -416,6 +452,9 @@ export interface FileRoutesByFullPath {
   '/admin/orders/$id': typeof AdminAuthAdminOrdersIdRoute
   '/admin/products/$id': typeof AdminAuthAdminProductsIdRoute
   '/admin/products/new': typeof AdminAuthAdminProductsNewRoute
+  '/admin/queues/dispatch': typeof AdminAuthAdminQueuesDispatchRoute
+  '/admin/queues/payment': typeof AdminAuthAdminQueuesPaymentRoute
+  '/admin/queues/preparation': typeof AdminAuthAdminQueuesPreparationRoute
   '/admin/products/': typeof AdminAuthAdminProductsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -453,6 +492,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/admin/change-password': typeof AdminAuthAdminChangePasswordRoute
   '/admin/customers': typeof AdminAuthAdminCustomersRouteWithChildren
   '/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/admin/delivery-zones': typeof AdminAuthAdminDeliveryZonesRoute
@@ -461,6 +501,7 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AdminAuthAdminOrdersRouteWithChildren
   '/admin/payments': typeof AdminAuthAdminPaymentsRoute
   '/admin/reviews': typeof AdminAuthAdminReviewsRoute
+  '/admin/roles': typeof AdminAuthAdminRolesRoute
   '/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/admin/staff': typeof AdminAuthAdminStaffRoute
   '/admin/users': typeof AdminAuthAdminUsersRoute
@@ -474,6 +515,9 @@ export interface FileRoutesByTo {
   '/admin/orders/$id': typeof AdminAuthAdminOrdersIdRoute
   '/admin/products/$id': typeof AdminAuthAdminProductsIdRoute
   '/admin/products/new': typeof AdminAuthAdminProductsNewRoute
+  '/admin/queues/dispatch': typeof AdminAuthAdminQueuesDispatchRoute
+  '/admin/queues/payment': typeof AdminAuthAdminQueuesPaymentRoute
+  '/admin/queues/preparation': typeof AdminAuthAdminQueuesPreparationRoute
   '/admin/products': typeof AdminAuthAdminProductsIndexRoute
 }
 export interface FileRoutesById {
@@ -513,6 +557,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/_adminAuth/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
   '/_adminAuth/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
+  '/_adminAuth/admin/change-password': typeof AdminAuthAdminChangePasswordRoute
   '/_adminAuth/admin/customers': typeof AdminAuthAdminCustomersRouteWithChildren
   '/_adminAuth/admin/dashboard': typeof AdminAuthAdminDashboardRoute
   '/_adminAuth/admin/delivery-zones': typeof AdminAuthAdminDeliveryZonesRoute
@@ -521,6 +566,7 @@ export interface FileRoutesById {
   '/_adminAuth/admin/orders': typeof AdminAuthAdminOrdersRouteWithChildren
   '/_adminAuth/admin/payments': typeof AdminAuthAdminPaymentsRoute
   '/_adminAuth/admin/reviews': typeof AdminAuthAdminReviewsRoute
+  '/_adminAuth/admin/roles': typeof AdminAuthAdminRolesRoute
   '/_adminAuth/admin/settings': typeof AdminAuthAdminSettingsRoute
   '/_adminAuth/admin/staff': typeof AdminAuthAdminStaffRoute
   '/_adminAuth/admin/users': typeof AdminAuthAdminUsersRoute
@@ -534,6 +580,9 @@ export interface FileRoutesById {
   '/_adminAuth/admin/orders/$id': typeof AdminAuthAdminOrdersIdRoute
   '/_adminAuth/admin/products/$id': typeof AdminAuthAdminProductsIdRoute
   '/_adminAuth/admin/products_/new': typeof AdminAuthAdminProductsNewRoute
+  '/_adminAuth/admin/queues/dispatch': typeof AdminAuthAdminQueuesDispatchRoute
+  '/_adminAuth/admin/queues/payment': typeof AdminAuthAdminQueuesPaymentRoute
+  '/_adminAuth/admin/queues/preparation': typeof AdminAuthAdminQueuesPreparationRoute
   '/_adminAuth/admin/products/': typeof AdminAuthAdminProductsIndexRoute
 }
 export interface FileRouteTypes {
@@ -573,6 +622,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/admin/analytics'
     | '/admin/blogs'
+    | '/admin/change-password'
     | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/delivery-zones'
@@ -581,6 +631,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/payments'
     | '/admin/reviews'
+    | '/admin/roles'
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/users'
@@ -594,6 +645,9 @@ export interface FileRouteTypes {
     | '/admin/orders/$id'
     | '/admin/products/$id'
     | '/admin/products/new'
+    | '/admin/queues/dispatch'
+    | '/admin/queues/payment'
+    | '/admin/queues/preparation'
     | '/admin/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -631,6 +685,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/admin/analytics'
     | '/admin/blogs'
+    | '/admin/change-password'
     | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/delivery-zones'
@@ -639,6 +694,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/payments'
     | '/admin/reviews'
+    | '/admin/roles'
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/users'
@@ -652,6 +708,9 @@ export interface FileRouteTypes {
     | '/admin/orders/$id'
     | '/admin/products/$id'
     | '/admin/products/new'
+    | '/admin/queues/dispatch'
+    | '/admin/queues/payment'
+    | '/admin/queues/preparation'
     | '/admin/products'
   id:
     | '__root__'
@@ -690,6 +749,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/_adminAuth/admin/analytics'
     | '/_adminAuth/admin/blogs'
+    | '/_adminAuth/admin/change-password'
     | '/_adminAuth/admin/customers'
     | '/_adminAuth/admin/dashboard'
     | '/_adminAuth/admin/delivery-zones'
@@ -698,6 +758,7 @@ export interface FileRouteTypes {
     | '/_adminAuth/admin/orders'
     | '/_adminAuth/admin/payments'
     | '/_adminAuth/admin/reviews'
+    | '/_adminAuth/admin/roles'
     | '/_adminAuth/admin/settings'
     | '/_adminAuth/admin/staff'
     | '/_adminAuth/admin/users'
@@ -711,6 +772,9 @@ export interface FileRouteTypes {
     | '/_adminAuth/admin/orders/$id'
     | '/_adminAuth/admin/products/$id'
     | '/_adminAuth/admin/products_/new'
+    | '/_adminAuth/admin/queues/dispatch'
+    | '/_adminAuth/admin/queues/payment'
+    | '/_adminAuth/admin/queues/preparation'
     | '/_adminAuth/admin/products/'
   fileRoutesById: FileRoutesById
 }
@@ -1014,6 +1078,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuthAdminSettingsRouteImport
       parentRoute: typeof AdminAuthRoute
     }
+    '/_adminAuth/admin/roles': {
+      id: '/_adminAuth/admin/roles'
+      path: '/admin/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminAuthAdminRolesRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
     '/_adminAuth/admin/reviews': {
       id: '/_adminAuth/admin/reviews'
       path: '/admin/reviews'
@@ -1070,6 +1141,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuthAdminCustomersRouteImport
       parentRoute: typeof AdminAuthRoute
     }
+    '/_adminAuth/admin/change-password': {
+      id: '/_adminAuth/admin/change-password'
+      path: '/admin/change-password'
+      fullPath: '/admin/change-password'
+      preLoaderRoute: typeof AdminAuthAdminChangePasswordRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
     '/_adminAuth/admin/blogs': {
       id: '/_adminAuth/admin/blogs'
       path: '/admin/blogs'
@@ -1089,6 +1167,27 @@ declare module '@tanstack/react-router' {
       path: '/admin/products'
       fullPath: '/admin/products/'
       preLoaderRoute: typeof AdminAuthAdminProductsIndexRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
+    '/_adminAuth/admin/queues/preparation': {
+      id: '/_adminAuth/admin/queues/preparation'
+      path: '/admin/queues/preparation'
+      fullPath: '/admin/queues/preparation'
+      preLoaderRoute: typeof AdminAuthAdminQueuesPreparationRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
+    '/_adminAuth/admin/queues/payment': {
+      id: '/_adminAuth/admin/queues/payment'
+      path: '/admin/queues/payment'
+      fullPath: '/admin/queues/payment'
+      preLoaderRoute: typeof AdminAuthAdminQueuesPaymentRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
+    '/_adminAuth/admin/queues/dispatch': {
+      id: '/_adminAuth/admin/queues/dispatch'
+      path: '/admin/queues/dispatch'
+      fullPath: '/admin/queues/dispatch'
+      preLoaderRoute: typeof AdminAuthAdminQueuesDispatchRouteImport
       parentRoute: typeof AdminAuthRoute
     }
     '/_adminAuth/admin/products_/new': {
@@ -1207,6 +1306,7 @@ const AdminAuthAdminOrdersRouteWithChildren =
 interface AdminAuthRouteChildren {
   AdminAuthAdminAnalyticsRoute: typeof AdminAuthAdminAnalyticsRoute
   AdminAuthAdminBlogsRoute: typeof AdminAuthAdminBlogsRouteWithChildren
+  AdminAuthAdminChangePasswordRoute: typeof AdminAuthAdminChangePasswordRoute
   AdminAuthAdminCustomersRoute: typeof AdminAuthAdminCustomersRouteWithChildren
   AdminAuthAdminDashboardRoute: typeof AdminAuthAdminDashboardRoute
   AdminAuthAdminDeliveryZonesRoute: typeof AdminAuthAdminDeliveryZonesRoute
@@ -1215,18 +1315,23 @@ interface AdminAuthRouteChildren {
   AdminAuthAdminOrdersRoute: typeof AdminAuthAdminOrdersRouteWithChildren
   AdminAuthAdminPaymentsRoute: typeof AdminAuthAdminPaymentsRoute
   AdminAuthAdminReviewsRoute: typeof AdminAuthAdminReviewsRoute
+  AdminAuthAdminRolesRoute: typeof AdminAuthAdminRolesRoute
   AdminAuthAdminSettingsRoute: typeof AdminAuthAdminSettingsRoute
   AdminAuthAdminStaffRoute: typeof AdminAuthAdminStaffRoute
   AdminAuthAdminUsersRoute: typeof AdminAuthAdminUsersRoute
   AdminAuthAdminIndexRoute: typeof AdminAuthAdminIndexRoute
   AdminAuthAdminProductsIdRoute: typeof AdminAuthAdminProductsIdRoute
   AdminAuthAdminProductsNewRoute: typeof AdminAuthAdminProductsNewRoute
+  AdminAuthAdminQueuesDispatchRoute: typeof AdminAuthAdminQueuesDispatchRoute
+  AdminAuthAdminQueuesPaymentRoute: typeof AdminAuthAdminQueuesPaymentRoute
+  AdminAuthAdminQueuesPreparationRoute: typeof AdminAuthAdminQueuesPreparationRoute
   AdminAuthAdminProductsIndexRoute: typeof AdminAuthAdminProductsIndexRoute
 }
 
 const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminAnalyticsRoute: AdminAuthAdminAnalyticsRoute,
   AdminAuthAdminBlogsRoute: AdminAuthAdminBlogsRouteWithChildren,
+  AdminAuthAdminChangePasswordRoute: AdminAuthAdminChangePasswordRoute,
   AdminAuthAdminCustomersRoute: AdminAuthAdminCustomersRouteWithChildren,
   AdminAuthAdminDashboardRoute: AdminAuthAdminDashboardRoute,
   AdminAuthAdminDeliveryZonesRoute: AdminAuthAdminDeliveryZonesRoute,
@@ -1235,12 +1340,16 @@ const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminOrdersRoute: AdminAuthAdminOrdersRouteWithChildren,
   AdminAuthAdminPaymentsRoute: AdminAuthAdminPaymentsRoute,
   AdminAuthAdminReviewsRoute: AdminAuthAdminReviewsRoute,
+  AdminAuthAdminRolesRoute: AdminAuthAdminRolesRoute,
   AdminAuthAdminSettingsRoute: AdminAuthAdminSettingsRoute,
   AdminAuthAdminStaffRoute: AdminAuthAdminStaffRoute,
   AdminAuthAdminUsersRoute: AdminAuthAdminUsersRoute,
   AdminAuthAdminIndexRoute: AdminAuthAdminIndexRoute,
   AdminAuthAdminProductsIdRoute: AdminAuthAdminProductsIdRoute,
   AdminAuthAdminProductsNewRoute: AdminAuthAdminProductsNewRoute,
+  AdminAuthAdminQueuesDispatchRoute: AdminAuthAdminQueuesDispatchRoute,
+  AdminAuthAdminQueuesPaymentRoute: AdminAuthAdminQueuesPaymentRoute,
+  AdminAuthAdminQueuesPreparationRoute: AdminAuthAdminQueuesPreparationRoute,
   AdminAuthAdminProductsIndexRoute: AdminAuthAdminProductsIndexRoute,
 }
 

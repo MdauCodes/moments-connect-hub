@@ -10,8 +10,10 @@ import {
   formatDate,
   ORDER_STATUS_OPTIONS,
 } from "@/components/admin/commerceUi";
-import { getOrder, updateOrderStatus } from "@/services/commerceApi";
+import { assignOrder, getOrder, listAssignableUsers, updateOrderStatus, type AssignableUser } from "@/services/commerceApi";
 import type { OrderRecord, OrderStatus } from "@/services/commerceMock";
+import { useAuth } from "@/contexts/AdminAuthContext";
+import { PERM } from "@/lib/permissions";
 
 interface Props {
   orderId: string | null;
@@ -37,6 +39,11 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
   const [savingNotes, setSavingNotes] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "">("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const { hasPermission } = useAuth();
+  const canAssign = hasPermission(PERM.ORDER_ASSIGN) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const [assignees, setAssignees] = useState<AssignableUser[]>([]);
+  const [assigning, setAssigning] = useState(false);
+  useEffect(() => { if (canAssign) listAssignableUsers().then(setAssignees).catch(() => {}); }, [canAssign]);
 
   useEffect(() => {
     if (!orderId) return;
@@ -223,7 +230,15 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
                 />
                 {Number(o.discount ?? 0) > 0 && <Row label="Discount" value={`− ${formatKes(o.discount)}`} />}
                 {o.promoCode && <Row label="Promo code" value={o.promoCode} />}
-                <Row label="Total" value={formatKes(o.total)} bold />
+                {Number(o.vatAmount ?? 0) > 0 ? (
+                  <>
+                    <Row label="Taxable amount" value={formatKes(o.taxableAmount ?? 0)} />
+                    <Row label={`VAT (${Math.round((o.vatRate ?? 0.16) * 100)}%)`} value={formatKes(o.vatAmount ?? 0)} />
+                    <Row label="Total (incl. VAT)" value={formatKes(o.total)} bold />
+                  </>
+                ) : (
+                  <Row label="Total" value={formatKes(o.total)} bold />
+                )}
               </Section>
 
               {/* Payment */}
@@ -296,7 +311,38 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
 
               {/* Staff */}
               <Section title="Staff">
-                <Row label="Assigned to" value={o.assignedTo || "—"} />
+                {canAssign ? (
+                  <div className="space-y-2">
+                    <div className="text-xs text-muted-foreground">
+                      {o.assignedTo ? `Assigned to: ${o.assignedTo}` : "Unassigned"}
+                    </div>
+                    <select
+                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      value={o.assignedToId ?? ""}
+                      disabled={assigning}
+                      onChange={async (e) => {
+                        const id = e.target.value;
+                        const u = assignees.find((a) => a.id === id);
+                        if (!u) return;
+                        setAssigning(true);
+                        try {
+                          const res = await assignOrder(o.id, u.name, u.id);
+                          if (res.order) setOrder(res.order);
+                          toast.success(`Assigned to ${u.name}`);
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Assignment failed");
+                        } finally {
+                          setAssigning(false);
+                        }
+                      }}
+                    >
+                      <option value="" disabled>Assign to…</option>
+                      {assignees.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+                    </select>
+                  </div>
+                ) : (
+                  <Row label="Assigned to" value={o.assignedTo || "—"} />
+                )}
                 <label className="block mt-2">
                   <span className="text-xs uppercase text-muted-foreground">Staff notes</span>
                   <textarea
