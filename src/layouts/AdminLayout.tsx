@@ -15,7 +15,7 @@ import {
   Menu,
   X,
   ShoppingCart,
-  CreditCard,
+  
   BarChart3,
   Truck,
   RefreshCw,
