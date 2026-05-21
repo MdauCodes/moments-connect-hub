@@ -82,8 +82,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     void logoutAdmin();
   };
 
-  const changePassword = async (newPassword: string): Promise<void> => {
-    const next = await changeAdminPassword(newPassword);
+  const changePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
+    const next = await changeAdminPassword(currentPassword, newPassword);
     if (next) setUser(next);
   };
 
