@@ -154,11 +154,11 @@ function AdminUsersPage() {
               ) : rows.length === 0 ? (
                 <tr><td colSpan={5}><div className="admin-empty">No users yet.</div></td></tr>
               ) : rows.map((r) => (
-                <tr key={r.id}>
-                  <td><b>{r.email}</b></td>
-                  <td>{[r.firstName, r.lastName].filter(Boolean).join(" ") || "—"}</td>
-                  <td>{r.staffRoleDisplay ?? r.staffRole ?? (r.roles ?? []).join(", ") ?? "—"}</td>
-                  <td>{r.enabled ? "Enabled" : "Disabled"}</td>
+                <tr key={r?.id ?? Math.random()}>
+                  <td><b>{r?.email ?? "—"}</b></td>
+                  <td>{[r?.firstName, r?.lastName].filter(Boolean).join(" ") || "—"}</td>
+                  <td>{r?.staffRoleDisplay || r?.staffRoleName || r?.staffRole || "—"}</td>
+                  <td>{r?.enabled ? "Enabled" : "Disabled"}</td>
                   <td style={{ whiteSpace: "nowrap" }}>
                     {canCreate && (
                       <button className="admin-btn admin-btn-ghost" onClick={() => begin(r)}>
