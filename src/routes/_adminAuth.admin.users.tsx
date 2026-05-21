@@ -38,11 +38,15 @@ function AdminUsersPage() {
     setLoading(true);
     try {
       const [users, roleList] = await Promise.all([
-        adminResources.users.list(),
+        adminResources.users.list().catch((err) => {
+          console.error("Failed to load users", err);
+          toast.error(err instanceof Error ? err.message : "Failed to load users");
+          return [] as UserDto[];
+        }),
         adminResources.roles.list().catch(() => [] as RoleDto[]),
       ]);
-      setRows(users);
-      setRoles(roleList);
+      setRows(Array.isArray(users) ? users : []);
+      setRoles(Array.isArray(roleList) ? roleList : []);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load users");
     } finally {
@@ -57,11 +61,11 @@ function AdminUsersPage() {
   const begin = (row?: UserDto) => {
     setEditing(row ?? null);
     setForm(row ? {
-      email: row.email,
+      email: row.email ?? "",
       firstName: row.firstName ?? "",
       lastName: row.lastName ?? "",
       enabled: row.enabled ?? true,
-      roleId: row.roleId ?? "",
+      roleId: row.staffRoleId ?? row.roleId ?? "",
     } : { ...emptyForm, roleId: roles[0]?.id ?? "" });
     setOpen(true);
   };
@@ -150,11 +154,11 @@ function AdminUsersPage() {
               ) : rows.length === 0 ? (
                 <tr><td colSpan={5}><div className="admin-empty">No users yet.</div></td></tr>
               ) : rows.map((r) => (
-                <tr key={r.id}>
-                  <td><b>{r.email}</b></td>
-                  <td>{[r.firstName, r.lastName].filter(Boolean).join(" ") || "—"}</td>
-                  <td>{r.staffRoleDisplay ?? r.staffRole ?? (r.roles ?? []).join(", ") ?? "—"}</td>
-                  <td>{r.enabled ? "Enabled" : "Disabled"}</td>
+                <tr key={r?.id ?? Math.random()}>
+                  <td><b>{r?.email ?? "—"}</b></td>
+                  <td>{[r?.firstName, r?.lastName].filter(Boolean).join(" ") || "—"}</td>
+                  <td>{r?.staffRoleDisplay || r?.staffRoleName || r?.staffRole || "—"}</td>
+                  <td>{r?.enabled ? "Enabled" : "Disabled"}</td>
                   <td style={{ whiteSpace: "nowrap" }}>
                     {canCreate && (
                       <button className="admin-btn admin-btn-ghost" onClick={() => begin(r)}>
