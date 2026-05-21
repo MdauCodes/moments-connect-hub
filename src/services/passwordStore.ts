@@ -1,40 +1,38 @@
 // ----------------------------------------------------------------------------
-// Password reset & email verification — mock-live hybrid.
-// Live endpoints (assumed):
+// Password reset & email verification — wired to the Spring Boot backend.
 //   POST /api/v1/auth/forgot-password { email }
 //   POST /api/v1/auth/reset-password  { token, password }
-//   POST /api/v1/auth/verify          { token }
-// In mock mode, "tokens" are simply non-empty strings; flows always succeed.
+//   POST /api/v1/auth/verify-email    { token }
 // ----------------------------------------------------------------------------
 import { apiUrl } from "@/config/api";
 
-async function postOrMock(path: string, body: unknown): Promise<{ ok: boolean; source: "live" | "mock"; message?: string }> {
+type Result = { ok: boolean; message?: string };
+
+async function post(path: string, body: unknown): Promise<Result> {
   try {
     const res = await fetch(apiUrl(path), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    if (res.ok) return { ok: true, source: "live" };
+    if (res.ok) return { ok: true };
     const data = await res.json().catch(() => ({}));
-    return { ok: false, source: "live", message: (data as { message?: string }).message ?? "Request failed" };
+    return { ok: false, message: (data as { message?: string }).message ?? `Request failed (${res.status})` };
   } catch {
-    // No backend — simulate success
-    await new Promise((r) => setTimeout(r, 600));
-    return { ok: true, source: "mock" };
+    return { ok: false, message: "Network error — please check your connection and try again." };
   }
 }
 
 export const passwordStore = {
-  async requestReset(email: string) {
-    return postOrMock("/api/v1/auth/forgot-password", { email });
+  async requestReset(email: string): Promise<Result> {
+    return post("/api/v1/auth/forgot-password", { email });
   },
-  async reset(token: string, password: string) {
-    if (!token) return { ok: false, source: "mock" as const, message: "Reset link is invalid or has expired." };
-    return postOrMock("/api/v1/auth/reset-password", { token, password });
+  async reset(token: string, password: string): Promise<Result> {
+    if (!token) return { ok: false, message: "Reset link is invalid or has expired." };
+    return post("/api/v1/auth/reset-password", { token, password });
   },
-  async verifyEmail(token: string) {
-    if (!token) return { ok: false, source: "mock" as const, message: "Verification link is invalid." };
-    return postOrMock("/api/v1/auth/verify-email", { token });
+  async verifyEmail(token: string): Promise<Result> {
+    if (!token) return { ok: false, message: "Verification link is invalid." };
+    return post("/api/v1/auth/verify-email", { token });
   },
 };
