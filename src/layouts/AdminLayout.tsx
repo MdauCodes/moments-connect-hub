@@ -19,9 +19,13 @@ import {
   BarChart3,
   Truck,
   RefreshCw,
+  CheckCircle2,
+  PackageCheck,
+  Send,
+  ShieldCheck,
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
-import { can, type Permission } from "@/lib/permissions";
+import { hasAnyPerm, PERM, type PermissionCode } from "@/lib/permissions";
 
 interface AdminLayoutProps {
   title: string;
@@ -36,8 +40,8 @@ interface NavItem {
   to: string;
   icon: typeof LayoutList;
   badge?: number;
-  /** If set, the item is only rendered when the current role has this permission. */
-  requires?: Permission;
+  /** Item is visible when user has ANY of these permissions. Omit = always visible. */
+  requiresAny?: PermissionCode[];
 }
 
 interface NavSection {
@@ -45,49 +49,57 @@ interface NavSection {
   items: NavItem[];
 }
 
-// Sections regrouped for clarity: Overview → Sales → Catalogue → Audience → Content → System.
 const navSections: NavSection[] = [
   {
     label: "Overview",
     items: [
-      { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard },
-      { label: "Analytics", to: "/admin/analytics", icon: BarChart3 },
+      { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard, requiresAny: [PERM.ANALYTICS_VIEW, PERM.USER_MANAGE_ROLES] },
+      { label: "Analytics", to: "/admin/analytics", icon: BarChart3, requiresAny: [PERM.ANALYTICS_VIEW] },
+    ],
+  },
+  {
+    label: "Queues",
+    items: [
+      { label: "Payment Queue", to: "/admin/queues/payment", icon: CheckCircle2, requiresAny: [PERM.ORDER_VERIFY_PAYMENT, PERM.ORDER_MANAGE_ALL] },
+      { label: "Preparation Queue", to: "/admin/queues/preparation", icon: PackageCheck, requiresAny: [PERM.ORDER_PREPARE, PERM.ORDER_MANAGE_ALL] },
+      { label: "Dispatch Queue", to: "/admin/queues/dispatch", icon: Send, requiresAny: [PERM.ORDER_DISPATCH, PERM.ORDER_MANAGE_ALL] },
     ],
   },
   {
     label: "Sales",
     items: [
-      { label: "Orders", to: "/admin/orders", icon: ShoppingCart },
-      { label: "Payments", to: "/admin/payments", icon: CreditCard },
+      { label: "Orders", to: "/admin/orders", icon: ShoppingCart, requiresAny: [PERM.ORDER_VIEW, PERM.ORDER_MANAGE_ALL, PERM.ORDER_ASSIGN] },
+      { label: "Payments", to: "/admin/payments", icon: CreditCard, requiresAny: [PERM.PAYMENT_VIEW] },
     ],
   },
   {
     label: "Catalogue",
     items: [
-      { label: "Products", to: "/admin/products", icon: Package },
-      { label: "Industries", to: "/admin/industries", icon: Factory },
-      { label: "Delivery Zones", to: "/admin/delivery-zones", icon: Truck, requires: "settings:manage" as Permission },
+      { label: "Products", to: "/admin/products", icon: Package, requiresAny: [PERM.PRODUCT_VIEW, PERM.PRODUCT_MANAGE] },
+      { label: "Industries", to: "/admin/industries", icon: Factory, requiresAny: [PERM.PRODUCT_MANAGE] },
+      { label: "Delivery Zones", to: "/admin/delivery-zones", icon: Truck, requiresAny: [PERM.SETTINGS_MANAGE] },
     ],
   },
   {
     label: "Audience",
     items: [
-      { label: "Customers", to: "/admin/customers", icon: Users, requires: "customer:view" },
-      { label: "Enquiries", to: "/admin/enquiries", icon: LayoutList },
-      { label: "Reviews", to: "/admin/reviews", icon: Star, requires: "review:moderate" },
+      { label: "Customers", to: "/admin/customers", icon: Users, requiresAny: [PERM.CUSTOMER_VIEW] },
+      { label: "Enquiries", to: "/admin/enquiries", icon: LayoutList, requiresAny: [PERM.ENQUIRY_VIEW] },
+      { label: "Reviews", to: "/admin/reviews", icon: Star, requiresAny: [PERM.REVIEW_MODERATE] },
     ],
   },
   {
     label: "Content",
     items: [
-      { label: "Blogs", to: "/admin/blogs", icon: FileText },
+      { label: "Blogs", to: "/admin/blogs", icon: FileText, requiresAny: [PERM.BLOG_MANAGE] },
     ],
   },
   {
     label: "System",
     items: [
-      { label: "Users", to: "/admin/users", icon: Users, requires: "staff:manage" },
-      { label: "Settings", to: "/admin/settings", icon: Settings, requires: "settings:manage" },
+      { label: "Users", to: "/admin/users", icon: Users, requiresAny: [PERM.USER_VIEW, PERM.USER_CREATE, PERM.USER_MANAGE_ROLES] },
+      { label: "Roles", to: "/admin/roles", icon: ShieldCheck, requiresAny: [PERM.USER_MANAGE_ROLES] },
+      { label: "Settings", to: "/admin/settings", icon: Settings, requiresAny: [PERM.SETTINGS_MANAGE] },
     ],
   },
 ];
@@ -328,7 +340,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
 }
 
 export function AdminLayout({ title, actionLabel, onAction, onReload, children }: AdminLayoutProps) {
-  const { user, logout } = useAdminAuth();
+  const { user, logout, permissions } = useAdminAuth();
   const location = useLocation();
   const pathname = location.pathname;
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -379,7 +391,7 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
         <nav style={styles.nav}>
           {navSections.map((section, sectionIdx) => {
             const visible = section.items.filter(
-              (item) => !item.requires || can(user?.role, item.requires)
+              (item) => !item.requiresAny || hasAnyPerm(permissions, item.requiresAny),
             );
             if (visible.length === 0) return null;
             return (

@@ -119,9 +119,18 @@ function normalizeOrder(raw: any): OrderRecord {
     notes: raw?.notes,
     staffNotes: raw?.staffNotes ?? "",
     assignedTo: raw?.assignedTo,
+    assignedToId: raw?.assignedToId,
+    contentsVerified: raw?.contentsVerified ?? false,
+    deliveryConfirmationStatus: raw?.deliveryConfirmationStatus,
+    vatAmount: num(raw?.vatAmount),
+    taxableAmount: num(raw?.taxableAmount),
+    vatRate: raw?.vatRate != null ? Number(raw.vatRate) : undefined,
     promoCode: raw?.promoCode,
     paymentMethod: raw?.paymentMethod,
     fulfillmentType: raw?.fulfillmentType,
+    courierType: raw?.courierType,
+    courierServiceName: raw?.courierServiceName,
+    courierStageOrOffice: raw?.courierStageOrOffice,
     statusHistory: (raw?.statusHistory ?? []).map((h: any) => ({
       id: h.id,
       fromStatus: h.fromStatus,
@@ -184,14 +193,60 @@ export async function updateOrderStatus(
 export async function assignOrder(
   id: string,
   assignedTo: string,
+  assignedToId?: string,
 ): Promise<{ order: OrderRecord | undefined; source: Source }> {
   const res = await adminFetch(`/api/v1/admin/orders/${encodeURIComponent(id)}/assign`, {
     method: "PATCH",
-    body: JSON.stringify({ assignedTo }),
+    body: JSON.stringify({ assignedTo, assignedToId }),
   });
   if (!res.ok) throw new ApiError({ status: res.status, message: res.statusText });
   const raw = await res.json();
   return { order: normalizeOrder(raw), source: "live" };
+}
+
+// PATCH /api/v1/admin/orders/{id}/dispatch-confirm
+export type DeliveryConfirmation =
+  | "CUSTOMER_PAYS_COURIER"
+  | "CUSTOMER_PAYS_BUSINESS"
+  | "REVERTED_TO_PICKUP"
+  | "CONFIRM_LATER";
+
+export async function dispatchConfirmOrder(
+  id: string,
+  deliveryConfirmationStatus: DeliveryConfirmation,
+  contentsVerified = true,
+): Promise<{ order: OrderRecord | undefined; source: Source }> {
+  const res = await adminFetch(`/api/v1/admin/orders/${encodeURIComponent(id)}/dispatch-confirm`, {
+    method: "PATCH",
+    body: JSON.stringify({ deliveryConfirmationStatus, contentsVerified }),
+  });
+  if (!res.ok) throw new ApiError({ status: res.status, message: res.statusText });
+  const raw = await res.json();
+  return { order: normalizeOrder(raw), source: "live" };
+}
+
+// GET /api/v1/admin/users/assignable — only enabled staff, no customers.
+export interface AssignableUser {
+  id: string;
+  name: string;
+  email: string;
+  staffRole?: string;
+  staffRoleDisplay?: string;
+}
+export async function listAssignableUsers(): Promise<AssignableUser[]> {
+  try {
+    const raw = await getJson<any>("/api/v1/admin/users/assignable");
+    const rows: any[] = Array.isArray(raw) ? raw : (raw?.content ?? []);
+    return rows.map((u) => ({
+      id: String(u.id ?? ""),
+      name: u.name ?? [u.firstName, u.lastName].filter(Boolean).join(" ") ?? u.email ?? "Unnamed",
+      email: u.email ?? "",
+      staffRole: u.staffRole,
+      staffRoleDisplay: u.staffRoleDisplay,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 // Backend PATCH /api/v1/admin/orders/{id}/refund  (@IsAdmin only)

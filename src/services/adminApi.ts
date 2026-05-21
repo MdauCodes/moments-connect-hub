@@ -25,6 +25,12 @@ export interface AdminSession {
   roles: BackendRole[];
   token: string;
   refreshToken?: string;
+  // ── Extended claims (Section 1 of admin overhaul) ──
+  isStaff?: boolean;
+  staffRole?: string;          // e.g. "SUPER_ADMIN", "DISPATCHER"
+  staffRoleDisplay?: string;   // human label e.g. "Dispatcher"
+  permissions?: string[];      // permission codes (PERM.*)
+  mustChangePassword?: boolean;
 }
 
 export interface ApiErrorShape {
@@ -61,6 +67,11 @@ type AuthResponse = {
   email?: string;
   role?: AdminRole | BackendRole | string;
   roles?: string[];
+  isStaff?: boolean;
+  staffRole?: string;
+  staffRoleDisplay?: string;
+  permissions?: string[];
+  mustChangePassword?: boolean;
   user?: {
     id?: string;
     name?: string;
@@ -69,6 +80,11 @@ type AuthResponse = {
     email?: string;
     role?: AdminRole | BackendRole | string;
     roles?: string[];
+    isStaff?: boolean;
+    staffRole?: string;
+    staffRoleDisplay?: string;
+    permissions?: string[];
+    mustChangePassword?: boolean;
   };
 };
 
@@ -190,15 +206,59 @@ export function normalizeAdminSession(data: AuthResponse, fallback?: Partial<Adm
   if (!token || !email) throw new Error("Authentication response was missing required session details");
   if (!role) throw new Error("This account is not authorised for the admin dashboard");
 
+  // Decode extended JWT claims (or fall back to top-level / user.* fields).
+  const jwt = decodeJwtPayload(token) as unknown as Record<string, unknown> | null;
+  const pickArr = (...vals: unknown[]): string[] | undefined => {
+    for (const v of vals) if (Array.isArray(v)) return (v as unknown[]).map(String);
+    return undefined;
+  };
+  const pickBool = (...vals: unknown[]): boolean | undefined => {
+    for (const v of vals) if (typeof v === "boolean") return v;
+    return undefined;
+  };
+  const pickStr = (...vals: unknown[]): string | undefined => {
+    for (const v of vals) if (typeof v === "string" && v) return v;
+    return undefined;
+  };
+
   return {
-    id: data.user?.id ?? fallback?.id,
+    id: data.user?.id ?? fallback?.id ?? (jwt?.userId as string | undefined) ?? (jwt?.sub as string | undefined),
     token,
     refreshToken,
     roles: roles.length ? roles : [toBackendRole(role)],
     name: data.user?.name ?? (fullName || undefined) ?? data.name ?? fallback?.name ?? email,
     email,
     role,
+    isStaff: pickBool(data.isStaff, data.user?.isStaff, jwt?.isStaff) ?? true,
+    staffRole: pickStr(data.staffRole, data.user?.staffRole, jwt?.staffRole),
+    staffRoleDisplay: pickStr(data.staffRoleDisplay, data.user?.staffRoleDisplay, jwt?.staffRoleDisplay),
+    permissions: pickArr(data.permissions, data.user?.permissions, jwt?.permissions),
+    mustChangePassword: pickBool(data.mustChangePassword, data.user?.mustChangePassword, jwt?.mustChangePassword) ?? false,
   };
+}
+
+// PATCH /api/v1/auth/change-password — body { newPassword }.
+// Returns refreshed session if backend issues new tokens; otherwise clears the
+// mustChangePassword flag locally so the user can proceed.
+export async function changeAdminPassword(newPassword: string): Promise<AdminSession | null> {
+  const current = readAdminSession();
+  if (!current) return null;
+  const res = await fetch(apiUrl("/api/v1/auth/change-password"), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${current.token}` },
+    body: JSON.stringify({ newPassword }),
+  });
+  if (!res.ok) throw await parseApiError(res);
+  let next: AdminSession;
+  try {
+    const data = (await res.json()) as AuthResponse;
+    next = normalizeAdminSession(data, current);
+  } catch {
+    next = { ...current, mustChangePassword: false };
+  }
+  next.mustChangePassword = false;
+  writeAdminSession(next);
+  return next;
 }
 
 export function readAdminSession(): AdminSession | null {

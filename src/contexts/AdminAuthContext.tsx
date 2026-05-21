@@ -3,12 +3,14 @@ import {
   ADMIN_LOGOUT_EVENT,
   ADMIN_REFRESH_INTERVAL_MS,
   ADMIN_SESSION_CHANGED_EVENT,
+  changeAdminPassword,
   getValidAdminSession,
   loginAdmin,
   logoutAdmin,
   readAdminSession,
   type AdminSession,
 } from "@/services/adminApi";
+import { defaultPermissionsForRole, hasPerm as hasPermFn, type PermissionCode } from "@/lib/permissions";
 
 export type AdminUser = AdminSession;
 
@@ -18,9 +20,14 @@ interface AdminAuthContextValue {
   isCheckingSession: boolean;
   isAdmin: boolean;
   isStaff: boolean;
+  /** Effective permissions list — falls back to role bundle if JWT lacks them. */
+  permissions: string[];
+  hasPermission: (perm: PermissionCode | string) => boolean;
+  mustChangePassword: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   ensureValidSession: () => Promise<AdminUser | null>;
+  changePassword: (newPassword: string) => Promise<void>;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextValue | undefined>(undefined);
@@ -75,16 +82,37 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     void logoutAdmin();
   };
 
+  const changePassword = async (newPassword: string): Promise<void> => {
+    const next = await changeAdminPassword(newPassword);
+    if (next) setUser(next);
+  };
+
+  const permissions = useMemo<string[]>(() => {
+    if (!user) return [];
+    if (user.permissions && user.permissions.length > 0) return user.permissions;
+    // Fallback: derive from role until backend tokens carry permissions.
+    return defaultPermissionsForRole(user.role);
+  }, [user]);
+
+  const hasPermission = useCallback(
+    (perm: PermissionCode | string) => hasPermFn(permissions, perm),
+    [permissions],
+  );
+
   const value = useMemo<AdminAuthContextValue>(() => ({
     user,
     isAuthenticated: !!user,
     isCheckingSession,
     isAdmin: !!user?.roles.includes("ROLE_ADMIN"),
-    isStaff: !!user?.roles.includes("ROLE_STAFF"),
+    isStaff: !!user?.roles.includes("ROLE_STAFF") || !!user?.isStaff,
+    permissions,
+    hasPermission,
+    mustChangePassword: !!user?.mustChangePassword,
     login,
     logout,
     ensureValidSession,
-  }), [ensureValidSession, isCheckingSession, user]);
+    changePassword,
+  }), [ensureValidSession, hasPermission, isCheckingSession, permissions, user]);
 
   return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;
 }
@@ -96,3 +124,8 @@ export function useAuth(): AdminAuthContextValue {
 }
 
 export const useAdminAuth = useAuth;
+
+/** Convenience hook: returns the permissions array. */
+export function usePermissions(): string[] {
+  return useAuth().permissions;
+}

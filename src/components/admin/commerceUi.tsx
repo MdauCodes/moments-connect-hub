@@ -24,6 +24,7 @@ export function formatDateShort(iso: string | undefined): string {
 const ORDER_TONE: Record<OrderStatus, { bg: string; fg: string; label: string }> = {
   PENDING_PAYMENT: { bg: "rgba(234, 179, 8, 0.15)", fg: "#a16207", label: "Pending payment" },
   PAID: { bg: "rgba(34, 197, 94, 0.15)", fg: "#15803d", label: "Paid" },
+  PAYMENT_VERIFIED: { bg: "rgba(13, 148, 136, 0.18)", fg: "#0f766e", label: "Payment verified" },
   IN_PRODUCTION: { bg: "rgba(59, 130, 246, 0.15)", fg: "#1d4ed8", label: "In production" },
   READY_FOR_DISPATCH: { bg: "rgba(99, 102, 241, 0.15)", fg: "#4338ca", label: "Ready for dispatch" },
   DISPATCHED: { bg: "rgba(168, 85, 247, 0.15)", fg: "#7e22ce", label: "Dispatched" },
@@ -145,6 +146,7 @@ export const ORDER_STATUS_OPTIONS: { value: OrderStatus | "ALL"; label: string }
   { value: "ALL", label: "All statuses" },
   { value: "PENDING_PAYMENT", label: "Pending payment" },
   { value: "PAID", label: "Paid" },
+  { value: "PAYMENT_VERIFIED", label: "Payment Verified" },
   { value: "IN_PRODUCTION", label: "In production" },
   { value: "READY_FOR_DISPATCH", label: "Ready for dispatch" },
   { value: "DISPATCHED", label: "Dispatched" },

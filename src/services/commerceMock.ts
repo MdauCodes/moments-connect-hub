@@ -7,6 +7,7 @@
 export type OrderStatus =
   | "PENDING_PAYMENT"
   | "PAID"
+  | "PAYMENT_VERIFIED"
   | "IN_PRODUCTION"
   | "READY_FOR_DISPATCH"
   | "DISPATCHED"
@@ -58,6 +59,15 @@ export interface OrderRecord {
   notes?: string;
   staffNotes?: string;
   assignedTo?: string;
+  assignedToId?: string;
+  contentsVerified?: boolean;
+  deliveryConfirmationStatus?: string;
+  vatAmount?: number;
+  taxableAmount?: number;
+  vatRate?: number;
+  courierType?: string;
+  courierServiceName?: string;
+  courierStageOrOffice?: string;
   promoCode?: string;
   paymentMethod?: string;
   fulfillmentType?: string;

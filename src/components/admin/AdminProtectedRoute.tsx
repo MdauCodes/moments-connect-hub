@@ -9,7 +9,7 @@ export interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
-  const { user, isAuthenticated, isCheckingSession, ensureValidSession } = useAuth();
+  const { user, isAuthenticated, isCheckingSession, ensureValidSession, mustChangePassword } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const hasRequiredRole = !requiredRole || !!user?.roles.includes(requiredRole);
@@ -18,7 +18,7 @@ export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
     const onLoginPage =
       location.pathname === "/login" ||
       location.pathname.startsWith("/admin/login");
-    if (onLoginPage) return; // already at login — don't stack redirects
+    if (onLoginPage) return;
     void navigate({ to: "/login", search: { redirect: location.href }, replace: true });
   };
 
@@ -30,12 +30,19 @@ export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
       return;
     }
 
+    // Force password change before allowing any other admin navigation.
+    if (mustChangePassword && location.pathname !== "/admin/change-password") {
+      void navigate({ to: "/admin/change-password", replace: true });
+      return;
+    }
+
     void ensureValidSession().then((session) => {
       if (!session) redirectToLogin();
     });
-  }, [ensureValidSession, isAuthenticated, isCheckingSession, location.href, location.pathname, navigate, user?.refreshToken]);
+  }, [ensureValidSession, isAuthenticated, isCheckingSession, location.href, location.pathname, mustChangePassword, navigate, user?.refreshToken]);
 
   if (isCheckingSession || !isAuthenticated) return null;
+  if (mustChangePassword && location.pathname !== "/admin/change-password") return null;
   if (!hasRequiredRole) return <Forbidden resource="this admin area" />;
   return <Outlet />;
 }
