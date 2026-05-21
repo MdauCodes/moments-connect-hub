@@ -67,6 +67,7 @@ function ForgotPasswordPage() {
                   className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                 />
               </div>
+              {error && <p className="text-sm text-destructive">{error}</p>}
               <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
                 {submitting && <InlineProgress size="sm" />} Send reset link
               </button>
