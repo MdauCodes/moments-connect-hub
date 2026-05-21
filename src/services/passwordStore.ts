@@ -1,23 +1,27 @@
 // ----------------------------------------------------------------------------
 // Password reset & email verification — wired to the Spring Boot backend.
-//   POST /api/v1/auth/forgot-password { email }
-//   POST /api/v1/auth/reset-password  { token, password }
-//   POST /api/v1/auth/verify-email    { token }
+//   POST /api/v1/auth/forgot-password   { email }
+//   POST /api/v1/auth/verify-reset-otp  { email, otp }  -> { resetSessionToken }
+//   POST /api/v1/auth/reset-password    { token, newPassword }
+//   POST /api/v1/auth/verify-email      { token }
 // ----------------------------------------------------------------------------
 import { apiUrl } from "@/config/api";
 
-type Result = { ok: boolean; message?: string };
+type Result<T = undefined> = { ok: boolean; message?: string; data?: T };
 
-async function post(path: string, body: unknown): Promise<Result> {
+async function post<T = unknown>(path: string, body: unknown): Promise<Result<T>> {
   try {
     const res = await fetch(apiUrl(path), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    if (res.ok) return { ok: true };
     const data = await res.json().catch(() => ({}));
-    return { ok: false, message: (data as { message?: string }).message ?? `Request failed (${res.status})` };
+    if (res.ok) return { ok: true, data: data as T, message: (data as { message?: string }).message };
+    return {
+      ok: false,
+      message: (data as { message?: string }).message ?? `Request failed (${res.status})`,
+    };
   } catch {
     return { ok: false, message: "Network error — please check your connection and try again." };
   }
@@ -27,9 +31,13 @@ export const passwordStore = {
   async requestReset(email: string): Promise<Result> {
     return post("/api/v1/auth/forgot-password", { email });
   },
-  async reset(token: string, password: string): Promise<Result> {
-    if (!token) return { ok: false, message: "Reset link is invalid or has expired." };
-    return post("/api/v1/auth/reset-password", { token, password });
+  async verifyOtp(email: string, otp: string): Promise<Result<{ resetSessionToken: string }>> {
+    if (!/^\d{6}$/.test(otp)) return { ok: false, message: "Enter the 6-digit code from your email." };
+    return post<{ resetSessionToken: string }>("/api/v1/auth/verify-reset-otp", { email, otp });
+  },
+  async reset(token: string, newPassword: string): Promise<Result> {
+    if (!token) return { ok: false, message: "Reset session expired. Start again." };
+    return post("/api/v1/auth/reset-password", { token, newPassword });
   },
   async verifyEmail(token: string): Promise<Result> {
     if (!token) return { ok: false, message: "Verification link is invalid." };
