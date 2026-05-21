@@ -34,10 +34,8 @@ export function QueueFreshness({ onRefresh }: Props) {
       >
         <RefreshCw
           size={12}
-          style={{
-            marginRight: 6,
-            animation: refreshing ? "spin 1s linear infinite" : undefined,
-          }}
+          className={refreshing ? "animate-spin" : undefined}
+          style={{ marginRight: 6 }}
         />
         {refreshing ? "Refreshing" : "Refresh"}
       </button>
