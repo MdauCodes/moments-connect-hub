@@ -45,7 +45,11 @@ export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
   if (isCheckingSession || !isAuthenticated) return null;
   if (mustChangePassword && location.pathname !== "/admin/change-password") return null;
   if (!hasRequiredRole) return <Forbidden resource="this admin area" />;
-  return <Outlet />;
+  return (
+    <AdminOrdersProvider>
+      <Outlet />
+    </AdminOrdersProvider>
+  );
 }
 
 export const AdminProtectedRoute = ProtectedRoute;
