@@ -98,6 +98,8 @@ export function emptyProductValues(): ProductFormValues {
     variants: [],
     individualSalesEnabled: true,
     pricingTiers: [],
+    vatRate: 0.16,
+    vatExempt: false,
   };
 }
 
