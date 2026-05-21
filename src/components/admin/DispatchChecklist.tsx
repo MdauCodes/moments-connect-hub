@@ -8,7 +8,7 @@ import type { OrderRecord } from "@/services/commerceMock";
 interface Props {
   order: OrderRecord | null;
   onClose: () => void;
-  onDispatched: (orderId: string) => void;
+  onDispatched: (orderId: string) => void | Promise<void>;
 }
 
 const STORAGE_PREFIX = "dispatch_checklist_";
@@ -31,24 +31,27 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
   const [submitting, setSubmitting] = useState(false);
 
   // Restore from localStorage when an order is opened.
+  // Depend on order?.id (stable string) — NOT the order object reference,
+  // which changes on every polling refetch and would re-run this effect forever.
+  const orderId = order?.id ?? null;
   useEffect(() => {
-    if (!order) {
+    if (!orderId) {
       setTicked(new Set());
       setModalOpen(false);
       return;
     }
     try {
-      const raw = window.localStorage.getItem(`${STORAGE_PREFIX}${order.id}`);
+      const raw = window.localStorage.getItem(`${STORAGE_PREFIX}${orderId}`);
       const arr: string[] = raw ? JSON.parse(raw) : [];
       setTicked(new Set(arr));
     } catch {
       setTicked(new Set());
     }
-  }, [order]);
+  }, [orderId]);
 
   const itemIds = useMemo(
-    () => (order?.items ?? []).map((it, idx) => itemKey(order!.id, idx, it.productId)),
-    [order],
+    () => (order?.items ?? []).map((it, idx) => itemKey(orderId ?? "", idx, it.productId)),
+    [orderId, order?.items],
   );
   const allTicked = order ? itemIds.every((id) => ticked.has(id)) : false;
 

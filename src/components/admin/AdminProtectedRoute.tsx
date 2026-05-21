@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { Forbidden } from "@/components/admin/Forbidden";
 import { useAuth } from "@/contexts/AdminAuthContext";
+import { AdminOrdersProvider } from "@/contexts/AdminOrdersContext";
 import type { BackendRole } from "@/services/adminApi";
 
 export interface ProtectedRouteProps {
@@ -44,7 +45,11 @@ export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
   if (isCheckingSession || !isAuthenticated) return null;
   if (mustChangePassword && location.pathname !== "/admin/change-password") return null;
   if (!hasRequiredRole) return <Forbidden resource="this admin area" />;
-  return <Outlet />;
+  return (
+    <AdminOrdersProvider>
+      <Outlet />
+    </AdminOrdersProvider>
+  );
 }
 
 export const AdminProtectedRoute = ProtectedRoute;

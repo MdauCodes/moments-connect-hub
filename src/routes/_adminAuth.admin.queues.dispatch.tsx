@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useCallback, useMemo, useState } from "react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { Forbidden } from "@/components/admin/Forbidden";
 import { useAuth } from "@/contexts/AdminAuthContext";
+import { useAdminOrders } from "@/contexts/AdminOrdersContext";
 import { PERM } from "@/lib/permissions";
-import { listOrders } from "@/services/commerceApi";
 import { formatDateShort } from "@/components/admin/commerceUi";
 import { DispatchChecklist } from "@/components/admin/DispatchChecklist";
+import { QueueFreshness } from "@/components/admin/QueueFreshness";
 import type { OrderRecord } from "@/services/commerceMock";
 
 export const Route = createFileRoute("/_adminAuth/admin/queues/dispatch")({
@@ -17,40 +17,35 @@ export const Route = createFileRoute("/_adminAuth/admin/queues/dispatch")({
 function DispatchQueuePage() {
   const { hasPermission } = useAuth();
   const allowed = hasPermission(PERM.ORDER_DISPATCH) || hasPermission(PERM.ORDER_MANAGE_ALL);
-  const [rows, setRows] = useState<OrderRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [openOrder, setOpenOrder] = useState<OrderRecord | null>(null);
+  const { orders, initialLoading, refresh } = useAdminOrders();
+  const [openOrderId, setOpenOrderId] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await listOrders({ status: "READY_FOR_DISPATCH", size: 100 });
-      setRows(res.rows);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load queue");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const rows = useMemo(
+    () => orders.filter((o) => o.status === "READY_FOR_DISPATCH"),
+    [orders],
+  );
 
-  useEffect(() => {
-    if (!allowed) return;
-    void load();
-    const t = window.setInterval(() => void load(), 60_000);
-    return () => window.clearInterval(t);
-  }, [allowed, load]);
+  const openOrder: OrderRecord | null = useMemo(
+    () => (openOrderId ? rows.find((o) => o.id === openOrderId) ?? null : null),
+    [openOrderId, rows],
+  );
+
+  const handleClose = useCallback(() => setOpenOrderId(null), []);
+  const handleDispatched = useCallback(
+    async () => {
+      setOpenOrderId(null);
+      await refresh();
+    },
+    [refresh],
+  );
 
   if (!allowed) return <AdminLayout title="Dispatch queue"><Forbidden resource="dispatch" /></AdminLayout>;
 
-  const handleDispatched = (id: string) => {
-    setRows((r) => r.filter((o) => o.id !== id));
-    setOpenOrder(null);
-  };
-
   return (
-    <AdminLayout title="Dispatch queue" onReload={load}>
+    <AdminLayout title="Dispatch queue" onReload={() => void refresh()}>
       <div className="admin-page-stack">
         <div className="admin-panel">
+          <QueueFreshness />
           <div data-admin-table-scroll>
             <table className="admin-table">
               <thead>
@@ -65,7 +60,7 @@ function DispatchQueuePage() {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
+                {initialLoading ? (
                   <tr><td colSpan={7}><div className="admin-empty">Loading…</div></td></tr>
                 ) : rows.length === 0 ? (
                   <tr><td colSpan={7}><div className="admin-empty">No orders ready for dispatch</div></td></tr>
@@ -83,7 +78,7 @@ function DispatchQueuePage() {
                     </td>
                     <td>{formatDateShort(o.createdAt)}</td>
                     <td>
-                      <button className="admin-btn admin-btn-primary" onClick={() => setOpenOrder(o)}>
+                      <button className="admin-btn admin-btn-primary" onClick={() => setOpenOrderId(o.id)}>
                         Open Checklist
                       </button>
                     </td>
@@ -94,7 +89,7 @@ function DispatchQueuePage() {
           </div>
         </div>
       </div>
-      <DispatchChecklist order={openOrder} onClose={() => setOpenOrder(null)} onDispatched={handleDispatched} />
+      <DispatchChecklist order={openOrder} onClose={handleClose} onDispatched={handleDispatched} />
     </AdminLayout>
   );
 }

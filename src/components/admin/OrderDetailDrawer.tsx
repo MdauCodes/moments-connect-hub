@@ -18,6 +18,8 @@ import { PERM } from "@/lib/permissions";
 interface Props {
   orderId: string | null;
   onClose: () => void;
+  /** Called after any mutation that changes the underlying order (status, notes, assignment). */
+  onChanged?: () => void;
 }
 
 // Human-readable label for any OrderStatus enum value
@@ -32,7 +34,7 @@ function statusLabel(raw: string | undefined | null): string {
         .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function OrderDetailDrawer({ orderId, onClose }: Props) {
+export function OrderDetailDrawer({ orderId, onClose, onChanged }: Props) {
   const [order, setOrder] = useState<OrderRecord | null>(null);
   const [loading, setLoading] = useState(false);
   const [staffNotes, setStaffNotes] = useState("");
@@ -78,6 +80,7 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
         setOrder(res.order);
         setSelectedStatus(res.order.status);
         toast.success(`Status updated to ${statusLabel(selectedStatus)}`);
+        onChanged?.();
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");
@@ -95,6 +98,7 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
       if (res.order) {
         setOrder(res.order);
         toast.success("Staff notes saved");
+        onChanged?.();
       }
     } catch (err) {
       toast.error("Could not save notes");
@@ -329,6 +333,7 @@ export function OrderDetailDrawer({ orderId, onClose }: Props) {
                           const res = await assignOrder(o.id, u.name, u.id);
                           if (res.order) setOrder(res.order);
                           toast.success(`Assigned to ${u.name}`);
+                          onChanged?.();
                         } catch (err) {
                           toast.error(err instanceof Error ? err.message : "Assignment failed");
                         } finally {

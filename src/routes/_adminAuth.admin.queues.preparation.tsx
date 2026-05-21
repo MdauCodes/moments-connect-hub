@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { Forbidden } from "@/components/admin/Forbidden";
 import { useAuth } from "@/contexts/AdminAuthContext";
+import { useAdminOrders } from "@/contexts/AdminOrdersContext";
 import { PERM } from "@/lib/permissions";
-import { listOrders, updateOrderStatus } from "@/services/commerceApi";
+import { updateOrderStatus } from "@/services/commerceApi";
 import { formatDateShort, OrderStatusBadge } from "@/components/admin/commerceUi";
+import { QueueFreshness } from "@/components/admin/QueueFreshness";
 import type { OrderRecord, OrderStatus } from "@/services/commerceMock";
 
 export const Route = createFileRoute("/_adminAuth/admin/queues/preparation")({
@@ -16,34 +18,16 @@ export const Route = createFileRoute("/_adminAuth/admin/queues/preparation")({
 function PreparationQueuePage() {
   const { hasPermission } = useAuth();
   const allowed = hasPermission(PERM.ORDER_PREPARE) || hasPermission(PERM.ORDER_MANAGE_ALL);
-  const [rows, setRows] = useState<OrderRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { orders, initialLoading, refresh } = useAdminOrders();
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [verified, inProd] = await Promise.all([
-        listOrders({ status: "PAYMENT_VERIFIED", size: 100 }),
-        listOrders({ status: "IN_PRODUCTION", size: 100 }),
-      ]);
-      const merged = [...verified.rows, ...inProd.rows].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      );
-      setRows(merged);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load queue");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!allowed) return;
-    void load();
-    const t = window.setInterval(() => void load(), 60_000);
-    return () => window.clearInterval(t);
-  }, [allowed, load]);
+  const rows = useMemo(
+    () =>
+      orders
+        .filter((o) => o.status === "PAYMENT_VERIFIED" || o.status === "IN_PRODUCTION")
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+    [orders],
+  );
 
   if (!allowed) return <AdminLayout title="Preparation queue"><Forbidden resource="order preparation" /></AdminLayout>;
 
@@ -52,11 +36,7 @@ function PreparationQueuePage() {
     try {
       await updateOrderStatus(o.id, next);
       toast.success(`${label}: ${o.reference}`);
-      if (next === "READY_FOR_DISPATCH") {
-        setRows((r) => r.filter((x) => x.id !== o.id));
-      } else {
-        setRows((r) => r.map((x) => (x.id === o.id ? { ...x, status: next } : x)));
-      }
+      await refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Update failed");
     } finally {
@@ -65,9 +45,10 @@ function PreparationQueuePage() {
   };
 
   return (
-    <AdminLayout title="Preparation queue" onReload={load}>
+    <AdminLayout title="Preparation queue" onReload={() => void refresh()}>
       <div className="admin-page-stack">
         <div className="admin-panel">
+          <QueueFreshness />
           <div data-admin-table-scroll>
             <table className="admin-table">
               <thead>
@@ -82,7 +63,7 @@ function PreparationQueuePage() {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
+                {initialLoading ? (
                   <tr><td colSpan={7}><div className="admin-empty">Loading…</div></td></tr>
                 ) : rows.length === 0 ? (
                   <tr><td colSpan={7}><div className="admin-empty">No orders in preparation</div></td></tr>
