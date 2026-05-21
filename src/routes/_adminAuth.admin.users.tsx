@@ -72,9 +72,13 @@ function AdminUsersPage() {
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
+    if (!form.roleId) {
+      toast.error("Please select a staff role");
+      return;
+    }
     setSaving(true);
     try {
-      const body = { ...form };
+      const body = { ...form, staffRoleId: form.roleId, roleId: form.roleId };
       if (editing) {
         await adminResources.users.update(editing.id, body);
         toast.success("User updated");
@@ -215,7 +219,7 @@ function AdminUsersPage() {
                 </label>
               </div>
               <div className="admin-toolbar">
-                <button className="admin-btn admin-btn-primary" disabled={saving}>
+                <button className="admin-btn admin-btn-primary" disabled={saving || !form.roleId}>
                   {saving && <Loader2 size={14} className="animate-spin" />}
                   Save user
                 </button>
