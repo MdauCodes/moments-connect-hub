@@ -5,7 +5,7 @@ import { Download } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { MockBanner, formatKes } from "@/components/admin/commerceUi";
 import {
-  getAnalyticsOverview, exportOrders, exportPayments, exportCustomers,
+  getAnalyticsOverview, exportOrders, exportCustomers,
   type AnalyticsResult,
 } from "@/services/commerceApi";
 import { downloadCsv, toCsv } from "@/lib/csv";
