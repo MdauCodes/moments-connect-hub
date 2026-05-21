@@ -67,6 +67,11 @@ type AuthResponse = {
   email?: string;
   role?: AdminRole | BackendRole | string;
   roles?: string[];
+  isStaff?: boolean;
+  staffRole?: string;
+  staffRoleDisplay?: string;
+  permissions?: string[];
+  mustChangePassword?: boolean;
   user?: {
     id?: string;
     name?: string;
@@ -75,6 +80,11 @@ type AuthResponse = {
     email?: string;
     role?: AdminRole | BackendRole | string;
     roles?: string[];
+    isStaff?: boolean;
+    staffRole?: string;
+    staffRoleDisplay?: string;
+    permissions?: string[];
+    mustChangePassword?: boolean;
   };
 };
 
