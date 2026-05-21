@@ -18,6 +18,7 @@ function ForgotPasswordPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setError(null);
     setSubmitting(true);
     try {
       const res = await passwordStore.requestReset(email.trim());
