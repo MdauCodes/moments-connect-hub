@@ -38,11 +38,15 @@ function AdminUsersPage() {
     setLoading(true);
     try {
       const [users, roleList] = await Promise.all([
-        adminResources.users.list(),
+        adminResources.users.list().catch((err) => {
+          console.error("Failed to load users", err);
+          toast.error(err instanceof Error ? err.message : "Failed to load users");
+          return [] as UserDto[];
+        }),
         adminResources.roles.list().catch(() => [] as RoleDto[]),
       ]);
-      setRows(users);
-      setRoles(roleList);
+      setRows(Array.isArray(users) ? users : []);
+      setRoles(Array.isArray(roleList) ? roleList : []);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load users");
     } finally {
