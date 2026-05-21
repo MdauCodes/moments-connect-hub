@@ -15,7 +15,7 @@ const DEFAULTS: SiteConfig = {
   emailCaptureEnabled: true,
   maintenanceMode: false,
   whatsappNumber: "254119556688",
-  companyEmail: "sales@momentspackaging.co.ke",
+  companyEmail: "info@momentspackaging.com",
   companyPhone: "0119 556 688",
 };
 

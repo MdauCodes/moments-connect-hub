@@ -43,7 +43,7 @@ export function PrintReceipt({ order, hideTrigger = false }: PrintReceiptProps) 
             <div>
               <h1 style={{ margin: 0, fontFamily: "Fraunces, Georgia, serif", fontSize: 28 }}>Moments Packaging</h1>
               <p style={{ margin: "4px 0 0", fontSize: 12, color: "#444" }}>
-                sales@momentspackaging.co.ke · +254 700 000 000
+                info@momentspackaging.com · +254 119 556 688
               </p>
               <p style={{ margin: "2px 0 0", fontSize: 12, color: "#444" }}>www.momentspackaging.com</p>
             </div>
