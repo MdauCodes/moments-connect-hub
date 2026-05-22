@@ -31,7 +31,9 @@ import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
 import { Route as CheckoutProcessingRouteImport } from './routes/checkout.processing'
 import { Route as CheckoutFailedRouteImport } from './routes/checkout.failed'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as AdminResetPasswordRouteImport } from './routes/admin.reset-password'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminForgotPasswordRouteImport } from './routes/admin.forgot-password'
 import { Route as AccountWishlistRouteImport } from './routes/account.wishlist'
 import { Route as AccountVerifyRouteImport } from './routes/account.verify'
 import { Route as AccountResetPasswordRouteImport } from './routes/account.reset-password'
@@ -181,9 +183,19 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminResetPasswordRoute = AdminResetPasswordRouteImport.update({
+  id: '/admin/reset-password',
+  path: '/admin/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminForgotPasswordRoute = AdminForgotPasswordRouteImport.update({
+  id: '/admin/forgot-password',
+  path: '/admin/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountWishlistRoute = AccountWishlistRouteImport.update({
@@ -419,7 +431,9 @@ export interface FileRoutesByFullPath {
   '/account/reset-password': typeof AccountResetPasswordRoute
   '/account/verify': typeof AccountVerifyRoute
   '/account/wishlist': typeof AccountWishlistRoute
+  '/admin/forgot-password': typeof AdminForgotPasswordRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/reset-password': typeof AdminResetPasswordRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/failed': typeof CheckoutFailedRoute
   '/checkout/processing': typeof CheckoutProcessingRoute
@@ -482,7 +496,9 @@ export interface FileRoutesByTo {
   '/account/reset-password': typeof AccountResetPasswordRoute
   '/account/verify': typeof AccountVerifyRoute
   '/account/wishlist': typeof AccountWishlistRoute
+  '/admin/forgot-password': typeof AdminForgotPasswordRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/reset-password': typeof AdminResetPasswordRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/failed': typeof CheckoutFailedRoute
   '/checkout/processing': typeof CheckoutProcessingRoute
@@ -547,7 +563,9 @@ export interface FileRoutesById {
   '/account/reset-password': typeof AccountResetPasswordRoute
   '/account/verify': typeof AccountVerifyRoute
   '/account/wishlist': typeof AccountWishlistRoute
+  '/admin/forgot-password': typeof AdminForgotPasswordRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/reset-password': typeof AdminResetPasswordRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/failed': typeof CheckoutFailedRoute
   '/checkout/processing': typeof CheckoutProcessingRoute
@@ -612,7 +630,9 @@ export interface FileRouteTypes {
     | '/account/reset-password'
     | '/account/verify'
     | '/account/wishlist'
+    | '/admin/forgot-password'
     | '/admin/login'
+    | '/admin/reset-password'
     | '/blog/$slug'
     | '/checkout/failed'
     | '/checkout/processing'
@@ -675,7 +695,9 @@ export interface FileRouteTypes {
     | '/account/reset-password'
     | '/account/verify'
     | '/account/wishlist'
+    | '/admin/forgot-password'
     | '/admin/login'
+    | '/admin/reset-password'
     | '/blog/$slug'
     | '/checkout/failed'
     | '/checkout/processing'
@@ -739,7 +761,9 @@ export interface FileRouteTypes {
     | '/account/reset-password'
     | '/account/verify'
     | '/account/wishlist'
+    | '/admin/forgot-password'
     | '/admin/login'
+    | '/admin/reset-password'
     | '/blog/$slug'
     | '/checkout/failed'
     | '/checkout/processing'
@@ -804,7 +828,9 @@ export interface RootRouteChildren {
   AccountResetPasswordRoute: typeof AccountResetPasswordRoute
   AccountVerifyRoute: typeof AccountVerifyRoute
   AccountWishlistRoute: typeof AccountWishlistRoute
+  AdminForgotPasswordRoute: typeof AdminForgotPasswordRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminResetPasswordRoute: typeof AdminResetPasswordRoute
   BlogSlugRoute: typeof BlogSlugRoute
   OrdersTrackRoute: typeof OrdersTrackRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -966,11 +992,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/reset-password': {
+      id: '/admin/reset-password'
+      path: '/admin/reset-password'
+      fullPath: '/admin/reset-password'
+      preLoaderRoute: typeof AdminResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/admin/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/forgot-password': {
+      id: '/admin/forgot-password'
+      path: '/admin/forgot-password'
+      fullPath: '/admin/forgot-password'
+      preLoaderRoute: typeof AdminForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account/wishlist': {
@@ -1423,7 +1463,9 @@ const rootRouteChildren: RootRouteChildren = {
   AccountResetPasswordRoute: AccountResetPasswordRoute,
   AccountVerifyRoute: AccountVerifyRoute,
   AccountWishlistRoute: AccountWishlistRoute,
+  AdminForgotPasswordRoute: AdminForgotPasswordRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminResetPasswordRoute: AdminResetPasswordRoute,
   BlogSlugRoute: BlogSlugRoute,
   OrdersTrackRoute: OrdersTrackRoute,
   BlogIndexRoute: BlogIndexRoute,
@@ -1431,3 +1473,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
