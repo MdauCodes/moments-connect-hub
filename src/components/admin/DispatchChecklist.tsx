@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { dispatchConfirmOrder, updateOrderStatus, type DeliveryConfirmation } from "@/services/commerceApi";
 import type { OrderRecord } from "@/services/commerceMock";
+import { downloadDispatchChecklistPdf } from "@/lib/pdf";
 
 interface Props {
   order: OrderRecord | null;
@@ -147,7 +148,7 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
                 })}
               </ul>
 
-              <div style={{ marginTop: 6 }}>
+              <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 8 }}>
                 <button
                   className="admin-btn admin-btn-primary"
                   style={{ width: "100%", justifyContent: "center" }}
@@ -156,8 +157,17 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
                 >
                   Confirm & Dispatch
                 </button>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-ghost"
+                  style={{ width: "100%", justifyContent: "center" }}
+                  onClick={() => downloadDispatchChecklistPdf(order)}
+                >
+                  <Printer size={14} style={{ marginRight: 6 }} />
+                  Download printable checklist (PDF)
+                </button>
                 {!allTicked && (
-                  <p style={{ marginTop: 8, fontSize: 12, color: "var(--admin-muted)" }}>
+                  <p style={{ fontSize: 12, color: "var(--admin-muted)" }}>
                     Tick every item to enable dispatch.
                   </p>
                 )}

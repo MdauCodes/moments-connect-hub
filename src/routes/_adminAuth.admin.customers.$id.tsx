@@ -12,6 +12,8 @@ import {
 } from "@/components/admin/commerceUi";
 import { getCustomer } from "@/services/commerceApi";
 import type { CustomerRecord, OrderRecord } from "@/services/commerceMock";
+import { downloadCustomerStatementPdf } from "@/lib/pdf";
+import { FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_adminAuth/admin/customers/$id")({
   component: AdminCustomerDetailPage,
@@ -59,7 +61,17 @@ function AdminCustomerDetailPage() {
 
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(280px, 1fr)", gap: 16 }} data-admin-detail-grid>
           <div className="admin-panel" style={{ padding: 18 }}>
-            <div className="admin-label">Order history</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <div className="admin-label">Order history</div>
+              <button
+                className="admin-btn admin-btn-ghost"
+                disabled={orders.length === 0}
+                onClick={() => {
+                  downloadCustomerStatementPdf(customer, orders);
+                  toast.success("Statement downloaded");
+                }}
+              ><FileText size={14} style={{ marginRight: 6 }} />Download statement (PDF)</button>
+            </div>
             {orders.length === 0 ? (
               <div className="admin-empty" style={{ marginTop: 10 }}>No orders yet.</div>
             ) : (
