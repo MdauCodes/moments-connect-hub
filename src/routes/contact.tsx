@@ -60,9 +60,14 @@ function ContactPage() {
   const [artworkFile, setArtworkFile] = useState<File | null>(null);
   const [referralSource, setReferralSource] = useState("");
   const [formState, setFormState] = useState<FormState>("idle");
+  const [consent, setConsent] = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!consent) {
+      setFormState("error");
+      return;
+    }
     setFormState("submitting");
 
     const payload = {
