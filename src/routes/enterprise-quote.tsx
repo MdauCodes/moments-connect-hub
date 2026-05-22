@@ -87,6 +87,10 @@ function EnterpriseQuotePage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!consent) {
+      toast.error("Please tick the consent box to continue");
+      return;
+    }
     const parsed = schema.safeParse({
       ...form,
       estimatedQuantity: Number(form.estimatedQuantity),
