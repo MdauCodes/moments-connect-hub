@@ -263,6 +263,7 @@ function TermsPage() {
       }
       sections={sections}
       related={[
+        { to: "/", label: "Home" },
         { to: "/privacy", label: "Privacy Policy" },
         { to: "/refunds", label: "Refund & Returns Policy" },
       ]}

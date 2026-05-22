@@ -238,6 +238,7 @@ function RefundsPage() {
       }
       sections={sections}
       related={[
+        { to: "/", label: "Home" },
         { to: "/terms", label: "Terms of Service" },
         { to: "/privacy", label: "Privacy Policy" },
       ]}
