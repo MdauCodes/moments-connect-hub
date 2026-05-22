@@ -92,13 +92,17 @@ interface ReceiptOrder {
   customerPhone: string;
   shippingAddress: string;
   city: string;
+  county?: string | null;
   currency?: string;
   subtotal: number;
   shippingFee: number;
+  vatAmount?: number | null;
   total: number;
   paymentMethod?: string;
   paymentStatus?: string;
   paymentReference?: string | null;
+  receiptNumber?: string | null;
+  fulfillmentType?: string | null;
   items: ReceiptItem[];
 }
 
@@ -119,7 +123,7 @@ export function downloadReceiptPdf(order: ReceiptOrder) {
   doc.text(order.shippingAddress || "—", 110, y);
   y += 5;
   doc.text(order.customerEmail, 14, y);
-  doc.text(order.city || "", 110, y);
+  doc.text([order.city, order.county].filter(Boolean).join(", "), 110, y);
   y += 5;
   doc.text(order.customerPhone, 14, y);
   y += 5;
@@ -153,34 +157,54 @@ export function downloadReceiptPdf(order: ReceiptOrder) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const endY = (doc as any).lastAutoTable?.finalY ?? y + 30;
   const pageW = doc.internal.pageSize.getWidth();
-  const labelX = pageW - 60;
+  const labelX = pageW - 70;
   const valueX = pageW - 14;
   let ty = endY + 8;
   doc.setFontSize(10);
   doc.text("Subtotal", labelX, ty);
   doc.text(fmt(order.subtotal), valueX, ty, { align: "right" });
   ty += 6;
-  doc.text("Shipping", labelX, ty);
-  doc.text(order.shippingFee === 0 ? "Free" : fmt(order.shippingFee), valueX, ty, { align: "right" });
-  ty += 7;
+  doc.text("Delivery", labelX, ty);
+  const isCourier = order.fulfillmentType === "OWN_COURIER";
+  const deliveryValue = isCourier
+    ? "To be confirmed"
+    : order.shippingFee === 0
+      ? "Free"
+      : fmt(order.shippingFee);
+  doc.text(deliveryValue, valueX, ty, { align: "right" });
+  ty += 6;
+  const vat = Number(order.vatAmount ?? 0);
+  if (vat > 0) {
+    doc.text("VAT (16%)", labelX, ty);
+    doc.text(fmt(vat), valueX, ty, { align: "right" });
+    ty += 6;
+  }
+  ty += 1;
   doc.setDrawColor(20, 20, 20);
   doc.line(labelX, ty - 3, valueX, ty - 3);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text(`Total (${order.currency ?? "KES"})`, labelX, ty + 2);
+  doc.text(`TOTAL (${order.currency ?? "KES"})`, labelX, ty + 2);
   doc.text(fmt(order.total), valueX, ty + 2, { align: "right" });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(110, 110, 110);
+  let fy = ty + 16;
   doc.text(
-    `Payment: ${order.paymentMethod ?? "—"} · ${order.paymentStatus ?? ""}${
-      order.paymentReference ? ` · Ref ${order.paymentReference}` : ""
-    }`,
+    `Payment: ${order.paymentMethod ?? "—"}${order.paymentStatus ? ` · ${order.paymentStatus}` : ""}`,
     14,
-    ty + 16,
+    fy,
   );
-  doc.text("Thank you for ordering with Moments Packaging.", 14, ty + 22);
+  const mpesa = order.receiptNumber ?? order.paymentReference;
+  if (mpesa) {
+    fy += 5;
+    doc.text(`M-Pesa receipt: ${mpesa}`, 14, fy);
+  }
+  fy += 10;
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(20, 20, 20);
+  doc.text("Thank you for your business — momentspackaging.com", 14, fy);
 
   save(doc, `receipt-${order.reference}.pdf`);
 }

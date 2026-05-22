@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, FileDown } from "lucide-react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
 import { orderStore, type CustomerOrder } from "@/services/orderStore";
+import { downloadReceiptPdf } from "@/lib/pdf";
 
 const searchSchema = z.object({ ref: z.string() });
 
@@ -122,6 +123,43 @@ function OrderConfirmationPage() {
             >
               Track your order
             </Link>
+            {order && (
+              <button
+                type="button"
+                onClick={() => downloadReceiptPdf({
+                  reference: order.reference,
+                  createdAt: order.createdAt,
+                  customerName: order.customerName,
+                  customerEmail: order.customerEmail,
+                  customerPhone: order.customerPhone,
+                  shippingAddress: order.shippingAddress,
+                  city: order.city,
+                  county: order.county,
+                  currency: order.currency,
+                  subtotal: order.subtotal,
+                  shippingFee: order.shippingFee,
+                  total: order.total,
+                  paymentMethod: order.paymentMethod,
+                  paymentStatus: order.paymentStatus,
+                  paymentReference: order.paymentReference,
+                  receiptNumber: order.receiptNumber,
+                  fulfillmentType: order.fulfillmentType,
+                  items: order.items.map((it) => ({
+                    productName: it.productName,
+                    size: it.size,
+                    material: it.material,
+                    finish: it.finish,
+                    sku: it.sku,
+                    quantity: it.quantity,
+                    unitPrice: it.unitPrice,
+                    lineTotal: it.lineTotal,
+                  })),
+                })}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground hover:bg-secondary"
+              >
+                <FileDown className="h-4 w-4" /> Download receipt
+              </button>
+            )}
             <Link
               to="/products"
               className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground hover:bg-secondary"
