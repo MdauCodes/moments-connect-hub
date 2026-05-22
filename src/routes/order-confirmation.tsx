@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, FileDown } from "lucide-react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
 import { orderStore, type CustomerOrder } from "@/services/orderStore";
+import { downloadReceiptPdf } from "@/lib/pdf";
 
 const searchSchema = z.object({ ref: z.string() });
 
