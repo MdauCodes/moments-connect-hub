@@ -22,7 +22,6 @@ function AdminForgotPasswordPage() {
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-  const [resetToken, setResetToken] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -41,20 +40,12 @@ function AdminForgotPasswordPage() {
     } finally { setSubmitting(false); }
   }
 
-  async function submitOtp(e: FormEvent) {
+  function submitOtp(e: FormEvent) {
     e.preventDefault();
     setError(null);
     if (!/^\d{6}$/.test(otp)) { setError("Enter the 6-digit code from your email."); return; }
-    setSubmitting(true);
-    try {
-      const res = await passwordStore.verifyStaffOtp(email.trim(), otp);
-      if (!res.ok || !res.data?.resetSessionToken) {
-        setError(res.message ?? "Invalid or expired code."); return;
-      }
-      setResetToken(res.data.resetSessionToken);
-      setInfo(null);
-      setStep("password");
-    } finally { setSubmitting(false); }
+    setInfo(null);
+    setStep("password");
   }
 
   async function submitPassword(e: FormEvent) {
@@ -64,10 +55,10 @@ function AdminForgotPasswordPage() {
     if (password !== confirm) { setError("Passwords don't match."); return; }
     setSubmitting(true);
     try {
-      const res = await passwordStore.staffReset(resetToken, password);
+      const res = await passwordStore.staffReset(otp, password);
       if (!res.ok) { setError(res.message ?? "Could not reset password."); return; }
       setStep("done");
-      toast.success("Password updated");
+      toast.success("Password reset successfully");
       setTimeout(() => navigate({ to: "/admin/login" }), 1500);
     } finally { setSubmitting(false); }
   }
