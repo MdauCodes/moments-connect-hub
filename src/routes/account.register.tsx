@@ -31,6 +31,10 @@ function RegisterPage() {
       toast.error("Password must be at least 8 characters");
       return;
     }
+    if (!consent) {
+      toast.error("Please tick the consent box to continue");
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch(apiUrl("/api/v1/auth/register"), {
