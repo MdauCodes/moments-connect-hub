@@ -1,9 +1,11 @@
 // ----------------------------------------------------------------------------
 // Password reset & email verification — wired to the Spring Boot backend.
-//   POST /api/v1/auth/forgot-password   { email }
-//   POST /api/v1/auth/verify-reset-otp  { email, otp }  -> { resetSessionToken }
-//   POST /api/v1/auth/reset-password    { token, newPassword }
-//   POST /api/v1/auth/verify-email      { token }
+//   POST /api/v1/auth/forgot-password            { email }
+//   POST /api/v1/auth/verify-reset-otp           { email, otp }  -> { resetSessionToken }
+//   POST /api/v1/auth/reset-password             { token, newPassword }
+//   POST /api/v1/auth/staff/forgot-password      { email }
+//   POST /api/v1/auth/staff/reset-password       { token, newPassword }
+//   POST /api/v1/auth/verify-email               { token }
 // ----------------------------------------------------------------------------
 import { apiUrl } from "@/config/api";
 
@@ -28,6 +30,7 @@ async function post<T = unknown>(path: string, body: unknown): Promise<Result<T>
 }
 
 export const passwordStore = {
+  // ---- Customer flow ----
   async requestReset(email: string): Promise<Result> {
     return post("/api/v1/auth/forgot-password", { email });
   },
@@ -39,6 +42,20 @@ export const passwordStore = {
     if (!token) return { ok: false, message: "Reset session expired. Start again." };
     return post("/api/v1/auth/reset-password", { token, newPassword });
   },
+
+  // ---- Staff / admin flow ----
+  async requestStaffReset(email: string): Promise<Result> {
+    return post("/api/v1/auth/staff/forgot-password", { email });
+  },
+  async verifyStaffOtp(email: string, otp: string): Promise<Result<{ resetSessionToken: string }>> {
+    if (!/^\d{6}$/.test(otp)) return { ok: false, message: "Enter the 6-digit code from your email." };
+    return post<{ resetSessionToken: string }>("/api/v1/auth/verify-reset-otp", { email, otp });
+  },
+  async staffReset(token: string, newPassword: string): Promise<Result> {
+    if (!token) return { ok: false, message: "Reset session expired. Start again." };
+    return post("/api/v1/auth/staff/reset-password", { token, newPassword });
+  },
+
   async verifyEmail(token: string): Promise<Result> {
     if (!token) return { ok: false, message: "Verification link is invalid." };
     return post("/api/v1/auth/verify-email", { token });
