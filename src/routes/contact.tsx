@@ -381,10 +381,18 @@ function ContactPage() {
                     </div>
                   )}
 
+                  <div className="mt-6">
+                    <ConsentCheckbox
+                      checked={consent}
+                      onCheckedChange={setConsent}
+                      purpose="contact you about this enquiry"
+                    />
+                  </div>
+
                   <button
                     type="submit"
-                    disabled={formState === "submitting"}
-                    className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                    disabled={formState === "submitting" || !consent}
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
                   >
                     {formState === "submitting" ? (
                       <>
