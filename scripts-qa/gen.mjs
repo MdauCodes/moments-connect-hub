@@ -1,11 +1,20 @@
-import { jsPDF } from 'jspdf';
+import * as jspdfMod from 'jspdf';
 import fs from 'fs';
-import * as pdf from '../src/lib/pdf.ts';
 fs.mkdirSync('/mnt/documents/pdfqa',{recursive:true});
-jsPDF.prototype.save = function(name){
-  fs.writeFileSync('/mnt/documents/pdfqa/'+name, Buffer.from(this.output('arraybuffer')));
-  console.log('wrote', name);
-};
+const OrigCtor = jspdfMod.jsPDF;
+function Wrapped(...args){
+  const inst = new OrigCtor(...args);
+  inst.save = function(name){
+    fs.writeFileSync('/mnt/documents/pdfqa/'+name, Buffer.from(this.output('arraybuffer')));
+    console.log('wrote', name);
+  };
+  return inst;
+}
+Wrapped.prototype = OrigCtor.prototype;
+Object.defineProperty(jspdfMod, 'jsPDF', { value: Wrapped, writable: true });
+jspdfMod.default = Wrapped;
+
+const pdf = await import('../src/lib/pdf.ts');
 pdf.downloadReceiptPdf({
   reference:'MP-2026-0421', createdAt:new Date().toISOString(),
   customerName:'Achieng Otieno', customerEmail:'achieng@example.com', customerPhone:'+254 712 345 678',
