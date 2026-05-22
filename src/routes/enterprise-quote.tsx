@@ -60,6 +60,7 @@ function EnterpriseQuotePage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<{ firstName: string; email: string } | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [consent, setConsent] = useState(false);
   const [form, setForm] = useState({
     contactName: "",
     email: "",
