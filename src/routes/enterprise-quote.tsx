@@ -284,10 +284,17 @@ function EnterpriseQuotePage() {
                     />
                   </Field>
                 </div>
+                <div className="mt-5">
+                  <ConsentCheckbox
+                    checked={consent}
+                    onCheckedChange={setConsent}
+                    purpose="prepare your quote and contact you about it"
+                  />
+                </div>
                 <Button
                   type="submit"
-                  disabled={submitting}
-                  className="mt-7 h-[52px] w-full bg-[#2d4a3e] text-base text-[#f5f0e8] hover:bg-[#2d4a3e]/90"
+                  disabled={submitting || !consent}
+                  className="mt-5 h-[52px] w-full bg-[#2d4a3e] text-base text-[#f5f0e8] hover:bg-[#2d4a3e]/90"
                 >
                   {submitting ? "Submitting…" : "Submit quote request →"}
                 </Button>
