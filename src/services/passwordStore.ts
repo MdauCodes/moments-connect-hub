@@ -47,13 +47,10 @@ export const passwordStore = {
   async requestStaffReset(email: string): Promise<Result> {
     return post("/api/v1/auth/staff/forgot-password", { email });
   },
-  async verifyStaffOtp(email: string, otp: string): Promise<Result<{ resetSessionToken: string }>> {
+  // Staff flow has no separate verify endpoint — the OTP is submitted with the new password.
+  async staffReset(otp: string, newPassword: string): Promise<Result> {
     if (!/^\d{6}$/.test(otp)) return { ok: false, message: "Enter the 6-digit code from your email." };
-    return post<{ resetSessionToken: string }>("/api/v1/auth/verify-reset-otp", { email, otp });
-  },
-  async staffReset(token: string, newPassword: string): Promise<Result> {
-    if (!token) return { ok: false, message: "Reset session expired. Start again." };
-    return post("/api/v1/auth/staff/reset-password", { token, newPassword });
+    return post("/api/v1/auth/staff/reset-password", { otp, newPassword });
   },
 
   async verifyEmail(token: string): Promise<Result> {
