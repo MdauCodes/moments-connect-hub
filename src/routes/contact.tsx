@@ -6,6 +6,7 @@ import { WHATSAPP_NUMBER, whatsappLink } from "@/data/products";
 import { Check, MessageCircle, X } from "lucide-react";
 import { usePersona } from "@/contexts/PersonaContext";
 import { useCart, type CartItem } from "@/contexts/CartContext";
+import { ConsentCheckbox } from "@/components/ConsentCheckbox";
 import { apiUrl } from "@/config/api";
 
 export const Route = createFileRoute("/contact")({
