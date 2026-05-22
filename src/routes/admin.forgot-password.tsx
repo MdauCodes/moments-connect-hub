@@ -143,7 +143,7 @@ function AdminForgotPasswordPage() {
               </div>
               {error && <p className="text-center text-sm text-red-400">{error}</p>}
               <button type="submit" disabled={submitting || otp.length !== 6} className={btnCls}>
-                {submitting && <InlineProgress size="sm" />} Verify code
+                {submitting && <InlineProgress size="sm" />} Continue
               </button>
               <div className="flex items-center justify-between text-xs" style={{ color: "var(--admin-muted)" }}>
                 <button type="button" onClick={() => { setStep("email"); setOtp(""); setError(null); setInfo(null); }} className="hover:underline">
