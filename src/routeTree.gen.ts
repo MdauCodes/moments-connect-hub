@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as StyleGuideRouteImport } from './routes/style-guide'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ProductsRouteImport } from './routes/products'
@@ -77,6 +78,11 @@ import { Route as AdminAuthAdminBlogsIdRouteImport } from './routes/_adminAuth.a
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StyleGuideRoute = StyleGuideRouteImport.update({
+  id: '/style-guide',
+  path: '/style-guide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StaffRoute = StaffRouteImport.update({
@@ -420,6 +426,7 @@ export interface FileRoutesByFullPath {
   '/products': typeof ProductsRouteWithChildren
   '/refunds': typeof RefundsRoute
   '/staff': typeof StaffRoute
+  '/style-guide': typeof StyleGuideRoute
   '/terms': typeof TermsRoute
   '/account/dashboard': typeof AccountDashboardRoute
   '/account/forgot-password': typeof AccountForgotPasswordRoute
@@ -485,6 +492,7 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsRouteWithChildren
   '/refunds': typeof RefundsRoute
   '/staff': typeof StaffRoute
+  '/style-guide': typeof StyleGuideRoute
   '/terms': typeof TermsRoute
   '/account/dashboard': typeof AccountDashboardRoute
   '/account/forgot-password': typeof AccountForgotPasswordRoute
@@ -552,6 +560,7 @@ export interface FileRoutesById {
   '/products': typeof ProductsRouteWithChildren
   '/refunds': typeof RefundsRoute
   '/staff': typeof StaffRoute
+  '/style-guide': typeof StyleGuideRoute
   '/terms': typeof TermsRoute
   '/account/dashboard': typeof AccountDashboardRoute
   '/account/forgot-password': typeof AccountForgotPasswordRoute
@@ -619,6 +628,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/refunds'
     | '/staff'
+    | '/style-guide'
     | '/terms'
     | '/account/dashboard'
     | '/account/forgot-password'
@@ -684,6 +694,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/refunds'
     | '/staff'
+    | '/style-guide'
     | '/terms'
     | '/account/dashboard'
     | '/account/forgot-password'
@@ -750,6 +761,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/refunds'
     | '/staff'
+    | '/style-guide'
     | '/terms'
     | '/account/dashboard'
     | '/account/forgot-password'
@@ -817,6 +829,7 @@ export interface RootRouteChildren {
   ProductsRoute: typeof ProductsRouteWithChildren
   RefundsRoute: typeof RefundsRoute
   StaffRoute: typeof StaffRoute
+  StyleGuideRoute: typeof StyleGuideRoute
   TermsRoute: typeof TermsRoute
   AccountDashboardRoute: typeof AccountDashboardRoute
   AccountForgotPasswordRoute: typeof AccountForgotPasswordRoute
@@ -843,6 +856,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/style-guide': {
+      id: '/style-guide'
+      path: '/style-guide'
+      fullPath: '/style-guide'
+      preLoaderRoute: typeof StyleGuideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/staff': {
@@ -1452,6 +1472,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsRoute: ProductsRouteWithChildren,
   RefundsRoute: RefundsRoute,
   StaffRoute: StaffRoute,
+  StyleGuideRoute: StyleGuideRoute,
   TermsRoute: TermsRoute,
   AccountDashboardRoute: AccountDashboardRoute,
   AccountForgotPasswordRoute: AccountForgotPasswordRoute,

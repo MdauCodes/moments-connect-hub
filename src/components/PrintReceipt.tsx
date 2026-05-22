@@ -1,5 +1,6 @@
-import { Printer } from "lucide-react";
+import { Printer, FileDown } from "lucide-react";
 import type { CustomerOrder } from "@/services/orderStore";
+import { downloadReceiptPdf } from "@/lib/pdf";
 
 function fmt(n: number) {
   return new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", maximumFractionDigits: 0 }).format(n);
@@ -14,24 +15,34 @@ interface PrintReceiptProps {
 /**
  * Print-friendly receipt block. The trigger calls window.print(); the
  * `print:` Tailwind utilities in `print-only` ensure the rest of the page is
- * hidden when the user prints. Customers can choose "Save as PDF" from the
- * browser's print dialog — no PDF dependency in the Worker runtime.
+ * hidden when the user prints. A second button downloads a real branded PDF
+ * via jsPDF — no browser print dialog needed.
  */
 export function PrintReceipt({ order, hideTrigger = false }: PrintReceiptProps) {
   const handlePrint = () => {
     if (typeof window !== "undefined") window.print();
   };
+  const handlePdf = () => downloadReceiptPdf(order);
 
   return (
     <>
       {!hideTrigger && (
-        <button
-          type="button"
-          onClick={handlePrint}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary print:hidden"
-        >
-          <Printer className="h-3.5 w-3.5" /> Print receipt
-        </button>
+        <div className="inline-flex flex-wrap items-center gap-2 print:hidden">
+          <button
+            type="button"
+            onClick={handlePdf}
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            <FileDown className="h-3.5 w-3.5" /> Download PDF
+          </button>
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary"
+          >
+            <Printer className="h-3.5 w-3.5" /> Print
+          </button>
+        </div>
       )}
 
       {/* Printable area — only shown on screen if user explicitly opens it.

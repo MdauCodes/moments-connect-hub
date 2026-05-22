@@ -6,6 +6,7 @@ import { PageProgressBar } from "./PageProgressBar";
 import { EmailInsiderPrompt } from "./EmailInsiderPrompt";
 import { AppSplash } from "./AppSplash";
 import { MobileFab } from "./MobileFab";
+import { CookieConsent } from "./CookieConsent";
 
 const SPLASH_KEY = "moments_splash_shown";
 
@@ -35,6 +36,7 @@ function LayoutShell({ children }: { children: ReactNode }) {
         <WhatsAppFloat />
         <MobileFab />
         <EmailInsiderPrompt />
+        <CookieConsent />
       </div>
     </>
   );
