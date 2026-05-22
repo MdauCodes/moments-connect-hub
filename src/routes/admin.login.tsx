@@ -201,7 +201,7 @@ export function AdminLoginPage({ redirect }: { redirect?: string }) {
 
           <div style={{ textAlign: "center", marginTop: 4 }}>
             <Link
-              to="/account/forgot-password"
+              to="/admin/forgot-password"
               style={{ fontSize: 12, color: "var(--admin-muted)", textDecoration: "underline" }}
             >
               Forgot password?
