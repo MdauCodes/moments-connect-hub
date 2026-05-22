@@ -175,6 +175,10 @@ function CheckoutModal() {
   function handleContactSubmit(e: FormEvent) {
     e.preventDefault();
     if (!validateContact()) return;
+    if (!consent) {
+      toast.error("Please tick the consent box to continue");
+      return;
+    }
     setStep("payment");
   }
 
