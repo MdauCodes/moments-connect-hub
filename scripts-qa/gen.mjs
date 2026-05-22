@@ -1,8 +1,8 @@
 import { downloadReceiptPdf, downloadDispatchChecklistPdf, downloadOrdersListPdf, downloadCustomerStatementPdf } from '../src/lib/pdf.ts';
 import { jsPDF } from 'jspdf';
 import fs from 'fs';
-jsPDF.prototype.save = function(name){ fs.writeFileSync('/tmp/pdfqa/'+name, Buffer.from(this.output('arraybuffer'))); };
-fs.mkdirSync('/tmp/pdfqa',{recursive:true});
+jsPDF.prototype.save = function(name){ fs.writeFileSync('/mnt/documents/pdfqa/'+name, Buffer.from(this.output('arraybuffer'))); };
+fs.mkdirSync('/mnt/documents/pdfqa',{recursive:true});
 
 downloadReceiptPdf({
   reference:'MP-2026-0421', createdAt:new Date().toISOString(),
