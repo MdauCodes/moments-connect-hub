@@ -68,7 +68,11 @@ export function EmailCaptureBanner({ onVisibilityChange }: EmailCaptureBannerPro
       ) : (
         <>
           <p className="text-sm">
-            Get packaging tips and exclusive offers — straight to your inbox.
+            Get packaging tips and exclusive offers — straight to your inbox.{" "}
+            <span className="text-[11px] text-primary-foreground/70">
+              By subscribing you agree to our{" "}
+              <a href="/privacy" className="underline">Privacy Policy</a>.
+            </span>
           </p>
           <form onSubmit={handleSubmit} className="flex flex-1 items-center gap-2 sm:flex-none">
             <div className="flex flex-1 flex-col sm:flex-none">
