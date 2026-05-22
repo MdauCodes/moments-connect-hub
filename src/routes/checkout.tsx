@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { orderStore, type FulfillmentType, type CourierType } from "@/services/orderStore";
 import { fetchDeliveryZones, type DeliveryZone } from "@/services/deliveryZoneService";
 import { CountySelect } from "@/components/CountySelect";
+import { ConsentCheckbox } from "@/components/ConsentCheckbox";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
