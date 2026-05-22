@@ -14,7 +14,8 @@ import {
 import { useAdminOrders } from "@/contexts/AdminOrdersContext";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
 import { downloadCsv, toCsv } from "@/lib/csv";
-import { Download } from "lucide-react";
+import { downloadOrdersListPdf } from "@/lib/pdf";
+import { Download, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_adminAuth/admin/orders")({
   component: AdminOrdersPage,
@@ -125,6 +126,15 @@ function AdminOrdersPage() {
                 toast.success(`Exported ${filteredRows.length} orders`);
               }}
             ><Download size={14} style={{ marginRight: 6 }} />Export CSV</button>
+            <button
+              className="admin-btn admin-btn-ghost"
+              onClick={() => {
+                downloadOrdersListPdf(filteredRows, {
+                  filterLabel: ORDER_STATUS_OPTIONS.find((o) => o.value === status)?.label,
+                });
+                toast.success(`PDF report for ${filteredRows.length} orders`);
+              }}
+            ><FileText size={14} style={{ marginRight: 6 }} />Export PDF</button>
           </div>
 
           <div data-admin-table-scroll>
