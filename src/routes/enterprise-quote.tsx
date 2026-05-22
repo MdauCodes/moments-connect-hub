@@ -19,6 +19,7 @@ import { apiFetch } from "@/config/api";
 import type { Industry } from "@/data/products";
 import { useSiteConfig } from "@/contexts/SiteConfigContext";
 import { CheckCircle2 } from "lucide-react";
+import { ConsentCheckbox } from "@/components/ConsentCheckbox";
 
 export const Route = createFileRoute("/enterprise-quote")({
   head: () => ({
