@@ -19,6 +19,7 @@ import { apiFetch } from "@/config/api";
 import type { Industry } from "@/data/products";
 import { useSiteConfig } from "@/contexts/SiteConfigContext";
 import { CheckCircle2 } from "lucide-react";
+import { ConsentCheckbox } from "@/components/ConsentCheckbox";
 
 export const Route = createFileRoute("/enterprise-quote")({
   head: () => ({
@@ -59,6 +60,7 @@ function EnterpriseQuotePage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<{ firstName: string; email: string } | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [consent, setConsent] = useState(false);
   const [form, setForm] = useState({
     contactName: "",
     email: "",
@@ -85,6 +87,10 @@ function EnterpriseQuotePage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!consent) {
+      toast.error("Please tick the consent box to continue");
+      return;
+    }
     const parsed = schema.safeParse({
       ...form,
       estimatedQuantity: Number(form.estimatedQuantity),
@@ -278,10 +284,17 @@ function EnterpriseQuotePage() {
                     />
                   </Field>
                 </div>
+                <div className="mt-5">
+                  <ConsentCheckbox
+                    checked={consent}
+                    onCheckedChange={setConsent}
+                    purpose="prepare your quote and contact you about it"
+                  />
+                </div>
                 <Button
                   type="submit"
-                  disabled={submitting}
-                  className="mt-7 h-[52px] w-full bg-[#2d4a3e] text-base text-[#f5f0e8] hover:bg-[#2d4a3e]/90"
+                  disabled={submitting || !consent}
+                  className="mt-5 h-[52px] w-full bg-[#2d4a3e] text-base text-[#f5f0e8] hover:bg-[#2d4a3e]/90"
                 >
                   {submitting ? "Submitting…" : "Submit quote request →"}
                 </Button>

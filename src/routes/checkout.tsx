@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { orderStore, type FulfillmentType, type CourierType } from "@/services/orderStore";
 import { fetchDeliveryZones, type DeliveryZone } from "@/services/deliveryZoneService";
 import { CountySelect } from "@/components/CountySelect";
+import { ConsentCheckbox } from "@/components/ConsentCheckbox";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -99,6 +100,7 @@ function CheckoutModal() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showResend, setShowResend] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   const timersRef = useRef<{ poll?: ReturnType<typeof setTimeout>; timeout?: ReturnType<typeof setTimeout>; resend?: ReturnType<typeof setTimeout> }>({});
 
@@ -173,6 +175,10 @@ function CheckoutModal() {
   function handleContactSubmit(e: FormEvent) {
     e.preventDefault();
     if (!validateContact()) return;
+    if (!consent) {
+      toast.error("Please tick the consent box to continue");
+      return;
+    }
     setStep("payment");
   }
 
@@ -581,11 +587,17 @@ function CheckoutModal() {
                 )}
               </div>
 
-
+              <ConsentCheckbox
+                checked={consent}
+                onCheckedChange={setConsent}
+                purpose="process and deliver your order"
+                className="mt-2"
+              />
 
               <button
                 type="submit"
-                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:opacity-90"
+                disabled={!consent}
+                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:opacity-90 disabled:opacity-60"
                 style={{ backgroundColor: BRAND }}
               >
                 Continue to payment <ArrowRight className="h-4 w-4" />

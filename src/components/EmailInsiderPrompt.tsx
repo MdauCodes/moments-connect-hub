@@ -224,7 +224,11 @@ export function EmailInsiderPrompt() {
                 >
                   {loading ? "Adding you..." : "Count me in"}
                 </button>
-                {/* "No thanks" removed per client request — × is the only dismiss */}
+                <p className="px-1 pt-1 text-[10px] leading-snug text-muted-foreground">
+                  By subscribing you agree we may email you offers and updates. Unsubscribe
+                  anytime — see our{" "}
+                  <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
+                </p>
               </form>
             </>
           )}

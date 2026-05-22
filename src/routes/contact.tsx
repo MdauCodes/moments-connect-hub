@@ -6,6 +6,7 @@ import { WHATSAPP_NUMBER, whatsappLink } from "@/data/products";
 import { Check, MessageCircle, X } from "lucide-react";
 import { usePersona } from "@/contexts/PersonaContext";
 import { useCart, type CartItem } from "@/contexts/CartContext";
+import { ConsentCheckbox } from "@/components/ConsentCheckbox";
 import { apiUrl } from "@/config/api";
 
 export const Route = createFileRoute("/contact")({
@@ -59,9 +60,14 @@ function ContactPage() {
   const [artworkFile, setArtworkFile] = useState<File | null>(null);
   const [referralSource, setReferralSource] = useState("");
   const [formState, setFormState] = useState<FormState>("idle");
+  const [consent, setConsent] = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!consent) {
+      setFormState("error");
+      return;
+    }
     setFormState("submitting");
 
     const payload = {
@@ -375,10 +381,18 @@ function ContactPage() {
                     </div>
                   )}
 
+                  <div className="mt-6">
+                    <ConsentCheckbox
+                      checked={consent}
+                      onCheckedChange={setConsent}
+                      purpose="contact you about this enquiry"
+                    />
+                  </div>
+
                   <button
                     type="submit"
-                    disabled={formState === "submitting"}
-                    className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                    disabled={formState === "submitting" || !consent}
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
                   >
                     {formState === "submitting" ? (
                       <>
