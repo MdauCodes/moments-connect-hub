@@ -1,9 +1,14 @@
-import { downloadReceiptPdf, downloadDispatchChecklistPdf, downloadOrdersListPdf, downloadCustomerStatementPdf } from '../src/lib/pdf.ts';
 import { jsPDF } from 'jspdf';
 import fs from 'fs';
-jsPDF.prototype.save = function(name){ fs.writeFileSync('/mnt/documents/pdfqa/'+name, Buffer.from(this.output('arraybuffer'))); };
 fs.mkdirSync('/mnt/documents/pdfqa',{recursive:true});
-
+// monkey patch output instead
+const origOutput = jsPDF.prototype.output;
+jsPDF.prototype.save = function(name){
+  const buf = this.output('arraybuffer');
+  fs.writeFileSync('/mnt/documents/pdfqa/'+name, Buffer.from(buf));
+  console.log('wrote', name, Buffer.from(buf).length);
+};
+const { downloadReceiptPdf, downloadDispatchChecklistPdf, downloadOrdersListPdf, downloadCustomerStatementPdf } = await import('../src/lib/pdf.ts');
 downloadReceiptPdf({
   reference:'MP-2026-0421', createdAt:new Date().toISOString(),
   customerName:'Achieng Otieno', customerEmail:'achieng@example.com', customerPhone:'+254 712 345 678',
@@ -29,4 +34,3 @@ const rows = Array.from({length:8}, (_,i)=>({
 downloadOrdersListPdf(rows,{filterLabel:'Last 30 days · All statuses'});
 downloadCustomerStatementPdf({name:'Achieng Otieno', email:'achieng@example.com', phone:'+254 712 345 678', city:'Nairobi',
   lifetimeValue:184500, ordersCount:7, averageOrderValue:26357, firstOrderAt:'2025-08-12', lastOrderAt:'2026-05-19'}, rows);
-console.log('done');
