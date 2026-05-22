@@ -587,11 +587,17 @@ function CheckoutModal() {
                 )}
               </div>
 
-
+              <ConsentCheckbox
+                checked={consent}
+                onCheckedChange={setConsent}
+                purpose="process and deliver your order"
+                className="mt-2"
+              />
 
               <button
                 type="submit"
-                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:opacity-90"
+                disabled={!consent}
+                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:opacity-90 disabled:opacity-60"
                 style={{ backgroundColor: BRAND }}
               >
                 Continue to payment <ArrowRight className="h-4 w-4" />
