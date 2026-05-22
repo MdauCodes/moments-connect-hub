@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2, X, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { dispatchConfirmOrder, updateOrderStatus, type DeliveryConfirmation } from "@/services/commerceApi";
+import { updateOrderStatus } from "@/services/commerceApi";
 import type { OrderRecord } from "@/services/commerceMock";
 import { downloadDispatchChecklistPdf } from "@/lib/pdf";
 
@@ -14,31 +14,20 @@ interface Props {
 
 const STORAGE_PREFIX = "dispatch_checklist_";
 
-const DELIVERY_OPTIONS: { value: DeliveryConfirmation; label: string }[] = [
-  { value: "CUSTOMER_PAYS_COURIER", label: "Customer pays courier directly" },
-  { value: "CUSTOMER_PAYS_BUSINESS", label: "Customer pays business" },
-  { value: "REVERTED_TO_PICKUP", label: "Revert to pickup" },
-  { value: "CONFIRM_LATER", label: "Confirm later" },
-];
-
 function itemKey(orderId: string, idx: number, productId: string): string {
   return `${orderId}:${productId || idx}`;
 }
 
 export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
   const [ticked, setTicked] = useState<Set<string>>(new Set());
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selected, setSelected] = useState<DeliveryConfirmation>("CUSTOMER_PAYS_COURIER");
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Restore from localStorage when an order is opened.
-  // Depend on order?.id (stable string) — NOT the order object reference,
-  // which changes on every polling refetch and would re-run this effect forever.
   const orderId = order?.id ?? null;
   useEffect(() => {
     if (!orderId) {
       setTicked(new Set());
-      setModalOpen(false);
+      setConfirmOpen(false);
       return;
     }
     try {
@@ -54,7 +43,7 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
     () => (order?.items ?? []).map((it, idx) => itemKey(orderId ?? "", idx, it.productId)),
     [orderId, order?.items],
   );
-  const allTicked = order ? itemIds.every((id) => ticked.has(id)) : false;
+  void itemIds;
 
   const toggle = (id: string) => {
     if (!order) return;
@@ -69,16 +58,15 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
     });
   };
 
-  const submit = async () => {
+  const dispatchNow = async () => {
     if (!order) return;
     setSubmitting(true);
     try {
-      await dispatchConfirmOrder(order.id, selected, true);
       await updateOrderStatus(order.id, "DISPATCHED");
       try { window.localStorage.removeItem(`${STORAGE_PREFIX}${order.id}`); } catch { /* ignore */ }
-      toast.success(`Order ${order.reference} dispatched`);
-      setModalOpen(false);
-      onDispatched(order.id);
+      toast.success("Order dispatched successfully");
+      setConfirmOpen(false);
+      await onDispatched(order.id);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Dispatch failed");
     } finally {
@@ -128,18 +116,8 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
                         />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: 600, fontSize: 14 }}>{it.name}</div>
-                          {(it.size || it.material) && (
-                            <div style={{ fontSize: 11, color: "var(--admin-muted)" }}>
-                              {[it.size, it.material].filter(Boolean).join(" · ")}
-                            </div>
-                          )}
                           <div style={{ fontSize: 12, marginTop: 2 }}>
                             Qty: <b>{it.qty}</b>
-                            {it.lineTotal != null && (
-                              <span style={{ color: "var(--admin-muted)", marginLeft: 8 }}>
-                                · KES {Number(it.lineTotal).toLocaleString("en-KE")}
-                              </span>
-                            )}
                           </div>
                         </div>
                       </label>
@@ -152,10 +130,9 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
                 <button
                   className="admin-btn admin-btn-primary"
                   style={{ width: "100%", justifyContent: "center" }}
-                  disabled={!allTicked}
-                  onClick={() => setModalOpen(true)}
+                  onClick={() => setConfirmOpen(true)}
                 >
-                  Confirm & Dispatch
+                  Dispatch Order
                 </button>
                 <button
                   type="button"
@@ -166,87 +143,46 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
                   <Printer size={14} style={{ marginRight: 6 }} />
                   Download printable checklist (PDF)
                 </button>
-                {!allTicked && (
-                  <p style={{ fontSize: 12, color: "var(--admin-muted)" }}>
-                    Tick every item to enable dispatch.
-                  </p>
-                )}
               </div>
             </div>
           )}
         </SheetContent>
       </Sheet>
 
-      {modalOpen && order && (
+      {confirmOpen && order && (
         <div
           role="dialog"
           aria-modal="true"
           style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.45)",
-            display: "grid",
-            placeItems: "center",
-            zIndex: 100,
-            padding: 16,
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)",
+            display: "grid", placeItems: "center", zIndex: 100, padding: 16,
           }}
         >
           <div style={{
-            background: "var(--admin-surface, #fff)",
-            borderRadius: 14,
-            width: "100%",
-            maxWidth: 460,
-            padding: 24,
-            boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
+            background: "var(--admin-surface, #fff)", borderRadius: 14, width: "100%",
+            maxWidth: 420, padding: 24, boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <h3 style={{ fontFamily: "var(--font-display)", margin: 0, fontSize: 18 }}>
-                Delivery confirmation
+                Confirm dispatch
               </h3>
               <button
-                onClick={() => setModalOpen(false)}
+                onClick={() => setConfirmOpen(false)}
                 style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
                 aria-label="Close"
               >
                 <X size={16} />
               </button>
             </div>
-            <p style={{ fontSize: 13, color: "var(--admin-muted)", marginTop: 6 }}>
-              Choose how delivery payment is handled for {order.reference}.
+            <p style={{ fontSize: 14, color: "var(--admin-text)", marginTop: 12, lineHeight: 1.5 }}>
+              Dispatch <b>{order.reference}</b> to <b>{order.customerName}</b>?
             </p>
 
-            <fieldset style={{ border: "none", padding: 0, margin: "16px 0 0", display: "flex", flexDirection: "column", gap: 8 }}>
-              {DELIVERY_OPTIONS.map((opt) => (
-                <label
-                  key={opt.value}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: 12,
-                    border: "1px solid var(--admin-border)",
-                    borderRadius: 10,
-                    cursor: "pointer",
-                    background: selected === opt.value ? "var(--admin-surface-2, #f6f3ee)" : "transparent",
-                  }}
-                >
-                  <input
-                    type="radio"
-                    name="deliveryConfirm"
-                    value={opt.value}
-                    checked={selected === opt.value}
-                    onChange={() => setSelected(opt.value)}
-                  />
-                  <span style={{ fontSize: 14 }}>{opt.label}</span>
-                </label>
-              ))}
-            </fieldset>
-
-            <div style={{ display: "flex", gap: 8, marginTop: 18, justifyContent: "flex-end" }}>
-              <button className="admin-btn admin-btn-ghost" onClick={() => setModalOpen(false)} disabled={submitting}>
+            <div style={{ display: "flex", gap: 8, marginTop: 22, justifyContent: "flex-end" }}>
+              <button className="admin-btn admin-btn-ghost" onClick={() => setConfirmOpen(false)} disabled={submitting}>
                 Cancel
               </button>
-              <button className="admin-btn admin-btn-primary" onClick={() => void submit()} disabled={submitting}>
+              <button className="admin-btn admin-btn-primary" onClick={() => void dispatchNow()} disabled={submitting}>
                 {submitting && <Loader2 size={14} className="animate-spin" />}
                 Confirm
               </button>

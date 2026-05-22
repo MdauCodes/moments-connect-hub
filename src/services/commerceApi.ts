@@ -13,7 +13,6 @@ import type {
   PaymentGateway,
   PaymentRecord,
 } from "@/services/commerceMock";
-import type { AnalyticsOverview } from "@/services/analyticsMock";
 
 type Source = "live";
 
@@ -314,74 +313,52 @@ export async function getCustomer(
 }
 
 // ---------- Analytics ----------
+// Backend GET /api/v1/admin/analytics/overview returns a flat operational shape:
+//   revenueToday, revenueWeek, revenueMTD,
+//   ordersToday, ordersPending, ordersInProd, ordersTotal,
+//   totalProducts, totalUsers, totalEnquiries, totalLeads,
+//   topProducts: string[]
 
-export interface AnalyticsResult extends AnalyticsOverview {
+export interface AnalyticsOverviewResponse {
+  revenueToday: number;
+  revenueWeek: number;
+  revenueMTD: number;
+  ordersToday: number;
+  ordersPending: number;
+  ordersInProd: number;
+  ordersTotal: number;
+  totalProducts: number;
+  totalUsers: number;
+  totalEnquiries: number;
+  totalLeads: number;
+  topProducts: string[];
+}
+
+export interface AnalyticsResult extends AnalyticsOverviewResponse {
   source: Source;
 }
 
-export async function getAnalyticsOverview(days = 30): Promise<AnalyticsResult> {
-  const raw = await getJson<any>(`/api/v1/admin/analytics/overview?days=${days}`);
+export async function getAnalyticsOverview(): Promise<AnalyticsResult> {
+  const raw = await getJson<any>(`/api/v1/admin/analytics/overview`);
   console.log("[analytics/overview] raw response:", raw);
-
-  // Unwrap if wrapped (e.g. { data: {...} })
   const r = raw?.data && typeof raw.data === "object" && !Array.isArray(raw.data) ? raw.data : raw;
-
-  // Backend returns a flat shape; map it to the AnalyticsOverview shape the UI expects.
-  const revenue = Number(r?.revenue ?? r?.kpis?.revenue ?? 0);
-  const orders = Number(r?.orders ?? r?.kpis?.orders ?? 0);
-  const customers = Number(r?.customers ?? r?.kpis?.customers ?? 0);
-  const aov = Number(r?.avgOrderValue ?? r?.aov ?? r?.kpis?.aov ?? (orders ? revenue / orders : 0));
-  const revenueGrowth = Number(r?.revenueGrowth ?? 0);
-  const ordersGrowth = Number(r?.ordersGrowth ?? 0);
-  // Derive "previous period" values from growth % so the existing delta UI works.
-  const revenuePrev = revenueGrowth ? revenue / (1 + revenueGrowth / 100) : (r?.kpis?.revenuePrev ?? 0);
-  const ordersPrev = ordersGrowth ? orders / (1 + ordersGrowth / 100) : (r?.kpis?.ordersPrev ?? 0);
-
-  const rawSeries: any[] = r?.revenueSeries ?? r?.revenueByDay ?? [];
-  const revenueSeries = rawSeries.map((p: any) => {
-    const iso = p?.iso ?? p?.date ?? "";
-    const rev = Number(p?.revenue ?? 0);
-    const ord = Number(p?.orders ?? 0);
-    return {
-      date: p?.label ?? (iso ? iso.slice(5) : ""),
-      iso,
-      revenue: rev,
-      orders: ord,
-      aov: Number(p?.aov ?? (ord ? rev / ord : 0)),
-    };
-  });
-
-  const topProducts = (r?.topProducts ?? []).map((p: any) => ({
-    productId: String(p?.productId ?? p?.id ?? ""),
-    name: String(p?.name ?? p?.productName ?? ""),
-    units: Number(p?.units ?? p?.quantity ?? 0),
-    revenue: Number(p?.revenue ?? 0),
-  }));
-
-  const mapped: AnalyticsOverview = {
-    range: r?.range ?? { start: "", end: "", days },
-    kpis: {
-      revenue,
-      revenuePrev,
-      orders,
-      ordersPrev,
-      customers,
-      aov,
-      conversionRate: Number(r?.conversionRate ?? r?.kpis?.conversionRate ?? 0),
-      refundRate: Number(r?.refundRate ?? r?.kpis?.refundRate ?? 0),
-      cartAbandonRate: Number(r?.cartAbandonRate ?? r?.kpis?.cartAbandonRate ?? 0),
-      paymentSuccessRate: Number(r?.paymentSuccessRate ?? r?.kpis?.paymentSuccessRate ?? 0),
-    },
-    revenueSeries,
-    channels: r?.channels ?? [],
-    categories: r?.categories ?? [],
-    funnel: r?.funnel ?? [],
-    topCities: r?.topCities ?? [],
-    paymentMethods: r?.paymentMethods ?? [],
-    topProducts,
+  const num = (v: unknown) => Number(v ?? 0) || 0;
+  const top = Array.isArray(r?.topProducts) ? r.topProducts.map((x: unknown) => String(x)) : [];
+  return {
+    revenueToday: num(r?.revenueToday),
+    revenueWeek: num(r?.revenueWeek),
+    revenueMTD: num(r?.revenueMTD),
+    ordersToday: num(r?.ordersToday),
+    ordersPending: num(r?.ordersPending),
+    ordersInProd: num(r?.ordersInProd),
+    ordersTotal: num(r?.ordersTotal),
+    totalProducts: num(r?.totalProducts),
+    totalUsers: num(r?.totalUsers),
+    totalEnquiries: num(r?.totalEnquiries),
+    totalLeads: num(r?.totalLeads),
+    topProducts: top,
+    source: "live",
   };
-
-  return { ...mapped, source: "live" };
 }
 
 // ---------- Exports ----------
