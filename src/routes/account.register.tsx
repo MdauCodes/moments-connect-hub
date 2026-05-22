@@ -23,6 +23,7 @@ function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
