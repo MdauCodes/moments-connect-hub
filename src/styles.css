@@ -565,3 +565,8 @@
 }
 .legal-prose tr:last-child td { border-bottom: 0; }
 .legal-prose th { font-weight: 600; color: var(--foreground); }
+
+/* Admin: hide low-priority table columns on small screens */
+@media (max-width: 640px) {
+  .admin-hide-mobile { display: none !important; }
+}

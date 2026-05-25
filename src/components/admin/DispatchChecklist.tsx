@@ -116,6 +116,8 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
       }
     : null;
 
+  const isDispatched = order?.status === "DISPATCHED";
+
   return (
     <>
       <Sheet
@@ -124,38 +126,25 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
           if (!open) onClose();
         }}
       >
-        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:max-w-md h-screen sm:h-auto overflow-y-auto">
           {order && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Header */}
               <div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.1em",
-                    color: "var(--admin-muted)",
-                    marginBottom: 4,
-                  }}
-                >
+                <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--admin-muted)", marginBottom: 4 }}>
                   Dispatch checklist
                 </div>
-                <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, margin: "0 0 2px" }}>
+                <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, margin: "0 0 4px" }}>
                   {order.reference}
                 </h2>
+                <div style={{ display: "inline-block", padding: "2px 8px", borderRadius: 999, background: isDispatched ? "#dcfce7" : "#fef3c7", color: isDispatched ? "#166534" : "#92400e", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+                  {order.status.replace(/_/g, " ")}
+                </div>
                 <div style={{ fontSize: 13, color: "var(--admin-muted)" }}>
                   {order.customerName}
                   {order.city && <span> · {order.city}</span>}
                   {order.fulfillmentType && (
-                    <span
-                      style={{
-                        marginLeft: 6,
-                        fontSize: 11,
-                        background: "var(--admin-surface-2, #f0ede6)",
-                        padding: "2px 7px",
-                        borderRadius: 99,
-                      }}
-                    >
+                    <span style={{ marginLeft: 6, fontSize: 11, background: "var(--admin-surface-2, #f0ede6)", padding: "2px 7px", borderRadius: 99 }}>
                       {order.fulfillmentType.replace(/_/g, " ")}
                     </span>
                   )}
@@ -166,6 +155,17 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
                   </div>
                 )}
               </div>
+
+              {isDispatched && (
+                <div style={{ background: "#dcfce7", border: "1px solid #86efac", borderRadius: 10, padding: 12, fontSize: 13, color: "#166534", display: "flex", alignItems: "center", gap: 8 }}>
+                  <CheckCircle2 size={18} />
+                  <div>
+                    <div style={{ fontWeight: 600 }}>Already dispatched</div>
+                    <div style={{ fontSize: 12, opacity: 0.9 }}>This order has been sent to the customer.</div>
+                  </div>
+                </div>
+              )}
+
 
               {/* Progress bar */}
               <div>
