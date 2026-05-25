@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { ApiError } from "@/services/adminApi";
+import { defaultLandingFor } from "@/lib/permissions";
 import { PasswordInput } from "@/components/PasswordInput";
 
 export const Route = createFileRoute("/admin/login")({
