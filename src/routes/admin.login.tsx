@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { ApiError } from "@/services/adminApi";
+import { defaultLandingFor } from "@/lib/permissions";
 import { PasswordInput } from "@/components/PasswordInput";
 
 export const Route = createFileRoute("/admin/login")({
@@ -95,7 +96,7 @@ function AdminLoginRoute() {
 }
 
 export function AdminLoginPage({ redirect }: { redirect?: string }) {
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, permissions } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -107,7 +108,7 @@ export function AdminLoginPage({ redirect }: { redirect?: string }) {
     !redirect.startsWith("/admin/login") &&
     !redirect.startsWith("/login")
       ? redirect
-      : "/admin/dashboard";
+      : defaultLandingFor(permissions);
 
   useEffect(() => {
     if (isAuthenticated) {

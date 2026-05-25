@@ -60,9 +60,12 @@ const navSections: NavSection[] = [
   {
     label: "Queues",
     items: [
-      { label: "Payment Queue", to: "/admin/queues/payment", icon: CheckCircle2, requiresAny: [PERM.ORDER_VERIFY_PAYMENT, PERM.ORDER_MANAGE_ALL] },
-      { label: "Preparation Queue", to: "/admin/queues/preparation", icon: PackageCheck, requiresAny: [PERM.ORDER_PREPARE, PERM.ORDER_MANAGE_ALL] },
-      { label: "Dispatch Queue", to: "/admin/queues/dispatch", icon: Send, requiresAny: [PERM.ORDER_DISPATCH, PERM.ORDER_MANAGE_ALL] },
+      // Queue pages are for the specialist roles that actually process the stage.
+      // Supervisors / managers (ORDER_MANAGE_ALL only) oversee from the Orders list,
+      // not from the queue pages — so we gate strictly on the stage permission.
+      { label: "Payment Queue", to: "/admin/queues/payment", icon: CheckCircle2, requiresAny: [PERM.ORDER_VERIFY_PAYMENT] },
+      { label: "Preparation Queue", to: "/admin/queues/preparation", icon: PackageCheck, requiresAny: [PERM.ORDER_PREPARE] },
+      { label: "Dispatch Queue", to: "/admin/queues/dispatch", icon: Send, requiresAny: [PERM.ORDER_DISPATCH] },
     ],
   },
   {

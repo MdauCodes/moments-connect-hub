@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { OrderDetailDrawer } from "@/components/admin/OrderDetailDrawer";
+import { AssignSelect } from "@/components/admin/AssignSelect";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import {
@@ -12,6 +13,8 @@ import {
   formatKes,
 } from "@/components/admin/commerceUi";
 import { useAdminOrders } from "@/contexts/AdminOrdersContext";
+import { useAuth } from "@/contexts/AdminAuthContext";
+import { PERM } from "@/lib/permissions";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
 import { downloadCsv, toCsv } from "@/lib/csv";
 import { downloadOrdersListPdf } from "@/lib/pdf";
@@ -24,12 +27,16 @@ export const Route = createFileRoute("/_adminAuth/admin/orders")({
 const PAGE_SIZE = 20;
 
 function AdminOrdersPage() {
-  const { orders, initialLoading, error, refresh } = useAdminOrders();
+  const { orders, initialLoading, error, refresh, applyOrderPatch } = useAdminOrders();
+  const { user, hasPermission } = useAuth();
+  const canAssign = hasPermission(PERM.ORDER_ASSIGN) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const currentUserId = user?.id ?? null;
   const [openId, setOpenId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("ALL");
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [page, setPage] = useState(0);
+  const [scope, setScope] = useState<"ALL" | "MINE">("ALL");
 
   useEffect(() => { document.title = "Orders · Moments admin"; }, []);
 
@@ -46,13 +53,14 @@ function AdminOrdersPage() {
   const filteredRows = useMemo(() => {
     const needle = debouncedQ.toLowerCase();
     return orders.filter((o) => {
+      if (scope === "MINE" && (!currentUserId || o.assignedToId !== currentUserId)) return false;
       if (status !== "ALL" && o.status !== status) return false;
       if (!needle) return true;
       return [o.reference, o.customerName, o.customerEmail, o.customerPhone, o.city, o.trackingNumber]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(needle));
     });
-  }, [orders, status, debouncedQ]);
+  }, [orders, scope, currentUserId, status, debouncedQ]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const pageRows = useMemo(
@@ -113,6 +121,33 @@ function AdminOrdersPage() {
               >
                 {ORDER_STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
+              {canAssign && currentUserId && (
+                <div role="tablist" aria-label="Assignment scope" style={{ display: "inline-flex", border: "1px solid var(--admin-border)", borderRadius: 8, overflow: "hidden" }}>
+                  {(["ALL", "MINE"] as const).map((s) => {
+                    const active = scope === s;
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => { setPage(0); setScope(s); }}
+                        style={{
+                          padding: "6px 12px",
+                          fontSize: 12,
+                          background: active ? "var(--admin-accent)" : "transparent",
+                          color: active ? "var(--cream)" : "var(--admin-text)",
+                          border: "none",
+                          cursor: "pointer",
+                          fontWeight: active ? 600 : 500,
+                        }}
+                      >
+                        {s === "ALL" ? "All orders" : "Assigned to me"}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
             <button
               className="admin-btn admin-btn-ghost"
@@ -147,15 +182,16 @@ function AdminOrdersPage() {
                   <th>Total</th>
                   <th>Status</th>
                   <th>Payment</th>
+                  {canAssign && <th>Assigned</th>}
                   <th>Created</th>
                   <th />
                 </tr>
               </thead>
               <tbody>
                 {initialLoading ? (
-                  <tr><td colSpan={8}><div className="admin-empty">Loading orders…</div></td></tr>
+                  <tr><td colSpan={canAssign ? 9 : 8}><div className="admin-empty">Loading orders…</div></td></tr>
                 ) : pageRows.length === 0 ? (
-                  <tr><td colSpan={8}><div className="admin-empty">No orders match your filters.</div></td></tr>
+                  <tr><td colSpan={canAssign ? 9 : 8}><div className="admin-empty">No orders match your filters.</div></td></tr>
                 ) : (
                   pageRows.map((o) => (
                     <tr key={o.id}>
@@ -171,6 +207,17 @@ function AdminOrdersPage() {
                         <PaymentStatusBadge status={o.paymentStatus} />
                         <GatewayChip gateway={o.paymentGateway} />
                       </td>
+                      {canAssign && (
+                        <td onClick={(e) => e.stopPropagation()}>
+                          <AssignSelect
+                            orderId={o.id}
+                            assignedTo={o.assignedTo}
+                            assignedToId={o.assignedToId}
+                            compact
+                            onAssigned={(patch) => applyOrderPatch(o.id, patch)}
+                          />
+                        </td>
+                      )}
                       <td>{formatDateShort(o.createdAt)}</td>
                       <td>
                         <button className="admin-btn admin-btn-ghost" onClick={() => setOpenId(o.id)}>View</button>
