@@ -43,8 +43,10 @@ export function OrderDetailDrawer({ orderId, onClose, onChanged }: Props) {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const { hasPermission } = useAuth();
   const canAssign = hasPermission(PERM.ORDER_ASSIGN) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const canOverrideStatus = hasPermission(PERM.ORDER_MANAGE_ALL);
   const [assignees, setAssignees] = useState<AssignableUser[]>([]);
   const [assigning, setAssigning] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   useEffect(() => { if (canAssign) listAssignableUsers().then(setAssignees).catch(() => {}); }, [canAssign]);
 
   useEffect(() => {
