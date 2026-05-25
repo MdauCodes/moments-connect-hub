@@ -46,8 +46,12 @@ function PaymentQueuePage() {
   return (
     <AdminLayout title="Payment queue" onReload={() => void refresh()}>
       <div className="admin-page-stack">
-        <div className="admin-panel">
-          <QueueFreshness />
+        <HelpAnchor>
+          <div className="admin-panel">
+            <HelpPanel title="Payment queue">
+              <p>Orders here are awaiting M-Pesa payment confirmation. Cross-check the customer's name, phone and amount against the M-Pesa SMS, then click <b>Verify Payment</b>. Verified orders move automatically to the Preparation queue.</p>
+            </HelpPanel>
+            <QueueFreshness />
           <div data-admin-table-scroll>
             <table className="admin-table">
               <thead>
