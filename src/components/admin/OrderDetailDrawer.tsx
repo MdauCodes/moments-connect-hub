@@ -109,6 +109,25 @@ export function OrderDetailDrawer({ orderId, onClose, onChanged }: Props) {
     }
   };
 
+  const handleCancelOrder = async () => {
+    if (!o) return;
+    if (!window.confirm(`Cancel order ${o.reference}? This cannot be undone from this screen.`)) return;
+    setCancelling(true);
+    try {
+      const res = await updateOrderStatus(o.id, "CANCELLED" as OrderStatus, staffNotes || undefined);
+      if (res.order) {
+        setOrder(res.order);
+        setSelectedStatus(res.order.status);
+        toast.success(`Order ${o.reference} cancelled`);
+        onChanged?.();
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Cancel failed");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   return (
     <Sheet
       open={!!orderId}
