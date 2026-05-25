@@ -92,6 +92,7 @@ function PaymentQueuePage() {
               </tbody>
             </table>
           </div>
+          </div>
         </HelpAnchor>
       </div>
     </AdminLayout>
