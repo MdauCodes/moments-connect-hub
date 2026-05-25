@@ -91,9 +91,13 @@ export function AdminOrdersProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [isAuthenticated, refresh]);
 
+  const applyOrderPatch = useCallback((id: string, patch: Partial<OrderRecord>) => {
+    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o)));
+  }, []);
+
   const value = useMemo<AdminOrdersContextValue>(
-    () => ({ orders, initialLoading, refreshing, lastUpdatedAt, error, refresh }),
-    [orders, initialLoading, refreshing, lastUpdatedAt, error, refresh],
+    () => ({ orders, initialLoading, refreshing, lastUpdatedAt, error, refresh, applyOrderPatch }),
+    [orders, initialLoading, refreshing, lastUpdatedAt, error, refresh, applyOrderPatch],
   );
 
   return <AdminOrdersContext.Provider value={value}>{children}</AdminOrdersContext.Provider>;
