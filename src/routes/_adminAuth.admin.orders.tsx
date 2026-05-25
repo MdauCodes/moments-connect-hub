@@ -121,6 +121,33 @@ function AdminOrdersPage() {
               >
                 {ORDER_STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
+              {canAssign && currentUserId && (
+                <div role="tablist" aria-label="Assignment scope" style={{ display: "inline-flex", border: "1px solid var(--admin-border)", borderRadius: 8, overflow: "hidden" }}>
+                  {(["ALL", "MINE"] as const).map((s) => {
+                    const active = scope === s;
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => { setPage(0); setScope(s); }}
+                        style={{
+                          padding: "6px 12px",
+                          fontSize: 12,
+                          background: active ? "var(--admin-accent)" : "transparent",
+                          color: active ? "var(--cream)" : "var(--admin-text)",
+                          border: "none",
+                          cursor: "pointer",
+                          fontWeight: active ? 600 : 500,
+                        }}
+                      >
+                        {s === "ALL" ? "All orders" : "Assigned to me"}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
             <button
               className="admin-btn admin-btn-ghost"
