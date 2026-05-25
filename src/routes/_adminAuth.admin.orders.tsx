@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { OrderDetailDrawer } from "@/components/admin/OrderDetailDrawer";
+import { AssignSelect } from "@/components/admin/AssignSelect";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import {
@@ -12,6 +13,8 @@ import {
   formatKes,
 } from "@/components/admin/commerceUi";
 import { useAdminOrders } from "@/contexts/AdminOrdersContext";
+import { useAuth } from "@/contexts/AdminAuthContext";
+import { PERM } from "@/lib/permissions";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
 import { downloadCsv, toCsv } from "@/lib/csv";
 import { downloadOrdersListPdf } from "@/lib/pdf";
@@ -24,12 +27,16 @@ export const Route = createFileRoute("/_adminAuth/admin/orders")({
 const PAGE_SIZE = 20;
 
 function AdminOrdersPage() {
-  const { orders, initialLoading, error, refresh } = useAdminOrders();
+  const { orders, initialLoading, error, refresh, applyOrderPatch } = useAdminOrders();
+  const { user, hasPermission } = useAuth();
+  const canAssign = hasPermission(PERM.ORDER_ASSIGN) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const currentUserId = user?.id ?? null;
   const [openId, setOpenId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("ALL");
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [page, setPage] = useState(0);
+  const [scope, setScope] = useState<"ALL" | "MINE">("ALL");
 
   useEffect(() => { document.title = "Orders · Moments admin"; }, []);
 
