@@ -9,6 +9,7 @@ import { PERM } from "@/lib/permissions";
 import { updateOrderStatus } from "@/services/commerceApi";
 import { formatDateShort, OrderStatusBadge } from "@/components/admin/commerceUi";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
+import { HelpPanel, HelpAnchor } from "@/components/admin/HelpPanel";
 import type { OrderRecord, OrderStatus } from "@/services/commerceMock";
 
 export const Route = createFileRoute("/_adminAuth/admin/queues/preparation")({
@@ -47,60 +48,105 @@ function PreparationQueuePage() {
   return (
     <AdminLayout title="Preparation queue" onReload={() => void refresh()}>
       <div className="admin-page-stack">
-        <div className="admin-panel">
-          <QueueFreshness />
-          <div data-admin-table-scroll>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Reference</th>
-                  <th>Customer</th>
-                  <th>Items</th>
-                  <th>County</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {initialLoading ? (
-                  <tr><td colSpan={7}><div className="admin-empty">Loading…</div></td></tr>
-                ) : rows.length === 0 ? (
-                  <tr><td colSpan={7}><div className="admin-empty">No orders in preparation</div></td></tr>
-                ) : rows.map((o) => (
-                  <tr key={o.id}>
-                    <td><b>{o.reference}</b></td>
-                    <td>{o.customerName}</td>
-                    <td style={{ maxWidth: 340 }}>{o.items.map((i) => i.name).join(", ")}</td>
-                    <td>{o.county ?? "—"}</td>
-                    <td><OrderStatusBadge status={o.status} /></td>
-                    <td>{formatDateShort(o.createdAt)}</td>
-                    <td style={{ whiteSpace: "nowrap" }}>
-                      {o.status === "PAYMENT_VERIFIED" && (
-                        <button
-                          className="admin-btn admin-btn-primary"
-                          disabled={busyId === o.id}
-                          onClick={() => void advance(o, "IN_PRODUCTION", "Started production")}
-                        >
-                          Start Production
-                        </button>
-                      )}
-                      {o.status === "IN_PRODUCTION" && (
-                        <button
-                          className="admin-btn admin-btn-primary"
-                          disabled={busyId === o.id}
-                          onClick={() => void advance(o, "READY_FOR_DISPATCH", "Marked ready")}
-                        >
-                          Mark Ready
-                        </button>
-                      )}
-                    </td>
+        <HelpAnchor>
+          <div className="admin-panel">
+            <HelpPanel title="Preparation queue">
+              <p>Verified orders land here. Click <b>Start Production</b> when you begin assembling, then <b>Mark Ready</b> once packed and labelled. Orders then flow to the Dispatch queue.</p>
+            </HelpPanel>
+            <QueueFreshness />
+
+            {/* Desktop table */}
+            <div data-admin-table-scroll className="admin-hide-on-mobile-table">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Reference</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>County</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th />
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {initialLoading ? (
+                    <tr><td colSpan={7}><div className="admin-empty">Loading…</div></td></tr>
+                  ) : rows.length === 0 ? (
+                    <tr><td colSpan={7}><div className="admin-empty">No orders in preparation</div></td></tr>
+                  ) : rows.map((o) => (
+                    <tr key={o.id}>
+                      <td><b>{o.reference}</b></td>
+                      <td>{o.customerName}</td>
+                      <td style={{ maxWidth: 340 }}>{o.items.map((i) => i.name).join(", ")}</td>
+                      <td>{o.county ?? "—"}</td>
+                      <td><OrderStatusBadge status={o.status} /></td>
+                      <td>{formatDateShort(o.createdAt)}</td>
+                      <td style={{ whiteSpace: "nowrap" }}>
+                        {o.status === "PAYMENT_VERIFIED" && (
+                          <button
+                            className="admin-btn admin-btn-primary"
+                            disabled={busyId === o.id}
+                            onClick={() => void advance(o, "IN_PRODUCTION", "Started production")}
+                          >
+                            Start Production
+                          </button>
+                        )}
+                        {o.status === "IN_PRODUCTION" && (
+                          <button
+                            className="admin-btn admin-btn-primary"
+                            disabled={busyId === o.id}
+                            onClick={() => void advance(o, "READY_FOR_DISPATCH", "Marked ready")}
+                          >
+                            Mark Ready
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="admin-show-mobile admin-card-list" style={{ marginTop: 8 }}>
+              {initialLoading ? (
+                <div className="admin-empty">Loading…</div>
+              ) : rows.length === 0 ? (
+                <div className="admin-empty">No orders in preparation</div>
+              ) : rows.map((o) => (
+                <div key={o.id} className="admin-card">
+                  <div className="admin-card-row"><b>{o.reference}</b><OrderStatusBadge status={o.status} /></div>
+                  <div className="admin-card-row"><span>{o.customerName}</span><span style={{ color: "var(--admin-muted)" }}>{o.county ?? "—"}</span></div>
+                  <div style={{ fontSize: 12, color: "var(--admin-muted)" }}>{o.items.map((i) => i.name).join(", ")}</div>
+                  <div className="admin-card-row" style={{ fontSize: 11, color: "var(--admin-muted)" }}>
+                    <span>Created {formatDateShort(o.createdAt)}</span>
+                  </div>
+                  <div className="admin-card-actions">
+                    {o.status === "PAYMENT_VERIFIED" && (
+                      <button
+                        className="admin-btn admin-btn-primary"
+                        disabled={busyId === o.id}
+                        onClick={() => void advance(o, "IN_PRODUCTION", "Started production")}
+                      >
+                        Start Production
+                      </button>
+                    )}
+                    {o.status === "IN_PRODUCTION" && (
+                      <button
+                        className="admin-btn admin-btn-primary"
+                        disabled={busyId === o.id}
+                        onClick={() => void advance(o, "READY_FOR_DISPATCH", "Marked ready")}
+                      >
+                        Mark Ready
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        </HelpAnchor>
       </div>
     </AdminLayout>
   );
