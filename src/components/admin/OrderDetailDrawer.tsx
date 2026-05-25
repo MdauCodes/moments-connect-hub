@@ -287,31 +287,47 @@ export function OrderDetailDrawer({ orderId, onClose, onChanged }: Props) {
                 )}
               </Section>
 
-              {/* Update status */}
-              <Section title="Update order status">
-                <div className="space-y-3 pt-1">
-                  <select
-                    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
-                    disabled={updatingStatus}
-                  >
-                    {ORDER_STATUS_OPTIONS.filter((opt) => opt.value !== "ALL").map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    className="admin-btn admin-btn-primary w-full"
-                    disabled={updatingStatus || selectedStatus === o.status}
-                    onClick={handleStatusUpdate}
-                  >
-                    {updatingStatus && <Loader2 size={14} className="mr-1 animate-spin inline" />}
-                    {selectedStatus === o.status ? "Current status" : `Set to ${statusLabel(selectedStatus)}`}
-                  </button>
-                </div>
-              </Section>
+              {/* Update status — manual override, restricted to ORDER_MANAGE_ALL.
+                  Queue-specific advances (Verify Payment, Start Production, Dispatch)
+                  live on their own queue pages for the specialist roles. */}
+              {canOverrideStatus && (
+                <Section title="Update order status">
+                  <div className="space-y-3 pt-1">
+                    <select
+                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      value={selectedStatus}
+                      onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
+                      disabled={updatingStatus || cancelling}
+                    >
+                      {ORDER_STATUS_OPTIONS.filter((opt) => opt.value !== "ALL").map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      className="admin-btn admin-btn-primary w-full"
+                      disabled={updatingStatus || cancelling || selectedStatus === o.status}
+                      onClick={handleStatusUpdate}
+                    >
+                      {updatingStatus && <Loader2 size={14} className="mr-1 animate-spin inline" />}
+                      {selectedStatus === o.status ? "Current status" : `Set to ${statusLabel(selectedStatus)}`}
+                    </button>
+                    {o.status !== "CANCELLED" && o.status !== "REFUNDED" && (
+                      <button
+                        type="button"
+                        className="admin-btn admin-btn-ghost w-full"
+                        style={{ color: "var(--admin-clay, #c0392b)", borderColor: "var(--admin-clay, #c0392b)" }}
+                        disabled={updatingStatus || cancelling}
+                        onClick={handleCancelOrder}
+                      >
+                        {cancelling && <Loader2 size={14} className="mr-1 animate-spin inline" />}
+                        Cancel order
+                      </button>
+                    )}
+                  </div>
+                </Section>
+              )}
 
               {/* Status history */}
               {Array.isArray(o.statusHistory) && o.statusHistory.length > 0 && (
