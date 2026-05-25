@@ -23,6 +23,8 @@ interface AdminOrdersContextValue {
   error: string | null;
   /** Force a fresh fetch from the backend. */
   refresh: () => Promise<void>;
+  /** Optimistically patch a single order in the in-memory cache. */
+  applyOrderPatch: (id: string, patch: Partial<OrderRecord>) => void;
 }
 
 const AdminOrdersContext = createContext<AdminOrdersContextValue | undefined>(undefined);
