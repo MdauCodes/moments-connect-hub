@@ -351,10 +351,20 @@ interface DispatchOrderLike {
   customerName: string;
   customerPhone?: string | null;
   city?: string | null;
+  county?: string | null;
   shippingAddress?: string | null;
   trackingNumber?: string | null;
+  fulfillmentType?: string | null;
+  courierType?: string | null;
   items: { name: string; size?: string | null; material?: string | null; qty: number; lineTotal?: number | null }[];
 }
+
+const FULFILLMENT_LABEL: Record<string, string> = {
+  PICKUP: "Customer pickup",
+  OWN_COURIER: "Customer's own courier",
+  ZONE_DELIVERY: "Zone delivery",
+  COURIER: "Courier delivery",
+};
 
 export function downloadDispatchChecklistPdf(order: DispatchOrderLike) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -364,24 +374,32 @@ export function downloadDispatchChecklistPdf(order: DispatchOrderLike) {
   // Recipient block
   let y = 42;
   sectionLabel(doc, "Recipient", 14, y);
-  sectionLabel(doc, "Route", pageW / 2, y);
+  sectionLabel(doc, "Route & fulfillment", pageW / 2, y);
   y += 5;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.text(order.customerName, 14, y);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.text(order.city ?? "—", pageW / 2, y);
+  const locationLine = [order.city, order.county].filter(Boolean).join(", ") || "—";
+  doc.text(locationLine, pageW / 2, y);
   y += 5;
   doc.text(order.customerPhone ?? "—", 14, y);
+  const ffLabel = order.fulfillmentType
+    ? (FULFILLMENT_LABEL[order.fulfillmentType] ?? order.fulfillmentType)
+    : "—";
+  const ffLine = order.fulfillmentType === "OWN_COURIER" && order.courierType
+    ? `${ffLabel} · ${order.courierType}`
+    : ffLabel;
+  doc.text(ffLine, pageW / 2, y);
+  y += 5;
+  doc.setTextColor(...MUTED);
+  doc.text(order.shippingAddress ?? "—", 14, y, { maxWidth: pageW / 2 - 18 });
   doc.text(
     order.trackingNumber ? `Tracking ${order.trackingNumber}` : "No tracking number",
     pageW / 2,
     y,
   );
-  y += 5;
-  doc.setTextColor(...MUTED);
-  doc.text(order.shippingAddress ?? "—", 14, y, { maxWidth: pageW / 2 - 18 });
   doc.setTextColor(...INK);
 
   // Items with tick boxes
