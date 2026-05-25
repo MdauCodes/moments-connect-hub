@@ -96,7 +96,7 @@ function AdminLoginRoute() {
 }
 
 export function AdminLoginPage({ redirect }: { redirect?: string }) {
-  const { login, isAuthenticated, permissions } = useAuth();
+  const { login, isAuthenticated, permissions, user } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -108,7 +108,7 @@ export function AdminLoginPage({ redirect }: { redirect?: string }) {
     !redirect.startsWith("/admin/login") &&
     !redirect.startsWith("/login")
       ? redirect
-      : defaultLandingFor(permissions);
+      : defaultLandingFor(permissions, user?.staffRole ?? user?.role);
 
   useEffect(() => {
     if (isAuthenticated) {

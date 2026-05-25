@@ -1,71 +1,125 @@
-# Admin Platform Overhaul — Implementation Plan
+# Role-Based UI/UX Overhaul — Implementation Plan
 
-## 0. Global email update
-- Replace `COMPANY_EMAIL` (and any hardcoded contact email like `hello@…`, `info@…`, `sales@…`) with `info@momentspackaging.com` across the codebase (footer, legal pages, contact page, schemas/JSON-LD, email-capture copy, transactional mock emails).
+One coherent system across 7 staff roles. Built on existing `hasPermission()` + `AdminOrdersContext`. No backend changes.
 
-## 1. Auth & JWT (`src/contexts/AdminAuthContext.tsx`, `src/services/adminApi.ts`)
-- Extend `AdminSession` with `isStaff`, `staffRole`, `staffRoleDisplay`, `permissions: string[]`, `mustChangePassword`, `userId`.
-- Decode these from JWT (mock decode in dev — `adminApi` already fabricates sessions; add fields to that fabrication keyed off role).
-- New `usePermissions()` hook + `hasPermission(p)` on context.
-- New route `/admin/change-password` — simple form, calls `adminApi.changePassword(newPassword)` (stub: updates local session, flips `mustChangePassword=false`).
-- `AdminProtectedRoute` gains a check: if `user.mustChangePassword` and path !== `/admin/change-password`, redirect there.
+## 1. Foundation (shared utilities)
 
-## 2. Permission-driven sidebar & landing (`src/layouts/AdminLayout.tsx`)
-- Replace role-based `nav` filtering with permission predicates per item (mapping per spec).
-- New `defaultLandingFor(permissions)` helper used by `/admin` index and post-login redirect (first-match priority list per spec).
-- Hide/disable create buttons based on granular perms (`PRODUCT_MANAGE` vs `PRODUCT_VIEW`, `USER_CREATE`).
+**`src/lib/roles.ts` (new)** — single source of truth:
+- `STAFF_ROLE_RANK` map (SUPER_ADMIN:1 … STAFF:5)
+- `STAFF_ROLE_DISPLAY` map ("Super Admin", "Supervisor", …)
+- `STAFF_ROLE_COLOR` map (Tailwind classes for the badge chip)
+- `canAssignTo(currentRole, targetRole)` → boolean (rank-based)
+- `defaultLandingFor(role, permissions)` — extend existing helper so each role lands on the right page (Payments→/admin/queues/payment, Preparer→/admin/queues/preparation, Dispatcher→/admin/queues/dispatch, Staff→/admin/orders?mine=1)
 
-## 3. Order status — add `PAYMENT_VERIFIED`
-- Update `OrderStatus` union in `src/services/orderStore.ts` + `commerceApi.ts`.
-- Add to `ORDER_STATUS_OPTIONS`, badge color map (teal), timeline labels, admin status dropdown.
-- Gate transitions in admin order detail by permission map (spec §3).
+**`src/components/admin/RoleBadge.tsx` (new)** — pill component reading from the maps above.
 
-## 4. Three new queue routes
-- `src/routes/_adminAuth.admin.queues.payment.tsx` — filter `PAID`, "Verify Payment" action with confirm dialog.
-- `src/routes/_adminAuth.admin.queues.preparation.tsx` — filter `PAYMENT_VERIFIED` + `IN_PRODUCTION`, "Start Production" / "Mark Ready".
-- `src/routes/_adminAuth.admin.queues.dispatch.tsx` — filter `READY_FOR_DISPATCH`, "Open Checklist".
-- Each guarded by required permission via `<Forbidden>` fallback.
+**`src/components/admin/HelpPanel.tsx` (new)** — collapsible "?" panel pinned top-right of admin pages. Accepts `title`, `children`. Uses shadcn `Popover` or simple disclosure. Per-page content lives in each route file.
 
-## 5. Dispatcher checklist (`src/components/admin/DispatchChecklist.tsx`)
-- Side drawer (shadcn `Sheet`), per-item checkboxes, state in `localStorage["dispatch_checklist_{orderId}"]`.
-- "Confirm & Dispatch" disabled until all ticked → opens delivery-confirmation modal (4 options) → calls mock `orderStore.dispatchConfirm()` then `updateStatus("DISPATCHED")` → clears localStorage → removes from queue.
+## 2. Sidebar (AdminLayout.tsx)
 
-## 6. Order assignment (supervisor)
-- Extend orders with `assignedTo`, `assignedToId` (already partially present — verify).
-- Admin orders list + detail: "Assign to" dropdown using `adminResources.users.listAssignable()` (new mock returning enabled staff).
-- New filter "My assigned orders" on orders list.
-- Visible only with `ORDER_ASSIGN`.
+- Gate every nav item strictly on permission (already partially done).
+- Add **role badge** under user name/email at the bottom.
+- Mobile (<768px): collapse to hamburger using shadcn `Sheet`. Trigger lives in the page header bar.
+- Verify exact visibility per role:
+  - SUPER_ADMIN/ADMIN: full nav
+  - SUPERVISOR: Dashboard, Analytics, Orders, Users (no queues, no products, no settings, no roles)
+  - PAYMENTS_CONFIRMER: Dashboard, Payment Queue
+  - PREPARER: Dashboard, Preparation Queue
+  - DISPATCHER: Dashboard, Dispatch Queue
+  - STAFF: Orders only
 
-## 7. User & Role management
-- Refactor `_adminAuth.admin.users.tsx`: drop password field from create form; show `staffRoleDisplay`; add Reset Password button; gate by `USER_MANAGE_ROLES`.
-- New page `_adminAuth.admin.roles.tsx`: list/create/edit/delete custom roles, grouped permission checklist; new `adminResources.roles` + `adminResources.permissions` mock stores.
+## 3. Landing routing (admin.login.tsx + admin.index.tsx)
 
-## 8. VAT display
-- Extend product schema (`vatRate`, `vatExempt`) + order schema (`taxableAmount`, `vatAmount`).
-- Product editor: VAT rate input + exempt toggle.
-- Order detail (admin + customer), order confirmation, track-by-ref view: conditional VAT rows.
-- Ensure receipt/PDF code reads new fields.
+Use new `defaultLandingFor(role, perms)`:
+- PAYMENTS_CONFIRMER → /admin/queues/payment
+- PREPARER → /admin/queues/preparation
+- DISPATCHER → /admin/queues/dispatch
+- SUPERVISOR → /admin/orders
+- STAFF → /admin/orders (with assigned-to-me default)
+- ADMIN/SUPER_ADMIN → /admin/dashboard
 
-## 9. Email order tracking (`src/routes/orders.track.tsx`)
-- Add `Tabs` (shadcn) — "By reference" / "By email".
-- Email tab: input → `orderStore.findByEmail(email, page)` (new mock) → paginated list → expandable detail reusing existing renderer.
-- Generic empty-state message regardless of cause.
+## 4. Dashboard (_adminAuth.admin.dashboard.tsx)
 
-## 10. Verification pass
-- Smoke-test each persona by seeding mock users (SUPER_ADMIN, DISPATCHER, PAYMENTS_CONFIRMER, SUPERVISOR) in `adminApi` mock login.
-- Walk through flows; fix any TS errors and broken imports.
+Branch by role:
+- ADMIN/SUPER_ADMIN: existing full stats + role guide help panel
+- SUPERVISOR: existing stats + supervisor help
+- PAYMENTS_CONFIRMER: "Awaiting verification: N" + "Verified today: N" + link
+- PREPARER: count of PAYMENT_VERIFIED + IN_PRODUCTION
+- DISPATCHER: count of READY_FOR_DISPATCH
+- STAFF: redirect to /admin/orders
 
----
+## 5. Orders page (_adminAuth.admin.orders.tsx)
 
-## Technical notes
-- Backend is mocked (`orderStore`, `adminApi`, `adminResources`). All "endpoints" become methods on these stores; localStorage is the source of truth in preview. The shape/naming will match the documented REST endpoints so a real backend can be swapped in.
-- Permissions live as string constants in a new `src/lib/permissions.ts` `PERM` object (kept alongside existing role helpers — old `can()` stays for back-compat during migration).
-- Sidebar gating uses a single `visibleNav(permissions)` selector — single source of truth for both sidebar render and "default landing" logic.
-- No design system changes beyond adding a teal badge token for `PAYMENT_VERIFIED`.
+- Three-way filter toggle: "All" | "Assigned to me" | "Unassigned" (gated on ORDER_ASSIGN — STAFF sees only "Mine" forced)
+- Add "Assigned" column with `AssignSelect` (already exists) — filter list by hierarchy using `canAssignTo`
+- STAFF: force `assignedToId === userId`, hide filter toggle, friendly empty state
+- Mobile: hide low-priority columns (phone, county); keep ref/customer/total/status/assigned/action
 
-## Questions before I start
-1. **Scope of mocks**: confirm I should keep everything in the existing localStorage mock layer (no real backend wiring). Yes/no.
-2. **Seed personas**: OK to add 4 demo logins (super admin / dispatcher / payments / supervisor) with fixed emails+passwords so you can test each flow? I'll list them in the final message.
-3. **`USER_MANAGE_ROLES` mapping**: the spec says SUPER_ADMIN gets it. Should the existing `ROLE_ADMIN` user automatically receive `USER_MANAGE_ROLES` + all other permissions (i.e. ADMIN === SUPER_ADMIN for now)?
+## 6. AssignSelect.tsx update
 
-Once you confirm I'll execute sections 0→10 in order.
+- Filter `assignees` list by `canAssignTo(currentUserRole, u.staffRoleName)`
+- Show "{Name} — {Role Display}" in options
+- Show "Currently assigned to: {name} ({role})" or "Not yet assigned" above
+
+Needs `staffRoleName` + `staffRoleDisplay` on `AssignableUser` (extend type in commerceApi.ts).
+
+## 7. Queue pages
+
+- **Payment** (_adminAuth.admin.queues.payment.tsx): filter to `status===PAID && paymentStatus==='PAID'`. Help panel.
+- **Preparation** (_adminAuth.admin.queues.preparation.tsx): only `paymentStatus==='PAID'` AND status in [PAYMENT_VERIFIED, IN_PRODUCTION]. Switch to card layout. Two action buttons by status. Help panel.
+- **Dispatch** (_adminAuth.admin.queues.dispatch.tsx): only READY_FOR_DISPATCH + PAID. Mobile cards. Help panel.
+
+## 8. DispatchChecklist drawer
+
+- Full-screen on mobile (sheet side="bottom" with h-screen, or side="right" w-full on mobile)
+- Status badge at top
+- If `DISPATCHED`: green "Already Dispatched" banner, button becomes disabled "View Details", checklist items shown locked/checked
+- If `READY_FOR_DISPATCH`: single "Dispatch Order" button + confirm dialog "Dispatch {ref} to {customer}?"
+
+## 9. Order Detail Drawer
+
+- Supervisor: prominent Assign section with hierarchy-filtered dropdown + current assignee line
+- Staff: read-only mode — hide status dropdown, assign, refund, cancel
+
+## 10. Help panel content per page
+
+Each route renders `<HelpPanel title="...">` with role-aware content blocks. Implemented via small helper `helpFor(page, role)` returning JSX.
+
+## 11. Mobile responsiveness pass
+
+- AdminLayout: hamburger Sheet sidebar <768px
+- All `admin-table` wrappers: ensure horizontal scroll on mobile (already `data-admin-table-scroll`)
+- Action buttons: `w-full sm:w-auto` where standalone
+- Queue cards: stack vertical on mobile
+
+## 12. Files touched / created
+
+**New**
+- src/lib/roles.ts
+- src/components/admin/RoleBadge.tsx
+- src/components/admin/HelpPanel.tsx
+- src/components/admin/AdminMobileNav.tsx (hamburger)
+
+**Edited**
+- src/layouts/AdminLayout.tsx (sidebar gating, badge, mobile nav)
+- src/lib/permissions.ts (defaultLandingFor branch by role)
+- src/components/admin/AssignSelect.tsx (hierarchy filter, display role)
+- src/services/commerceApi.ts (AssignableUser fields)
+- src/components/admin/DispatchChecklist.tsx (mobile, dispatched state, confirm)
+- src/components/admin/OrderDetailDrawer.tsx (staff read-only, supervisor assign)
+- src/routes/admin.login.tsx (use new landing helper)
+- src/routes/_adminAuth.admin.index.tsx (role-based redirect)
+- src/routes/_adminAuth.admin.dashboard.tsx (per-role variant)
+- src/routes/_adminAuth.admin.orders.tsx (3-way filter, hierarchy, staff lock, mobile cols, help)
+- src/routes/_adminAuth.admin.queues.payment.tsx (card mobile, help, filter tightening)
+- src/routes/_adminAuth.admin.queues.preparation.tsx (cards, help)
+- src/routes/_adminAuth.admin.queues.dispatch.tsx (mobile cards, help)
+
+## 13. Out of scope / assumptions
+
+- Backend already returns `staffRoleName` on JWT and `/users/assignable`. If `staffRoleName` is missing on the session today we'll add it to `AdminSession` and read from the JWT claims; fall back to mapping from existing `role` ADMIN/STAFF when absent.
+- "Verified today" count for Payments Confirmer dashboard: derive from existing orders array (status===PAYMENT_VERIFIED && updated today) — no new endpoint.
+- No backend or schema changes. No new dependencies.
+- Existing AdminOrdersContext single-fetch pattern preserved.
+
+Ready to implement on approval.

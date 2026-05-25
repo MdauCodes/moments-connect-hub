@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { assignOrder, listAssignableUsers, type AssignableUser } from "@/services/commerceApi";
+import { useAuth } from "@/contexts/AdminAuthContext";
+import { canAssignTo, resolveStaffRole, STAFF_ROLE_DISPLAY, normalizeStaffRole } from "@/lib/roles";
 
 interface Props {
   orderId: string;
@@ -23,7 +25,14 @@ function loadAssignees(): Promise<AssignableUser[]> {
   return pending;
 }
 
+function roleLabel(name: string | undefined): string {
+  const n = normalizeStaffRole(name);
+  return n ? STAFF_ROLE_DISPLAY[n] : (name ?? "");
+}
+
 export function AssignSelect({ orderId, assignedTo, assignedToId, compact, onAssigned }: Props) {
+  const { user } = useAuth();
+  const currentRole = resolveStaffRole(user);
   const [assignees, setAssignees] = useState<AssignableUser[]>(cache ?? []);
   const [busy, setBusy] = useState(false);
 
@@ -33,9 +42,15 @@ export function AssignSelect({ orderId, assignedTo, assignedToId, compact, onAss
     return () => { active = false; };
   }, []);
 
+  // Hierarchy filter: only show users with rank >= current user's rank (equal or lower).
+  const visible = useMemo(
+    () => assignees.filter((u) => canAssignTo(currentRole, u.staffRoleName)),
+    [assignees, currentRole],
+  );
+
   const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const id = e.target.value;
-    const u = assignees.find((a) => a.id === id);
+    const u = visible.find((a) => a.id === id);
     if (!u) return;
     setBusy(true);
     try {
@@ -53,23 +68,25 @@ export function AssignSelect({ orderId, assignedTo, assignedToId, compact, onAss
     <div style={{ display: "flex", flexDirection: compact ? "row" : "column", gap: 4, alignItems: compact ? "center" : "stretch", minWidth: 0 }}>
       {!compact && (
         <div style={{ fontSize: 11, color: "var(--admin-muted)" }}>
-          {assignedTo ? `Assigned to: ${assignedTo}` : "Unassigned"}
+          {assignedTo ? `Currently assigned to: ${assignedTo}` : "Not yet assigned"}
         </div>
       )}
       <select
         className="admin-select"
         value={assignedToId ?? ""}
-        disabled={busy}
+        disabled={busy || visible.length === 0}
         onChange={handleChange}
         onClick={(e) => e.stopPropagation()}
         title={assignedTo ? `Assigned to ${assignedTo}` : "Unassigned"}
-        style={compact ? { fontSize: 12, padding: "4px 6px", maxWidth: 160 } : undefined}
+        style={compact ? { fontSize: 12, padding: "4px 6px", maxWidth: 180 } : undefined}
       >
         <option value="" disabled>
-          {assignedTo ? `→ ${assignedTo}` : "Assign to…"}
+          {assignedTo ? `→ ${assignedTo}` : visible.length === 0 ? "No staff available" : "Assign to…"}
         </option>
-        {assignees.map((u) => (
-          <option key={u.id} value={u.id}>{u.name}</option>
+        {visible.map((u) => (
+          <option key={u.id} value={u.id}>
+            {u.name}{u.staffRoleName ? ` — ${roleLabel(u.staffRoleName)}` : ""}
+          </option>
         ))}
       </select>
     </div>

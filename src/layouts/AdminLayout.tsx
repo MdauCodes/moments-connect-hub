@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { hasAnyPerm, PERM, type PermissionCode } from "@/lib/permissions";
+import { RoleBadge } from "@/components/admin/RoleBadge";
+import { resolveStaffRole, SPECIALIST_ROLES, STAFF_ROLE_DISPLAY } from "@/lib/roles";
 
 interface AdminLayoutProps {
   title: string;
@@ -347,6 +349,7 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
   const pathname = location.pathname;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [reloading, setReloading] = useState(false);
+  const staffRole = resolveStaffRole(user);
 
   const handleReload = async () => {
     if (reloading) return;
@@ -370,8 +373,20 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
   };
 
   const displayName = user?.name ?? "Admin User";
-  const displayRole = user?.role === "ADMIN" ? "Administrator" : user?.role === "STAFF" ? "Staff" : "Signed in";
-  const displayEmail = user?.email ?? displayRole;
+  const displayEmail = user?.email ?? "Signed in";
+
+  // Specialist roles (PAYMENTS_CONFIRMER / PREPARER / DISPATCHER) get a narrowed
+  // sidebar: only their queue + Dashboard. STAFF only sees Orders.
+  // SUPERVISOR: dashboard, analytics, orders, users. Admin/Super Admin: everything.
+  const isSpecialist = staffRole != null && SPECIALIST_ROLES.includes(staffRole);
+  const navWhitelist: string[] | null =
+    staffRole === "STAFF" ? ["/admin/orders"]
+    : staffRole === "SUPERVISOR" ? ["/admin/dashboard", "/admin/analytics", "/admin/orders", "/admin/users"]
+    : staffRole === "PAYMENTS_CONFIRMER" ? ["/admin/dashboard", "/admin/queues/payment"]
+    : staffRole === "PREPARER" ? ["/admin/dashboard", "/admin/queues/preparation"]
+    : staffRole === "DISPATCHER" ? ["/admin/dashboard", "/admin/queues/dispatch"]
+    : null;
+  void isSpecialist;
 
   return (
     <div className="admin-shell" style={styles.root}>
@@ -392,9 +407,11 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
 
         <nav style={styles.nav}>
           {navSections.map((section, sectionIdx) => {
-            const visible = section.items.filter(
-              (item) => !item.requiresAny || hasAnyPerm(permissions, item.requiresAny),
-            );
+            const visible = section.items.filter((item) => {
+              if (navWhitelist && !navWhitelist.includes(item.to)) return false;
+              if (item.requiresAny && !hasAnyPerm(permissions, item.requiresAny)) return false;
+              return true;
+            });
             if (visible.length === 0) return null;
             return (
               <div key={section.label} style={{ marginBottom: 4 }}>
@@ -409,25 +426,30 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
         </nav>
 
         <div style={styles.sidebarBottom}>
-          <div
-            style={styles.userPill}
-          >
+          <div style={styles.userPill}>
             <div style={styles.avatar}>{getInitials(displayName)}</div>
-            <div style={{ minWidth: 0 }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
               <div style={styles.userName}>{displayName}</div>
               <div style={styles.userRole}>{displayEmail}</div>
+              {staffRole && (
+                <div style={{ marginTop: 4 }}>
+                  <RoleBadge role={staffRole} />
+                </div>
+              )}
             </div>
             <button
               type="button"
               onClick={logout}
               aria-label="Logout"
-              style={{ marginLeft: "auto", background: "transparent", border: "none", color: "var(--admin-sidebar-muted)", cursor: "pointer", padding: 4 }}
+              title={`Sign out${staffRole ? ` (${STAFF_ROLE_DISPLAY[staffRole]})` : ""}`}
+              style={{ marginLeft: "auto", background: "transparent", border: "none", color: "var(--admin-sidebar-muted)", cursor: "pointer", padding: 4, alignSelf: "flex-start" }}
             >
               <LogOut size={14} />
             </button>
           </div>
         </div>
       </aside>
+
 
       <div style={styles.main}>
         <div style={styles.topbar}>

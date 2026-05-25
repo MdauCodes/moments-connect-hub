@@ -229,20 +229,29 @@ export interface AssignableUser {
   id: string;
   name: string;
   email: string;
-  staffRole?: string;
+  /** Backend role name e.g. "DISPATCHER", "SUPERVISOR". */
+  staffRoleName?: string;
+  /** Human label e.g. "Dispatcher". */
   staffRoleDisplay?: string;
 }
 export async function listAssignableUsers(): Promise<AssignableUser[]> {
   try {
     const raw = await getJson<any>("/api/v1/admin/users/assignable");
     const rows: any[] = Array.isArray(raw) ? raw : (raw?.content ?? []);
-    return rows.map((u) => ({
-      id: String(u.id ?? ""),
-      name: u.name ?? [u.firstName, u.lastName].filter(Boolean).join(" ") ?? u.email ?? "Unnamed",
-      email: u.email ?? "",
-      staffRole: u.staffRole,
-      staffRoleDisplay: u.staffRoleDisplay,
-    }));
+    return rows.map((u) => {
+      const name =
+        u.name ??
+        ([u.firstName, u.lastName].filter(Boolean).join(" ") ||
+          u.email ||
+          "Unnamed");
+      return {
+        id: String(u.id ?? ""),
+        name,
+        email: u.email ?? "",
+        staffRoleName: u.staffRoleName ?? u.staffRole,
+        staffRoleDisplay: u.staffRoleDisplay,
+      };
+    });
   } catch {
     return [];
   }

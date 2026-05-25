@@ -100,8 +100,20 @@ export function hasAnyPerm(perms: readonly string[] | undefined | null, codes: (
   return codes.some((c) => hasPerm(perms, c));
 }
 
-// Compute the default admin landing page from the user's permissions, per spec.
-export function defaultLandingFor(perms: readonly string[] | undefined | null): string {
+// Compute the default admin landing page from the user's permissions + staffRole.
+// staffRole takes precedence so specialist roles land directly on their queue.
+export function defaultLandingFor(
+  perms: readonly string[] | undefined | null,
+  staffRole?: string | null,
+): string {
+  const r = String(staffRole ?? "").toUpperCase().replace(/^ROLE_/, "");
+  if (r === "PAYMENTS_CONFIRMER") return "/admin/queues/payment";
+  if (r === "PREPARER") return "/admin/queues/preparation";
+  if (r === "DISPATCHER") return "/admin/queues/dispatch";
+  if (r === "SUPERVISOR") return "/admin/orders";
+  if (r === "STAFF") return "/admin/orders";
+  if (r === "SUPER_ADMIN" || r === "ADMIN") return "/admin/dashboard";
+  // Fallback by permissions
   if (hasPerm(perms, PERM.USER_MANAGE_ROLES)) return "/admin/dashboard";
   if (hasAnyPerm(perms, [PERM.ORDER_ASSIGN, PERM.ORDER_MANAGE_ALL])) return "/admin/orders";
   if (hasPerm(perms, PERM.ORDER_VERIFY_PAYMENT)) return "/admin/queues/payment";
