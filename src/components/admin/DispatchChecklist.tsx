@@ -76,19 +76,11 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
 
   const dispatchNow = async () => {
     if (!order) return;
-    if (!allTicked) {
-      toast.error("Please tick all items before dispatching");
-      return;
-    }
     setSubmitting(true);
     try {
-      await updateOrderStatus(order.id, "DISPATCHED", "All items verified and dispatched");
-      try {
-        window.localStorage.removeItem(`${STORAGE_PREFIX}${order.id}`);
-      } catch {
-        /* ignore */
-      }
-      toast.success(`${order.reference} marked as dispatched`);
+      await updateOrderStatus(order.id, "DISPATCHED", "Dispatched to courier");
+      try { window.localStorage.removeItem(`${STORAGE_PREFIX}${order.id}`); } catch { /* ignore */ }
+      toast.success(`Order dispatched successfully`);
       setConfirmOpen(false);
       await onDispatched(order.id);
     } catch (err) {
@@ -292,16 +284,11 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <button
                   className="admin-btn admin-btn-primary"
-                  style={{ width: "100%", justifyContent: "center", opacity: allTicked ? 1 : 0.5 }}
-                  onClick={() => {
-                    if (!allTicked) {
-                      toast.error("Tick all items first to confirm contents verified");
-                      return;
-                    }
-                    setConfirmOpen(true);
-                  }}
+                  disabled={isDispatched}
+                  style={{ width: "100%", justifyContent: "center", opacity: isDispatched ? 0.6 : 1 }}
+                  onClick={() => { if (!isDispatched) setConfirmOpen(true); }}
                 >
-                  {allTicked ? "Dispatch Order" : `Verify all items first (${tickedCount}/${itemIds.length})`}
+                  {isDispatched ? "View Details (Already Dispatched)" : "Dispatch Order"}
                 </button>
                 <button
                   type="button"
