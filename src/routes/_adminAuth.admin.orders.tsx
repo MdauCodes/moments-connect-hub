@@ -53,13 +53,14 @@ function AdminOrdersPage() {
   const filteredRows = useMemo(() => {
     const needle = debouncedQ.toLowerCase();
     return orders.filter((o) => {
+      if (scope === "MINE" && (!currentUserId || o.assignedToId !== currentUserId)) return false;
       if (status !== "ALL" && o.status !== status) return false;
       if (!needle) return true;
       return [o.reference, o.customerName, o.customerEmail, o.customerPhone, o.city, o.trackingNumber]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(needle));
     });
-  }, [orders, status, debouncedQ]);
+  }, [orders, scope, currentUserId, status, debouncedQ]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const pageRows = useMemo(
