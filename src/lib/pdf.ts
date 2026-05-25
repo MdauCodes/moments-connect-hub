@@ -24,8 +24,6 @@ const BRAND = {
   whatsapp: "+254 119 556 688",
   site: "momentspackaging.com",
   address: "Nairobi, Kenya",
-  pin: "P051234567X", // VAT / KRA PIN — update to real value
-  regNo: "CPR/2023/123456", // Company reg — update to real value
 };
 
 // ── Colour palette ────────────────────────────────────────────────────────────
@@ -33,10 +31,10 @@ const INK: [number, number, number] = [18, 18, 20];
 const MUTED: [number, number, number] = [100, 100, 106];
 const HAIRLINE: [number, number, number] = [220, 217, 210];
 const PAPER: [number, number, number] = [250, 248, 243];
-const ACCENT: [number, number, number] = [183, 132, 64]; // warm brass
+const ACCENT: [number, number, number] = [183, 132, 64];
 const SUCCESS: [number, number, number] = [40, 120, 55];
 const DANGER: [number, number, number] = [180, 40, 40];
-const HEAD_BG: [number, number, number] = [24, 36, 24]; // dark forest
+const HEAD_BG: [number, number, number] = [24, 36, 24];
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 const KES = new Intl.NumberFormat("en-KE", {
@@ -47,7 +45,11 @@ const KES = new Intl.NumberFormat("en-KE", {
 const fmt = (n: number | null | undefined) => KES.format(Number(n ?? 0));
 const fmtNum = (n: number | null | undefined) => Number(n ?? 0).toLocaleString("en-KE");
 const fmtDate = (d: string | Date) =>
-  new Date(d).toLocaleDateString("en-KE", { day: "2-digit", month: "short", year: "numeric" });
+  new Date(d).toLocaleDateString("en-KE", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 const fmtDT = (d: string | Date) =>
   new Date(d).toLocaleString("en-KE", {
     day: "2-digit",
@@ -63,12 +65,10 @@ interface MastheadOpts {
   docType: string;
   reference?: string;
   issuedAt?: string | Date;
-  /** Second label line under reference, e.g. "KRA PIN: ..." */
-  subRef?: string;
 }
 
-/** Renders the brass top band, wordmark, doc-type label and hairline rule.
- *  Returns the Y coordinate immediately after the hairline. */
+/** Renders brass band, wordmark, doc-type label and hairline.
+ *  Returns Y immediately after the hairline. */
 function masthead(doc: jsPDF, opts: MastheadOpts): number {
   const pw = doc.internal.pageSize.getWidth();
 
@@ -87,9 +87,6 @@ function masthead(doc: jsPDF, opts: MastheadOpts): number {
   doc.setTextColor(...MUTED);
   doc.text(BRAND.tagline, 14, 22);
   doc.text(`${BRAND.address}  ·  ${BRAND.phone}  ·  ${BRAND.email}  ·  ${BRAND.site}`, 14, 26.5);
-  if (BRAND.pin) {
-    doc.text(`KRA PIN: ${BRAND.pin}   Reg: ${BRAND.regNo}`, 14, 30.5);
-  }
 
   // Doc type — right rail
   doc.setTextColor(...INK);
@@ -103,21 +100,15 @@ function masthead(doc: jsPDF, opts: MastheadOpts): number {
   if (opts.reference) {
     doc.text(`Ref  ${opts.reference}`, pw - 14, 22, { align: "right" });
   }
-  if (opts.subRef) {
-    doc.text(opts.subRef, pw - 14, 26.5, { align: "right" });
-  }
-  doc.text(`Issued  ${opts.issuedAt ? fmtDT(opts.issuedAt) : fmtDT(new Date())}`, pw - 14, opts.subRef ? 30.5 : 26.5, {
-    align: "right",
-  });
+  doc.text(`Issued  ${opts.issuedAt ? fmtDT(opts.issuedAt) : fmtDT(new Date())}`, pw - 14, 26.5, { align: "right" });
 
   // Hairline
-  const rulerY = opts.subRef ? 36 : 33;
   doc.setDrawColor(...HAIRLINE);
   doc.setLineWidth(0.3);
-  doc.line(14, rulerY, pw - 14, rulerY);
+  doc.line(14, 33, pw - 14, 33);
 
   doc.setTextColor(...INK);
-  return rulerY + 3;
+  return 36;
 }
 
 function sectionLabel(doc: jsPDF, text: string, x: number, y: number) {
@@ -129,7 +120,7 @@ function sectionLabel(doc: jsPDF, text: string, x: number, y: number) {
   doc.setTextColor(...INK);
 }
 
-function hline(doc: jsPDF, y: number, color = HAIRLINE, lw = 0.3) {
+function hline(doc: jsPDF, y: number, color: [number, number, number] = HAIRLINE, lw = 0.3) {
   const pw = doc.internal.pageSize.getWidth();
   doc.setDrawColor(...color);
   doc.setLineWidth(lw);
@@ -137,7 +128,7 @@ function hline(doc: jsPDF, y: number, color = HAIRLINE, lw = 0.3) {
 }
 
 function statusPill(doc: jsPDF, label: string, x: number, y: number, paid: boolean) {
-  const pw = 44;
+  const pw = 48;
   const fill: [number, number, number] = paid ? [232, 245, 235] : [255, 245, 225];
   const border: [number, number, number] = paid ? [100, 180, 110] : [200, 150, 60];
   const text: [number, number, number] = paid ? SUCCESS : [140, 90, 0];
@@ -152,7 +143,6 @@ function statusPill(doc: jsPDF, label: string, x: number, y: number, paid: boole
   doc.setTextColor(...INK);
 }
 
-/** kpiCard — small metric tile used in reports */
 function kpiCard(doc: jsPDF, x: number, y: number, w: number, h: number, label: string, value: string) {
   doc.setDrawColor(...HAIRLINE);
   doc.setFillColor(...PAPER);
@@ -208,7 +198,7 @@ const TABLE_DEFAULTS: Partial<UserOptions> = {
   margin: { left: 14, right: 14 },
 };
 
-// ── 1. Customer receipt / tax invoice ─────────────────────────────────────────
+// ── 1. Customer receipt / invoice ─────────────────────────────────────────────
 
 export interface ReceiptItem {
   productName: string;
@@ -256,17 +246,16 @@ export function downloadReceiptPdf(order: ReceiptOrder) {
   const paid = ["PAID", "COMPLETED", "SUCCESS"].includes((order.paymentStatus ?? "").toUpperCase());
 
   let y = masthead(doc, {
-    docType: "Tax Invoice",
+    docType: "Invoice",
     reference: order.reference,
     issuedAt: order.createdAt,
-    subRef: `KRA PIN: ${BRAND.pin}`,
   });
   y += 4;
 
   // Status pill — top right
-  statusPill(doc, paid ? "Payment Received" : (order.paymentStatus ?? "Pending"), pw - 14 - 22, y + 2, paid);
+  statusPill(doc, paid ? "Payment Received" : (order.paymentStatus ?? "Pending"), pw - 14 - 24, y + 2, paid);
 
-  // ── Party info ───────────────────────────────────────────────────────────
+  // ── Party info ────────────────────────────────────────────────────────────
   sectionLabel(doc, "Bill To", 14, y);
   sectionLabel(doc, "Ship To", pw / 2, y);
   y += 5;
@@ -278,6 +267,7 @@ export function downloadReceiptPdf(order: ReceiptOrder) {
   doc.setFontSize(9.5);
   doc.text(order.shippingAddress || "—", pw / 2, y);
   y += 5;
+
   doc.setFontSize(9);
   doc.setTextColor(...MUTED);
   doc.text(order.customerEmail, 14, y);
@@ -296,19 +286,22 @@ export function downloadReceiptPdf(order: ReceiptOrder) {
     doc.setFontSize(8);
     doc.setTextColor(...MUTED);
     doc.text(`Promo code applied: ${order.promoCode}`, 14, y + 3);
+    doc.setTextColor(...INK);
     y += 5;
   }
 
   // ── Items table ───────────────────────────────────────────────────────────
+  const vatRate = order.vatRate != null ? Math.round(order.vatRate * 100) : 16;
+
   const body: RowInput[] = order.items.map((it, i) => {
     const specs = [it.size, it.material, it.finish].filter(Boolean).join(" · ");
-    const itemLabel = it.productName + (specs ? `\n${specs}` : "") + (it.sku ? `\nSKU: ${it.sku}` : "");
+    const label = it.productName + (specs ? `\n${specs}` : "") + (it.sku ? `\nSKU: ${it.sku}` : "");
     return [
       String(i + 1).padStart(2, "0"),
-      itemLabel,
+      label,
       fmtNum(it.quantity),
       fmt(it.unitPrice),
-      it.vatExempt ? "Exempt" : `${Math.round((order.vatRate ?? 0.16) * 100)}%`,
+      it.vatExempt ? "Exempt" : `${vatRate}%`,
       fmt(it.lineTotal),
     ] as RowInput;
   });
@@ -327,7 +320,7 @@ export function downloadReceiptPdf(order: ReceiptOrder) {
     },
   });
 
-  // ── Totals block ──────────────────────────────────────────────────────────
+  // ── Totals ────────────────────────────────────────────────────────────────
   const endY = (doc as any).lastAutoTable?.finalY ?? y + 40;
   const lx = pw - 80;
   const rx = pw - 14;
@@ -343,10 +336,14 @@ export function downloadReceiptPdf(order: ReceiptOrder) {
     ty += bold ? 7 : 5.5;
   };
 
-  totRow("Subtotal (excl. VAT)", fmt(order.subtotal - (order.vatAmount ?? 0)));
-  const vatRate = order.vatRate != null ? Math.round(order.vatRate * 100) : 16;
-  if ((order.vatAmount ?? 0) > 0) totRow(`VAT (${vatRate}%)`, fmt(order.vatAmount));
-  if ((order.discount ?? 0) > 0) totRow("Discount", `-${fmt(order.discount)}`, false, DANGER);
+  const subtotalExVat = order.subtotal - (order.vatAmount ?? 0);
+  totRow("Subtotal (excl. VAT)", fmt(subtotalExVat));
+  if ((order.vatAmount ?? 0) > 0) {
+    totRow(`VAT (${vatRate}%)`, fmt(order.vatAmount));
+  }
+  if ((order.discount ?? 0) > 0) {
+    totRow("Discount", `-${fmt(order.discount)}`, false, DANGER);
+  }
   const isCourier = (order.fulfillmentType ?? "") === "OWN_COURIER";
   totRow("Delivery", isCourier ? "To be confirmed" : order.shippingFee === 0 ? "Free" : fmt(order.shippingFee));
 
@@ -363,24 +360,25 @@ export function downloadReceiptPdf(order: ReceiptOrder) {
 
   doc.setFontSize(9);
   doc.setTextColor(...INK);
-
-  const mpesaRef = order.receiptNumber ?? order.paymentReference;
   const col2x = pw / 2;
+  const mpesaRef = order.receiptNumber ?? order.paymentReference;
 
   doc.text(`Method:  ${(order.paymentMethod ?? "—").replace(/_/g, " ")}`, 18, ty + 13);
-  doc.text(`Status:  `, 18, ty + 19);
+  doc.text("Status:  ", 18, ty + 19);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(...(paid ? SUCCESS : DANGER));
   doc.text(order.paymentStatus ?? "Pending", 30, ty + 19);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(...INK);
 
-  if (mpesaRef) doc.text(`M-Pesa receipt:  ${mpesaRef}`, col2x, ty + 13);
+  if (mpesaRef) {
+    doc.text(`M-Pesa receipt:  ${mpesaRef}`, col2x, ty + 13);
+  }
   doc.text(`Order date:  ${fmtDT(order.createdAt)}`, col2x, ty + 19);
 
   ty += 34;
 
-  // ── Thank-you footer ──────────────────────────────────────────────────────
+  // ── Thank-you ─────────────────────────────────────────────────────────────
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10.5);
   doc.text("Thank you for choosing Moments Packaging Kenya.", 14, ty);
@@ -393,15 +391,14 @@ export function downloadReceiptPdf(order: ReceiptOrder) {
   });
   ty += 7;
   doc.text(
-    "This is a computer-generated tax invoice valid without a signature. " +
-      "Retain for warranty claims, exchanges and returns within 14 days of delivery. " +
-      `This invoice complies with KRA requirements (PIN: ${BRAND.pin}).`,
+    "This is a computer-generated invoice valid without a signature. " +
+      "Retain for warranty claims, exchanges and returns within 14 days of delivery.",
     14,
     ty,
     { maxWidth: pw - 28 },
   );
 
-  save(doc, `invoice-${order.reference}.pdf`, `${BRAND.name}  ·  Tax Invoice ${order.reference}  ·  ${BRAND.site}`);
+  save(doc, `invoice-${order.reference}.pdf`, `${BRAND.name}  ·  Invoice ${order.reference}  ·  ${BRAND.site}`);
 }
 
 // ── 2. Dispatch packing checklist ─────────────────────────────────────────────
@@ -439,7 +436,7 @@ export function downloadDispatchChecklistPdf(order: DispatchOrderLike) {
   });
   y += 4;
 
-  // ── Recipient / route block ───────────────────────────────────────────────
+  // ── Recipient / route ─────────────────────────────────────────────────────
   sectionLabel(doc, "Recipient", 14, y);
   sectionLabel(doc, "Route / Delivery", pw / 2, y);
   y += 5;
@@ -460,18 +457,22 @@ export function downloadDispatchChecklistPdf(order: DispatchOrderLike) {
 
   y += 5;
   doc.text(order.shippingAddress ?? "—", 14, y, { maxWidth: pw / 2 - 18 });
-  if (order.courierService) doc.text(`Courier: ${order.courierService}`, pw / 2, y);
+  if (order.courierService) {
+    doc.text(`Courier: ${order.courierService}`, pw / 2, y);
+  }
   doc.setTextColor(...INK);
 
   if (order.staffNotes) {
     y += 7;
     doc.setFontSize(8.5);
     doc.setTextColor(...DANGER);
-    doc.text(`⚠ Staff notes: ${order.staffNotes}`, 14, y, { maxWidth: pw - 28 });
+    doc.text(`⚠ Staff notes: ${order.staffNotes}`, 14, y, {
+      maxWidth: pw - 28,
+    });
     doc.setTextColor(...INK);
   }
 
-  // ── Items checklist table ─────────────────────────────────────────────────
+  // ── Items checklist ───────────────────────────────────────────────────────
   const totalUnits = order.items.reduce((s, it) => s + Number(it.qty ?? 0), 0);
 
   autoTable(doc, {
@@ -486,7 +487,11 @@ export function downloadDispatchChecklistPdf(order: DispatchOrderLike) {
       it.sku ?? "—",
       String(it.qty),
     ]) as RowInput[],
-    styles: { ...TABLE_DEFAULTS.styles, fontSize: 10.5, cellPadding: 5 },
+    styles: {
+      ...(TABLE_DEFAULTS.styles as object),
+      fontSize: 10.5,
+      cellPadding: 5,
+    },
     columnStyles: {
       0: { cellWidth: 12, halign: "center" },
       1: { cellWidth: 10, textColor: MUTED },
@@ -554,12 +559,13 @@ export function downloadDispatchChecklistPdf(order: DispatchOrderLike) {
     doc.setTextColor(...INK);
   });
 
-  // Footer stats
   sy += 14;
   doc.setFontSize(8);
   doc.setTextColor(...MUTED);
   doc.text(
-    `${order.items.length} line${order.items.length !== 1 ? "s" : ""}  ·  ${fmtNum(totalUnits)} unit${totalUnits !== 1 ? "s" : ""}  ·  Retain this slip with dispatch records for 30 days.  ·  ${fmtDT(new Date())}`,
+    `${order.items.length} line${order.items.length !== 1 ? "s" : ""}  ·  ` +
+      `${fmtNum(totalUnits)} unit${totalUnits !== 1 ? "s" : ""}  ·  ` +
+      `Retain this slip with dispatch records for 30 days.  ·  ${fmtDT(new Date())}`,
     14,
     sy,
     { maxWidth: pw - 28 },
@@ -584,7 +590,11 @@ export interface OrdersListRow {
 }
 
 export function downloadOrdersListPdf(rows: OrdersListRow[], meta: { filterLabel?: string; dateRange?: string } = {}) {
-  const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "landscape" });
+  const doc = new jsPDF({
+    unit: "mm",
+    format: "a4",
+    orientation: "landscape",
+  });
   const pw = doc.internal.pageSize.getWidth();
 
   let y = masthead(doc, { docType: "Orders Report" });
@@ -595,7 +605,7 @@ export function downloadOrdersListPdf(rows: OrdersListRow[], meta: { filterLabel
   doc.setTextColor(...MUTED);
   const filterLabel = [meta.filterLabel, meta.dateRange].filter(Boolean).join("  ·  ");
   doc.text(`Filter: ${filterLabel || "All orders"}`, 14, y);
-  y += 3;
+  y += 5;
 
   // ── KPI strip ─────────────────────────────────────────────────────────────
   const revenue = rows.reduce((s, o) => s + Number(o.total ?? 0), 0);
@@ -604,7 +614,6 @@ export function downloadOrdersListPdf(rows: OrdersListRow[], meta: { filterLabel
   const paidCt = rows.filter((o) => ["PAID", "COMPLETED"].includes((o.paymentStatus ?? "").toUpperCase())).length;
   const cw = (pw - 28 - 18) / 4;
 
-  y += 2;
   kpiCard(doc, 14, y, cw, 20, "Orders", String(rows.length));
   kpiCard(doc, 14 + (cw + 6), y, cw, 20, "Units", fmtNum(units));
   kpiCard(doc, 14 + (cw + 6) * 2, y, cw, 20, "Revenue", fmt(revenue));
@@ -635,7 +644,7 @@ export function downloadOrdersListPdf(rows: OrdersListRow[], meta: { filterLabel
   save(
     doc,
     `orders-report-${new Date().toISOString().slice(0, 10)}.pdf`,
-    `${BRAND.name}  ·  Orders Report  ·  ${rows.length} orders  ·  ${fmt(revenue)} revenue  ·  ${paidCt} paid`,
+    `${BRAND.name}  ·  Orders Report  ·  ${rows.length} orders  ·  ` + `${fmt(revenue)} revenue  ·  ${paidCt} paid`,
   );
 }
 
@@ -683,7 +692,9 @@ export function downloadCustomerStatementPdf(customer: StatementCustomer, orders
     : orders.length
       ? fmtDate(orders[0].createdAt)
       : "—";
-  doc.text(`Statement period:  ${first} → ${last}`, pw - 14, y, { align: "right" });
+  doc.text(`Statement period:  ${first} → ${last}`, pw - 14, y, {
+    align: "right",
+  });
   doc.setTextColor(...INK);
   y += 6;
 
