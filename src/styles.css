@@ -567,6 +567,23 @@
 .legal-prose th { font-weight: 600; color: var(--foreground); }
 
 /* Admin: hide low-priority table columns on small screens */
+.admin-show-mobile { display: none; }
 @media (max-width: 640px) {
   .admin-hide-mobile { display: none !important; }
+  .admin-show-mobile { display: block; }
+  .admin-hide-on-mobile-table { display: none !important; }
 }
+
+/* Admin: queue mobile card list */
+.admin-card-list { display: grid; gap: 10px; }
+.admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+.admin-card-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+.admin-card-row b { font-family: var(--font-display); }
+.admin-card-actions { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 4px; }
