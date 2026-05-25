@@ -188,18 +188,18 @@ function AdminOrdersPage() {
               )}
             </div>
 
-            <div data-admin-table-scroll>
+            <div data-admin-table-scroll className="admin-hide-on-mobile-table">
               <table className="admin-table">
                 <thead>
                   <tr>
                     <th>Reference</th>
                     <th>Customer</th>
-                    <th className="admin-hide-mobile">Items</th>
+                    <th>Items</th>
                     <th>Total</th>
                     <th>Status</th>
-                    <th className="admin-hide-mobile">Payment</th>
-                    {canAssign && <th className="admin-hide-mobile">Assigned</th>}
-                    <th className="admin-hide-mobile">Created</th>
+                    <th>Payment</th>
+                    {canAssign && <th>Assigned</th>}
+                    <th>Created</th>
                     <th />
                   </tr>
                 </thead>
@@ -222,15 +222,15 @@ function AdminOrdersPage() {
                           <div>{o.customerName}</div>
                           <div style={{ color: "var(--admin-muted)", fontSize: 11 }}>{o.city}</div>
                         </td>
-                        <td className="admin-hide-mobile">{o.items.reduce((s, it) => s + Number(it.qty ?? 0), 0)} units · {o.items.length} SKU{o.items.length === 1 ? "" : "s"}</td>
+                        <td>{o.items.reduce((s, it) => s + Number(it.qty ?? 0), 0)} units · {o.items.length} SKU{o.items.length === 1 ? "" : "s"}</td>
                         <td><b>{formatKes(o.total)}</b></td>
                         <td><OrderStatusBadge status={o.status} /></td>
-                        <td className="admin-hide-mobile" style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                        <td style={{ display: "flex", gap: 6, alignItems: "center" }}>
                           <PaymentStatusBadge status={o.paymentStatus} />
                           <GatewayChip gateway={o.paymentGateway} />
                         </td>
                         {canAssign && (
-                          <td className="admin-hide-mobile" onClick={(e) => e.stopPropagation()}>
+                          <td onClick={(e) => e.stopPropagation()}>
                             <AssignSelect
                               orderId={o.id}
                               assignedTo={o.assignedTo}
@@ -240,7 +240,7 @@ function AdminOrdersPage() {
                             />
                           </td>
                         )}
-                        <td className="admin-hide-mobile">{formatDateShort(o.createdAt)}</td>
+                        <td>{formatDateShort(o.createdAt)}</td>
                         <td>
                           <button className="admin-btn admin-btn-ghost" onClick={() => setOpenId(o.id)}>View</button>
                         </td>
@@ -249,6 +249,51 @@ function AdminOrdersPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="admin-show-mobile admin-card-list" style={{ padding: 12 }}>
+              {initialLoading ? (
+                <div className="admin-empty">Loading orders…</div>
+              ) : pageRows.length === 0 ? (
+                <div className="admin-empty">
+                  {isStaff ? "No orders assigned to you yet." : "No orders match your filters."}
+                </div>
+              ) : pageRows.map((o) => (
+                <div key={o.id} className="admin-card">
+                  <div className="admin-card-row">
+                    <b>{o.reference}</b>
+                    <b>{formatKes(o.total)}</b>
+                  </div>
+                  <div className="admin-card-row">
+                    <span>{o.customerName}</span>
+                    <span style={{ color: "var(--admin-muted)", fontSize: 11 }}>{o.city}</span>
+                  </div>
+                  <div className="admin-card-row" style={{ flexWrap: "wrap", gap: 6 }}>
+                    <OrderStatusBadge status={o.status} />
+                    <PaymentStatusBadge status={o.paymentStatus} />
+                    <GatewayChip gateway={o.paymentGateway} />
+                  </div>
+                  <div className="admin-card-row" style={{ fontSize: 11, color: "var(--admin-muted)" }}>
+                    <span>{o.items.reduce((s, it) => s + Number(it.qty ?? 0), 0)} units · {o.items.length} SKU{o.items.length === 1 ? "" : "s"}</span>
+                    <span>{formatDateShort(o.createdAt)}</span>
+                  </div>
+                  {canAssign && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <AssignSelect
+                        orderId={o.id}
+                        assignedTo={o.assignedTo}
+                        assignedToId={o.assignedToId}
+                        compact
+                        onAssigned={(patch) => applyOrderPatch(o.id, patch)}
+                      />
+                    </div>
+                  )}
+                  <div className="admin-card-actions">
+                    <button className="admin-btn admin-btn-ghost" onClick={() => setOpenId(o.id)} style={{ flex: 1 }}>View order</button>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {totalPages > 1 && (
