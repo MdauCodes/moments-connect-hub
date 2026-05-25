@@ -182,15 +182,16 @@ function AdminOrdersPage() {
                   <th>Total</th>
                   <th>Status</th>
                   <th>Payment</th>
+                  {canAssign && <th>Assigned</th>}
                   <th>Created</th>
                   <th />
                 </tr>
               </thead>
               <tbody>
                 {initialLoading ? (
-                  <tr><td colSpan={8}><div className="admin-empty">Loading orders…</div></td></tr>
+                  <tr><td colSpan={canAssign ? 9 : 8}><div className="admin-empty">Loading orders…</div></td></tr>
                 ) : pageRows.length === 0 ? (
-                  <tr><td colSpan={8}><div className="admin-empty">No orders match your filters.</div></td></tr>
+                  <tr><td colSpan={canAssign ? 9 : 8}><div className="admin-empty">No orders match your filters.</div></td></tr>
                 ) : (
                   pageRows.map((o) => (
                     <tr key={o.id}>
@@ -206,6 +207,17 @@ function AdminOrdersPage() {
                         <PaymentStatusBadge status={o.paymentStatus} />
                         <GatewayChip gateway={o.paymentGateway} />
                       </td>
+                      {canAssign && (
+                        <td onClick={(e) => e.stopPropagation()}>
+                          <AssignSelect
+                            orderId={o.id}
+                            assignedTo={o.assignedTo}
+                            assignedToId={o.assignedToId}
+                            compact
+                            onAssigned={(patch) => applyOrderPatch(o.id, patch)}
+                          />
+                        </td>
+                      )}
                       <td>{formatDateShort(o.createdAt)}</td>
                       <td>
                         <button className="admin-btn admin-btn-ghost" onClick={() => setOpenId(o.id)}>View</button>
