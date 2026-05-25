@@ -241,9 +241,9 @@ export async function listAssignableUsers(): Promise<AssignableUser[]> {
     return rows.map((u) => {
       const name =
         u.name ??
-        [u.firstName, u.lastName].filter(Boolean).join(" ") ||
-        u.email ||
-        "Unnamed";
+        ([u.firstName, u.lastName].filter(Boolean).join(" ") ||
+          u.email ||
+          "Unnamed");
       return {
         id: String(u.id ?? ""),
         name,
