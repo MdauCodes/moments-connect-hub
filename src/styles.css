@@ -311,7 +311,8 @@
     .admin-shell [data-admin-grid],
     .admin-shell [data-admin-row],
     .admin-shell [data-admin-stats],
-    .admin-shell [data-admin-editor-grid] {
+    .admin-shell [data-admin-editor-grid],
+    .admin-shell .admin-form-grid {
       grid-template-columns: 1fr !important;
       max-width: none !important;
     }
@@ -359,6 +360,22 @@
     .admin-shell img {
       max-width: 100%;
       height: auto;
+    }
+    .admin-shell main {
+      padding: 14px !important;
+    }
+    .admin-shell [data-admin-topbar-right] {
+      gap: 6px !important;
+    }
+    .admin-shell [data-admin-topbar-title] {
+      font-size: 18px !important;
+    }
+    .admin-shell .admin-modal {
+      padding: 14px !important;
+      border-radius: 12px !important;
+    }
+    .admin-shell .admin-modal-backdrop {
+      padding: 8px !important;
     }
   }
   .grain {

@@ -51,7 +51,7 @@ function DispatchQueuePage() {
               <p>These orders are produced and ready to hand off. Click <b>Open Checklist</b>, tick what you've packed and confirm. For <b>Own Courier</b> orders, share the courier name and tracking number with the customer; for <b>Pickup</b>, call them before they come.</p>
             </HelpPanel>
             <QueueFreshness />
-          <div data-admin-table-scroll>
+          <div data-admin-table-scroll className="admin-hide-on-mobile-table">
             <table className="admin-table">
               <thead>
                 <tr>
@@ -91,6 +91,32 @@ function DispatchQueuePage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="admin-show-mobile admin-card-list" style={{ marginTop: 8, padding: 12 }}>
+            {initialLoading ? (
+              <div className="admin-empty">Loading…</div>
+            ) : rows.length === 0 ? (
+              <div className="admin-empty">No orders ready for dispatch</div>
+            ) : rows.map((o) => (
+              <div key={o.id} className="admin-card">
+                <div className="admin-card-row"><b>{o.reference}</b><span style={{ fontSize: 11, color: "var(--admin-muted)" }}>{o.fulfillmentType ?? "—"}</span></div>
+                <div className="admin-card-row"><span>{o.customerName}</span><span style={{ color: "var(--admin-muted)" }}>{o.county ?? "—"}</span></div>
+                <div className="admin-card-row" style={{ fontSize: 11, color: "var(--admin-muted)" }}>
+                  <span>{o.customerPhone}</span>
+                  <span>Created {formatDateShort(o.createdAt)}</span>
+                </div>
+                {o.fulfillmentType === "OWN_COURIER" && o.courierType && (
+                  <div style={{ fontSize: 12, color: "var(--admin-muted)" }}>Courier: {o.courierType}</div>
+                )}
+                <div className="admin-card-actions">
+                  <button className="admin-btn admin-btn-primary" onClick={() => setOpenOrderId(o.id)} style={{ flex: 1 }}>
+                    Open Checklist
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
           </div>
         </HelpAnchor>

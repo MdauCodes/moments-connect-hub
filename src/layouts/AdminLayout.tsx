@@ -457,7 +457,7 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
             <button type="button" className="admin-menu-btn" aria-label="Open menu" onClick={() => setSidebarOpen(true)}>
               <Menu size={18} />
             </button>
-            <div style={styles.topbarTitle}>{title}</div>
+            <div style={styles.topbarTitle} data-admin-topbar-title>{title}</div>
           </div>
           <div style={styles.topbarRight} data-admin-topbar-right>
             <div style={styles.searchWrap} data-admin-search>

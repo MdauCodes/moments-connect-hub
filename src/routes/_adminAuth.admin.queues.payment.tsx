@@ -52,7 +52,7 @@ function PaymentQueuePage() {
               <p>Orders here are awaiting M-Pesa payment confirmation. Cross-check the customer's name, phone and amount against the M-Pesa SMS, then click <b>Verify Payment</b>. Verified orders move automatically to the Preparation queue.</p>
             </HelpPanel>
             <QueueFreshness />
-          <div data-admin-table-scroll>
+          <div data-admin-table-scroll className="admin-hide-on-mobile-table">
             <table className="admin-table">
               <thead>
                 <tr>
@@ -91,6 +91,34 @@ function PaymentQueuePage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="admin-show-mobile admin-card-list" style={{ marginTop: 8, padding: 12 }}>
+            {initialLoading ? (
+              <div className="admin-empty">Loading…</div>
+            ) : rows.length === 0 ? (
+              <div className="admin-empty">No orders awaiting payment verification</div>
+            ) : rows.map((o) => (
+              <div key={o.id} className="admin-card">
+                <div className="admin-card-row"><b>{o.reference}</b><b>{formatKes(o.total)}</b></div>
+                <div className="admin-card-row"><span>{o.customerName}</span><span style={{ color: "var(--admin-muted)" }}>{o.customerPhone}</span></div>
+                <div className="admin-card-row" style={{ fontSize: 11, color: "var(--admin-muted)" }}>
+                  <span>{o.items.reduce((s, i) => s + Number(i.qty ?? 0), 0)} units</span>
+                  <span>Created {formatDateShort(o.createdAt)}</span>
+                </div>
+                <div className="admin-card-actions">
+                  <button
+                    className="admin-btn admin-btn-primary"
+                    disabled={busyId === o.id}
+                    onClick={() => void verify(o)}
+                    style={{ flex: 1 }}
+                  >
+                    Verify Payment
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
           </div>
         </HelpAnchor>
