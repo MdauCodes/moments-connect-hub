@@ -45,8 +45,12 @@ function DispatchQueuePage() {
   return (
     <AdminLayout title="Dispatch queue" onReload={() => void refresh()}>
       <div className="admin-page-stack">
-        <div className="admin-panel">
-          <QueueFreshness />
+        <HelpAnchor>
+          <div className="admin-panel">
+            <HelpPanel title="Dispatch queue">
+              <p>These orders are produced and ready to hand off. Click <b>Open Checklist</b>, tick what you've packed and confirm. For <b>Own Courier</b> orders, share the courier name and tracking number with the customer; for <b>Pickup</b>, call them before they come.</p>
+            </HelpPanel>
+            <QueueFreshness />
           <div data-admin-table-scroll>
             <table className="admin-table">
               <thead>
