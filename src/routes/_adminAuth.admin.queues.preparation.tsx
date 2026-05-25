@@ -9,6 +9,7 @@ import { PERM } from "@/lib/permissions";
 import { updateOrderStatus } from "@/services/commerceApi";
 import { formatDateShort, OrderStatusBadge } from "@/components/admin/commerceUi";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
+import { HelpPanel, HelpAnchor } from "@/components/admin/HelpPanel";
 import type { OrderRecord, OrderStatus } from "@/services/commerceMock";
 
 export const Route = createFileRoute("/_adminAuth/admin/queues/preparation")({
