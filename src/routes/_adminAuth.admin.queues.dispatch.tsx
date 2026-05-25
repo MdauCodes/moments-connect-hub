@@ -92,7 +92,8 @@ function DispatchQueuePage() {
               </tbody>
             </table>
           </div>
-        </div>
+          </div>
+        </HelpAnchor>
       </div>
       <DispatchChecklist order={openOrder} onClose={handleClose} onDispatched={handleDispatched} />
     </AdminLayout>
