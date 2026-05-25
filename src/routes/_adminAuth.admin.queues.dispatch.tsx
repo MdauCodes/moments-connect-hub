@@ -8,6 +8,7 @@ import { PERM } from "@/lib/permissions";
 import { formatDateShort } from "@/components/admin/commerceUi";
 import { DispatchChecklist } from "@/components/admin/DispatchChecklist";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
+import { HelpPanel, HelpAnchor } from "@/components/admin/HelpPanel";
 import type { OrderRecord } from "@/services/commerceMock";
 
 export const Route = createFileRoute("/_adminAuth/admin/queues/dispatch")({
