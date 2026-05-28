@@ -172,7 +172,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
               </div>
               <p className="text-xs text-muted-foreground">
                 {hasCollections && collectionTiers[0]
-                  ? `Min. order: 1 ${(collectionTiers[0] as any).uomName ?? (collectionTiers[0] as any).collectionName} (${Number((collectionTiers[0] as any).quantity).toLocaleString()} pcs)`
+                  ? `Min. order: 1 ${cleanUomLabel((collectionTiers[0] as any).uomName ?? (collectionTiers[0] as any).collectionName, Number((collectionTiers[0] as any).quantity))} (${Number((collectionTiers[0] as any).quantity).toLocaleString()} pcs)`
                   : `Min. ${product.moq.toLocaleString()} units`}
               </p>
             </div>
