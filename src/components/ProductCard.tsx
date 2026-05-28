@@ -132,14 +132,16 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           </p>
         )}
 
-        {/* Tier pills: hide on smallest screens to keep card uncluttered */}
+        {/* Tier pills: name + piece count; savings badge only on top tier */}
         {hasTiers && (
           <div className="mt-1.5 hidden flex-wrap gap-1 sm:mt-2 sm:flex">
             {tiers.map((t: any) => {
               const id = tierKey(t);
               const isActive = id === activeTierId;
-              const save = tierSavingsPct(t);
+              const isTopTier = tierKey(t) === tierKey(cheapestTier) && tiers.length > 1;
+              const topSave = tierSavingsPct(cheapestTier);
               const label = t.uomName ?? t.collectionName;
+              const qty = Number(t.quantity) || 0;
               return (
                 <button
                   key={id}
@@ -152,10 +154,12 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                       : "border-border bg-secondary text-muted-foreground hover:border-foreground/30"
                   }`}
                 >
-                  <span>{label}</span>
-                  {save > 0 && (
+                  <span>
+                    {label} · {qty.toLocaleString()} pcs
+                  </span>
+                  {isTopTier && topSave > 0 && (
                     <span className="rounded-full bg-forest/15 px-1.5 py-px text-[9px] font-semibold text-forest">
-                      −{save}%
+                      Save {topSave}%
                     </span>
                   )}
                 </button>
@@ -171,7 +175,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                 KES {tierPrice(activeTier).toLocaleString()}
               </span>
               <span className="ml-1 text-[11px] text-muted-foreground sm:text-xs">
-                / {activeTier.uomName ?? activeTier.collectionName}
+                / {activeTier.uomName ?? activeTier.collectionName} ({(Number(activeTier.quantity) || 0).toLocaleString()} pcs)
               </span>
             </p>
             {activeTier.uomDescription && (
@@ -179,17 +183,9 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                 {activeTier.uomDescription}
               </p>
             )}
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
-              KES {Math.round(tierUnitPrice(activeTier)).toLocaleString()}/piece
-              {tierSavingsPct(activeTier) > 0 && (
-                <span className="ml-1 font-semibold text-forest">
-                  · Save {tierSavingsPct(activeTier)}% vs {smallestTier.uomName ?? smallestTier.collectionName}
-                </span>
-              )}
-            </p>
-            {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && (
-              <p className="mt-0.5 hidden text-[11px] text-muted-foreground sm:block">
-                Select {cheapestTier.uomName ?? cheapestTier.collectionName} and get −{tierSavingsPct(cheapestTier)}% discount.
+            {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && tierSavingsPct(cheapestTier) > 0 && (
+              <p className="mt-0.5 text-[11px] font-medium text-forest">
+                Switch to {cheapestTier.uomName ?? cheapestTier.collectionName} and save {tierSavingsPct(cheapestTier)}%
               </p>
             )}
           </div>
@@ -203,7 +199,9 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
 
         <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:gap-2 sm:pt-3">
           <p className="text-[10px] text-muted-foreground sm:text-xs">
-            Min. {p.moq.toLocaleString()} units
+            {hasTiers && smallestTier
+              ? `Min. order: 1 ${smallestTier.uomName ?? smallestTier.collectionName} (${(Number(smallestTier.quantity) || 0).toLocaleString()} pcs)`
+              : `Min. ${p.moq.toLocaleString()} units`}
           </p>
           <button
             type="button"
