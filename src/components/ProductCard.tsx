@@ -176,7 +176,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                 KES {tierPrice(activeTier).toLocaleString()}
               </span>
               <span className="ml-1 text-[11px] text-muted-foreground sm:text-xs">
-                / {activeTier.uomName ?? activeTier.collectionName} ({(Number(activeTier.quantity) || 0).toLocaleString()} pcs)
+                / {cleanUomLabel(activeTier.uomName ?? activeTier.collectionName, Number(activeTier.quantity))} ({(Number(activeTier.quantity) || 0).toLocaleString()} pcs)
               </span>
             </p>
             {activeTier.uomDescription && (
