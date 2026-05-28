@@ -169,7 +169,11 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                   {hasCollections ? "Collections" : individualEnabled ? "Per-unit order" : "Quote only"}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">Min. {product.moq.toLocaleString()} units</p>
+              <p className="text-xs text-muted-foreground">
+                {hasCollections && collectionTiers[0]
+                  ? `Min. order: 1 ${(collectionTiers[0] as any).uomName ?? (collectionTiers[0] as any).collectionName} (${Number((collectionTiers[0] as any).quantity).toLocaleString()} pcs)`
+                  : `Min. ${product.moq.toLocaleString()} units`}
+              </p>
             </div>
           </div>
 
