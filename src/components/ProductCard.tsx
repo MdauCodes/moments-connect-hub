@@ -201,7 +201,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
         <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:gap-2 sm:pt-3">
           <p className="text-[10px] text-muted-foreground sm:text-xs">
             {hasTiers && smallestTier
-              ? `Min. order: 1 ${smallestTier.uomName ?? smallestTier.collectionName} (${(Number(smallestTier.quantity) || 0).toLocaleString()} pcs)`
+              ? `Min. order: 1 ${cleanUomLabel(smallestTier.uomName ?? smallestTier.collectionName, Number(smallestTier.quantity))} (${(Number(smallestTier.quantity) || 0).toLocaleString()} pcs)`
               : `Min. ${p.moq.toLocaleString()} units`}
           </p>
           <button
