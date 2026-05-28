@@ -214,7 +214,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
             </span>
             <span className="hidden sm:inline">
               {hasTiers && activeTier
-                ? `Add to cart · ${activeTier.uomName ?? activeTier.collectionName}`
+                ? `Add to cart · ${cleanUomLabel(activeTier.uomName ?? activeTier.collectionName, Number(activeTier.quantity))}`
                 : individualEnabled && p.basePrice
                 ? "Add to cart"
                 : "Get a quote"}
