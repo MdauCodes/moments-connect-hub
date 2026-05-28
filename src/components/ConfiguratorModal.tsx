@@ -310,7 +310,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                     ? "Quantity"
                     : "Number of pieces"
               }
-              note={selectedTier ? `(× ${collectionQty} pieces each)` : `(Min. ${minQty.toLocaleString()})`}
+              note={selectedTier ? undefined : `(Min. ${minQty.toLocaleString()})`}
             >
               <input
                 type="number"
