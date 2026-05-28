@@ -786,6 +786,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
   const [liveIndustries, setLiveIndustries] = useState<Array<{ id: string; name: string; slug: string }>>([]);
   const [uoms, setUoms] = useState<Uom[]>([]);
   const [showUomDialog, setShowUomDialog] = useState(false);
+  const [priceModes, setPriceModes] = useState<Record<number, "perUnit" | "total">>({});
 
   useEffect(() => {
     api
