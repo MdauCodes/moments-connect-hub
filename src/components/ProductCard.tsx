@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import type { Product } from "@/data/products";
 import { apiUrl } from "@/config/api";
 import { getStockInfo } from "@/lib/stock";
+import { cleanUomLabel } from "@/lib/uomLabel";
 
 interface ProductCardProps {
   product: Product;
@@ -140,7 +141,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               const isActive = id === activeTierId;
               const isTopTier = tierKey(t) === tierKey(cheapestTier) && tiers.length > 1;
               const topSave = tierSavingsPct(cheapestTier);
-              const label = t.uomName ?? t.collectionName;
+              const label = cleanUomLabel(t.uomName ?? t.collectionName, Number(t.quantity));
               const qty = Number(t.quantity) || 0;
               return (
                 <button
@@ -175,7 +176,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                 KES {tierPrice(activeTier).toLocaleString()}
               </span>
               <span className="ml-1 text-[11px] text-muted-foreground sm:text-xs">
-                / {activeTier.uomName ?? activeTier.collectionName} ({(Number(activeTier.quantity) || 0).toLocaleString()} pcs)
+                / {cleanUomLabel(activeTier.uomName ?? activeTier.collectionName, Number(activeTier.quantity))} ({(Number(activeTier.quantity) || 0).toLocaleString()} pcs)
               </span>
             </p>
             {activeTier.uomDescription && (
@@ -185,7 +186,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
             )}
             {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && tierSavingsPct(cheapestTier) > 0 && (
               <p className="mt-0.5 text-[11px] font-medium text-forest">
-                Switch to {cheapestTier.uomName ?? cheapestTier.collectionName} and save {tierSavingsPct(cheapestTier)}%
+                Switch to {cleanUomLabel(cheapestTier.uomName ?? cheapestTier.collectionName, Number(cheapestTier.quantity))} and save {tierSavingsPct(cheapestTier)}%
               </p>
             )}
           </div>
@@ -200,7 +201,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
         <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:gap-2 sm:pt-3">
           <p className="text-[10px] text-muted-foreground sm:text-xs">
             {hasTiers && smallestTier
-              ? `Min. order: 1 ${smallestTier.uomName ?? smallestTier.collectionName} (${(Number(smallestTier.quantity) || 0).toLocaleString()} pcs)`
+              ? `Min. order: 1 ${cleanUomLabel(smallestTier.uomName ?? smallestTier.collectionName, Number(smallestTier.quantity))} (${(Number(smallestTier.quantity) || 0).toLocaleString()} pcs)`
               : `Min. ${p.moq.toLocaleString()} units`}
           </p>
           <button
@@ -213,7 +214,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
             </span>
             <span className="hidden sm:inline">
               {hasTiers && activeTier
-                ? `Add to cart · ${activeTier.uomName ?? activeTier.collectionName}`
+                ? `Add to cart · ${cleanUomLabel(activeTier.uomName ?? activeTier.collectionName, Number(activeTier.quantity))}`
                 : individualEnabled && p.basePrice
                 ? "Add to cart"
                 : "Get a quote"}

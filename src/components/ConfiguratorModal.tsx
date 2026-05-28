@@ -6,6 +6,7 @@ import type { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { cleanUomLabel } from "@/lib/uomLabel";
 
 interface ConfiguratorModalProps {
   product: Product | null;
@@ -171,7 +172,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
               </div>
               <p className="text-xs text-muted-foreground">
                 {hasCollections && collectionTiers[0]
-                  ? `Min. order: 1 ${(collectionTiers[0] as any).uomName ?? (collectionTiers[0] as any).collectionName} (${Number((collectionTiers[0] as any).quantity).toLocaleString()} pcs)`
+                  ? `Min. order: 1 ${cleanUomLabel((collectionTiers[0] as any).uomName ?? (collectionTiers[0] as any).collectionName, Number((collectionTiers[0] as any).quantity))} (${Number((collectionTiers[0] as any).quantity).toLocaleString()} pcs)`
                   : `Min. ${product.moq.toLocaleString()} units`}
               </p>
             </div>
@@ -185,7 +186,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                   const key = t.id ?? `tier-${i}`;
                   const active = key === selectedTierId;
                   const cPrice = Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
-                  const label = t.uomName ?? t.collectionName;
+                  const label = cleanUomLabel(t.uomName ?? t.collectionName, Number(t.quantity));
                   // Top tier = best per-unit price = last in sorted-by-quantity (largest pack)
                   const isTopTier = i === collectionTiers.length - 1 && collectionTiers.length > 1;
                   // Savings vs smallest pack's per-unit price
@@ -257,7 +258,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                 if (save <= 0) return null;
                 return (
                   <p className="mt-2 text-xs font-medium text-forest">
-                    Switch to {top.uomName ?? top.collectionName} and save {save}%
+                    Switch to {cleanUomLabel(top.uomName ?? top.collectionName, Number(top.quantity))} and save {save}%
                   </p>
                 );
               })()}
@@ -305,7 +306,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             <Section
               label={
                 selectedTier
-                  ? `Number of ${selectedTier.uomName ?? selectedTier.collectionName}s`
+                  ? `Number of ${cleanUomLabel(selectedTier.uomName ?? selectedTier.collectionName, Number(selectedTier.quantity))}s`
                   : hasCollections
                     ? "Quantity"
                     : "Number of pieces"
@@ -334,7 +335,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
               {selectedTier ? (
                 <p className="text-sm">
-                  {quantity.toLocaleString()} × {selectedTier.uomName ?? selectedTier.collectionName} ={" "}
+                  {quantity.toLocaleString()} × {cleanUomLabel(selectedTier.uomName ?? selectedTier.collectionName, Number(selectedTier.quantity))} ={" "}
                   <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
                 </p>
               ) : unitPrice > 0 ? (
