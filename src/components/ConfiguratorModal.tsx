@@ -258,7 +258,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                 if (save <= 0) return null;
                 return (
                   <p className="mt-2 text-xs font-medium text-forest">
-                    Switch to {top.uomName ?? top.collectionName} and save {save}%
+                    Switch to {cleanUomLabel(top.uomName ?? top.collectionName, Number(top.quantity))} and save {save}%
                   </p>
                 );
               })()}
