@@ -786,6 +786,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
   const [liveIndustries, setLiveIndustries] = useState<Array<{ id: string; name: string; slug: string }>>([]);
   const [uoms, setUoms] = useState<Uom[]>([]);
   const [showUomDialog, setShowUomDialog] = useState(false);
+  const [priceModes, setPriceModes] = useState<Record<number, "perUnit" | "total">>({});
 
   useEffect(() => {
     api
@@ -1100,7 +1101,7 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                         <div
                           style={{
                             display: "grid",
-                            gridTemplateColumns: "1.4fr 0.7fr 0.9fr 0.9fr auto",
+                            gridTemplateColumns: "1.4fr 0.7fr 1.6fr auto",
                             gap: 6,
                             alignItems: "center",
                           }}
@@ -1144,48 +1145,111 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                               }}
                             />
                           </div>
-                          <div data-tier-cell data-label="Price / unit (KES)">
-                            <input
-                              type="number"
-                              min={0}
-                              step="0.01"
-                              style={{ ...s.input, width: "100%" }}
-                              placeholder="8.50"
-                              value={row.pricePerUnit || ""}
-                              onChange={(e) => {
-                                const n = [...pricingTiers];
-                                n[idx] = { ...row, pricePerUnit: Number(e.target.value) || 0 };
-                                set("pricingTiers", n);
-                              }}
-                            />
-                          </div>
-                          <div data-tier-cell data-label="Total">
-                            <div
-                              style={{
-                                ...s.input,
-                                background: "transparent",
-                                color: "var(--admin-muted)",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              KES {total.toLocaleString()}
-                            </div>
-                          </div>
+                          {(() => {
+                            const mode = priceModes[idx] ?? "perUnit";
+                            const qty = Number(row.quantity) || 0;
+                            const perUnit = Number(row.pricePerUnit) || 0;
+                            const totalVal = qty * perUnit;
+                            const inputValue =
+                              mode === "perUnit"
+                                ? perUnit || ""
+                                : totalVal || "";
+                            const derivedLabel =
+                              mode === "perUnit"
+                                ? `Total: KES ${totalVal.toLocaleString()}`
+                                : qty > 0 && perUnit
+                                  ? `Per unit: KES ${perUnit.toLocaleString(undefined, { maximumFractionDigits: 4 })}`
+                                  : "Per unit: —";
+                            return (
+                              <div data-tier-cell data-label="Price (KES)">
+                                <div style={{ display: "flex", gap: 6, alignItems: "stretch" }}>
+                                  <div
+                                    role="tablist"
+                                    style={{
+                                      display: "inline-flex",
+                                      border: "1px solid var(--admin-border)",
+                                      borderRadius: 6,
+                                      overflow: "hidden",
+                                      fontSize: 11,
+                                    }}
+                                  >
+                                    {(["perUnit", "total"] as const).map((m) => {
+                                      const active = mode === m;
+                                      return (
+                                        <button
+                                          key={m}
+                                          type="button"
+                                          onClick={() =>
+                                            setPriceModes((prev) => ({ ...prev, [idx]: m }))
+                                          }
+                                          style={{
+                                            padding: "0 8px",
+                                            background: active ? "var(--admin-accent)" : "transparent",
+                                            color: active ? "var(--admin-accent-foreground, #fff)" : "var(--admin-muted)",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            fontWeight: active ? 600 : 400,
+                                            whiteSpace: "nowrap",
+                                          }}
+                                        >
+                                          {m === "perUnit" ? "Per unit" : "Total"}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    step="0.01"
+                                    style={{ ...s.input, flex: 1, minWidth: 0 }}
+                                    placeholder={mode === "perUnit" ? "8.50" : "225"}
+                                    value={inputValue}
+                                    onChange={(e) => {
+                                      const v = Number(e.target.value) || 0;
+                                      const n = [...pricingTiers];
+                                      if (mode === "perUnit") {
+                                        n[idx] = { ...row, pricePerUnit: v };
+                                      } else {
+                                        const q = Number(row.quantity) || 0;
+                                        n[idx] = {
+                                          ...row,
+                                          pricePerUnit: q > 0 ? v / q : 0,
+                                        };
+                                      }
+                                      set("pricingTiers", n);
+                                    }}
+                                  />
+                                </div>
+                                <div style={{ fontSize: 11, color: "var(--admin-muted)", marginTop: 4 }}>
+                                  {derivedLabel}
+                                </div>
+                              </div>
+                            );
+                          })()}
                           <button
                             type="button"
                             style={{ ...s.removeX, justifySelf: "end" }}
-                            onClick={() =>
+                            onClick={() => {
                               set(
                                 "pricingTiers",
                                 pricingTiers.filter((_, i) => i !== idx),
-                              )
-                            }
+                              );
+                              setPriceModes((prev) => {
+                                const next: Record<number, "perUnit" | "total"> = {};
+                                Object.entries(prev).forEach(([k, v]) => {
+                                  const ki = Number(k);
+                                  if (ki < idx) next[ki] = v;
+                                  else if (ki > idx) next[ki - 1] = v;
+                                });
+                                return next;
+                              });
+                            }}
                             aria-label="Remove tier"
                           >
                             ×
                           </button>
                         </div>
+
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 6, alignItems: "center" }}>
                           <input
