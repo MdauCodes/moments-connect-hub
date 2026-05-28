@@ -6,6 +6,7 @@ import type { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { cleanUomLabel } from "@/lib/uomLabel";
 
 interface ConfiguratorModalProps {
   product: Product | null;
