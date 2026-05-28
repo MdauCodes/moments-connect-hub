@@ -334,12 +334,8 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
               {selectedTier ? (
                 <p className="text-sm">
-                  {quantity.toLocaleString()} × {selectedTier.uomName ?? selectedTier.collectionName} (× {collectionQty}{" "}
-                  pieces each) ={" "}
+                  {quantity.toLocaleString()} × {selectedTier.uomName ?? selectedTier.collectionName} ={" "}
                   <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
-                  <span className="ml-2 text-xs opacity-80">
-                    · {(quantity * collectionQty).toLocaleString()} total pieces
-                  </span>
                 </p>
               ) : unitPrice > 0 ? (
                 <p className="text-sm">
