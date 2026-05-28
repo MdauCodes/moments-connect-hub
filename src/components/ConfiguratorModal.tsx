@@ -306,7 +306,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             <Section
               label={
                 selectedTier
-                  ? `Number of ${selectedTier.uomName ?? selectedTier.collectionName}s`
+                  ? `Number of ${cleanUomLabel(selectedTier.uomName ?? selectedTier.collectionName, Number(selectedTier.quantity))}s`
                   : hasCollections
                     ? "Quantity"
                     : "Number of pieces"
