@@ -186,7 +186,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
             )}
             {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && tierSavingsPct(cheapestTier) > 0 && (
               <p className="mt-0.5 text-[11px] font-medium text-forest">
-                Switch to {cheapestTier.uomName ?? cheapestTier.collectionName} and save {tierSavingsPct(cheapestTier)}%
+                Switch to {cleanUomLabel(cheapestTier.uomName ?? cheapestTier.collectionName, Number(cheapestTier.quantity))} and save {tierSavingsPct(cheapestTier)}%
               </p>
             )}
           </div>
