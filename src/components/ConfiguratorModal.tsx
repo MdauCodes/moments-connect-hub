@@ -186,20 +186,34 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                   const active = key === selectedTierId;
                   const cPrice = Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
                   const label = t.uomName ?? t.collectionName;
+                  // Top tier = best per-unit price = last in sorted-by-quantity (largest pack)
+                  const isTopTier = i === collectionTiers.length - 1 && collectionTiers.length > 1;
+                  // Savings vs smallest pack's per-unit price
+                  const smallest = collectionTiers[0] as any;
+                  const smallestUnit = Number(smallest.collectionPrice) / Number(smallest.quantity);
+                  const thisUnit = cPrice / Number(t.quantity);
+                  const save = smallestUnit > 0 && thisUnit < smallestUnit
+                    ? Math.round(((smallestUnit - thisUnit) / smallestUnit) * 100)
+                    : 0;
                   return (
                     <button
                       key={key}
                       type="button"
                       onClick={() => handleSelectTier(key)}
-                      className={`flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                      className={`relative flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-colors ${
                         active
                           ? "border-primary bg-primary/5 ring-2 ring-primary/30"
                           : "border-border bg-card hover:border-foreground/40"
                       }`}
                     >
+                      {isTopTier && save > 0 && (
+                        <span className="absolute right-2 top-2 rounded-full bg-forest px-1.5 py-px text-[9px] font-semibold uppercase tracking-wider text-forest-foreground">
+                          Save {save}%
+                        </span>
+                      )}
                       <span className="font-display text-sm text-foreground">{label}</span>
                       <span className="mt-0.5 text-[11px] text-muted-foreground">
-                        {Number(t.quantity).toLocaleString()} pieces each
+                        {Number(t.quantity).toLocaleString()} pieces
                       </span>
                       {t.uomDescription && (
                         <span className="mt-0.5 text-[10px] italic text-muted-foreground line-clamp-2">
@@ -209,9 +223,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                       <span className="mt-1.5 text-sm font-semibold text-foreground">
                         KES {cPrice.toLocaleString()}
                       </span>
-                      <span className="text-[10px] text-muted-foreground">
-                        KES {Number(t.pricePerUnit).toLocaleString()}/piece
-                      </span>
+                      <span className="text-[10px] text-muted-foreground">per {label.toLowerCase()}</span>
                     </button>
                   );
                 })}
@@ -228,13 +240,31 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                     <span className="font-display text-sm text-foreground">Individual pieces</span>
                     <span className="mt-0.5 text-[11px] text-muted-foreground">Buy any quantity</span>
                     <span className="mt-1.5 text-sm font-semibold text-foreground">
-                      KES {(product.basePrice ?? 0).toLocaleString()}/piece
+                      KES {(product.basePrice ?? 0).toLocaleString()}
                     </span>
+                    <span className="text-[10px] text-muted-foreground">per piece</span>
                   </button>
                 )}
               </div>
+              {(() => {
+                if (!selectedTier || collectionTiers.length < 2) return null;
+                const top = collectionTiers[collectionTiers.length - 1] as any;
+                if (top.id === selectedTier.id) return null;
+                const smallest = collectionTiers[0] as any;
+                const smallestUnit = Number(smallest.collectionPrice) / Number(smallest.quantity);
+                const topUnit = Number(top.collectionPrice) / Number(top.quantity);
+                const save = smallestUnit > 0 ? Math.round(((smallestUnit - topUnit) / smallestUnit) * 100) : 0;
+                if (save <= 0) return null;
+                return (
+                  <p className="mt-2 text-xs font-medium text-forest">
+                    Switch to {top.uomName ?? top.collectionName} and save {save}%
+                  </p>
+                );
+              })()}
             </Section>
           )}
+
+
 
           {/* Per-unit hint when there are no collections */}
           {!hasCollections && individualEnabled && (
