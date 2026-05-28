@@ -186,7 +186,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                   const key = t.id ?? `tier-${i}`;
                   const active = key === selectedTierId;
                   const cPrice = Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
-                  const label = t.uomName ?? t.collectionName;
+                  const label = cleanUomLabel(t.uomName ?? t.collectionName, Number(t.quantity));
                   // Top tier = best per-unit price = last in sorted-by-quantity (largest pack)
                   const isTopTier = i === collectionTiers.length - 1 && collectionTiers.length > 1;
                   // Savings vs smallest pack's per-unit price
