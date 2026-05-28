@@ -141,7 +141,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               const isActive = id === activeTierId;
               const isTopTier = tierKey(t) === tierKey(cheapestTier) && tiers.length > 1;
               const topSave = tierSavingsPct(cheapestTier);
-              const label = t.uomName ?? t.collectionName;
+              const label = cleanUomLabel(t.uomName ?? t.collectionName, Number(t.quantity));
               const qty = Number(t.quantity) || 0;
               return (
                 <button
