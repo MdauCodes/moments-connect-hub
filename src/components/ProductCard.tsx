@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import type { Product } from "@/data/products";
 import { apiUrl } from "@/config/api";
 import { getStockInfo } from "@/lib/stock";
+import { cleanUomLabel } from "@/lib/uomLabel";
 
 interface ProductCardProps {
   product: Product;
