@@ -381,18 +381,8 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
   const displayName = user?.name ?? "Admin User";
   const displayEmail = user?.email ?? "Signed in";
 
-  // Specialist roles (PAYMENTS_CONFIRMER / PREPARER / DISPATCHER) get a narrowed
-  // sidebar: only their queue + Dashboard. STAFF only sees Orders.
-  // SUPERVISOR: dashboard, analytics, orders, users. Admin/Super Admin: everything.
-  const isSpecialist = staffRole != null && SPECIALIST_ROLES.includes(staffRole);
-  const navWhitelist: string[] | null =
-    staffRole === "STAFF" ? ["/admin/orders"]
-    : staffRole === "SUPERVISOR" ? ["/admin/dashboard", "/admin/analytics", "/admin/orders", "/admin/users"]
-    : staffRole === "PAYMENTS_CONFIRMER" ? ["/admin/dashboard", "/admin/queues/payment"]
-    : staffRole === "PREPARER" ? ["/admin/dashboard", "/admin/queues/preparation"]
-    : staffRole === "DISPATCHER" ? ["/admin/dashboard", "/admin/queues/dispatch"]
-    : null;
-  void isSpecialist;
+  // Sidebar visibility is permission-driven only (see navSections[].requiresAny).
+  // Role names are never consulted for nav gating.
 
   // --- Onboarding tour state ---
   const [tourOpen, setTourOpen] = useState(false);
