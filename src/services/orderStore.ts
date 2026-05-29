@@ -313,7 +313,6 @@ export const orderStore = {
 
     if (res.ok) return { success: true };
 
-    if (res.ok) return { success: true };
 
     let errorCode = "UNKNOWN";
     let message = `Payment initiation failed (${res.status})`;
