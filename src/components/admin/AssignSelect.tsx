@@ -6,12 +6,19 @@ import { canAssignTo, resolveStaffRole, STAFF_ROLE_DISPLAY, normalizeStaffRole }
 
 interface Props {
   orderId: string;
+  orderId: string;
   assignedTo?: string | null;
   assignedToId?: string | null;
+  /** Payment status — only PAID orders can be assigned. */
+  paymentStatus?: string | null;
+  /** Order status — orders already dispatched/delivered/cancelled/refunded can't be (re)assigned. */
+  orderStatus?: string | null;
   /** Compact = row variant (no helper label, fixed width). */
   compact?: boolean;
   onAssigned?: (patch: { assignedTo: string; assignedToId: string }) => void;
 }
+
+const TERMINAL_STATUSES = new Set(["DISPATCHED", "DELIVERED", "CANCELLED", "REFUNDED"]);
 
 // Module-level cache so we don't refetch on every row render.
 let cache: AssignableUser[] | null = null;
