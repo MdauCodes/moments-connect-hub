@@ -73,7 +73,7 @@ function DispatchQueuePage() {
                 {initialLoading ? (
                   <tr><td colSpan={7}><div className="admin-empty">Loading…</div></td></tr>
                 ) : rows.length === 0 ? (
-                  <tr><td colSpan={7}><div className="admin-empty">No orders ready for dispatch</div></td></tr>
+                  <tr><td colSpan={7}><div className="admin-empty"><b>No orders ready to dispatch</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders appear here once the packaging team marks them ready. Check back soon.</div></div></td></tr>
                 ) : rows.map((o) => (
                   <tr key={o.id}>
                     <td><b>{o.reference}</b></td>
@@ -103,7 +103,7 @@ function DispatchQueuePage() {
             {initialLoading ? (
               <div className="admin-empty">Loading…</div>
             ) : rows.length === 0 ? (
-              <div className="admin-empty">No orders ready for dispatch</div>
+              <div className="admin-empty"><b>No orders ready to dispatch</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders appear here once the packaging team marks them ready. Check back soon.</div></div>
             ) : rows.map((o) => (
               <div key={o.id} className="admin-card">
                 <div className="admin-card-row"><b>{o.reference}</b><span style={{ fontSize: 11, color: "var(--admin-muted)" }}>{o.fulfillmentType ?? "—"}</span></div>
