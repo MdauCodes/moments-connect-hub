@@ -298,7 +298,7 @@ function AdminInventoryPage() {
                 onClick={submitAdjust}
                 disabled={adjust.busy}
               >
-                {adjust.busy ? "Saving…" : "Save"}
+                {adjust.busy ? "Saving…" : "Save adjustment"}
               </button>
             </div>
           </div>
