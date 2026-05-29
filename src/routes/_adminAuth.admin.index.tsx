@@ -100,10 +100,11 @@ export function AdminDashboardPage() {
                 ? Array.from({ length: 3 }).map(() => ({ label: "Loading…", value: "—", sub: "" }))
                 : tiles
               ).map((t, i) => (
-                <div key={i} className="admin-panel" style={{ padding: 16 }}>
+                <div key={i} className="admin-panel" style={{ padding: 16, opacity: t.tone === "muted" ? 0.95 : 1 }}>
                   <div className="admin-label">{t.label}</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 30, marginTop: 8, lineHeight: 1.1 }}>{t.value}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 30, marginTop: 8, lineHeight: 1.1, color: t.tone === "muted" ? "var(--admin-muted)" : undefined }}>{t.value}</div>
                   {t.sub && <div style={{ fontSize: 11, marginTop: 6, color: "var(--admin-muted)" }}>{t.sub}</div>}
+                  {t.note && <div style={{ fontSize: 10, marginTop: 4, color: "var(--admin-muted)", fontStyle: "italic" }}>{t.note}</div>}
                 </div>
               ))}
             </div>
