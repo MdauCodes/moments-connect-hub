@@ -98,9 +98,11 @@ export function emptyProductValues(): ProductFormValues {
     lowStockThreshold: 10,
     trackInventory: true,
     variants: [],
-    individualSalesEnabled: true,
-    pricingTiers: [],
     vatRate: 0.16,
+    vatExempt: false,
+    stockStatus: "MADE_TO_ORDER",
+  };
+
     vatExempt: false,
   };
 }
