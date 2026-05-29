@@ -435,7 +435,6 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
         <nav style={styles.nav}>
           {navSections.map((section, sectionIdx) => {
             const visible = section.items.filter((item) => {
-              if (navWhitelist && !navWhitelist.includes(item.to)) return false;
               if (item.requiresAny && !hasAnyPerm(permissions, item.requiresAny)) return false;
               return true;
             });
