@@ -352,36 +352,50 @@ export function OrderDetailDrawer({ orderId, onClose, onChanged }: Props) {
 
               {/* Staff */}
               <Section title="Staff">
-                {canAssign ? (
-                  <div className="space-y-2">
-                    <div className="text-xs text-muted-foreground">
-                      {o.assignedTo ? `Assigned to: ${o.assignedTo}` : "Unassigned"}
+                {canAssign ? (() => {
+                  const notPaid = o.paymentStatus !== "PAID";
+                  const terminal = ["DISPATCHED", "DELIVERED", "CANCELLED", "REFUNDED"].includes(String(o.status));
+                  const block = notPaid
+                    ? "Order must be paid before it can be assigned"
+                    : terminal
+                      ? `Order is ${String(o.status).toLowerCase()} — assignment locked`
+                      : null;
+                  return (
+                    <div className="space-y-2">
+                      <div className="text-xs text-muted-foreground">
+                        {block ?? (o.assignedTo ? `Assigned to: ${o.assignedTo}` : "Unassigned")}
+                      </div>
+                      <select
+                        className="w-full rounded-md border bg-background px-3 py-2 text-sm disabled:opacity-60"
+                        value={o.assignedToId ?? ""}
+                        disabled={assigning || !!block}
+                        title={block ?? undefined}
+                        onChange={async (e) => {
+                          const id = e.target.value;
+                          const u = assignees.find((a) => a.id === id);
+                          if (!u) return;
+                          setAssigning(true);
+                          try {
+                            const res = await assignOrder(o.id, u.name, u.id);
+                            if (res.order) setOrder(res.order);
+                            toast.success(`Assigned to ${u.name}`);
+                            onChanged?.();
+                          } catch (err) {
+                            toast.error(err instanceof Error ? err.message : "Assignment failed");
+                          } finally {
+                            setAssigning(false);
+                          }
+                        }}
+                      >
+                        <option value="" disabled>{block ? (notPaid ? "Awaiting payment" : "Locked") : "Assign to…"}</option>
+                        {assignees.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+                      </select>
                     </div>
-                    <select
-                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                      value={o.assignedToId ?? ""}
-                      disabled={assigning}
-                      onChange={async (e) => {
-                        const id = e.target.value;
-                        const u = assignees.find((a) => a.id === id);
-                        if (!u) return;
-                        setAssigning(true);
-                        try {
-                          const res = await assignOrder(o.id, u.name, u.id);
-                          if (res.order) setOrder(res.order);
-                          toast.success(`Assigned to ${u.name}`);
-                          onChanged?.();
-                        } catch (err) {
-                          toast.error(err instanceof Error ? err.message : "Assignment failed");
-                        } finally {
-                          setAssigning(false);
-                        }
-                      }}
-                    >
-                      <option value="" disabled>Assign to…</option>
-                      {assignees.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
-                    </select>
-                  </div>
+                  );
+                })() : (
+                  <Row label="Assigned to" value={o.assignedTo || "—"} />
+                )}
+
                 ) : (
                   <Row label="Assigned to" value={o.assignedTo || "—"} />
                 )}
