@@ -36,7 +36,6 @@ function roleLabel(name: string | undefined): string {
   return n ? STAFF_ROLE_DISPLAY[n] : (name ?? "");
 }
 
-export function AssignSelect({ orderId, assignedTo, assignedToId, compact, onAssigned }: Props) {
 export function AssignSelect({ orderId, assignedTo, assignedToId, paymentStatus, orderStatus, compact, onAssigned }: Props) {
   const { user } = useAuth();
   const currentRole = resolveStaffRole(user);
