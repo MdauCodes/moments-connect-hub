@@ -56,7 +56,8 @@ export type UploadResponse = { url: string; publicId: string };
 export type RoleDto = {
   id: string;
   name?: string;
-  displayName: string;
+export type RoleRequest = { name: string; displayName: string; description?: string; permissions: string[] };
+
   description?: string;
   permissions: string[];
   isDefault?: boolean;

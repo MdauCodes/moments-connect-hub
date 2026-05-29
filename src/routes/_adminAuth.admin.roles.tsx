@@ -15,11 +15,23 @@ export const Route = createFileRoute("/_adminAuth/admin/roles")({
 interface RoleForm {
   displayName: string;
   description: string;
+interface RoleForm {
+  name: string;
+  displayName: string;
+  description: string;
   permissions: Set<string>;
 }
 
 function emptyForm(): RoleForm {
-  return { displayName: "", description: "", permissions: new Set() };
+  return { name: "", displayName: "", description: "", permissions: new Set() };
+}
+
+function toRoleName(s: string): string {
+  return s
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 64);
 }
 
 function AdminRolesPage() {
