@@ -595,10 +595,16 @@ function ProductDetail() {
             {stock.isBackorder && !enterprise && (
               <div className="flex items-start gap-2 rounded-xl border border-accent/40 bg-accent/5 px-4 py-3 text-xs text-foreground">
                 <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
-                <p>
-                  <strong>Backorder:</strong> requested quantity exceeds current stock. We'll produce on demand —
-                  extended lead time of approx. <strong>21 business days</strong>.
-                </p>
+                {stock.state === "out_of_stock" ? (
+                  <p>
+                    <strong>Place your order</strong> — this item is made on demand. Expected lead time: <strong>14–21 business days</strong>.
+                  </p>
+                ) : (
+                  <p>
+                    <strong>Backorder:</strong> requested quantity exceeds current stock. We'll produce on demand —
+                    extended lead time of approx. <strong>21 business days</strong>.
+                  </p>
+                )}
               </div>
             )}
 
