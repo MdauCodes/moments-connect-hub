@@ -23,7 +23,7 @@ export interface RoleTour {
 const ROLE_BADGE = '[data-tour="role-badge"]';
 const SIDEBAR = '[data-tour="sidebar"]';
 const NAV = (key: string) => `[data-tour="nav-${key}"]`;
-const DASH_STATS = '[data-tour="dashboard-stats"]';
+const DASH_STATS = '[data-admin-stats]';
 
 export const ROLE_TOURS: Partial<Record<StaffRoleName, RoleTour>> = {
   SUPER_ADMIN: {
