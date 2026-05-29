@@ -80,6 +80,10 @@ function normalizeProduct(p: ProductApiDto): Product {
     monthlyEnquiries: p.monthlyEnquiries ?? 0,
     individualSalesEnabled: (p as any).individualSalesEnabled ?? true,
     pricingTiers: normalizePricingTiers((p as any).pricingTiers),
+    stock: (p as any).stockCount ?? (p as any).stock ?? 0,
+    lowStockThreshold: (p as any).lowStockThreshold ?? 50,
+    trackInventory: (p as any).stockStatus !== 'MADE_TO_ORDER',
+    stockStatus: (p as any).stockStatus ?? 'MADE_TO_ORDER',
   };
 }
 
