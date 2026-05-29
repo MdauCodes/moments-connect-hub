@@ -64,7 +64,9 @@ export interface ProductFormValues {
   pricingTiers?: PricingTierRow[];
   vatRate?: number;     // stored as 0..1 fraction (e.g. 0.16)
   vatExempt?: boolean;
+  stockStatus?: "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK" | "MADE_TO_ORDER";
 }
+
 
 export function emptyProductValues(): ProductFormValues {
   return {
