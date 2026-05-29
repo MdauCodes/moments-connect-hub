@@ -74,8 +74,9 @@ function AdminRolesPage() {
   const begin = (row?: RoleDto) => {
     setEditing(row ?? null);
     setForm(row
-      ? { displayName: row.displayName, description: row.description ?? "", permissions: new Set(row.permissions ?? []) }
+      ? { name: row.name ?? "", displayName: row.displayName, description: row.description ?? "", permissions: new Set(row.permissions ?? []) }
       : emptyForm());
+
     setOpen(true);
   };
 
@@ -91,14 +92,18 @@ function AdminRolesPage() {
   const save = async (e: FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    try {
+      const displayName = form.displayName.trim();
+      const name = (form.name.trim() || toRoleName(displayName));
+      if (!name) { toast.error("Role name is required"); setSaving(false); return; }
       const body = {
-        displayName: form.displayName.trim(),
+        name,
+        displayName,
         description: form.description.trim() || undefined,
         permissions: Array.from(form.permissions),
       };
       if (editing) await adminResources.roles.update(editing.id, body);
       else await adminResources.roles.create(body);
+
       toast.success(editing ? "Role updated" : "Role created");
       setOpen(false);
       await load();
