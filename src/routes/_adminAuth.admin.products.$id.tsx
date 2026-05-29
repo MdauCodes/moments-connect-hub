@@ -62,8 +62,11 @@ function EditProductPage() {
       <ProductEditor
         initial={productToFormValues(product)}
         submitLabel="Save changes"
-        onCancel={() => navigate({ to: "/admin/products" })}
-        onDelete={
+      <ProductEditor
+        initial={productToFormValues(product)}
+        productId={product.id}
+        submitLabel="Save changes"
+
           canDelete
             ? async () => {
                 if (!confirm(`Delete "${product.name}" permanently?`)) return;
