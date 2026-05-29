@@ -64,7 +64,9 @@ export interface ProductFormValues {
   pricingTiers?: PricingTierRow[];
   vatRate?: number;     // stored as 0..1 fraction (e.g. 0.16)
   vatExempt?: boolean;
+  stockStatus?: "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK" | "MADE_TO_ORDER";
 }
+
 
 export function emptyProductValues(): ProductFormValues {
   return {
@@ -100,8 +102,10 @@ export function emptyProductValues(): ProductFormValues {
     pricingTiers: [],
     vatRate: 0.16,
     vatExempt: false,
+    stockStatus: "MADE_TO_ORDER",
   };
 }
+
 
 export function productToFormValues(p: Product): ProductFormValues {
   const anyP = p as any;
@@ -132,11 +136,11 @@ export function productToFormValues(p: Product): ProductFormValues {
     compareAtPrice: anyP.compareAtPrice,
     stock: anyP.stockCount ?? anyP.stock ?? 0,
     lowStockThreshold: anyP.lowStockThreshold ?? 10,
-    trackInventory: anyP.trackInventory ?? true,
+    trackInventory: anyP.trackInventory ?? (anyP.stockStatus ? anyP.stockStatus !== "MADE_TO_ORDER" : true),
     variants: anyP.variants ? [...anyP.variants] : [],
     individualSalesEnabled: anyP.individualSalesEnabled ?? true,
     pricingTiers: (anyP.pricingTiers ?? [])
-      .filter((t: any) => t?.collectionName)
+      .filter((t: any) => t && t.collectionName)
       .map((t: any, i: number) => ({
         id: t.id,
         collectionName: String(t.uomName ?? t.collectionName ?? ""),
@@ -147,8 +151,13 @@ export function productToFormValues(p: Product): ProductFormValues {
         uomDescription: t.uomDescription ?? "",
         enabled: t.enabled !== false,
       })),
+    vatRate: typeof anyP.vatRate === "number" ? anyP.vatRate : 0.16,
+    vatExempt: anyP.vatExempt ?? false,
+    stockStatus: anyP.stockStatus ?? "MADE_TO_ORDER",
   };
 }
+
+
 
 // ---------------------------------------------------------------------------
 // Backend payload builder — resolves string industry IDs to UUIDs via the
@@ -163,7 +172,7 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
   const industryIds = values.industryIds.filter(Boolean);
 
   const pricingTiers = (values.pricingTiers ?? [])
-    .filter((t) => t.collectionName.trim() && t.quantity > 0 && t.pricePerUnit > 0)
+    .filter((t) => t && typeof t.collectionName === "string" && t.collectionName.trim() && t.quantity > 0 && t.pricePerUnit > 0)
     .map((t, i) => ({
       // only include id if it's a real UUID, not our "tier-N" client placeholder
       ...(t.id && /^[0-9a-f-]{36}$/i.test(t.id) ? { id: t.id } : {}),
@@ -176,6 +185,7 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
       ...(t.uomDescription ? { uomDescription: t.uomDescription } : {}),
       enabled: t.enabled !== false,
     }));
+
 
   return {
     ...(productId ? { id: productId } : {}),
@@ -200,6 +210,10 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
     lowStockThreshold: values.trackInventory ? (values.lowStockThreshold ?? 10) : undefined,
     individualSalesEnabled: values.individualSalesEnabled ?? true,
     pricingTiers,
+    stockStatus: values.stockStatus ?? "MADE_TO_ORDER",
+    vatExempt: values.vatExempt ?? false,
+    vatRate: values.vatExempt ? 0 : (typeof values.vatRate === "number" ? values.vatRate : 0.16),
+
     // fields not in ProductCreateRequest/ProductUpdateRequest — intentionally omitted:
     // sku, compareAtPrice, trackInventory, variants, totalClicks, monthlyClicks, totalEnquiries, monthlyEnquiries
   };
@@ -778,7 +792,8 @@ export interface ProductEditorProps {
   onCancel: () => void;
 }
 
-export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCancel }: ProductEditorProps) {
+export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDelete, onCancel }: ProductEditorProps) {
+
   const [values, setValues] = useState<ProductFormValues>(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -870,7 +885,31 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
           [data-variant-row] { grid-template-columns: 1fr 1fr !important; }
         }
       `}</style>
+      {productId && (() => {
+        const noImage = !values.image;
+        const noPrice = !values.basePrice || values.basePrice <= 0;
+        const tiers = values.pricingTiers ?? [];
+        const allTiersZero = tiers.length === 0 || tiers.every((t) => !t || !((Number(t.pricePerUnit) || 0) > 0));
+        if (!noImage && !noPrice && !allTiersZero) return null;
+        return (
+          <div
+            style={{
+              gridColumn: "1 / -1",
+              background: "color-mix(in oklab, #f59e0b 14%, var(--admin-surface))",
+              border: "1px solid color-mix(in oklab, #f59e0b 50%, var(--admin-border))",
+              color: "var(--admin-text)",
+              borderRadius: 10,
+              padding: "10px 14px",
+              fontSize: 12.5,
+            }}
+          >
+            <strong style={{ color: "#92400e" }}>Incomplete product:</strong>{" "}
+            This product is missing some details — add a price, image and pricing tiers to make it visible to customers.
+          </div>
+        );
+      })()}
       {/* ── LEFT COLUMN ─────────────────────────────────────────────────── */}
+
       <div style={s.mainCol}>
         {/* Core details */}
         <div style={s.card}>
@@ -1010,6 +1049,62 @@ export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCanc
                 />
               </div>
             </div>
+
+            {/* Stock status + VAT */}
+            <div style={s.row} data-admin-row>
+              <div style={s.col}>
+                <label style={s.label}>Stock status</label>
+                <select
+                  style={s.select}
+                  value={values.stockStatus ?? "MADE_TO_ORDER"}
+                  onChange={(e) => {
+                    const v = e.target.value as ProductFormValues["stockStatus"];
+                    setValues((prev) => ({
+                      ...prev,
+                      stockStatus: v,
+                      trackInventory: v !== "MADE_TO_ORDER",
+                    }));
+                  }}
+                >
+                  <option value="MADE_TO_ORDER">Made to order (no physical stock)</option>
+                  <option value="IN_STOCK">In stock</option>
+                  <option value="LOW_STOCK">Low stock</option>
+                  <option value="OUT_OF_STOCK">Out of stock</option>
+                </select>
+              </div>
+              <div style={s.col}>
+                <label style={s.label}>VAT</label>
+                <label style={{ ...s.switchRow, marginTop: 0 }}>
+                  <input
+                    type="checkbox"
+                    checked={values.vatExempt ?? false}
+                    onChange={(e) => set("vatExempt", e.target.checked)}
+                  />
+                  <span style={s.switchLabel}>VAT exempt</span>
+                  {!values.vatExempt && (
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.01"
+                      style={{ ...s.input, width: 90 }}
+                      value={
+                        typeof values.vatRate === "number"
+                          ? Number((values.vatRate * 100).toFixed(2))
+                          : ""
+                      }
+                      placeholder="16"
+                      onChange={(e) => {
+                        const pct = Number(e.target.value);
+                        set("vatRate", isFinite(pct) ? pct / 100 : 0);
+                      }}
+                    />
+                  )}
+                  {!values.vatExempt && <span style={{ fontSize: 12, color: "var(--admin-muted)" }}>%</span>}
+                </label>
+              </div>
+            </div>
+
 
             {/* Track inventory toggle */}
             <label style={s.switchRow}>

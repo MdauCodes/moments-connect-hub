@@ -293,6 +293,7 @@ export const orderStore = {
   async startMpesaStk(
     orderId: string,
     phone: string,
+    paymentMethod: CheckoutPaymentMethod = "MPESA",
   ): Promise<{ success: boolean; message?: string; errorCode?: string }> {
     let res: Response;
     try {
@@ -300,7 +301,7 @@ export const orderStore = {
         method: "POST",
         session: true,
         auth: true,
-        json: { orderId, paymentMethod: "MPESA", phone },
+        json: { orderId, paymentMethod, phone },
       });
     } catch {
       return {
@@ -311,6 +312,7 @@ export const orderStore = {
     }
 
     if (res.ok) return { success: true };
+
 
     let errorCode = "UNKNOWN";
     let message = `Payment initiation failed (${res.status})`;

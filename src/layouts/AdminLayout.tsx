@@ -23,7 +23,9 @@ import {
   PackageCheck,
   Send,
   ShieldCheck,
+  Boxes,
 } from "lucide-react";
+
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { hasAnyPerm, PERM, type PermissionCode } from "@/lib/permissions";
 import { RoleBadge } from "@/components/admin/RoleBadge";
@@ -80,8 +82,10 @@ const navSections: NavSection[] = [
     label: "Catalogue",
     items: [
       { label: "Products", to: "/admin/products", icon: Package, requiresAny: [PERM.PRODUCT_VIEW, PERM.PRODUCT_MANAGE] },
+      { label: "Inventory", to: "/admin/inventory", icon: Boxes, requiresAny: [PERM.PRODUCT_VIEW, PERM.PRODUCT_MANAGE] },
       { label: "Industries", to: "/admin/industries", icon: Factory, requiresAny: [PERM.PRODUCT_MANAGE] },
       { label: "Delivery Zones", to: "/admin/delivery-zones", icon: Truck, requiresAny: [PERM.SETTINGS_MANAGE] },
+
     ],
   },
   {
