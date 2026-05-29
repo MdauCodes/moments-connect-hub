@@ -15,6 +15,7 @@ import {
 import { useAdminOrders } from "@/contexts/AdminOrdersContext";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { PERM } from "@/lib/permissions";
+import { useRequirePermission } from "@/lib/useRequirePermission";
 import { resolveStaffRole } from "@/lib/roles";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
 import { HelpPanel, HelpAnchor } from "@/components/admin/HelpPanel";
