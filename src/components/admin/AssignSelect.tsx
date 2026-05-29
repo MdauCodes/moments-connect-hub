@@ -6,7 +6,6 @@ import { canAssignTo, resolveStaffRole, STAFF_ROLE_DISPLAY, normalizeStaffRole }
 
 interface Props {
   orderId: string;
-  orderId: string;
   assignedTo?: string | null;
   assignedToId?: string | null;
   /** Payment status — only PAID orders can be assigned. */
