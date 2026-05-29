@@ -71,12 +71,19 @@ export function resolveStaffRole(session: {
   return normalizeStaffRole(session.staffRole) ?? normalizeStaffRole(session.role);
 }
 
-/** True if current user can assign to a target user with the given role. */
+/**
+ * True if `currentRole` can assign work to a user with `targetRole`.
+ * Rule: you can only assign to a STRICTLY LOWER rank than yourself.
+ * That means a Supervisor can never assign to Admin, Super Admin, or
+ * another Supervisor — only to specialists and Staff below them.
+ */
 export function canAssignTo(currentRole: StaffRoleName | null, targetRole: string | undefined | null): boolean {
   if (!currentRole) return false;
   const target = normalizeStaffRole(targetRole);
-  if (!target) return true; // unknown role — let it through; backend will validate
-  return STAFF_ROLE_RANK[target] >= STAFF_ROLE_RANK[currentRole];
+  // Unknown role: be conservative and refuse — backend is the final authority,
+  // but the UI shouldn't offer assignments we can't reason about.
+  if (!target) return false;
+  return STAFF_ROLE_RANK[target] > STAFF_ROLE_RANK[currentRole];
 }
 
 export function roleDisplay(role: string | undefined | null): string {
