@@ -235,9 +235,12 @@ function AdminOrdersPage() {
                               orderId={o.id}
                               assignedTo={o.assignedTo}
                               assignedToId={o.assignedToId}
+                              paymentStatus={o.paymentStatus}
+                              orderStatus={o.status}
                               compact
                               onAssigned={(patch) => applyOrderPatch(o.id, patch)}
                             />
+
                           </td>
                         )}
                         <td>{formatDateShort(o.createdAt)}</td>
@@ -284,9 +287,12 @@ function AdminOrdersPage() {
                         orderId={o.id}
                         assignedTo={o.assignedTo}
                         assignedToId={o.assignedToId}
+                        paymentStatus={o.paymentStatus}
+                        orderStatus={o.status}
                         compact
                         onAssigned={(patch) => applyOrderPatch(o.id, patch)}
                       />
+
                     </div>
                   )}
                   <div className="admin-card-actions">
