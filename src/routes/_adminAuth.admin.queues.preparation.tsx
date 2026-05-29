@@ -77,7 +77,7 @@ function PreparationQueuePage() {
                   {initialLoading ? (
                     <tr><td colSpan={7}><div className="admin-empty">Loading…</div></td></tr>
                   ) : rows.length === 0 ? (
-                    <tr><td colSpan={7}><div className="admin-empty">No orders in preparation</div></td></tr>
+                    <tr><td colSpan={7}><div className="admin-empty"><b>Nothing to pack yet</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders appear here after the payments team verifies them. You'll see work as soon as it's ready.</div></div></td></tr>
                   ) : rows.map((o) => (
                     <tr key={o.id}>
                       <td><b>{o.reference}</b></td>
@@ -117,7 +117,7 @@ function PreparationQueuePage() {
               {initialLoading ? (
                 <div className="admin-empty">Loading…</div>
               ) : rows.length === 0 ? (
-                <div className="admin-empty">No orders in preparation</div>
+                <div className="admin-empty"><b>Nothing to pack yet</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders appear here after the payments team verifies them. You'll see work as soon as it's ready.</div></div>
               ) : rows.map((o) => (
                 <div key={o.id} className="admin-card">
                   <div className="admin-card-row"><b>{o.reference}</b><OrderStatusBadge status={o.status} /></div>
