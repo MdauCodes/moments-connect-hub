@@ -92,6 +92,9 @@ function AdminOrdersPage() {
     [filteredRows],
   );
 
+  if (!allowed) return null;
+  void canSeePayment;
+
   return (
     <AdminLayout title="Orders" onReload={() => void refresh()}>
       <HelpAnchor>
