@@ -136,11 +136,11 @@ export function productToFormValues(p: Product): ProductFormValues {
     compareAtPrice: anyP.compareAtPrice,
     stock: anyP.stockCount ?? anyP.stock ?? 0,
     lowStockThreshold: anyP.lowStockThreshold ?? 10,
-    trackInventory: anyP.trackInventory ?? true,
+    trackInventory: anyP.trackInventory ?? (anyP.stockStatus ? anyP.stockStatus !== "MADE_TO_ORDER" : true),
     variants: anyP.variants ? [...anyP.variants] : [],
     individualSalesEnabled: anyP.individualSalesEnabled ?? true,
     pricingTiers: (anyP.pricingTiers ?? [])
-      .filter((t: any) => t?.collectionName)
+      .filter((t: any) => t && t.collectionName)
       .map((t: any, i: number) => ({
         id: t.id,
         collectionName: String(t.uomName ?? t.collectionName ?? ""),
@@ -151,7 +151,12 @@ export function productToFormValues(p: Product): ProductFormValues {
         uomDescription: t.uomDescription ?? "",
         enabled: t.enabled !== false,
       })),
+    vatRate: typeof anyP.vatRate === "number" ? anyP.vatRate : 0.16,
+    vatExempt: anyP.vatExempt ?? false,
+    stockStatus: anyP.stockStatus ?? "MADE_TO_ORDER",
   };
+}
+
 }
 
 // ---------------------------------------------------------------------------
