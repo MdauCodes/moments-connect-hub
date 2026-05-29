@@ -187,6 +187,7 @@ export type Product = {
   stock?: number;
   lowStockThreshold?: number;
   trackInventory?: boolean;
+  stockStatus?: "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK" | "MADE_TO_ORDER";
   variants?: Array<{ id?: string; label: string; sku?: string; price?: number; stock?: number }>;
   materials?: string[];
   primaryImageUrl?: string;

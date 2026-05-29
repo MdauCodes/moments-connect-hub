@@ -595,10 +595,16 @@ function ProductDetail() {
             {stock.isBackorder && !enterprise && (
               <div className="flex items-start gap-2 rounded-xl border border-accent/40 bg-accent/5 px-4 py-3 text-xs text-foreground">
                 <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
-                <p>
-                  <strong>Backorder:</strong> requested quantity exceeds current stock. We'll produce on demand —
-                  extended lead time of approx. <strong>21 business days</strong>.
-                </p>
+                {stock.state === "out_of_stock" ? (
+                  <p>
+                    <strong>Place your order</strong> — this item is made on demand. Expected lead time: <strong>14–21 business days</strong>.
+                  </p>
+                ) : (
+                  <p>
+                    <strong>Backorder:</strong> requested quantity exceeds current stock. We'll produce on demand —
+                    extended lead time of approx. <strong>21 business days</strong>.
+                  </p>
+                )}
               </div>
             )}
 
@@ -757,16 +763,19 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 function StockBadge({ state, label }: { state: string; label: string }) {
   const styles =
-    state === "out_of_stock"
-      ? "bg-destructive/10 text-destructive border-destructive/30"
-      : state === "low_stock"
-        ? "bg-accent/10 text-accent border-accent/30"
-        : "bg-primary/10 text-primary border-primary/30";
+    state === "untracked"
+      ? "bg-muted/20 text-muted-foreground border-muted/30"
+      : state === "out_of_stock"
+        ? "bg-amber-50 text-amber-700 border-amber-300"
+        : state === "low_stock"
+          ? "bg-amber-50 text-amber-700 border-amber-300"
+          : "bg-primary/10 text-primary border-primary/30";
+  const displayLabel = state === "untracked" ? "Made to order" : label;
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider ${styles}`}
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-current" /> {label}
+      <span className="h-1.5 w-1.5 rounded-full bg-current" /> {displayLabel}
     </span>
   );
 }

@@ -97,8 +97,8 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
         {/* Single most-relevant badge to reduce clutter on mobile */}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1 sm:left-3 sm:top-3">
           {stock.state === "out_of_stock" ? (
-            <span className="rounded-full bg-destructive px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-destructive-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
-              Backorder
+            <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-2.5 sm:py-1 sm:text-[10px]">
+              Place your order
             </span>
           ) : p.isDiscount ? (
             <span className="rounded-full bg-accent px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-accent-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
@@ -114,8 +114,13 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
             </span>
           ) : null}
           {stock.state === "low_stock" && (
-            <span className="hidden rounded-full bg-accent/90 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-accent-foreground sm:inline-block sm:px-2.5 sm:py-1 sm:text-[10px]">
-              Low stock
+            <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-2.5 sm:py-1 sm:text-[10px]">
+              {stock.label}
+            </span>
+          )}
+          {stock.state === "in_stock" && stock.available > 50 && (
+            <span className="hidden rounded-full bg-green-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:inline-block sm:px-2.5 sm:py-1 sm:text-[10px]">
+              {stock.available.toLocaleString()} in stock
             </span>
           )}
         </div>

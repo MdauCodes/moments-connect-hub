@@ -59,16 +59,24 @@ export function AdminDashboardPage() {
 
   const tiles = stats ? [
     showRevenue && typeof stats.revenueToday === "number" && {
-      label: "Revenue today", value: formatKes(stats.revenueToday), sub: "",
+      label: "Revenue today", value: formatKes(stats.revenueToday), sub: "Confirmed paid orders",
+      tone: "default" as const,
     },
     showRevenue && typeof stats.revenueMTD === "number" && {
-      label: "Revenue MTD", value: formatKes(stats.revenueMTD), sub: "Month to date",
+      label: "Revenue MTD", value: formatKes(stats.revenueMTD), sub: "Confirmed paid orders",
+      tone: "default" as const,
+    },
+    showOrderCounts && typeof stats.ordersPending === "number" && {
+      label: "Pending orders value", value: String(stats.ordersPending), sub: "orders awaiting payment",
+      note: "Revenue confirmed once paid",
+      tone: "muted" as const,
     },
     showOrderCounts && typeof stats.ordersToday === "number" && {
       label: "Orders today", value: String(stats.ordersToday),
       sub: typeof stats.ordersPending === "number" ? `${stats.ordersPending} pending` : "",
+      tone: "default" as const,
     },
-  ].filter(Boolean) as { label: string; value: string; sub: string }[] : [];
+  ].filter(Boolean) as { label: string; value: string; sub: string; note?: string; tone?: "default" | "muted" }[] : [];
 
   const topProducts = stats?.topSellingProducts ?? [];
 
@@ -89,13 +97,14 @@ export function AdminDashboardPage() {
           {tiles.length > 0 && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }} data-admin-stats>
               {(loadingStats && tiles.length === 0
-                ? Array.from({ length: 3 }).map(() => ({ label: "Loading…", value: "—", sub: "" }))
+                ? Array.from({ length: 3 }).map(() => ({ label: "Loading…", value: "—", sub: "", note: undefined as string | undefined, tone: "default" as const }))
                 : tiles
               ).map((t, i) => (
-                <div key={i} className="admin-panel" style={{ padding: 16 }}>
+                <div key={i} className="admin-panel" style={{ padding: 16, opacity: t.tone === "muted" ? 0.95 : 1 }}>
                   <div className="admin-label">{t.label}</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 30, marginTop: 8, lineHeight: 1.1 }}>{t.value}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 30, marginTop: 8, lineHeight: 1.1, color: t.tone === "muted" ? "var(--admin-muted)" : undefined }}>{t.value}</div>
                   {t.sub && <div style={{ fontSize: 11, marginTop: 6, color: "var(--admin-muted)" }}>{t.sub}</div>}
+                  {t.note && <div style={{ fontSize: 10, marginTop: 4, color: "var(--admin-muted)", fontStyle: "italic" }}>{t.note}</div>}
                 </div>
               ))}
             </div>
