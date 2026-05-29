@@ -106,7 +106,12 @@ function AdminInventoryPage() {
   const renderTable = (rows: ProductDto[], emptyText: string) => {
     if (loading) return <p style={{ color: "var(--admin-muted)", fontSize: 13 }}>Loading…</p>;
     if (rows.length === 0)
-      return <p style={{ color: "var(--admin-muted)", fontSize: 13 }}>{emptyText}</p>;
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--admin-muted)", fontSize: 13, padding: "8px 2px" }}>
+          <CheckCircle2 size={16} color="#15803d" />
+          <span>{emptyText}</span>
+        </div>
+      );
     return (
       <div style={{ overflowX: "auto" }}>
         <table className="admin-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
@@ -124,12 +129,13 @@ function AdminInventoryPage() {
             {rows.map((p) => {
               const stock = p.stockCount ?? p.stock ?? 0;
               const status = p.stockStatus ?? "MADE_TO_ORDER";
+              const stockColor = status === "OUT_OF_STOCK" ? "#b91c1c" : status === "LOW_STOCK" ? "#a16207" : "var(--admin-text)";
               return (
                 <tr key={p.id} style={{ borderBottom: "1px solid var(--admin-border)" }}>
-                  <td style={td}>{p.name}</td>
-                  <td style={td}>{p.category ?? "—"}</td>
-                  <td style={td}>{stock}</td>
-                  <td style={td}>{p.lowStockThreshold ?? "—"}</td>
+                  <td style={{ ...td, fontWeight: 600 }}>{p.name}</td>
+                  <td style={{ ...td, color: "var(--admin-muted)" }}>{p.category ?? "—"}</td>
+                  <td style={{ ...td, color: stockColor, fontWeight: 600 }}>{stock}</td>
+                  <td style={{ ...td, color: "var(--admin-muted)" }}>{p.lowStockThreshold ?? "—"}</td>
                   <td style={td}>
                     <span
                       style={{
@@ -154,7 +160,7 @@ function AdminInventoryPage() {
                         setAdjust({ product: p, type: "RESTOCK", delta: "", reason: "", busy: false })
                       }
                     >
-                      Adjust stock
+                      Adjust
                     </button>
                     <input
                       type="number"
@@ -172,7 +178,7 @@ function AdminInventoryPage() {
                       style={btn}
                       onClick={() => submitSetStock(p)}
                     >
-                      Set
+                      Set stock
                     </button>
                   </td>
                 </tr>
@@ -184,16 +190,27 @@ function AdminInventoryPage() {
     );
   };
 
+  const sectionHeader = (label: string, count: number) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+      <h2 style={{ ...h2, margin: 0 }}>{label}</h2>
+      <span style={countPill}>{count} {count === 1 ? "product" : "products"}</span>
+    </div>
+  );
+
   return (
-    <AdminLayout title="Inventory" onReload={load}>
+    <AdminLayout title="Inventory Management" onReload={load}>
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <p style={{ margin: 0, fontSize: 13, color: "var(--admin-muted)" }}>
+          Monitor and adjust stock levels across all tracked products.
+        </p>
+
         <section className="admin-panel" style={panel}>
-          <h2 style={h2}>Low stock</h2>
+          {sectionHeader("Low Stock", low.length)}
           {renderTable(low, "No products are currently low on stock.")}
         </section>
 
         <section className="admin-panel" style={panel}>
-          <h2 style={h2}>Out of stock</h2>
+          {sectionHeader("Out of Stock", out.length)}
           {renderTable(out, "No products are out of stock.")}
         </section>
       </div>
