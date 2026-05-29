@@ -77,6 +77,8 @@ function CheckoutModal() {
   const [county, setCounty] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [address, setAddress] = useState("");
+  const [paymentGateway, setPaymentGateway] = useState<"PAYHERO" | "MPESA">("PAYHERO");
+
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [selectedZone, setSelectedZone] = useState<DeliveryZone | null>(null);
   const [zoneSearch, setZoneSearch] = useState("");
