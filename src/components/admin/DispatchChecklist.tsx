@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, X, Printer, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { updateOrderStatus } from "@/services/commerceApi";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { dispatchConfirmOrder } from "@/services/commerceApi";
 import type { OrderRecord } from "@/services/commerceMock";
 import { downloadDispatchChecklistPdf } from "@/lib/pdf";
 
