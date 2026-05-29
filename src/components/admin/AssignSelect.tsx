@@ -8,10 +8,16 @@ interface Props {
   orderId: string;
   assignedTo?: string | null;
   assignedToId?: string | null;
+  /** Payment status — only PAID orders can be assigned. */
+  paymentStatus?: string | null;
+  /** Order status — orders already dispatched/delivered/cancelled/refunded can't be (re)assigned. */
+  orderStatus?: string | null;
   /** Compact = row variant (no helper label, fixed width). */
   compact?: boolean;
   onAssigned?: (patch: { assignedTo: string; assignedToId: string }) => void;
 }
+
+const TERMINAL_STATUSES = new Set(["DISPATCHED", "DELIVERED", "CANCELLED", "REFUNDED"]);
 
 // Module-level cache so we don't refetch on every row render.
 let cache: AssignableUser[] | null = null;
@@ -30,7 +36,7 @@ function roleLabel(name: string | undefined): string {
   return n ? STAFF_ROLE_DISPLAY[n] : (name ?? "");
 }
 
-export function AssignSelect({ orderId, assignedTo, assignedToId, compact, onAssigned }: Props) {
+export function AssignSelect({ orderId, assignedTo, assignedToId, paymentStatus, orderStatus, compact, onAssigned }: Props) {
   const { user } = useAuth();
   const currentRole = resolveStaffRole(user);
   const [assignees, setAssignees] = useState<AssignableUser[]>(cache ?? []);
@@ -48,6 +54,16 @@ export function AssignSelect({ orderId, assignedTo, assignedToId, compact, onAss
     [assignees, currentRole],
   );
 
+  // Gate by lifecycle: payment must be PAID and order must not be in a terminal stage.
+  const notPaid = paymentStatus != null && paymentStatus !== "PAID";
+  const terminal = orderStatus != null && TERMINAL_STATUSES.has(String(orderStatus).toUpperCase());
+  const lifecycleBlock = notPaid
+    ? "Order must be paid before it can be assigned"
+    : terminal
+      ? `Order is ${String(orderStatus).toLowerCase()} — assignment locked`
+      : null;
+  const disabled = busy || visible.length === 0 || !!lifecycleBlock;
+
   const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const id = e.target.value;
     const u = visible.find((a) => a.id === id);
@@ -64,25 +80,27 @@ export function AssignSelect({ orderId, assignedTo, assignedToId, compact, onAss
     }
   };
 
+  const placeholderLabel = lifecycleBlock
+    ? notPaid ? "Awaiting payment" : "Locked"
+    : assignedTo ? `→ ${assignedTo}` : visible.length === 0 ? "No staff available" : "Assign to…";
+
   return (
     <div style={{ display: "flex", flexDirection: compact ? "row" : "column", gap: 4, alignItems: compact ? "center" : "stretch", minWidth: 0 }}>
       {!compact && (
         <div style={{ fontSize: 11, color: "var(--admin-muted)" }}>
-          {assignedTo ? `Currently assigned to: ${assignedTo}` : "Not yet assigned"}
+          {lifecycleBlock ?? (assignedTo ? `Currently assigned to: ${assignedTo}` : "Not yet assigned")}
         </div>
       )}
       <select
         className="admin-select"
         value={assignedToId ?? ""}
-        disabled={busy || visible.length === 0}
+        disabled={disabled}
         onChange={handleChange}
         onClick={(e) => e.stopPropagation()}
-        title={assignedTo ? `Assigned to ${assignedTo}` : "Unassigned"}
-        style={compact ? { fontSize: 12, padding: "4px 6px", maxWidth: 180 } : undefined}
+        title={lifecycleBlock ?? (assignedTo ? `Assigned to ${assignedTo}` : "Unassigned")}
+        style={compact ? { fontSize: 12, padding: "4px 6px", maxWidth: 180, opacity: lifecycleBlock ? 0.6 : 1 } : { opacity: lifecycleBlock ? 0.6 : 1 }}
       >
-        <option value="" disabled>
-          {assignedTo ? `→ ${assignedTo}` : visible.length === 0 ? "No staff available" : "Assign to…"}
-        </option>
+        <option value="" disabled>{placeholderLabel}</option>
         {visible.map((u) => (
           <option key={u.id} value={u.id}>
             {u.name}{u.staffRoleName ? ` — ${roleLabel(u.staffRoleName)}` : ""}
@@ -92,3 +110,4 @@ export function AssignSelect({ orderId, assignedTo, assignedToId, compact, onAss
     </div>
   );
 }
+
