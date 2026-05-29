@@ -2,10 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
-import { Forbidden } from "@/components/admin/Forbidden";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { useAdminOrders } from "@/contexts/AdminOrdersContext";
 import { PERM } from "@/lib/permissions";
+import { useRequirePermission } from "@/lib/useRequirePermission";
 import { updateOrderStatus } from "@/services/commerceApi";
 import { formatDateShort, OrderStatusBadge } from "@/components/admin/commerceUi";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
@@ -17,8 +17,8 @@ export const Route = createFileRoute("/_adminAuth/admin/queues/preparation")({
 });
 
 function PreparationQueuePage() {
-  const { user, hasPermission } = useAuth();
-  const allowed = hasPermission(PERM.ORDER_PREPARE) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const allowed = useRequirePermission([PERM.ORDER_PREPARE, PERM.ORDER_MANAGE_ALL]);
+  const { user } = useAuth();
   const { orders, initialLoading, refresh } = useAdminOrders();
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -27,15 +27,14 @@ function PreparationQueuePage() {
     () =>
       orders
         .filter((o) =>
-          o.status === "PAYMENT_VERIFIED" ||
-          o.status === "IN_PRODUCTION" ||
+          ((o.status === "PAYMENT_VERIFIED" || o.status === "IN_PRODUCTION") && o.paymentStatus === "PAID") ||
           (!!currentUserId && o.assignedToId === currentUserId),
         )
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
     [orders, currentUserId],
   );
 
-  if (!allowed) return <AdminLayout title="Preparation queue"><Forbidden resource="order preparation" /></AdminLayout>;
+  if (!allowed) return null;
 
   const advance = async (o: OrderRecord, next: OrderStatus, label: string) => {
     setBusyId(o.id);
@@ -78,7 +77,7 @@ function PreparationQueuePage() {
                   {initialLoading ? (
                     <tr><td colSpan={7}><div className="admin-empty">Loading…</div></td></tr>
                   ) : rows.length === 0 ? (
-                    <tr><td colSpan={7}><div className="admin-empty">No orders in preparation</div></td></tr>
+                    <tr><td colSpan={7}><div className="admin-empty"><b>Nothing to pack yet</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders appear here after the payments team verifies them. You'll see work as soon as it's ready.</div></div></td></tr>
                   ) : rows.map((o) => (
                     <tr key={o.id}>
                       <td><b>{o.reference}</b></td>
@@ -118,7 +117,7 @@ function PreparationQueuePage() {
               {initialLoading ? (
                 <div className="admin-empty">Loading…</div>
               ) : rows.length === 0 ? (
-                <div className="admin-empty">No orders in preparation</div>
+                <div className="admin-empty"><b>Nothing to pack yet</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders appear here after the payments team verifies them. You'll see work as soon as it's ready.</div></div>
               ) : rows.map((o) => (
                 <div key={o.id} className="admin-card">
                   <div className="admin-card-row"><b>{o.reference}</b><OrderStatusBadge status={o.status} /></div>

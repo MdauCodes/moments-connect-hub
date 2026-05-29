@@ -2,10 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
-import { Forbidden } from "@/components/admin/Forbidden";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { useAdminOrders } from "@/contexts/AdminOrdersContext";
 import { PERM } from "@/lib/permissions";
+import { useRequirePermission } from "@/lib/useRequirePermission";
 import { updateOrderStatus } from "@/services/commerceApi";
 import { formatDateShort, formatKes } from "@/components/admin/commerceUi";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
@@ -17,23 +17,24 @@ export const Route = createFileRoute("/_adminAuth/admin/queues/payment")({
 });
 
 function PaymentQueuePage() {
-  const { user, hasPermission } = useAuth();
-  const allowed = hasPermission(PERM.ORDER_VERIFY_PAYMENT) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const allowed = useRequirePermission([PERM.ORDER_VERIFY_PAYMENT, PERM.ORDER_MANAGE_ALL]);
+  const { user } = useAuth();
   const { orders, initialLoading, refresh } = useAdminOrders();
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  // Show all PAID orders awaiting verification, plus any order specifically
-  // assigned to the current user (even if it has moved past PAID) so an
-  // assignee never loses sight of their work.
+  // Strictly PAID + paymentStatus PAID. Also include orders explicitly assigned
+  // to the current user so an assignee never loses sight of their work.
   const currentUserId = user?.id;
   const rows = useMemo(
     () => orders.filter(
-      (o) => o.status === "PAID" || (!!currentUserId && o.assignedToId === currentUserId),
+      (o) =>
+        (o.status === "PAID" && o.paymentStatus === "PAID") ||
+        (!!currentUserId && o.assignedToId === currentUserId),
     ),
     [orders, currentUserId],
   );
 
-  if (!allowed) return <AdminLayout title="Payment queue"><Forbidden resource="payment verification" /></AdminLayout>;
+  if (!allowed) return null;
 
   const verify = async (o: OrderRecord) => {
     if (!confirm(`Confirm payment of ${formatKes(o.total)} is correct for order ${o.reference}?`)) return;
@@ -75,7 +76,7 @@ function PaymentQueuePage() {
                 {initialLoading ? (
                   <tr><td colSpan={7}><div className="admin-empty">Loading…</div></td></tr>
                 ) : rows.length === 0 ? (
-                  <tr><td colSpan={7}><div className="admin-empty">No orders awaiting payment verification</div></td></tr>
+                  <tr><td colSpan={7}><div className="admin-empty"><b>No payments to verify</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders paid via M-Pesa appear here once customers complete payment. Check back shortly.</div></div></td></tr>
                 ) : rows.map((o) => (
                   <tr key={o.id}>
                     <td><b>{o.reference}</b></td>
@@ -104,7 +105,7 @@ function PaymentQueuePage() {
             {initialLoading ? (
               <div className="admin-empty">Loading…</div>
             ) : rows.length === 0 ? (
-              <div className="admin-empty">No orders awaiting payment verification</div>
+              <div className="admin-empty"><b>No payments to verify</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders paid via M-Pesa appear here once customers complete payment. Check back shortly.</div></div>
             ) : rows.map((o) => (
               <div key={o.id} className="admin-card">
                 <div className="admin-card-row"><b>{o.reference}</b><b>{formatKes(o.total)}</b></div>

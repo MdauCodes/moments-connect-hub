@@ -15,6 +15,7 @@ import {
 import { useAdminOrders } from "@/contexts/AdminOrdersContext";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { PERM } from "@/lib/permissions";
+import { useRequirePermission } from "@/lib/useRequirePermission";
 import { resolveStaffRole } from "@/lib/roles";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
 import { HelpPanel, HelpAnchor } from "@/components/admin/HelpPanel";
@@ -30,21 +31,26 @@ const PAGE_SIZE = 20;
 type Scope = "ALL" | "MINE" | "UNASSIGNED";
 
 function AdminOrdersPage() {
+  const allowed = useRequirePermission([PERM.ORDER_VIEW, PERM.ORDER_MANAGE_ALL, PERM.ORDER_ASSIGN]);
   const { orders, initialLoading, error, refresh, applyOrderPatch } = useAdminOrders();
   const { user, hasPermission } = useAuth();
   const staffRole = resolveStaffRole(user);
-  const isStaff = staffRole === "STAFF";
-  const canAssign = !isStaff && (hasPermission(PERM.ORDER_ASSIGN) || hasPermission(PERM.ORDER_MANAGE_ALL));
+
+  // Permission-derived scope (no role-name checks for visibility logic).
+  const canSeeAll = hasPermission(PERM.ORDER_MANAGE_ALL) || hasPermission(PERM.ORDER_ASSIGN);
+  const canAssign = hasPermission(PERM.ORDER_ASSIGN) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const canSeePayment = hasPermission(PERM.PAYMENT_VIEW) || hasPermission(PERM.ORDER_VERIFY_PAYMENT);
+  const isAssignedOnly = !canSeeAll; // ORDER_VIEW only
   const currentUserId = user?.id ?? null;
   const [openId, setOpenId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("ALL");
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [page, setPage] = useState(0);
-  const [scope, setScope] = useState<Scope>(isStaff ? "MINE" : "ALL");
+  const [scope, setScope] = useState<Scope>(isAssignedOnly ? "MINE" : "ALL");
 
   useEffect(() => { document.title = "Orders · Moments admin"; }, []);
-  useEffect(() => { if (isStaff) setScope("MINE"); }, [isStaff]);
+  useEffect(() => { if (isAssignedOnly) setScope("MINE"); }, [isAssignedOnly]);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQ(q.trim()), 250);
@@ -56,9 +62,9 @@ function AdminOrdersPage() {
   const filteredRows = useMemo(() => {
     const needle = debouncedQ.toLowerCase();
     return orders.filter((o) => {
-      // Staff are HARD-LOCKED to their own assigned orders, regardless of the toggle.
-      if (isStaff && (!currentUserId || o.assignedToId !== currentUserId)) return false;
-      if (!isStaff) {
+      // Permission-only orders: hard-locked to their own assignments.
+      if (isAssignedOnly && (!currentUserId || o.assignedToId !== currentUserId)) return false;
+      if (!isAssignedOnly) {
         if (scope === "MINE" && (!currentUserId || o.assignedToId !== currentUserId)) return false;
         if (scope === "UNASSIGNED" && o.assignedToId) return false;
       }
@@ -68,7 +74,7 @@ function AdminOrdersPage() {
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(needle));
     });
-  }, [orders, isStaff, scope, currentUserId, status, debouncedQ]);
+  }, [orders, isAssignedOnly, scope, currentUserId, status, debouncedQ]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const pageRows = useMemo(
@@ -85,6 +91,9 @@ function AdminOrdersPage() {
     }),
     [filteredRows],
   );
+
+  if (!allowed) return null;
+  void canSeePayment;
 
   return (
     <AdminLayout title="Orders" onReload={() => void refresh()}>
@@ -161,7 +170,7 @@ function AdminOrdersPage() {
                   </div>
                 )}
               </div>
-              {!isStaff && (
+              {!isAssignedOnly && (
                 <>
                   <button
                     className="admin-btn admin-btn-ghost"
@@ -209,7 +218,7 @@ function AdminOrdersPage() {
                   ) : pageRows.length === 0 ? (
                     <tr><td colSpan={canAssign ? 9 : 8}>
                       <div className="admin-empty">
-                        {isStaff
+                        {isAssignedOnly
                           ? "No orders assigned to you yet. Your supervisor will assign orders when ready."
                           : "No orders match your filters."}
                       </div>
@@ -260,7 +269,7 @@ function AdminOrdersPage() {
                 <div className="admin-empty">Loading orders…</div>
               ) : pageRows.length === 0 ? (
                 <div className="admin-empty">
-                  {isStaff ? "No orders assigned to you yet." : "No orders match your filters."}
+                  {isAssignedOnly ? "No orders assigned to you yet." : "No orders match your filters."}
                 </div>
               ) : pageRows.map((o) => (
                 <div key={o.id} className="admin-card">

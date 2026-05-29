@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useState } from "react";
 import { AdminLayout } from "@/layouts/AdminLayout";
-import { Forbidden } from "@/components/admin/Forbidden";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { useAdminOrders } from "@/contexts/AdminOrdersContext";
 import { PERM } from "@/lib/permissions";
+import { useRequirePermission } from "@/lib/useRequirePermission";
 import { formatDateShort } from "@/components/admin/commerceUi";
 import { DispatchChecklist } from "@/components/admin/DispatchChecklist";
 import { QueueFreshness } from "@/components/admin/QueueFreshness";
@@ -16,15 +16,17 @@ export const Route = createFileRoute("/_adminAuth/admin/queues/dispatch")({
 });
 
 function DispatchQueuePage() {
-  const { user, hasPermission } = useAuth();
-  const allowed = hasPermission(PERM.ORDER_DISPATCH) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const allowed = useRequirePermission([PERM.ORDER_DISPATCH, PERM.ORDER_MANAGE_ALL]);
+  const { user } = useAuth();
   const { orders, initialLoading, refresh } = useAdminOrders();
   const [openOrderId, setOpenOrderId] = useState<string | null>(null);
 
   const currentUserId = user?.id;
   const rows = useMemo(
     () => orders.filter(
-      (o) => o.status === "READY_FOR_DISPATCH" || (!!currentUserId && o.assignedToId === currentUserId),
+      (o) =>
+        (o.status === "READY_FOR_DISPATCH" && o.paymentStatus === "PAID") ||
+        (!!currentUserId && o.assignedToId === currentUserId),
     ),
     [orders, currentUserId],
   );
@@ -43,7 +45,7 @@ function DispatchQueuePage() {
     [refresh],
   );
 
-  if (!allowed) return <AdminLayout title="Dispatch queue"><Forbidden resource="dispatch" /></AdminLayout>;
+  if (!allowed) return null;
 
   return (
     <AdminLayout title="Dispatch queue" onReload={() => void refresh()}>
@@ -71,7 +73,7 @@ function DispatchQueuePage() {
                 {initialLoading ? (
                   <tr><td colSpan={7}><div className="admin-empty">Loading…</div></td></tr>
                 ) : rows.length === 0 ? (
-                  <tr><td colSpan={7}><div className="admin-empty">No orders ready for dispatch</div></td></tr>
+                  <tr><td colSpan={7}><div className="admin-empty"><b>No orders ready to dispatch</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders appear here once the packaging team marks them ready. Check back soon.</div></div></td></tr>
                 ) : rows.map((o) => (
                   <tr key={o.id}>
                     <td><b>{o.reference}</b></td>
@@ -101,7 +103,7 @@ function DispatchQueuePage() {
             {initialLoading ? (
               <div className="admin-empty">Loading…</div>
             ) : rows.length === 0 ? (
-              <div className="admin-empty">No orders ready for dispatch</div>
+              <div className="admin-empty"><b>No orders ready to dispatch</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders appear here once the packaging team marks them ready. Check back soon.</div></div>
             ) : rows.map((o) => (
               <div key={o.id} className="admin-card">
                 <div className="admin-card-row"><b>{o.reference}</b><span style={{ fontSize: 11, color: "var(--admin-muted)" }}>{o.fulfillmentType ?? "—"}</span></div>
