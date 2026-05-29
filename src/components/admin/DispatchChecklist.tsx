@@ -123,6 +123,10 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
         }}
       >
         <SheetContent side="right" className="w-full sm:max-w-md h-screen sm:h-auto overflow-y-auto">
+          <VisuallyHidden>
+            <SheetTitle>Dispatch checklist {order?.reference ?? ""}</SheetTitle>
+            <SheetDescription>Verify items and confirm dispatch</SheetDescription>
+          </VisuallyHidden>
           {order && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Header */}
