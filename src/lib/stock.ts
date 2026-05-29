@@ -16,50 +16,63 @@ export interface StockInfo {
  * Pass a `variant` to get variant-specific availability.
  */
 export function getStockInfo(
-  product: Pick<Product, "stock" | "lowStockThreshold" | "trackInventory">,
+  product: Pick<Product, "stock" | "lowStockThreshold" | "trackInventory" | "stockStatus">,
   variant?: { stock?: number } | null,
   requestedQty = 0,
 ): StockInfo {
-  const tracked = product.trackInventory ?? typeof product.stock === "number";
+  const status = product.stockStatus;
+  const threshold = product.lowStockThreshold ?? 50;
+  const tracked = product.trackInventory ?? (status !== "MADE_TO_ORDER");
   const available =
     variant && typeof variant.stock === "number"
       ? variant.stock
       : (product.stock ?? 0);
-  const threshold = product.lowStockThreshold ?? 0;
 
-  if (!tracked) {
+  if (status === "MADE_TO_ORDER") {
     return {
       state: "untracked",
       available: Number.POSITIVE_INFINITY,
       threshold,
-      label: "In stock",
+      label: "Made to order",
       isBackorder: false,
     };
   }
 
-  if (available <= 0) {
+  if (status === "OUT_OF_STOCK" || (tracked && available <= 0)) {
     return {
       state: "out_of_stock",
       available: 0,
       threshold,
-      label: "Out of stock — backorder available",
+      label: "Place your order — we produce on demand",
       isBackorder: requestedQty > 0,
     };
   }
-  if (available <= threshold) {
+
+  if (status === "LOW_STOCK" || (tracked && available > 0 && available <= threshold)) {
     return {
       state: "low_stock",
       available,
       threshold,
-      label: `Low stock — ${available.toLocaleString()} left`,
+      label: `Only ${available.toLocaleString()} left`,
       isBackorder: requestedQty > available,
     };
   }
+
+  if (status === "IN_STOCK" || (tracked && available > threshold)) {
+    return {
+      state: "in_stock",
+      available,
+      threshold,
+      label: `In stock — ${available.toLocaleString()} units`,
+      isBackorder: false,
+    };
+  }
+
   return {
-    state: "in_stock",
-    available,
+    state: "untracked",
+    available: Number.POSITIVE_INFINITY,
     threshold,
     label: "In stock",
-    isBackorder: requestedQty > available,
+    isBackorder: false,
   };
 }
