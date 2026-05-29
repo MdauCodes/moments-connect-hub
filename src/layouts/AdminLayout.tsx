@@ -503,7 +503,6 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
               disabled={reloading}
             >
               <RefreshCw size={15} style={{ animation: reloading ? "admin-spin 0.8s linear infinite" : "none" }} />
-              <RefreshCw size={15} style={{ animation: reloading ? "admin-spin 0.8s linear infinite" : "none" }} />
             </button>
             <button
               type="button"
