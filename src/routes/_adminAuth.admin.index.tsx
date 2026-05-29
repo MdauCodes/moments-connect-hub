@@ -97,7 +97,7 @@ export function AdminDashboardPage() {
           {tiles.length > 0 && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }} data-admin-stats>
               {(loadingStats && tiles.length === 0
-                ? Array.from({ length: 3 }).map(() => ({ label: "Loading…", value: "—", sub: "" }))
+                ? Array.from({ length: 3 }).map(() => ({ label: "Loading…", value: "—", sub: "", note: undefined as string | undefined, tone: "default" as const }))
                 : tiles
               ).map((t, i) => (
                 <div key={i} className="admin-panel" style={{ padding: 16, opacity: t.tone === "muted" ? 0.95 : 1 }}>
