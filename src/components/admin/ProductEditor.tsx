@@ -885,7 +885,31 @@ export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDel
           [data-variant-row] { grid-template-columns: 1fr 1fr !important; }
         }
       `}</style>
+      {productId && (() => {
+        const noImage = !values.image;
+        const noPrice = !values.basePrice || values.basePrice <= 0;
+        const tiers = values.pricingTiers ?? [];
+        const allTiersZero = tiers.length === 0 || tiers.every((t) => !t || !((Number(t.pricePerUnit) || 0) > 0));
+        if (!noImage && !noPrice && !allTiersZero) return null;
+        return (
+          <div
+            style={{
+              gridColumn: "1 / -1",
+              background: "color-mix(in oklab, #f59e0b 14%, var(--admin-surface))",
+              border: "1px solid color-mix(in oklab, #f59e0b 50%, var(--admin-border))",
+              color: "var(--admin-text)",
+              borderRadius: 10,
+              padding: "10px 14px",
+              fontSize: 12.5,
+            }}
+          >
+            <strong style={{ color: "#92400e" }}>Incomplete product:</strong>{" "}
+            This product is missing some details — add a price, image and pricing tiers to make it visible to customers.
+          </div>
+        );
+      })()}
       {/* ── LEFT COLUMN ─────────────────────────────────────────────────── */}
+
       <div style={s.mainCol}>
         {/* Core details */}
         <div style={s.card}>
