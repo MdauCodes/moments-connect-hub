@@ -80,12 +80,12 @@ const navSections: NavSection[] = [
   },
   {
     label: "Catalogue",
+    items: [
       { label: "Products", to: "/admin/products", icon: Package, requiresAny: [PERM.PRODUCT_VIEW, PERM.PRODUCT_MANAGE] },
       { label: "Inventory", to: "/admin/inventory", icon: Boxes, requiresAny: [PERM.PRODUCT_VIEW, PERM.PRODUCT_MANAGE] },
-
-      { label: "Products", to: "/admin/products", icon: Package, requiresAny: [PERM.PRODUCT_VIEW, PERM.PRODUCT_MANAGE] },
       { label: "Industries", to: "/admin/industries", icon: Factory, requiresAny: [PERM.PRODUCT_MANAGE] },
       { label: "Delivery Zones", to: "/admin/delivery-zones", icon: Truck, requiresAny: [PERM.SETTINGS_MANAGE] },
+
     ],
   },
   {
