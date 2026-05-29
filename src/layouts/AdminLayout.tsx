@@ -60,16 +60,14 @@ const navSections: NavSection[] = [
   {
     label: "Overview",
     items: [
-      { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard, requiresAny: [PERM.ANALYTICS_VIEW, PERM.USER_MANAGE_ROLES] },
+      // Dashboard adapts internally — show whenever there's anything to show.
+      { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard, requiresAny: [PERM.ANALYTICS_VIEW, PERM.ORDER_VIEW, PERM.USER_MANAGE_ROLES, PERM.PRODUCT_MANAGE, PERM.ORDER_VERIFY_PAYMENT, PERM.ORDER_PREPARE, PERM.ORDER_DISPATCH, PERM.USER_VIEW] },
       { label: "Analytics", to: "/admin/analytics", icon: BarChart3, requiresAny: [PERM.ANALYTICS_VIEW] },
     ],
   },
   {
     label: "Queues",
     items: [
-      // Queue pages are for the specialist roles that actually process the stage.
-      // Supervisors / managers (ORDER_MANAGE_ALL only) oversee from the Orders list,
-      // not from the queue pages — so we gate strictly on the stage permission.
       { label: "Payment Queue", to: "/admin/queues/payment", icon: CheckCircle2, requiresAny: [PERM.ORDER_VERIFY_PAYMENT] },
       { label: "Preparation Queue", to: "/admin/queues/preparation", icon: PackageCheck, requiresAny: [PERM.ORDER_PREPARE] },
       { label: "Dispatch Queue", to: "/admin/queues/dispatch", icon: Send, requiresAny: [PERM.ORDER_DISPATCH] },
@@ -78,17 +76,16 @@ const navSections: NavSection[] = [
   {
     label: "Sales",
     items: [
-      { label: "Orders", to: "/admin/orders", icon: ShoppingCart, requiresAny: [PERM.ORDER_VIEW, PERM.ORDER_MANAGE_ALL, PERM.ORDER_ASSIGN] },
+      { label: "Orders", to: "/admin/orders", icon: ShoppingCart, requiresAny: [PERM.ORDER_VIEW] },
     ],
   },
   {
     label: "Catalogue",
     items: [
       { label: "Products", to: "/admin/products", icon: Package, requiresAny: [PERM.PRODUCT_VIEW, PERM.PRODUCT_MANAGE] },
-      { label: "Inventory", to: "/admin/inventory", icon: Boxes, requiresAny: [PERM.PRODUCT_VIEW, PERM.PRODUCT_MANAGE] },
+      { label: "Inventory", to: "/admin/inventory", icon: Boxes, requiresAny: [PERM.PRODUCT_MANAGE] },
       { label: "Industries", to: "/admin/industries", icon: Factory, requiresAny: [PERM.PRODUCT_MANAGE] },
       { label: "Delivery Zones", to: "/admin/delivery-zones", icon: Truck, requiresAny: [PERM.SETTINGS_MANAGE] },
-
     ],
   },
   {
