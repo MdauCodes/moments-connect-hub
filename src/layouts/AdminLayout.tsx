@@ -324,9 +324,11 @@ function getInitials(name: string): string {
 
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   const Icon = item.icon;
+  const tourKey = item.to.split("/").filter(Boolean).slice(-1)[0] ?? item.to;
   return (
     <Link
       to={item.to}
+      data-tour={`nav-${tourKey}`}
       style={{ ...styles.navItem, ...(active ? styles.navItemActive : {}) }}
       onMouseEnter={(e) => {
         if (!active) {
