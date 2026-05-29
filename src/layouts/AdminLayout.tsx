@@ -517,6 +517,16 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
               disabled={reloading}
             >
               <RefreshCw size={15} style={{ animation: reloading ? "admin-spin 0.8s linear infinite" : "none" }} />
+              <RefreshCw size={15} style={{ animation: reloading ? "admin-spin 0.8s linear infinite" : "none" }} />
+            </button>
+            <button
+              type="button"
+              style={styles.bellBtn}
+              aria-label="Help (Shift+click to replay tour for this page)"
+              title="Help — Shift+click to replay tour for this page"
+              onClick={openHelp}
+            >
+              <HelpCircle size={15} />
             </button>
             <button type="button" style={styles.bellBtn} aria-label="Notifications">
               <Bell size={15} />
