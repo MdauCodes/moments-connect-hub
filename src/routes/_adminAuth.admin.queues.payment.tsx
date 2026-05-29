@@ -76,7 +76,7 @@ function PaymentQueuePage() {
                 {initialLoading ? (
                   <tr><td colSpan={7}><div className="admin-empty">Loading…</div></td></tr>
                 ) : rows.length === 0 ? (
-                  <tr><td colSpan={7}><div className="admin-empty">No orders awaiting payment verification</div></td></tr>
+                  <tr><td colSpan={7}><div className="admin-empty"><b>No payments to verify</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders paid via M-Pesa appear here once customers complete payment. Check back shortly.</div></div></td></tr>
                 ) : rows.map((o) => (
                   <tr key={o.id}>
                     <td><b>{o.reference}</b></td>
@@ -105,7 +105,7 @@ function PaymentQueuePage() {
             {initialLoading ? (
               <div className="admin-empty">Loading…</div>
             ) : rows.length === 0 ? (
-              <div className="admin-empty">No orders awaiting payment verification</div>
+              <div className="admin-empty"><b>No payments to verify</b><div style={{fontSize:12,marginTop:4,color:"var(--admin-muted)"}}>Orders paid via M-Pesa appear here once customers complete payment. Check back shortly.</div></div>
             ) : rows.map((o) => (
               <div key={o.id} className="admin-card">
                 <div className="admin-card-row"><b>{o.reference}</b><b>{formatKes(o.total)}</b></div>
