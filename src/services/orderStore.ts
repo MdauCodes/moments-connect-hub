@@ -293,6 +293,7 @@ export const orderStore = {
   async startMpesaStk(
     orderId: string,
     phone: string,
+    paymentMethod: CheckoutPaymentMethod = "MPESA",
   ): Promise<{ success: boolean; message?: string; errorCode?: string }> {
     let res: Response;
     try {
@@ -300,7 +301,7 @@ export const orderStore = {
         method: "POST",
         session: true,
         auth: true,
-        json: { orderId, paymentMethod: "MPESA", phone },
+        json: { orderId, paymentMethod, phone },
       });
     } catch {
       return {
@@ -309,6 +310,8 @@ export const orderStore = {
         message: "Cannot reach the payment service. Check your connection and try again.",
       };
     }
+
+    if (res.ok) return { success: true };
 
     if (res.ok) return { success: true };
 

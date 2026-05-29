@@ -54,6 +54,7 @@ import { Route as AdminAuthAdminRolesRouteImport } from './routes/_adminAuth.adm
 import { Route as AdminAuthAdminReviewsRouteImport } from './routes/_adminAuth.admin.reviews'
 import { Route as AdminAuthAdminPaymentsRouteImport } from './routes/_adminAuth.admin.payments'
 import { Route as AdminAuthAdminOrdersRouteImport } from './routes/_adminAuth.admin.orders'
+import { Route as AdminAuthAdminInventoryRouteImport } from './routes/_adminAuth.admin.inventory'
 import { Route as AdminAuthAdminIndustriesRouteImport } from './routes/_adminAuth.admin.industries'
 import { Route as AdminAuthAdminEnquiriesRouteImport } from './routes/_adminAuth.admin.enquiries'
 import { Route as AdminAuthAdminDeliveryZonesRouteImport } from './routes/_adminAuth.admin.delivery-zones'
@@ -299,6 +300,11 @@ const AdminAuthAdminOrdersRoute = AdminAuthAdminOrdersRouteImport.update({
   path: '/admin/orders',
   getParentRoute: () => AdminAuthRoute,
 } as any)
+const AdminAuthAdminInventoryRoute = AdminAuthAdminInventoryRouteImport.update({
+  id: '/admin/inventory',
+  path: '/admin/inventory',
+  getParentRoute: () => AdminAuthRoute,
+} as any)
 const AdminAuthAdminIndustriesRoute =
   AdminAuthAdminIndustriesRouteImport.update({
     id: '/admin/industries',
@@ -456,6 +462,7 @@ export interface FileRoutesByFullPath {
   '/admin/delivery-zones': typeof AdminAuthAdminDeliveryZonesRoute
   '/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
   '/admin/industries': typeof AdminAuthAdminIndustriesRoute
+  '/admin/inventory': typeof AdminAuthAdminInventoryRoute
   '/admin/orders': typeof AdminAuthAdminOrdersRouteWithChildren
   '/admin/payments': typeof AdminAuthAdminPaymentsRoute
   '/admin/reviews': typeof AdminAuthAdminReviewsRoute
@@ -522,6 +529,7 @@ export interface FileRoutesByTo {
   '/admin/delivery-zones': typeof AdminAuthAdminDeliveryZonesRoute
   '/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
   '/admin/industries': typeof AdminAuthAdminIndustriesRoute
+  '/admin/inventory': typeof AdminAuthAdminInventoryRoute
   '/admin/orders': typeof AdminAuthAdminOrdersRouteWithChildren
   '/admin/payments': typeof AdminAuthAdminPaymentsRoute
   '/admin/reviews': typeof AdminAuthAdminReviewsRoute
@@ -590,6 +598,7 @@ export interface FileRoutesById {
   '/_adminAuth/admin/delivery-zones': typeof AdminAuthAdminDeliveryZonesRoute
   '/_adminAuth/admin/enquiries': typeof AdminAuthAdminEnquiriesRouteWithChildren
   '/_adminAuth/admin/industries': typeof AdminAuthAdminIndustriesRoute
+  '/_adminAuth/admin/inventory': typeof AdminAuthAdminInventoryRoute
   '/_adminAuth/admin/orders': typeof AdminAuthAdminOrdersRouteWithChildren
   '/_adminAuth/admin/payments': typeof AdminAuthAdminPaymentsRoute
   '/_adminAuth/admin/reviews': typeof AdminAuthAdminReviewsRoute
@@ -658,6 +667,7 @@ export interface FileRouteTypes {
     | '/admin/delivery-zones'
     | '/admin/enquiries'
     | '/admin/industries'
+    | '/admin/inventory'
     | '/admin/orders'
     | '/admin/payments'
     | '/admin/reviews'
@@ -724,6 +734,7 @@ export interface FileRouteTypes {
     | '/admin/delivery-zones'
     | '/admin/enquiries'
     | '/admin/industries'
+    | '/admin/inventory'
     | '/admin/orders'
     | '/admin/payments'
     | '/admin/reviews'
@@ -791,6 +802,7 @@ export interface FileRouteTypes {
     | '/_adminAuth/admin/delivery-zones'
     | '/_adminAuth/admin/enquiries'
     | '/_adminAuth/admin/industries'
+    | '/_adminAuth/admin/inventory'
     | '/_adminAuth/admin/orders'
     | '/_adminAuth/admin/payments'
     | '/_adminAuth/admin/reviews'
@@ -1166,6 +1178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuthAdminOrdersRouteImport
       parentRoute: typeof AdminAuthRoute
     }
+    '/_adminAuth/admin/inventory': {
+      id: '/_adminAuth/admin/inventory'
+      path: '/admin/inventory'
+      fullPath: '/admin/inventory'
+      preLoaderRoute: typeof AdminAuthAdminInventoryRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
     '/_adminAuth/admin/industries': {
       id: '/_adminAuth/admin/industries'
       path: '/admin/industries'
@@ -1372,6 +1391,7 @@ interface AdminAuthRouteChildren {
   AdminAuthAdminDeliveryZonesRoute: typeof AdminAuthAdminDeliveryZonesRoute
   AdminAuthAdminEnquiriesRoute: typeof AdminAuthAdminEnquiriesRouteWithChildren
   AdminAuthAdminIndustriesRoute: typeof AdminAuthAdminIndustriesRoute
+  AdminAuthAdminInventoryRoute: typeof AdminAuthAdminInventoryRoute
   AdminAuthAdminOrdersRoute: typeof AdminAuthAdminOrdersRouteWithChildren
   AdminAuthAdminPaymentsRoute: typeof AdminAuthAdminPaymentsRoute
   AdminAuthAdminReviewsRoute: typeof AdminAuthAdminReviewsRoute
@@ -1397,6 +1417,7 @@ const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminDeliveryZonesRoute: AdminAuthAdminDeliveryZonesRoute,
   AdminAuthAdminEnquiriesRoute: AdminAuthAdminEnquiriesRouteWithChildren,
   AdminAuthAdminIndustriesRoute: AdminAuthAdminIndustriesRoute,
+  AdminAuthAdminInventoryRoute: AdminAuthAdminInventoryRoute,
   AdminAuthAdminOrdersRoute: AdminAuthAdminOrdersRouteWithChildren,
   AdminAuthAdminPaymentsRoute: AdminAuthAdminPaymentsRoute,
   AdminAuthAdminReviewsRoute: AdminAuthAdminReviewsRoute,
