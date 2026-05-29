@@ -604,3 +604,36 @@
 .admin-card-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
 .admin-card-row b { font-family: var(--font-display); }
 .admin-card-actions { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 4px; }
+
+/* Admin: tighter mobile (sub-480) */
+@media (max-width: 480px) {
+  .admin-shell main { padding: 10px !important; }
+  .admin-shell [data-admin-topbar-title] { font-size: 16px !important; }
+  .admin-shell [data-admin-topbar-right] { gap: 4px !important; }
+  .admin-shell .admin-panel { border-radius: 10px; }
+  .admin-table th, .admin-table td { padding: 8px 8px; font-size: 12px; }
+  .admin-card { padding: 12px; border-radius: 10px; }
+  .admin-btn { padding: 9px 12px; font-size: 13px; min-height: 38px; }
+}
+
+/* Admin: ensure topbar wraps gracefully on narrow screens */
+@media (max-width: 640px) {
+  .admin-shell [data-admin-topbar-right] { flex-wrap: wrap; justify-content: flex-end; }
+}
+
+/* Section heading helper used by dispatch queue */
+.admin-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px 6px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.admin-section-heading .admin-badge { text-transform: none; letter-spacing: 0; }
+
