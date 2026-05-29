@@ -792,7 +792,8 @@ export interface ProductEditorProps {
   onCancel: () => void;
 }
 
-export function ProductEditor({ initial, submitLabel, onSubmit, onDelete, onCancel }: ProductEditorProps) {
+export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDelete, onCancel }: ProductEditorProps) {
+
   const [values, setValues] = useState<ProductFormValues>(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
