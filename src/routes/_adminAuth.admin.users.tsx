@@ -135,6 +135,26 @@ function AdminUsersPage() {
   return (
     <AdminLayout title="Users" actionLabel={canCreate ? "New user" : undefined} onAction={canCreate ? () => begin() : undefined} onReload={load}>
       <div className="admin-page-stack">
+        {showFirstVisit && (
+          <div style={{
+            padding: "12px 14px",
+            borderRadius: 10,
+            background: "rgba(59,130,246,0.10)",
+            border: "1px solid rgba(59,130,246,0.3)",
+            color: "var(--admin-text)",
+            fontSize: 13,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+          }}>
+            <span>
+              <strong>New staff?</strong> Create their account here and they'll receive a temporary password by email.
+              They'll be prompted to change it on first login.
+            </span>
+            <button className="admin-btn admin-btn-ghost" onClick={() => setShowFirstVisit(false)}>Got it</button>
+          </div>
+        )}
         {banner && (
           <div style={{
             padding: "10px 14px",
