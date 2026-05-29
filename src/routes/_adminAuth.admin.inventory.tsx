@@ -346,3 +346,12 @@ const statusPill: CSSProperties = {
   fontWeight: 600,
   color: "var(--admin-text)",
 };
+const countPill: CSSProperties = {
+  display: "inline-block",
+  padding: "2px 10px",
+  borderRadius: 999,
+  fontSize: 11,
+  fontWeight: 600,
+  background: "var(--admin-border)",
+  color: "var(--admin-muted)",
+};
