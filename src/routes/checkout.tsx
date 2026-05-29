@@ -206,7 +206,8 @@ function CheckoutModal() {
             postalCode: postalCode.trim() || undefined,
           },
           shippingFee,
-          paymentMethod: "MPESA",
+          paymentMethod: paymentGateway,
+
           fulfillmentType: fulfillment,
           ...(fulfillment === "OWN_COURIER" && courierType
             ? {
