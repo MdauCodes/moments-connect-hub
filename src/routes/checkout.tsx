@@ -228,6 +228,7 @@ function CheckoutModal() {
         setErrorMsg("Could not create order — please try again.");
         return;
       }
+      const init = await orderStore.startMpesaStk(id, phoneNormalized, paymentGateway);
 
       const init = await orderStore.startMpesaStk(id, phoneNormalized);
       if (!init.success) {
