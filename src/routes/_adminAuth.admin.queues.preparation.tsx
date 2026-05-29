@@ -17,8 +17,8 @@ export const Route = createFileRoute("/_adminAuth/admin/queues/preparation")({
 });
 
 function PreparationQueuePage() {
-  const { user, hasPermission } = useAuth();
-  const allowed = hasPermission(PERM.ORDER_PREPARE) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const allowed = useRequirePermission([PERM.ORDER_PREPARE, PERM.ORDER_MANAGE_ALL]);
+  const { user } = useAuth();
   const { orders, initialLoading, refresh } = useAdminOrders();
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -27,15 +27,14 @@ function PreparationQueuePage() {
     () =>
       orders
         .filter((o) =>
-          o.status === "PAYMENT_VERIFIED" ||
-          o.status === "IN_PRODUCTION" ||
+          ((o.status === "PAYMENT_VERIFIED" || o.status === "IN_PRODUCTION") && o.paymentStatus === "PAID") ||
           (!!currentUserId && o.assignedToId === currentUserId),
         )
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
     [orders, currentUserId],
   );
 
-  if (!allowed) return <AdminLayout title="Preparation queue"><Forbidden resource="order preparation" /></AdminLayout>;
+  if (!allowed) return null;
 
   const advance = async (o: OrderRecord, next: OrderStatus, label: string) => {
     setBusyId(o.id);
