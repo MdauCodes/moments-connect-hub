@@ -16,15 +16,17 @@ export const Route = createFileRoute("/_adminAuth/admin/queues/dispatch")({
 });
 
 function DispatchQueuePage() {
-  const { user, hasPermission } = useAuth();
-  const allowed = hasPermission(PERM.ORDER_DISPATCH) || hasPermission(PERM.ORDER_MANAGE_ALL);
+  const allowed = useRequirePermission([PERM.ORDER_DISPATCH, PERM.ORDER_MANAGE_ALL]);
+  const { user } = useAuth();
   const { orders, initialLoading, refresh } = useAdminOrders();
   const [openOrderId, setOpenOrderId] = useState<string | null>(null);
 
   const currentUserId = user?.id;
   const rows = useMemo(
     () => orders.filter(
-      (o) => o.status === "READY_FOR_DISPATCH" || (!!currentUserId && o.assignedToId === currentUserId),
+      (o) =>
+        (o.status === "READY_FOR_DISPATCH" && o.paymentStatus === "PAID") ||
+        (!!currentUserId && o.assignedToId === currentUserId),
     ),
     [orders, currentUserId],
   );
@@ -43,7 +45,7 @@ function DispatchQueuePage() {
     [refresh],
   );
 
-  if (!allowed) return <AdminLayout title="Dispatch queue"><Forbidden resource="dispatch" /></AdminLayout>;
+  if (!allowed) return null;
 
   return (
     <AdminLayout title="Dispatch queue" onReload={() => void refresh()}>
