@@ -17,17 +17,22 @@ export const Route = createFileRoute("/_adminAuth/admin/queues/preparation")({
 });
 
 function PreparationQueuePage() {
-  const { hasPermission } = useAuth();
+  const { user, hasPermission } = useAuth();
   const allowed = hasPermission(PERM.ORDER_PREPARE) || hasPermission(PERM.ORDER_MANAGE_ALL);
   const { orders, initialLoading, refresh } = useAdminOrders();
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  const currentUserId = user?.id;
   const rows = useMemo(
     () =>
       orders
-        .filter((o) => o.status === "PAYMENT_VERIFIED" || o.status === "IN_PRODUCTION")
+        .filter((o) =>
+          o.status === "PAYMENT_VERIFIED" ||
+          o.status === "IN_PRODUCTION" ||
+          (!!currentUserId && o.assignedToId === currentUserId),
+        )
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-    [orders],
+    [orders, currentUserId],
   );
 
   if (!allowed) return <AdminLayout title="Preparation queue"><Forbidden resource="order preparation" /></AdminLayout>;

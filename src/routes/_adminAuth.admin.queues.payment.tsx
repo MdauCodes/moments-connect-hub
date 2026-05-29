@@ -17,14 +17,20 @@ export const Route = createFileRoute("/_adminAuth/admin/queues/payment")({
 });
 
 function PaymentQueuePage() {
-  const { hasPermission } = useAuth();
+  const { user, hasPermission } = useAuth();
   const allowed = hasPermission(PERM.ORDER_VERIFY_PAYMENT) || hasPermission(PERM.ORDER_MANAGE_ALL);
   const { orders, initialLoading, refresh } = useAdminOrders();
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  // Show all PAID orders awaiting verification, plus any order specifically
+  // assigned to the current user (even if it has moved past PAID) so an
+  // assignee never loses sight of their work.
+  const currentUserId = user?.id;
   const rows = useMemo(
-    () => orders.filter((o) => o.status === "PAID"),
-    [orders],
+    () => orders.filter(
+      (o) => o.status === "PAID" || (!!currentUserId && o.assignedToId === currentUserId),
+    ),
+    [orders, currentUserId],
   );
 
   if (!allowed) return <AdminLayout title="Payment queue"><Forbidden resource="payment verification" /></AdminLayout>;
