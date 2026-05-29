@@ -24,12 +24,15 @@ import {
   Send,
   ShieldCheck,
   Boxes,
+  HelpCircle,
 } from "lucide-react";
 
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { hasAnyPerm, PERM, type PermissionCode } from "@/lib/permissions";
 import { RoleBadge } from "@/components/admin/RoleBadge";
 import { resolveStaffRole, SPECIALIST_ROLES, STAFF_ROLE_DISPLAY } from "@/lib/roles";
+import { OnboardingTour } from "@/components/admin/OnboardingTour";
+import { isOnboardingDone, ROLE_TOURS } from "@/lib/onboardingTours";
 
 interface AdminLayoutProps {
   title: string;
