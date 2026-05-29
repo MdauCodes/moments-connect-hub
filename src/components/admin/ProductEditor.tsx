@@ -157,7 +157,7 @@ export function productToFormValues(p: Product): ProductFormValues {
   };
 }
 
-}
+
 
 // ---------------------------------------------------------------------------
 // Backend payload builder — resolves string industry IDs to UUIDs via the
