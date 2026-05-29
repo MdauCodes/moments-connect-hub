@@ -190,16 +190,24 @@ function AdminProductsPage() {
                 </tr>
               ) : (
                 visibleProducts.map((p) => {
-                  const stock = p.stock ?? 0;
-                  const threshold = p.lowStockThreshold ?? 50;
-                  const tracking = p.trackInventory ?? true;
-                  const stockTone = !tracking
-                    ? "var(--admin-muted)"
-                    : stock === 0
-                      ? "#b91c1c"
-                      : stock < threshold
-                        ? "#a16207"
-                        : "#15803d";
+                  const ss = (p as any).stockStatus ?? "MADE_TO_ORDER";
+                  const stockCount = p.stock ?? 0;
+                  const stockTone =
+                    ss === "MADE_TO_ORDER"
+                      ? "var(--admin-muted)"
+                      : ss === "OUT_OF_STOCK"
+                        ? "#b91c1c"
+                        : ss === "LOW_STOCK"
+                          ? "#a16207"
+                          : "#15803d";
+                  const stockText =
+                    ss === "MADE_TO_ORDER"
+                      ? "Made to order"
+                      : ss === "OUT_OF_STOCK"
+                        ? "Out of stock"
+                        : ss === "LOW_STOCK"
+                          ? `${stockCount.toLocaleString()} ⚠ Low`
+                          : `${stockCount.toLocaleString()} units`;
                   return (
                     <tr key={p.id}>
                       <td>
@@ -216,9 +224,7 @@ function AdminProductsPage() {
                       </td>
                       <td style={{ fontFamily: "monospace", fontSize: 12 }}>{p.sku || "—"}</td>
                       <td>{p.basePrice != null ? p.basePrice.toLocaleString() : "—"}</td>
-                      <td style={{ color: stockTone, fontWeight: 600 }}>
-                        {tracking ? `${stock.toLocaleString()}${stock < threshold ? " ⚠" : ""}` : "Untracked"}
-                      </td>
+                      <td style={{ color: stockTone, fontWeight: 600 }}>{stockText}</td>
                       <td>{p.category || "—"}</td>
                       <td>
                         {[p.isDiscount && "Discount", p.isNewArrival && "New", p.isFastMoving && "Fast"]
