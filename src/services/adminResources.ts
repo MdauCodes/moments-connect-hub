@@ -99,6 +99,21 @@ export const adminResources = {
     update: (id: string, body: Partial<ProductRequest>) => adminJson<ProductDto>(`/api/v1/admin/products/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(body) }),
     remove: (id: string) => adminJson<void>(`/api/v1/admin/products/${encodeURIComponent(id)}`, { method: "DELETE" }),
   },
+  inventory: {
+    getLowStock: () => adminJson<ProductDto[]>("/api/v1/admin/products/inventory/low-stock"),
+    getOutOfStock: () => adminJson<ProductDto[]>("/api/v1/admin/products/inventory/out-of-stock"),
+    adjustStock: (id: string, body: { type: string; delta: number; reason?: string }) =>
+      adminJson<ProductDto>(`/api/v1/admin/products/${encodeURIComponent(id)}/stock/adjust`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    setStock: (id: string, count: number, reason?: string) =>
+      adminJson<ProductDto>(
+        `/api/v1/admin/products/${encodeURIComponent(id)}/stock/set?count=${count}${reason ? `&reason=${encodeURIComponent(reason)}` : ""}`,
+        { method: "PUT" },
+      ),
+  },
+
   blogs: {
     list: (params: Record<string, string | number | undefined> = {}) => adminJson<BlogDto[]>(`/api/v1/admin/blogs${qs(params)}`),
     create: (body: BlogRequest) => adminJson<BlogDto>("/api/v1/admin/blogs", { method: "POST", body: JSON.stringify(body) }),
