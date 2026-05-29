@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, X, Printer, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { updateOrderStatus } from "@/services/commerceApi";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { dispatchConfirmOrder } from "@/services/commerceApi";
 import type { OrderRecord } from "@/services/commerceMock";
 import { downloadDispatchChecklistPdf } from "@/lib/pdf";
 
@@ -78,12 +79,15 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
     if (!order) return;
     setSubmitting(true);
     try {
-      await updateOrderStatus(order.id, "DISPATCHED", "Dispatched to courier");
+      console.log("[dispatch] PATCH /api/v1/admin/orders/" + order.id + "/dispatch-confirm");
+      const result = await dispatchConfirmOrder(order.id, "CONFIRM_LATER", true);
+      console.log("[dispatch] response:", result);
       try { window.localStorage.removeItem(`${STORAGE_PREFIX}${order.id}`); } catch { /* ignore */ }
       toast.success(`Order dispatched successfully`);
       setConfirmOpen(false);
       await onDispatched(order.id);
     } catch (err) {
+      console.error("[dispatch] failed:", err);
       toast.error(err instanceof Error ? err.message : "Dispatch failed — please try again");
     } finally {
       setSubmitting(false);
@@ -119,6 +123,10 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
         }}
       >
         <SheetContent side="right" className="w-full sm:max-w-md h-screen sm:h-auto overflow-y-auto">
+          <VisuallyHidden>
+            <SheetTitle>Dispatch checklist {order?.reference ?? ""}</SheetTitle>
+            <SheetDescription>Verify items and confirm dispatch</SheetDescription>
+          </VisuallyHidden>
           {order && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Header */}
@@ -300,80 +308,81 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
                   Download printable checklist (PDF)
                 </button>
               </div>
+
+              {/* Confirm modal — rendered INSIDE SheetContent so Radix's focus trap doesn't inert it */}
+              {confirmOpen && (
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  style={{
+                    position: "fixed",
+                    inset: 0,
+                    background: "rgba(0,0,0,0.45)",
+                    display: "grid",
+                    placeItems: "center",
+                    zIndex: 100,
+                    padding: 16,
+                  }}
+                >
+                  <div
+                    style={{
+                      background: "var(--admin-surface, #fff)",
+                      borderRadius: 14,
+                      width: "100%",
+                      maxWidth: 420,
+                      padding: 24,
+                      boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                      <h3 style={{ fontFamily: "var(--font-display)", margin: 0, fontSize: 18 }}>Confirm dispatch</h3>
+                      <button
+                        onClick={() => setConfirmOpen(false)}
+                        style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
+                        aria-label="Close"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <div
+                      style={{
+                        background: "#f0faf2",
+                        border: "1px solid #a8d5b0",
+                        borderRadius: 8,
+                        padding: "10px 14px",
+                        marginBottom: 14,
+                        fontSize: 13,
+                      }}
+                    >
+                      <div style={{ fontWeight: 600, marginBottom: 2 }}>✓ All {itemIds.length} items verified</div>
+                      <div style={{ color: "var(--admin-muted)" }}>
+                        {order.reference} → {order.customerName}
+                        {order.city && `, ${order.city}`}
+                      </div>
+                    </div>
+
+                    <p style={{ fontSize: 14, color: "var(--admin-muted)", margin: "0 0 20px", lineHeight: 1.5 }}>
+                      This will set the order status to <b>DISPATCHED</b> and notify the customer.
+                    </p>
+
+                    <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                      <button type="button" className="admin-btn admin-btn-ghost" onClick={() => setConfirmOpen(false)} disabled={submitting}>
+                        Cancel
+                      </button>
+                      <button type="button" className="admin-btn admin-btn-primary" onClick={() => void dispatchNow()} disabled={submitting}>
+                        {submitting ? <Loader2 size={14} className="animate-spin" style={{ marginRight: 6 }} /> : null}
+                        {submitting ? "Dispatching…" : "Confirm Dispatch"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </SheetContent>
       </Sheet>
 
-      {/* Confirm modal */}
-      {confirmOpen && order && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.45)",
-            display: "grid",
-            placeItems: "center",
-            zIndex: 100,
-            padding: 16,
-          }}
-        >
-          <div
-            style={{
-              background: "var(--admin-surface, #fff)",
-              borderRadius: 14,
-              width: "100%",
-              maxWidth: 420,
-              padding: 24,
-              boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <h3 style={{ fontFamily: "var(--font-display)", margin: 0, fontSize: 18 }}>Confirm dispatch</h3>
-              <button
-                onClick={() => setConfirmOpen(false)}
-                style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
-                aria-label="Close"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <div
-              style={{
-                background: "#f0faf2",
-                border: "1px solid #a8d5b0",
-                borderRadius: 8,
-                padding: "10px 14px",
-                marginBottom: 14,
-                fontSize: 13,
-              }}
-            >
-              <div style={{ fontWeight: 600, marginBottom: 2 }}>✓ All {itemIds.length} items verified</div>
-              <div style={{ color: "var(--admin-muted)" }}>
-                {order.reference} → {order.customerName}
-                {order.city && `, ${order.city}`}
-              </div>
-            </div>
-
-            <p style={{ fontSize: 14, color: "var(--admin-muted)", margin: "0 0 20px", lineHeight: 1.5 }}>
-              This will set the order status to <b>DISPATCHED</b> and notify the customer.
-            </p>
-
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-              <button className="admin-btn admin-btn-ghost" onClick={() => setConfirmOpen(false)} disabled={submitting}>
-                Cancel
-              </button>
-              <button className="admin-btn admin-btn-primary" onClick={() => void dispatchNow()} disabled={submitting}>
-                {submitting ? <Loader2 size={14} className="animate-spin" style={{ marginRight: 6 }} /> : null}
-                {submitting ? "Dispatching…" : "Confirm Dispatch"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
