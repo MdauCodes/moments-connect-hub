@@ -210,6 +210,10 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
     lowStockThreshold: values.trackInventory ? (values.lowStockThreshold ?? 10) : undefined,
     individualSalesEnabled: values.individualSalesEnabled ?? true,
     pricingTiers,
+    stockStatus: values.stockStatus ?? "MADE_TO_ORDER",
+    vatExempt: values.vatExempt ?? false,
+    vatRate: values.vatExempt ? 0 : (typeof values.vatRate === "number" ? values.vatRate : 0.16),
+
     // fields not in ProductCreateRequest/ProductUpdateRequest — intentionally omitted:
     // sku, compareAtPrice, trackInventory, variants, totalClicks, monthlyClicks, totalEnquiries, monthlyEnquiries
   };
