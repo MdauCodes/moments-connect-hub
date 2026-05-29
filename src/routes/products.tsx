@@ -249,7 +249,22 @@ function ProductsPage() {
     void navigate({ search: () => ({}) });
   };
 
-  const grid = searchResults ?? products;
+  // Per-visit randomized order for the default ("newest") sort, so customers
+  // see a fresh mix of categories and prices each time they land on the page.
+  // Stable per session: each product gets a random rank the first time we see
+  // it, so paginating ("Load more") doesn't reshuffle already-rendered cards.
+  const shuffleRanks = useRef<Map<string, number>>(new Map());
+  const grid = useMemo(() => {
+    const base = searchResults ?? products;
+    // Honour explicit sort choices — only shuffle on the default sort and
+    // when the user has not narrowed the catalogue with category filters.
+    if (sort !== "newest" || searchResults) return base;
+    const ranks = shuffleRanks.current;
+    for (const p of base) {
+      if (!ranks.has(p.id)) ranks.set(p.id, Math.random());
+    }
+    return [...base].sort((a, b) => (ranks.get(a.id) ?? 0) - (ranks.get(b.id) ?? 0));
+  }, [searchResults, products, sort]);
 
   // JSON-LD ItemList for the visible page
   const itemListLd = useMemo(() => {
