@@ -243,8 +243,7 @@ function AdminInventoryPage() {
               gap: 12,
             }}
           >
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Adjust stock</h3>
-            <div style={{ fontSize: 13, color: "var(--admin-muted)" }}>{adjust.product.name}</div>
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Adjust Stock — {adjust.product.name}</h3>
 
             <label style={col}>
               <span style={labelStyle}>Adjustment type</span>
