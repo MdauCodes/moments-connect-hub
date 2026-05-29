@@ -397,10 +397,41 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
     : null;
   void isSpecialist;
 
+  // --- Onboarding tour state ---
+  const [tourOpen, setTourOpen] = useState(false);
+  const [tourStepFilter, setTourStepFilter] = useState<((s: { targetSelector: string | null }) => boolean) | undefined>(undefined);
+
+  // Auto-launch on first login (once per user, per browser)
+  useEffect(() => {
+    if (!user?.id || !staffRole) return;
+    if (!ROLE_TOURS[staffRole]) return;
+    if (isOnboardingDone(user.id)) return;
+    // small delay so DOM targets (sidebar, role badge) are painted
+    const t = window.setTimeout(() => {
+      setTourStepFilter(undefined);
+      setTourOpen(true);
+    }, 350);
+    return () => window.clearTimeout(t);
+  }, [user?.id, staffRole]);
+
+  const openHelp = (e: React.MouseEvent) => {
+    if (!staffRole || !ROLE_TOURS[staffRole]) return;
+    if (e.shiftKey) {
+      // Shift+click → re-trigger tour for steps whose target exists on current page
+      setTourStepFilter(() => (s: { targetSelector: string | null }) => {
+        if (!s.targetSelector) return true;
+        return !!document.querySelector(s.targetSelector);
+      });
+    } else {
+      setTourStepFilter(undefined);
+    }
+    setTourOpen(true);
+  };
+
   return (
     <div className="admin-shell" style={styles.root}>
       {sidebarOpen && <button className="admin-sidebar-scrim" aria-label="Close menu" onClick={() => setSidebarOpen(false)} />}
-      <aside className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`} style={styles.sidebar}>
+      <aside data-tour="sidebar" className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`} style={styles.sidebar}>
         <div style={styles.sidebarTop}>
           <Link to="/" style={styles.brandLink} aria-label="Back to Moments website">
             <div style={styles.logoMark}>m</div>
