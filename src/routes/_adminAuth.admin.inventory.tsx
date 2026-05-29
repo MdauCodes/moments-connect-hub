@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { adminResources, type ProductDto } from "@/services/adminResources";
@@ -9,17 +10,17 @@ export const Route = createFileRoute("/_adminAuth/admin/inventory")({
 });
 
 const ADJUSTMENT_TYPES = [
-  { value: "RESTOCK", label: "Restock" },
-  { value: "RETURN", label: "Return" },
-  { value: "CORRECTION", label: "Correction" },
-  { value: "DAMAGE_WRITE_OFF", label: "Damage / write-off" },
-  { value: "MANUAL_DEDUCTION", label: "Manual deduction" },
+  { value: "RESTOCK", label: "Restock (add units)" },
+  { value: "RETURN", label: "Customer return (add units)" },
+  { value: "CORRECTION", label: "Correction (signed delta)" },
+  { value: "DAMAGE_WRITE_OFF", label: "Damage / write-off (remove units)" },
+  { value: "MANUAL_DEDUCTION", label: "Manual deduction (remove units)" },
 ] as const;
 
 function deltaLabel(type: string) {
   if (type === "RESTOCK" || type === "RETURN") return "Units to add";
-  if (type === "DAMAGE_WRITE_OFF" || type === "MANUAL_DEDUCTION") return "Units to remove";
-  return "Signed delta (+ to add, - to remove)";
+  if (type === "DAMAGE_WRITE_OFF" || type === "MANUAL_DEDUCTION") return "Units to remove (enter positive number)";
+  return "Delta (positive to add, negative to remove)";
 }
 
 interface AdjustState {
