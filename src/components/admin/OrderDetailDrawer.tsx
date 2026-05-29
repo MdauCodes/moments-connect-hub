@@ -395,10 +395,6 @@ export function OrderDetailDrawer({ orderId, onClose, onChanged }: Props) {
                 })() : (
                   <Row label="Assigned to" value={o.assignedTo || "—"} />
                 )}
-
-                ) : (
-                  <Row label="Assigned to" value={o.assignedTo || "—"} />
-                )}
                 <label className="block mt-2">
                   <span className="text-xs uppercase text-muted-foreground">Staff notes</span>
                   <textarea
