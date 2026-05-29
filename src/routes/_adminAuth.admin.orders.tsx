@@ -166,7 +166,7 @@ function AdminOrdersPage() {
                   </div>
                 )}
               </div>
-              {!isStaff && (
+              {!isAssignedOnly && (
                 <>
                   <button
                     className="admin-btn admin-btn-ghost"
@@ -214,7 +214,7 @@ function AdminOrdersPage() {
                   ) : pageRows.length === 0 ? (
                     <tr><td colSpan={canAssign ? 9 : 8}>
                       <div className="admin-empty">
-                        {isStaff
+                        {isAssignedOnly
                           ? "No orders assigned to you yet. Your supervisor will assign orders when ready."
                           : "No orders match your filters."}
                       </div>
@@ -265,7 +265,7 @@ function AdminOrdersPage() {
                 <div className="admin-empty">Loading orders…</div>
               ) : pageRows.length === 0 ? (
                 <div className="admin-empty">
-                  {isStaff ? "No orders assigned to you yet." : "No orders match your filters."}
+                  {isAssignedOnly ? "No orders assigned to you yet." : "No orders match your filters."}
                 </div>
               ) : pageRows.map((o) => (
                 <div key={o.id} className="admin-card">
