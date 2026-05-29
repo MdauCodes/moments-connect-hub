@@ -1,21 +1,14 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Boxes, Gift, Percent, Ticket } from "lucide-react";
+import { ArrowRight, Boxes, CheckCircle2, PackageCheck, Plus, Send, ShoppingCart, Users as UsersIcon } from "lucide-react";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { MockBanner, formatKes } from "@/components/admin/commerceUi";
 import { getDashboardStats, type DashboardResult } from "@/services/commerceApi";
 import { useAuth } from "@/contexts/AdminAuthContext";
 import { useAdminOrders } from "@/contexts/AdminOrdersContext";
-import { resolveStaffRole } from "@/lib/roles";
+import { PERM } from "@/lib/permissions";
 import { HelpPanel, HelpAnchor } from "@/components/admin/HelpPanel";
-
-const upcomingModules = [
-  { icon: Boxes, label: "Stock & Inventory", desc: "Live stock levels, low-stock alerts, batch & variant tracking." },
-  { icon: Gift, label: "Referrals", desc: "Customer referral codes, rewards wallet & redemption flow." },
-  { icon: Percent, label: "Commissions", desc: "Sales rep & partner commission tracking and payouts." },
-  { icon: Ticket, label: "Coupons & Promos", desc: "Discount codes, campaign rules and usage analytics." },
-];
 
 export const Route = createFileRoute("/_adminAuth/admin/")({ component: AdminDashboardPage });
 
@@ -25,159 +18,174 @@ type ApiStats = DashboardResult & {
 };
 
 export function AdminDashboardPage() {
-  const { user } = useAuth();
-  const staffRole = resolveStaffRole(user);
-  const navigate = useNavigate();
-
-  // STAFF redirects straight to their orders.
-  useEffect(() => {
-    if (staffRole === "STAFF") {
-      void navigate({ to: "/admin/orders", replace: true });
-    }
-  }, [staffRole, navigate]);
-
-  // Specialist roles see a simplified, queue-focused dashboard.
-  if (staffRole === "PAYMENTS_CONFIRMER") return <SpecialistDashboard role="PAYMENTS_CONFIRMER" />;
-  if (staffRole === "PREPARER") return <SpecialistDashboard role="PREPARER" />;
-  if (staffRole === "DISPATCHER") return <SpecialistDashboard role="DISPATCHER" />;
-  if (staffRole === "SUPERVISOR") return <FullDashboard variant="supervisor" />;
-
-  // Default = admin / super admin
-  return <FullDashboard variant="admin" />;
-}
-
-// ─────────────────────────── full dashboard (admin / supervisor) ────────────
-
-function FullDashboard({ variant }: { variant: "admin" | "supervisor" }) {
+  const { hasPermission, user } = useAuth();
+  const { orders, refresh } = useAdminOrders();
   const [stats, setStats] = useState<ApiStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(false);
+
+  // Permission shortcuts
+  const showRevenue = hasPermission(PERM.ANALYTICS_VIEW);
+  const showOrderCounts = hasPermission(PERM.ORDER_VIEW) || hasPermission(PERM.ANALYTICS_VIEW);
+  const showTopProducts = hasPermission(PERM.ANALYTICS_VIEW) || hasPermission(PERM.PRODUCT_VIEW);
+  const showPaymentBlock = hasPermission(PERM.ORDER_VERIFY_PAYMENT);
+  const showPrepBlock = hasPermission(PERM.ORDER_PREPARE);
+  const showDispatchBlock = hasPermission(PERM.ORDER_DISPATCH);
+  const showMyAssigned = hasPermission(PERM.ORDER_VIEW) && !hasPermission(PERM.ORDER_MANAGE_ALL);
+  const showStaffOverview = hasPermission(PERM.USER_VIEW);
+  const showQuickActions =
+    hasPermission(PERM.USER_CREATE) || hasPermission(PERM.PRODUCT_MANAGE) || hasPermission(PERM.ORDER_MANAGE_ALL);
+
+  const needStats = showRevenue || showOrderCounts || showTopProducts;
 
   useEffect(() => { document.title = "Dashboard · Moments admin"; }, []);
 
   useEffect(() => {
+    if (!needStats) return;
     let cancelled = false;
-    setLoading(true);
+    setLoadingStats(true);
     getDashboardStats()
       .then((res) => { if (!cancelled) setStats(res as ApiStats); })
       .catch((err) => toast.error(err instanceof Error ? err.message : "Failed to load dashboard"))
-      .finally(() => { if (!cancelled) setLoading(false); });
+      .finally(() => { if (!cancelled) setLoadingStats(false); });
     return () => { cancelled = true; };
-  }, []);
+  }, [needStats]);
+
+  const queueCounts = useMemo(() => ({
+    paid: orders.filter((o) => o.status === "PAID").length,
+    prep: orders.filter((o) => o.status === "PAYMENT_VERIFIED" || o.status === "IN_PRODUCTION").length,
+    dispatch: orders.filter((o) => o.status === "READY_FOR_DISPATCH").length,
+    mine: user?.id ? orders.filter((o) => o.assignedToId === user.id).length : 0,
+  }), [orders, user?.id]);
 
   const tiles = stats ? [
-    typeof stats.revenueToday === "number" && {
-      label: "Revenue today",
-      value: formatKes(stats.revenueToday),
-      sub: "",
+    showRevenue && typeof stats.revenueToday === "number" && {
+      label: "Revenue today", value: formatKes(stats.revenueToday), sub: "",
     },
-    typeof stats.ordersToday === "number" && {
-      label: "Orders today",
-      value: String(stats.ordersToday),
+    showRevenue && typeof stats.revenueMTD === "number" && {
+      label: "Revenue MTD", value: formatKes(stats.revenueMTD), sub: "Month to date",
+    },
+    showOrderCounts && typeof stats.ordersToday === "number" && {
+      label: "Orders today", value: String(stats.ordersToday),
       sub: typeof stats.ordersPending === "number" ? `${stats.ordersPending} pending` : "",
-    },
-    typeof stats.revenueMTD === "number" && {
-      label: "Revenue MTD",
-      value: formatKes(stats.revenueMTD),
-      sub: "Month to date",
     },
   ].filter(Boolean) as { label: string; value: string; sub: string }[] : [];
 
   const topProducts = stats?.topSellingProducts ?? [];
 
   return (
-    <AdminLayout title="Dashboard">
+    <AdminLayout title="Dashboard" onReload={() => void refresh()}>
       <HelpAnchor>
-        <HelpPanel title={variant === "supervisor" ? "Supervisor dashboard" : "Admin dashboard"}>
-          {variant === "supervisor" ? (
-            <div>
-              <p style={{ marginTop: 0 }}>
-                As <b>Supervisor</b> you can monitor live performance and route orders to the right team.
-              </p>
-              <ul style={{ paddingLeft: 18, margin: "6px 0" }}>
-                <li>Review revenue and order activity</li>
-                <li>Open <Link to="/admin/orders">Orders</Link> to assign and oversee fulfillment</li>
-                <li>Use <Link to="/admin/analytics">Analytics</Link> for deeper trends</li>
-              </ul>
-              <p style={{ marginBottom: 0, fontSize: 12 }}>
-                You can assign orders only to staff at your level or below — not to Admins or Super Admins.
-              </p>
-            </div>
-          ) : (
-            <div>
-              <p style={{ marginTop: 0 }}>
-                You have full system access. From here you can monitor revenue, manage staff
-                accounts and roles, and configure system settings.
-              </p>
-              <div style={{ fontWeight: 600, marginTop: 6, color: "var(--admin-text)" }}>Staff roles</div>
-              <ul style={{ paddingLeft: 18, margin: "4px 0" }}>
-                <li><b>Admin</b>: Full access except role management</li>
-                <li><b>Supervisor</b>: Views all orders, assigns staff, analytics</li>
-                <li><b>Payments Confirmer</b>: Verifies M-Pesa payments</li>
-                <li><b>Preparer</b>: Packages orders for dispatch</li>
-                <li><b>Dispatcher</b>: Dispatches packaged orders</li>
-                <li><b>Staff</b>: Works on orders assigned to them</li>
-              </ul>
-            </div>
-          )}
+        <HelpPanel title="Your dashboard">
+          <p style={{ margin: 0 }}>
+            This dashboard adapts to what you can do. Each card and action shown below
+            corresponds to a permission your account has — you'll never see options you
+            can't use.
+          </p>
         </HelpPanel>
 
         <div className="admin-page-stack">
           {stats && <MockBanner source={stats.source} />}
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }} data-admin-stats>
-            {(loading
-              ? Array.from({ length: 3 }).map((_, i) => ({ label: "Loading…", value: "—", sub: "" }))
-              : tiles
-            ).map((t, i) => (
-              <div key={i} className="admin-panel" style={{ padding: 16 }}>
-                <div className="admin-label">{t.label}</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 30, marginTop: 8, lineHeight: 1.1 }}>{t.value}</div>
-                {t.sub && <div style={{ fontSize: 11, marginTop: 6, color: "var(--admin-muted)" }}>{t.sub}</div>}
-              </div>
-            ))}
-          </div>
-
-          <div className="admin-panel" style={{ padding: 18 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12, gap: 12, flexWrap: "wrap" }}>
-              <h2 style={{ margin: 0, fontFamily: "var(--font-display)" }}>Top products (30d)</h2>
-              {variant === "admin" && <Link to="/admin/products" className="admin-btn admin-btn-ghost">All products</Link>}
-            </div>
-            <div style={{ display: "grid", gap: 10 }}>
-              {topProducts.map((name, idx) => (
-                <div key={`${name}-${idx}`} style={{ display: "flex", gap: 8, alignItems: "center", padding: 10, border: "1px solid var(--admin-border)", borderRadius: 8 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{idx + 1}. {name}</div>
+          {tiles.length > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }} data-admin-stats>
+              {(loadingStats && tiles.length === 0
+                ? Array.from({ length: 3 }).map(() => ({ label: "Loading…", value: "—", sub: "" }))
+                : tiles
+              ).map((t, i) => (
+                <div key={i} className="admin-panel" style={{ padding: 16 }}>
+                  <div className="admin-label">{t.label}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 30, marginTop: 8, lineHeight: 1.1 }}>{t.value}</div>
+                  {t.sub && <div style={{ fontSize: 11, marginTop: 6, color: "var(--admin-muted)" }}>{t.sub}</div>}
                 </div>
               ))}
-              {!loading && topProducts.length === 0 && <div className="admin-empty" style={{ padding: 16 }}>No sales data yet.</div>}
             </div>
-          </div>
+          )}
 
-          {variant === "admin" && (
+          {/* Queue-specific blocks */}
+          {(showPaymentBlock || showPrepBlock || showDispatchBlock || showMyAssigned) && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
+              {showPaymentBlock && (
+                <QueueCard icon={CheckCircle2} label="Payments to verify" count={queueCounts.paid} to="/admin/queues/payment" cta="Open Payment Queue" />
+              )}
+              {showPrepBlock && (
+                <QueueCard icon={PackageCheck} label="Orders to prepare" count={queueCounts.prep} to="/admin/queues/preparation" cta="Open Preparation Queue" />
+              )}
+              {showDispatchBlock && (
+                <QueueCard icon={Send} label="Ready to dispatch" count={queueCounts.dispatch} to="/admin/queues/dispatch" cta="Open Dispatch Queue" />
+              )}
+              {showMyAssigned && (
+                <QueueCard icon={ShoppingCart} label="Assigned to me" count={queueCounts.mine} to="/admin/orders" cta="View my orders" />
+              )}
+            </div>
+          )}
+
+          {showTopProducts && (
             <div className="admin-panel" style={{ padding: 18 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4, gap: 12, flexWrap: "wrap" }}>
-                <h2 style={{ margin: 0, fontFamily: "var(--font-display)" }}>Coming soon</h2>
-                <span style={{ fontSize: 11, color: "var(--admin-muted)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Roadmap · Q3</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12, gap: 12, flexWrap: "wrap" }}>
+                <h2 style={{ margin: 0, fontFamily: "var(--font-display)" }}>Top products (30d)</h2>
+                {hasPermission(PERM.PRODUCT_VIEW) || hasPermission(PERM.PRODUCT_MANAGE) ? (
+                  <Link to="/admin/products" className="admin-btn admin-btn-ghost">All products</Link>
+                ) : null}
               </div>
-              <p style={{ margin: "0 0 14px", fontSize: 12, color: "var(--admin-muted)" }}>
-                Modules currently in design — they'll appear in the sidebar once shipped.
-              </p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
-                {upcomingModules.map(({ icon: Icon, label, desc }) => (
-                  <div
-                    key={label}
-                    style={{ position: "relative", padding: 14, border: "1px dashed var(--admin-border)", borderRadius: 10, background: "var(--admin-surface-2, transparent)" }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                      <div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--admin-accent)", color: "var(--cream)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Icon size={14} />
-                      </div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--admin-text)" }}>{label}</div>
-                      <span style={{ marginLeft: "auto", fontSize: 9, fontWeight: 600, padding: "2px 6px", borderRadius: 999, background: "var(--admin-clay)", color: "var(--cream)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Soon</span>
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--admin-muted)", lineHeight: 1.45 }}>{desc}</div>
+              <div style={{ display: "grid", gap: 10 }}>
+                {topProducts.map((name, idx) => (
+                  <div key={`${name}-${idx}`} style={{ display: "flex", gap: 8, alignItems: "center", padding: 10, border: "1px solid var(--admin-border)", borderRadius: 8 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13 }}>{idx + 1}. {name}</div>
                   </div>
                 ))}
+                {!loadingStats && topProducts.length === 0 && (
+                  <div className="admin-empty" style={{ padding: 16 }}>No sales data yet.</div>
+                )}
               </div>
+            </div>
+          )}
+
+          {showStaffOverview && (
+            <div className="admin-panel" style={{ padding: 18 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <UsersIcon size={16} />
+                <h2 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: 18 }}>Staff overview</h2>
+              </div>
+              <p style={{ margin: 0, fontSize: 13, color: "var(--admin-muted)" }}>
+                Manage staff accounts, reset passwords, and review roles.
+              </p>
+              <div style={{ marginTop: 10 }}>
+                <Link to="/admin/users" className="admin-btn admin-btn-ghost">Open users</Link>
+                {hasPermission(PERM.USER_MANAGE_ROLES) && (
+                  <Link to="/admin/roles" className="admin-btn admin-btn-ghost" style={{ marginLeft: 8 }}>Manage roles</Link>
+                )}
+              </div>
+            </div>
+          )}
+
+          {showQuickActions && (
+            <div className="admin-panel" style={{ padding: 18 }}>
+              <h2 style={{ margin: 0, marginBottom: 10, fontFamily: "var(--font-display)", fontSize: 18 }}>Quick actions</h2>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {hasPermission(PERM.PRODUCT_MANAGE) && (
+                  <Link to="/admin/products/new" className="admin-btn admin-btn-primary"><Plus size={14} /> New product</Link>
+                )}
+                {hasPermission(PERM.USER_CREATE) && (
+                  <Link to="/admin/users" className="admin-btn admin-btn-ghost"><Plus size={14} /> Add staff</Link>
+                )}
+                {hasPermission(PERM.ORDER_MANAGE_ALL) && (
+                  <Link to="/admin/orders" className="admin-btn admin-btn-ghost"><ShoppingCart size={14} /> Manage orders</Link>
+                )}
+                {hasPermission(PERM.PRODUCT_MANAGE) && (
+                  <Link to="/admin/inventory" className="admin-btn admin-btn-ghost"><Boxes size={14} /> Inventory</Link>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Truly minimal account — nothing matched any permission block */}
+          {!tiles.length && !showPaymentBlock && !showPrepBlock && !showDispatchBlock && !showMyAssigned
+            && !showTopProducts && !showStaffOverview && !showQuickActions && (
+            <div className="admin-panel" style={{ padding: 24, textAlign: "center" }}>
+              <h2 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: 20 }}>Welcome</h2>
+              <p style={{ marginTop: 8, color: "var(--admin-muted)", fontSize: 13 }}>
+                Your account doesn't have any permissions assigned yet. Please contact your administrator.
+              </p>
             </div>
           )}
         </div>
@@ -186,82 +194,27 @@ function FullDashboard({ variant }: { variant: "admin" | "supervisor" }) {
   );
 }
 
-// ─────────────────────────── specialist single-stage dashboard ──────────────
-
-function SpecialistDashboard({ role }: { role: "PAYMENTS_CONFIRMER" | "PREPARER" | "DISPATCHER" }) {
-  const { orders, initialLoading, refresh } = useAdminOrders();
-
-  useEffect(() => { document.title = "Dashboard · Moments admin"; }, []);
-
-  const counts = useMemo(() => {
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const isToday = (iso: string) => new Date(iso).getTime() >= today.getTime();
-    return {
-      paid: orders.filter((o) => o.status === "PAID").length,
-      verifiedToday: orders.filter((o) => o.status !== "PAID" && o.status !== "PENDING_PAYMENT" && isToday(o.updatedAt)).length,
-      paymentVerified: orders.filter((o) => o.status === "PAYMENT_VERIFIED").length,
-      inProduction: orders.filter((o) => o.status === "IN_PRODUCTION").length,
-      readyForDispatch: orders.filter((o) => o.status === "READY_FOR_DISPATCH").length,
-      dispatchedToday: orders.filter((o) => o.status === "DISPATCHED" && isToday(o.updatedAt)).length,
-    };
-  }, [orders]);
-
-  const config = role === "PAYMENTS_CONFIRMER"
-    ? {
-        title: "Payments Confirmer",
-        tiles: [
-          { label: "Awaiting verification", value: counts.paid, sub: "Orders marked PAID" },
-          { label: "Verified today", value: counts.verifiedToday, sub: "Moved out of PAID today" },
-        ],
-        link: { to: "/admin/queues/payment", label: "Open Payment Queue" },
-        help: "Your job is to verify that M-Pesa payments have been received before orders move to production. Only orders with status PAID appear in the queue. If you see a suspicious payment, contact your supervisor.",
-      }
-    : role === "PREPARER"
-    ? {
-        title: "Preparer",
-        tiles: [
-          { label: "Awaiting production", value: counts.paymentVerified, sub: "Payment verified" },
-          { label: "In production", value: counts.inProduction, sub: "Being packed" },
-        ],
-        link: { to: "/admin/queues/preparation", label: "Open Preparation Queue" },
-        help: "Pack orders and mark them ready for dispatch. Click Start Packing when you begin, then Mark Ready when fully packed.",
-      }
-    : {
-        title: "Dispatcher",
-        tiles: [
-          { label: "Ready for dispatch", value: counts.readyForDispatch, sub: "Waiting to ship" },
-          { label: "Dispatched today", value: counts.dispatchedToday, sub: "Sent to courier today" },
-        ],
-        link: { to: "/admin/queues/dispatch", label: "Open Dispatch Queue" },
-        help: "Verify order contents and dispatch them to the customer. Open the checklist, confirm all items, and click Dispatch Order.",
-      };
-
+function QueueCard({
+  icon: Icon, label, count, to, cta,
+}: {
+  icon: typeof CheckCircle2;
+  label: string;
+  count: number;
+  to: string;
+  cta: string;
+}) {
   return (
-    <AdminLayout title={`${config.title} dashboard`} onReload={() => void refresh()}>
-      <HelpAnchor>
-        <HelpPanel title={`Your role: ${config.title}`}>
-          <p style={{ margin: 0 }}>{config.help}</p>
-        </HelpPanel>
-
-        <div className="admin-page-stack">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
-            {config.tiles.map((t, i) => (
-              <div key={i} className="admin-panel" style={{ padding: 18 }}>
-                <div className="admin-label">{t.label}</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 36, marginTop: 8, lineHeight: 1.1 }}>
-                  {initialLoading ? "—" : t.value}
-                </div>
-                <div style={{ fontSize: 11, marginTop: 6, color: "var(--admin-muted)" }}>{t.sub}</div>
-              </div>
-            ))}
-          </div>
-          <div className="admin-panel" style={{ padding: 18, textAlign: "center" }}>
-            <Link to={config.link.to} className="admin-btn admin-btn-primary" style={{ display: "inline-block", padding: "10px 20px" }}>
-              {config.link.label} →
-            </Link>
-          </div>
-        </div>
-      </HelpAnchor>
-    </AdminLayout>
+    <div className="admin-panel" style={{ padding: 18, display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--admin-muted)" }}>
+        <Icon size={16} />
+        <div className="admin-label" style={{ margin: 0 }}>{label}</div>
+      </div>
+      <div style={{ fontFamily: "var(--font-display)", fontSize: 34, lineHeight: 1.05 }}>{count}</div>
+      <div>
+        <Link to={to} className="admin-btn admin-btn-ghost" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          {cta} <ArrowRight size={14} />
+        </Link>
+      </div>
+    </div>
   );
 }
