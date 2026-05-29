@@ -230,7 +230,6 @@ function CheckoutModal() {
       }
       const init = await orderStore.startMpesaStk(id, phoneNormalized, paymentGateway);
 
-      const init = await orderStore.startMpesaStk(id, phoneNormalized);
       if (!init.success) {
         setPayState("failed");
         setErrorMsg(init.message ?? "Could not send the M-Pesa prompt. Please try again.");
