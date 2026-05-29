@@ -6,7 +6,6 @@ export type EnquiryStatus = "NEW" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
 export type BlogStatus = "DRAFT" | "PUBLISHED";
 
 export type IndustryDto = { id: string; name: string; slug?: string; description?: string; iconUrl?: string };
-export type IndustryDto = { id: string; name: string; slug?: string; description?: string; iconUrl?: string };
 export type ProductDto = {
   id: string; name: string; slug?: string; category?: string; description?: string; moq?: number;
   sizes?: string[]; tags?: string[]; keywords?: string[]; primaryImageUrl?: string; imageUrls?: string[];
@@ -17,6 +16,7 @@ export type ProductDto = {
   vatRate?: number; vatExempt?: boolean;
   variants?: Array<{ id?: string; label: string; sku?: string; price?: number; stock?: number }>;
 };
+export type ProductRequest = Omit<ProductDto, "id" | "slug" | "industries" | "monthlyClicks" | "monthlyEnquiries">;
 
 
 export type BlogDto = {
