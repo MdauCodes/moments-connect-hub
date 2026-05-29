@@ -211,8 +211,38 @@ function AdminRolesPage() {
             <div className="admin-form-grid">
               <label>
                 <span className="admin-label">Display name</span>
-                <input required className="admin-input" value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} />
+                <input
+                  required
+                  className="admin-input"
+                  value={form.displayName}
+                  onChange={(e) => {
+                    const dn = e.target.value;
+                    setForm((f) => ({
+                      ...f,
+                      displayName: dn,
+                      // Auto-fill the role name from displayName until the user edits it manually or we're editing an existing role.
+                      name: editing ? f.name : toRoleName(dn),
+                    }));
+                  }}
+                />
               </label>
+              <label>
+                <span className="admin-label">Role name (system identifier)</span>
+                <input
+                  required
+                  className="admin-input"
+                  value={form.name}
+                  disabled={!!editing}
+                  placeholder="e.g. CUSTOM_ROLE"
+                  pattern="[A-Z0-9_]+"
+                  title="Uppercase letters, digits and underscores only"
+                  onChange={(e) => setForm({ ...form, name: toRoleName(e.target.value) })}
+                />
+                <span style={{ fontSize: 11, color: "var(--admin-muted)" }}>
+                  Uppercase identifier sent to the backend. Cannot be changed after creation.
+                </span>
+              </label>
+
               <label>
                 <span className="admin-label">Description</span>
                 <textarea className="admin-input" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
