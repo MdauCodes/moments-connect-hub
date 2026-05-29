@@ -11,6 +11,8 @@ type ProductApiDto = Partial<Product> & {
   name: string;
   primaryImageUrl?: string;
   imageUrls?: string[];
+  stockStatus?: string;
+  stockCount?: number;
   industries?: Array<{ id?: string | number; displayId?: string | number; slug?: string }>;
 };
 
