@@ -92,6 +92,8 @@ function AdminRolesPage() {
   const save = async (e: FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    try {
+
       const displayName = form.displayName.trim();
       const name = (form.name.trim() || toRoleName(displayName));
       if (!name) { toast.error("Role name is required"); setSaving(false); return; }
