@@ -542,6 +542,15 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
 
         <main style={styles.content}>{children}</main>
       </div>
+      {user?.id && staffRole && (
+        <OnboardingTour
+          role={staffRole}
+          userId={user.id}
+          open={tourOpen}
+          stepFilter={tourStepFilter}
+          onClose={() => { setTourOpen(false); setTourStepFilter(undefined); }}
+        />
+      )}
     </div>
   );
 }
