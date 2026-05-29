@@ -1050,6 +1050,62 @@ export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDel
               </div>
             </div>
 
+            {/* Stock status + VAT */}
+            <div style={s.row} data-admin-row>
+              <div style={s.col}>
+                <label style={s.label}>Stock status</label>
+                <select
+                  style={s.select}
+                  value={values.stockStatus ?? "MADE_TO_ORDER"}
+                  onChange={(e) => {
+                    const v = e.target.value as ProductFormValues["stockStatus"];
+                    setValues((prev) => ({
+                      ...prev,
+                      stockStatus: v,
+                      trackInventory: v !== "MADE_TO_ORDER",
+                    }));
+                  }}
+                >
+                  <option value="MADE_TO_ORDER">Made to order (no physical stock)</option>
+                  <option value="IN_STOCK">In stock</option>
+                  <option value="LOW_STOCK">Low stock</option>
+                  <option value="OUT_OF_STOCK">Out of stock</option>
+                </select>
+              </div>
+              <div style={s.col}>
+                <label style={s.label}>VAT</label>
+                <label style={{ ...s.switchRow, marginTop: 0 }}>
+                  <input
+                    type="checkbox"
+                    checked={values.vatExempt ?? false}
+                    onChange={(e) => set("vatExempt", e.target.checked)}
+                  />
+                  <span style={s.switchLabel}>VAT exempt</span>
+                  {!values.vatExempt && (
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.01"
+                      style={{ ...s.input, width: 90 }}
+                      value={
+                        typeof values.vatRate === "number"
+                          ? Number((values.vatRate * 100).toFixed(2))
+                          : ""
+                      }
+                      placeholder="16"
+                      onChange={(e) => {
+                        const pct = Number(e.target.value);
+                        set("vatRate", isFinite(pct) ? pct / 100 : 0);
+                      }}
+                    />
+                  )}
+                  {!values.vatExempt && <span style={{ fontSize: 12, color: "var(--admin-muted)" }}>%</span>}
+                </label>
+              </div>
+            </div>
+
+
             {/* Track inventory toggle */}
             <label style={s.switchRow}>
               <input
