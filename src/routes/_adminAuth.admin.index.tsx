@@ -59,16 +59,24 @@ export function AdminDashboardPage() {
 
   const tiles = stats ? [
     showRevenue && typeof stats.revenueToday === "number" && {
-      label: "Revenue today", value: formatKes(stats.revenueToday), sub: "",
+      label: "Revenue today", value: formatKes(stats.revenueToday), sub: "Confirmed paid orders",
+      tone: "default" as const,
     },
     showRevenue && typeof stats.revenueMTD === "number" && {
-      label: "Revenue MTD", value: formatKes(stats.revenueMTD), sub: "Month to date",
+      label: "Revenue MTD", value: formatKes(stats.revenueMTD), sub: "Confirmed paid orders",
+      tone: "default" as const,
+    },
+    showOrderCounts && typeof stats.ordersPending === "number" && {
+      label: "Pending orders value", value: String(stats.ordersPending), sub: "orders awaiting payment",
+      note: "Revenue confirmed once paid",
+      tone: "muted" as const,
     },
     showOrderCounts && typeof stats.ordersToday === "number" && {
       label: "Orders today", value: String(stats.ordersToday),
       sub: typeof stats.ordersPending === "number" ? `${stats.ordersPending} pending` : "",
+      tone: "default" as const,
     },
-  ].filter(Boolean) as { label: string; value: string; sub: string }[] : [];
+  ].filter(Boolean) as { label: string; value: string; sub: string; note?: string; tone?: "default" | "muted" }[] : [];
 
   const topProducts = stats?.topSellingProducts ?? [];
 
