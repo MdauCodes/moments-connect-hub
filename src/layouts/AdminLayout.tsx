@@ -472,7 +472,7 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
               <div style={styles.userName}>{displayName}</div>
               <div style={styles.userRole}>{displayEmail}</div>
               {staffRole && (
-                <div style={{ marginTop: 4 }}>
+                <div data-tour="role-badge" style={{ marginTop: 4 }}>
                   <RoleBadge role={staffRole} />
                 </div>
               )}
