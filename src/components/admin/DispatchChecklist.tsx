@@ -79,12 +79,15 @@ export function DispatchChecklist({ order, onClose, onDispatched }: Props) {
     if (!order) return;
     setSubmitting(true);
     try {
-      await updateOrderStatus(order.id, "DISPATCHED", "Dispatched to courier");
+      console.log("[dispatch] PATCH /api/v1/admin/orders/" + order.id + "/dispatch-confirm");
+      const result = await dispatchConfirmOrder(order.id, "CONFIRM_LATER", true);
+      console.log("[dispatch] response:", result);
       try { window.localStorage.removeItem(`${STORAGE_PREFIX}${order.id}`); } catch { /* ignore */ }
       toast.success(`Order dispatched successfully`);
       setConfirmOpen(false);
       await onDispatched(order.id);
     } catch (err) {
+      console.error("[dispatch] failed:", err);
       toast.error(err instanceof Error ? err.message : "Dispatch failed — please try again");
     } finally {
       setSubmitting(false);
