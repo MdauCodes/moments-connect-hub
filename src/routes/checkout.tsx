@@ -628,6 +628,38 @@ function CheckoutModal() {
                     </p>
                   </div>
 
+                  {/* Payment method selector */}
+                  <div className="rounded-2xl border border-border bg-card p-5">
+                    <h3 className="text-sm font-semibold text-foreground">Payment method</h3>
+                    <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {([
+                        { id: "PAYHERO", label: "M-Pesa (via PayHero)", hint: "Standard checkout" },
+                        { id: "MPESA", label: "M-Pesa (Direct)", hint: "Safaricom Daraja" },
+                      ] as const).map((opt) => {
+                        const active = paymentGateway === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setPaymentGateway(opt.id)}
+                            className={`flex flex-col items-start gap-1 rounded-xl border p-3 text-left text-sm transition ${
+                              active
+                                ? "border-foreground bg-secondary"
+                                : "border-border bg-background hover:bg-secondary/50"
+                            }`}
+                          >
+                            <span className="font-semibold text-foreground">{opt.label}</span>
+                            <span className="text-xs text-muted-foreground">{opt.hint}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      Both options send an STK push to your phone for approval.
+                    </p>
+                  </div>
+
+
                   {/* Order summary */}
                   <div className="rounded-2xl border border-border bg-card p-5">
                     <h3 className="text-sm font-semibold text-foreground">Order summary</h3>
