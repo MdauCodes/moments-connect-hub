@@ -113,6 +113,25 @@ function AdminRolesPage() {
   return (
     <AdminLayout title="Roles" actionLabel="Create custom role" onAction={() => begin()} onReload={load}>
       <div className="admin-page-stack">
+        {showFirstVisit && (
+          <div style={{
+            padding: "12px 14px",
+            borderRadius: 10,
+            background: "rgba(245,158,11,0.10)",
+            border: "1px solid rgba(245,158,11,0.35)",
+            color: "var(--admin-text)",
+            fontSize: 13,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+          }}>
+            <span>
+              <strong>Default roles are locked</strong> to protect system integrity. Create custom roles for specific needs.
+            </span>
+            <button className="admin-btn admin-btn-ghost" onClick={() => setShowFirstVisit(false)}>Got it</button>
+          </div>
+        )}
         {loading ? (
           <div className="admin-panel" style={{ padding: 24 }}>Loading roles…</div>
         ) : (
