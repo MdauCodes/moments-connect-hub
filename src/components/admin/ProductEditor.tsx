@@ -163,7 +163,7 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
   const industryIds = values.industryIds.filter(Boolean);
 
   const pricingTiers = (values.pricingTiers ?? [])
-    .filter((t) => t.collectionName.trim() && t.quantity > 0 && t.pricePerUnit > 0)
+    .filter((t) => t && typeof t.collectionName === "string" && t.collectionName.trim() && t.quantity > 0 && t.pricePerUnit > 0)
     .map((t, i) => ({
       // only include id if it's a real UUID, not our "tier-N" client placeholder
       ...(t.id && /^[0-9a-f-]{36}$/i.test(t.id) ? { id: t.id } : {}),
@@ -176,6 +176,7 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
       ...(t.uomDescription ? { uomDescription: t.uomDescription } : {}),
       enabled: t.enabled !== false,
     }));
+
 
   return {
     ...(productId ? { id: productId } : {}),
