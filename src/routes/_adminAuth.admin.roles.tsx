@@ -13,14 +13,12 @@ export const Route = createFileRoute("/_adminAuth/admin/roles")({
 });
 
 interface RoleForm {
-  displayName: string;
-  description: string;
-interface RoleForm {
   name: string;
   displayName: string;
   description: string;
   permissions: Set<string>;
 }
+
 
 function emptyForm(): RoleForm {
   return { name: "", displayName: "", description: "", permissions: new Set() };

@@ -56,14 +56,14 @@ export type UploadResponse = { url: string; publicId: string };
 export type RoleDto = {
   id: string;
   name?: string;
-export type RoleRequest = { name: string; displayName: string; description?: string; permissions: string[] };
-
+  displayName: string;
   description?: string;
   permissions: string[];
   isDefault?: boolean;
   isSystem?: boolean;
 };
-export type RoleRequest = { displayName: string; description?: string; permissions: string[] };
+export type RoleRequest = { name: string; displayName: string; description?: string; permissions: string[] };
+
 
 function unwrap<T>(data: PageResponse<T> | T[]): { rows: T[]; total: number; totalPages: number } {
   if (Array.isArray(data)) return { rows: data, total: data.length, totalPages: 1 };
