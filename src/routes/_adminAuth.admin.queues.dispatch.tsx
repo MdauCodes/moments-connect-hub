@@ -16,14 +16,17 @@ export const Route = createFileRoute("/_adminAuth/admin/queues/dispatch")({
 });
 
 function DispatchQueuePage() {
-  const { hasPermission } = useAuth();
+  const { user, hasPermission } = useAuth();
   const allowed = hasPermission(PERM.ORDER_DISPATCH) || hasPermission(PERM.ORDER_MANAGE_ALL);
   const { orders, initialLoading, refresh } = useAdminOrders();
   const [openOrderId, setOpenOrderId] = useState<string | null>(null);
 
+  const currentUserId = user?.id;
   const rows = useMemo(
-    () => orders.filter((o) => o.status === "READY_FOR_DISPATCH"),
-    [orders],
+    () => orders.filter(
+      (o) => o.status === "READY_FOR_DISPATCH" || (!!currentUserId && o.assignedToId === currentUserId),
+    ),
+    [orders, currentUserId],
   );
 
   const openOrder: OrderRecord | null = useMemo(
