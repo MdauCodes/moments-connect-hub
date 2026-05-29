@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutList,
@@ -24,12 +24,15 @@ import {
   Send,
   ShieldCheck,
   Boxes,
+  HelpCircle,
 } from "lucide-react";
 
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { hasAnyPerm, PERM, type PermissionCode } from "@/lib/permissions";
 import { RoleBadge } from "@/components/admin/RoleBadge";
 import { resolveStaffRole, SPECIALIST_ROLES, STAFF_ROLE_DISPLAY } from "@/lib/roles";
+import { OnboardingTour } from "@/components/admin/OnboardingTour";
+import { isOnboardingDone, ROLE_TOURS } from "@/lib/onboardingTours";
 
 interface AdminLayoutProps {
   title: string;
@@ -321,9 +324,11 @@ function getInitials(name: string): string {
 
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   const Icon = item.icon;
+  const tourKey = item.to.split("/").filter(Boolean).slice(-1)[0] ?? item.to;
   return (
     <Link
       to={item.to}
+      data-tour={`nav-${tourKey}`}
       style={{ ...styles.navItem, ...(active ? styles.navItemActive : {}) }}
       onMouseEnter={(e) => {
         if (!active) {
@@ -392,10 +397,41 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
     : null;
   void isSpecialist;
 
+  // --- Onboarding tour state ---
+  const [tourOpen, setTourOpen] = useState(false);
+  const [tourStepFilter, setTourStepFilter] = useState<((s: { targetSelector: string | null }) => boolean) | undefined>(undefined);
+
+  // Auto-launch on first login (once per user, per browser)
+  useEffect(() => {
+    if (!user?.id || !staffRole) return;
+    if (!ROLE_TOURS[staffRole]) return;
+    if (isOnboardingDone(user.id)) return;
+    // small delay so DOM targets (sidebar, role badge) are painted
+    const t = window.setTimeout(() => {
+      setTourStepFilter(undefined);
+      setTourOpen(true);
+    }, 350);
+    return () => window.clearTimeout(t);
+  }, [user?.id, staffRole]);
+
+  const openHelp = (e: React.MouseEvent) => {
+    if (!staffRole || !ROLE_TOURS[staffRole]) return;
+    if (e.shiftKey) {
+      // Shift+click → re-trigger tour for steps whose target exists on current page
+      setTourStepFilter(() => (s: { targetSelector: string | null }) => {
+        if (!s.targetSelector) return true;
+        return !!document.querySelector(s.targetSelector);
+      });
+    } else {
+      setTourStepFilter(undefined);
+    }
+    setTourOpen(true);
+  };
+
   return (
     <div className="admin-shell" style={styles.root}>
       {sidebarOpen && <button className="admin-sidebar-scrim" aria-label="Close menu" onClick={() => setSidebarOpen(false)} />}
-      <aside className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`} style={styles.sidebar}>
+      <aside data-tour="sidebar" className={`admin-sidebar ${sidebarOpen ? "is-open" : ""}`} style={styles.sidebar}>
         <div style={styles.sidebarTop}>
           <Link to="/" style={styles.brandLink} aria-label="Back to Moments website">
             <div style={styles.logoMark}>m</div>
@@ -436,7 +472,7 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
               <div style={styles.userName}>{displayName}</div>
               <div style={styles.userRole}>{displayEmail}</div>
               {staffRole && (
-                <div style={{ marginTop: 4 }}>
+                <div data-tour="role-badge" style={{ marginTop: 4 }}>
                   <RoleBadge role={staffRole} />
                 </div>
               )}
@@ -481,6 +517,16 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
               disabled={reloading}
             >
               <RefreshCw size={15} style={{ animation: reloading ? "admin-spin 0.8s linear infinite" : "none" }} />
+              <RefreshCw size={15} style={{ animation: reloading ? "admin-spin 0.8s linear infinite" : "none" }} />
+            </button>
+            <button
+              type="button"
+              style={styles.bellBtn}
+              aria-label="Help (Shift+click to replay tour for this page)"
+              title="Help — Shift+click to replay tour for this page"
+              onClick={openHelp}
+            >
+              <HelpCircle size={15} />
             </button>
             <button type="button" style={styles.bellBtn} aria-label="Notifications">
               <Bell size={15} />
@@ -496,6 +542,15 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
 
         <main style={styles.content}>{children}</main>
       </div>
+      {user?.id && staffRole && (
+        <OnboardingTour
+          role={staffRole}
+          userId={user.id}
+          open={tourOpen}
+          stepFilter={tourStepFilter}
+          onClose={() => { setTourOpen(false); setTourStepFilter(undefined); }}
+        />
+      )}
     </div>
   );
 }

@@ -23,7 +23,7 @@ function emptyForm(): RoleForm {
 }
 
 function AdminRolesPage() {
-  const { hasPermission } = useAuth();
+  const { user, hasPermission } = useAuth();
   const allowed = hasPermission(PERM.USER_MANAGE_ROLES);
   const [roles, setRoles] = useState<RoleDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +31,18 @@ function AdminRolesPage() {
   const [editing, setEditing] = useState<RoleDto | null>(null);
   const [form, setForm] = useState<RoleForm>(emptyForm());
   const [saving, setSaving] = useState(false);
+  const [showFirstVisit, setShowFirstVisit] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !user?.id) return;
+    const key = `roles_page_seen_${user.id}`;
+    try {
+      if (!window.localStorage.getItem(key)) {
+        setShowFirstVisit(true);
+        window.localStorage.setItem(key, "1");
+      }
+    } catch { /* ignore */ }
+  }, [user?.id]);
 
   const load = async () => {
     setLoading(true);
@@ -101,6 +113,25 @@ function AdminRolesPage() {
   return (
     <AdminLayout title="Roles" actionLabel="Create custom role" onAction={() => begin()} onReload={load}>
       <div className="admin-page-stack">
+        {showFirstVisit && (
+          <div style={{
+            padding: "12px 14px",
+            borderRadius: 10,
+            background: "rgba(245,158,11,0.10)",
+            border: "1px solid rgba(245,158,11,0.35)",
+            color: "var(--admin-text)",
+            fontSize: 13,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+          }}>
+            <span>
+              <strong>Default roles are locked</strong> to protect system integrity. Create custom roles for specific needs.
+            </span>
+            <button className="admin-btn admin-btn-ghost" onClick={() => setShowFirstVisit(false)}>Got it</button>
+          </div>
+        )}
         {loading ? (
           <div className="admin-panel" style={{ padding: 24 }}>Loading roles…</div>
         ) : (
