@@ -102,29 +102,63 @@ export function CartProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(CART_ID_KEY, id);
     }
     setCartId(id);
+
+    // 1) Hydrate immediately from localStorage so a reload never shows an empty cart.
+    let localItems: CartItem[] = [];
     try {
       const stored = window.localStorage.getItem(CART_ITEMS_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) setItems(parsed);
+        if (Array.isArray(parsed)) {
+          localItems = parsed;
+          setItems(parsed);
+        }
       }
     } catch {
       /* ignore */
     }
     setHydrated(true);
+    // Show real cart instantly — no skeleton on reload.
+    setCartLoading(false);
 
-    // Hydrate from backend (best-effort, non-blocking)
+    // 2) Best-effort backend sync. Never wipe a populated local cart with an empty server response.
     void (async () => {
       try {
         const res = await apiFetch("/api/v1/cart", { session: true, auth: true });
         if (!res.ok) return;
         const data = await res.json();
         const parsed = parseBackendCart(data);
-        if (parsed) setItems(parsed);
+        if (!parsed) return;
+        if (parsed.length > 0) {
+          // Server has the source of truth — adopt it.
+          setItems(parsed);
+        } else if (localItems.length > 0) {
+          // Server is empty but we have local items (e.g. anonymous → server lost session).
+          // Push the local cart up so the two stay in sync.
+          for (const it of localItems) {
+            try {
+              await apiFetch("/api/v1/cart/items", {
+                method: "POST",
+                session: true,
+                auth: true,
+                json: {
+                  productId: it.productId,
+                  variantId: it.variantId,
+                  tierId: it.tierId ?? null,
+                  quantity: it.quantity,
+                  size: it.size,
+                  material: it.material,
+                  finish: it.finish,
+                  unitPrice: it.unitPrice,
+                },
+              });
+            } catch {
+              /* keep going — local cart is preserved either way */
+            }
+          }
+        }
       } catch {
         /* keep local state */
-      } finally {
-        setCartLoading(false);
       }
     })();
   }, []);
@@ -137,6 +171,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
   }, [items, hydrated]);
+
 
   const addItem: CartContextValue["addItem"] = (input) => {
     const collectionQuantity = input.collectionQuantity;
