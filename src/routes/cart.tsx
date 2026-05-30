@@ -96,29 +96,49 @@ function CartPage() {
                         {it.collectionName && (
                           <p className="mt-0.5 text-xs font-semibold text-accent">
                             {it.collectionName}
-                            {it.collectionQuantity ? ` · ${it.collectionQuantity} units each` : ""}
+                            {it.collectionQuantity ? ` of ${it.collectionQuantity} units` : ""}
                           </p>
                         )}
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          {[it.variantLabel, it.size, it.material, it.finish].filter(Boolean).join(" · ")}
-                          {it.sku && <span className="ml-2 text-foreground/40">SKU {it.sku}</span>}
-                        </p>
-                        {it.collectionName && it.collectionQuantity ? (
-                          <p className="mt-1 text-xs text-foreground/80">
-                            {it.quantity} × {it.collectionName} ={" "}
-                            <span className="font-semibold">
-                              {(it.totalUnits ?? it.quantity * it.collectionQuantity).toLocaleString()} units
-                            </span>
-                          </p>
-                        ) : null}
+                        {(() => {
+                          const descriptors = Array.from(
+                            new Set(
+                              [it.variantLabel, it.size, it.material, it.finish]
+                                .filter((v): v is string => !!v && v.trim().length > 0)
+                                .map((v) => v.trim()),
+                            ),
+                          );
+                          if (descriptors.length === 0 && !it.sku) return null;
+                          return (
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              {descriptors.join(" · ")}
+                              {it.sku && (
+                                <span className={descriptors.length ? "ml-2 text-foreground/40" : "text-foreground/40"}>
+                                  SKU {it.sku}
+                                </span>
+                              )}
+                            </p>
+                          );
+                        })()}
                         {it.isBackorder && (
                           <p className="mt-1 inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent">
                             Backorder · ~21 days
                           </p>
                         )}
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {fmt(it.unitPrice)} {it.collectionName ? `/ ${it.collectionName}` : "/ unit"}
-                        </p>
+                        {/* Clear price breakdown */}
+                        <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+                          <p>
+                            <span className="text-foreground">{fmt(it.unitPrice)}</span> per unit
+                            {it.collectionName && it.collectionQuantity ? (
+                              <>
+                                {" "}·{" "}
+                                <span className="text-foreground">
+                                  {fmt(it.unitPrice * it.collectionQuantity)}
+                                </span>{" "}
+                                per {it.collectionName.toLowerCase()}
+                              </>
+                            ) : null}
+                          </p>
+                        </div>
                       </div>
                       <button
                         type="button"
@@ -132,7 +152,7 @@ function CartPage() {
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                       <div className="flex flex-col gap-1">
                         <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                          Qty
+                          {it.collectionName ? `${it.collectionName}s` : "Qty"}
                           <input
                             type="number"
                             min={1}
@@ -149,7 +169,13 @@ function CartPage() {
                             className="w-24 rounded-md border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
                           />
                         </label>
-                        <p className="text-[11px] text-muted-foreground">Minimum order: 1 unit</p>
+                        {it.collectionName && it.collectionQuantity ? (
+                          <p className="text-[11px] text-muted-foreground">
+                            = {(it.totalUnits ?? it.quantity * it.collectionQuantity).toLocaleString()} units total
+                          </p>
+                        ) : (
+                          <p className="text-[11px] text-muted-foreground">Minimum order: 1 unit</p>
+                        )}
                       </div>
                       <p className="font-display text-base">{fmt(it.lineTotal)}</p>
                     </div>
@@ -157,6 +183,7 @@ function CartPage() {
                 </li>
               ))}
             </ul>
+
 
             <Link to="/products" className="mt-4 inline-flex items-center gap-1 text-sm text-accent hover:underline">
               ← Continue shopping
