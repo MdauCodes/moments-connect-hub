@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { Forbidden } from "@/components/admin/Forbidden";
@@ -129,8 +129,8 @@ function AdminAuditLogsPage() {
               {loading ? <tr><td colSpan={7}>Loading…</td></tr>
                 : rows.length === 0 ? <tr><td colSpan={7}><div className="admin-empty">No audit entries match.</div></td></tr>
                 : rows.map((e) => (
-                  <>
-                    <tr key={e.id}>
+                  <Fragment key={e.id}>
+                    <tr>
                       <td style={{ whiteSpace: "nowrap" }}>{fmtDate(e.createdAt)}</td>
                       <td>{e.actorName ?? e.actorEmail ?? "—"}<div style={{ fontSize: 10, color: "var(--admin-muted)" }}>{e.actorEmail}</div></td>
                       <td><span className="admin-badge admin-badge-muted">{e.action ?? "—"}</span></td>
@@ -144,13 +144,13 @@ function AdminAuditLogsPage() {
                       </td>
                     </tr>
                     {expanded === e.id && (
-                      <tr key={`${e.id}-d`}>
+                      <tr>
                         <td colSpan={7} style={{ background: "var(--admin-bg)" }}>
                           <ChangesDisplay changes={e.changes} />
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
             </tbody>
           </table>
