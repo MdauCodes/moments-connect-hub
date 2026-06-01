@@ -180,6 +180,16 @@ export const api = {
     return (Array.isArray(data) ? data : data.content).map(normalizeProduct);
   },
 
+  // GET /api/v1/public/products/diversified — category-interleaved feed
+  getDiversifiedProducts: async (params?: { page?: number; size?: number }) => {
+    const page = params?.page ?? 0;
+    const size = params?.size ?? 20;
+    const data = await getJson<PageResponse<Product> | Product[]>(
+      `/api/v1/public/products/diversified?page=${page}&size=${size}`,
+    );
+    return (Array.isArray(data) ? data : data.content).map(normalizeProduct);
+  },
+
   // GET /api/v1/public/products/search?q=&limit=
   searchProducts: async (q: string, limit?: number) => {
     if (!q || q.trim().length < 2) return [];
