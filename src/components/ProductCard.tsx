@@ -180,6 +180,11 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               <span className="font-semibold text-primary">
                 KES {tierPrice(activeTier).toLocaleString()}
               </span>
+              {activeTier.originalCollectionPrice && activeTier.originalCollectionPrice > tierPrice(activeTier) && (
+                <span className="ml-1.5 text-[11px] text-muted-foreground line-through">
+                  KES {Number(activeTier.originalCollectionPrice).toLocaleString()}
+                </span>
+              )}
               <span className="ml-1 text-[11px] text-muted-foreground sm:text-xs">
                 / {cleanUomLabel(activeTier.uomName ?? activeTier.collectionName, Number(activeTier.quantity))} ({(Number(activeTier.quantity) || 0).toLocaleString()} pcs)
               </span>
@@ -197,7 +202,13 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           </div>
         ) : individualEnabled && p.basePrice ? (
           <p className="mt-1.5 text-[13px] font-semibold text-primary sm:mt-2 sm:text-sm">
-            KES {p.basePrice.toLocaleString()} <span className="font-normal text-muted-foreground">/ unit</span>
+            KES {p.basePrice.toLocaleString()}
+            {p.originalBasePrice && p.originalBasePrice > p.basePrice && (
+              <span className="ml-1.5 text-[11px] font-normal text-muted-foreground line-through">
+                KES {p.originalBasePrice.toLocaleString()}
+              </span>
+            )}
+            <span className="ml-1 font-normal text-muted-foreground">/ unit</span>
           </p>
         ) : (
           <p className="mt-1.5 text-[11px] text-muted-foreground sm:mt-2 sm:text-sm">Contact for pricing</p>
