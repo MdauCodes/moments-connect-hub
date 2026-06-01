@@ -206,6 +206,9 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
     material: values.material || undefined,
     finish: values.finish || undefined,
     basePrice: values.basePrice ?? undefined,
+    compareAtPrice: values.compareAtPrice && values.basePrice && values.compareAtPrice > values.basePrice
+      ? values.compareAtPrice
+      : null,
     stockCount: values.trackInventory ? (values.stock ?? 0) : undefined,   // backend field name
     lowStockThreshold: values.trackInventory ? (values.lowStockThreshold ?? 10) : undefined,
     individualSalesEnabled: values.individualSalesEnabled ?? true,
@@ -215,7 +218,7 @@ function buildCreateRequest(values: ProductFormValues, productId?: string) {
     vatRate: values.vatExempt ? 0 : (typeof values.vatRate === "number" ? values.vatRate : 0.16),
 
     // fields not in ProductCreateRequest/ProductUpdateRequest — intentionally omitted:
-    // sku, compareAtPrice, trackInventory, variants, totalClicks, monthlyClicks, totalEnquiries, monthlyEnquiries
+    // sku, trackInventory, variants, totalClicks, monthlyClicks, totalEnquiries, monthlyEnquiries
   };
 }
 
@@ -1037,16 +1040,17 @@ export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDel
                   placeholder="0"
                 />
               </div>
-              <div style={{ ...s.col, ...disabledColStyle }} title="Not yet supported by backend">
-                <label style={s.label}>Compare-at price<span style={s.unsupportedBadge}>Soon</span></label>
+              <div style={s.col}>
+                <label style={s.label}>Compare-at price (KES)</label>
                 <input
                   type="number"
                   min={0}
-                  style={{ ...s.input, ...disabledInputStyle }}
-                  value=""
-                  disabled
-                  placeholder="Not yet supported"
+                  style={s.input}
+                  value={values.compareAtPrice ?? ""}
+                  onChange={(e) => set("compareAtPrice", e.target.value ? Number(e.target.value) : undefined)}
+                  placeholder="Original price (struck through)"
                 />
+                <span style={s.helper}>Shown struck-through when higher than base price.</span>
               </div>
             </div>
 
