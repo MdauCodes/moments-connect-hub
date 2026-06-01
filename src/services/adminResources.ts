@@ -166,7 +166,19 @@ export const adminResources = {
   },
   enquiries: {
     list: async (params: Record<string, string | number | undefined>) => unwrap(await adminJson<PageResponse<EnquiryDto> | EnquiryDto[]>(`/api/v1/admin/enquiries${qs(params)}`)),
-    update: (id: string, body: Partial<EnquiryDto>) => adminJson<EnquiryDto>(`/api/v1/admin/enquiries/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }),
+    update: (id: string, body: Partial<EnquiryDto> & { note?: string; addNote?: string }) =>
+      adminJson<EnquiryDto>(`/api/v1/admin/enquiries/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }),
+    pipelineSummary: () => adminJson<EnquiryPipelineSummary>("/api/v1/admin/enquiries/pipeline/summary"),
+    followUpsDue: () => adminJson<EnquiryDto[]>("/api/v1/admin/enquiries/follow-ups/due"),
+  },
+  auditLogs: {
+    list: async (params: Record<string, string | number | undefined> = {}) =>
+      unwrap(await adminJson<PageResponse<AuditLogEntry> | AuditLogEntry[]>(`/api/v1/admin/audit-logs${qs(params)}`)),
+  },
+  mockMode: {
+    get: () => adminJson<MockModeState>("/api/v1/admin/mock-mode"),
+    set: (enabled: boolean) =>
+      adminJson<MockModeState>(`/api/v1/admin/mock-mode?enabled=${enabled ? "true" : "false"}`, { method: "PUT" }),
   },
   users: {
     list: async (params: Record<string, string | number | boolean | undefined> = {}) => {
