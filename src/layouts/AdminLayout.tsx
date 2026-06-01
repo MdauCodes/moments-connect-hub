@@ -436,8 +436,11 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
         <nav style={styles.nav}>
           {navSections.map((section, sectionIdx) => {
             const visible = section.items.filter((item) => {
-              if (item.requiresAny && !hasAnyPerm(permissions, item.requiresAny)) return false;
-              return true;
+              if (!item.requiresAny) return true;
+              if (hasAnyPerm(permissions, item.requiresAny)) return true;
+              // SUPER_ADMIN sees audit logs even without explicit AUDIT_VIEW perm.
+              if (staffRole === "SUPER_ADMIN" && item.requiresAny.includes(PERM.AUDIT_VIEW)) return true;
+              return false;
             });
             if (visible.length === 0) return null;
             return (
@@ -479,6 +482,7 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
 
 
       <div style={styles.main}>
+        <MockModeBanner />
         <div style={styles.topbar}>
           <div className="admin-topbar-left">
             <button type="button" className="admin-menu-btn" aria-label="Open menu" onClick={() => setSidebarOpen(true)}>
