@@ -26,11 +26,52 @@ export type BlogDto = {
 };
 export type BlogRequest = Omit<BlogDto, "id" | "slug" | "status" | "publishedAt" | "createdAt" | "updatedAt">;
 
+export type EnquiryPipelineStatus = "NEW" | "CONTACTED" | "QUALIFIED" | "PROPOSAL_SENT" | "WON" | "LOST" | "ARCHIVED";
+
+export type EnquiryNote = {
+  id?: string;
+  authorId?: string;
+  authorName?: string;
+  message: string;
+  createdAt?: string;
+};
+
 export type EnquiryDto = {
-  id: string; referenceNumber?: string; reference?: string; status?: EnquiryStatus; assignedTo?: string; internalNotes?: string;
+  id: string; referenceNumber?: string; reference?: string;
+  status?: EnquiryStatus | EnquiryPipelineStatus;
+  assignedTo?: string;
+  assignedToId?: string;
+  assignedToName?: string;
+  /** Append-only internal notes thread. Backend may return either a string blob (legacy) or an array. */
+  internalNotes?: string | EnquiryNote[];
+  /** Scheduled follow-up date (ISO). */
+  followUpAt?: string | null;
+  firstContactedAt?: string | null;
+  estimatedValue?: number | null;
+  productInterest?: string | null;
   name?: string; email?: string; phone?: string; companyName?: string; message?: string; createdAt?: string;
   contact?: { name?: string; email?: string; phone?: string; company?: string }; products?: Array<Record<string, unknown>>; items?: Array<Record<string, unknown>>;
 };
+
+export type EnquiryPipelineSummary = Partial<Record<EnquiryPipelineStatus, number>> & Record<string, number>;
+
+export type AuditLogEntry = {
+  id: string;
+  actorId?: string;
+  actorEmail?: string;
+  actorName?: string;
+  entityType?: string;
+  entityId?: string;
+  entityLabel?: string;
+  action?: string;
+  reason?: string;
+  /** JSON string from backend describing field changes. */
+  changes?: string;
+  ipAddress?: string;
+  createdAt?: string;
+};
+
+export type MockModeState = { enabled: boolean; message?: string };
 
 export type UserDto = {
   id: string;
@@ -125,7 +166,19 @@ export const adminResources = {
   },
   enquiries: {
     list: async (params: Record<string, string | number | undefined>) => unwrap(await adminJson<PageResponse<EnquiryDto> | EnquiryDto[]>(`/api/v1/admin/enquiries${qs(params)}`)),
-    update: (id: string, body: Partial<EnquiryDto>) => adminJson<EnquiryDto>(`/api/v1/admin/enquiries/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }),
+    update: (id: string, body: Partial<EnquiryDto> & { note?: string; addNote?: string }) =>
+      adminJson<EnquiryDto>(`/api/v1/admin/enquiries/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }),
+    pipelineSummary: () => adminJson<EnquiryPipelineSummary>("/api/v1/admin/enquiries/pipeline/summary"),
+    followUpsDue: () => adminJson<EnquiryDto[]>("/api/v1/admin/enquiries/follow-ups/due"),
+  },
+  auditLogs: {
+    list: async (params: Record<string, string | number | undefined> = {}) =>
+      unwrap(await adminJson<PageResponse<AuditLogEntry> | AuditLogEntry[]>(`/api/v1/admin/audit-logs${qs(params)}`)),
+  },
+  mockMode: {
+    get: () => adminJson<MockModeState>("/api/v1/admin/mock-mode"),
+    set: (enabled: boolean) =>
+      adminJson<MockModeState>(`/api/v1/admin/mock-mode?enabled=${enabled ? "true" : "false"}`, { method: "PUT" }),
   },
   users: {
     list: async (params: Record<string, string | number | boolean | undefined> = {}) => {

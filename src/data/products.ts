@@ -183,6 +183,8 @@ export type Product = {
   /** Backend-only enrichments (Phase C). UI must handle absence gracefully. */
   basePrice?: number;
   compareAtPrice?: number;
+  /** Strike-through original price — only present when product is on sale. */
+  originalBasePrice?: number;
   sku?: string;
   stock?: number;
   lowStockThreshold?: number;
@@ -227,6 +229,9 @@ export type ProductPricingTierLike = {
   quantity?: number;
   pricePerUnit: number;
   collectionPrice?: number;
+  /** Strike-through compare-at prices — only present when on sale. */
+  originalPricePerUnit?: number;
+  originalCollectionPrice?: number;
   sortOrder?: number;
   /** UOM linkage (new) */
   uomId?: string;

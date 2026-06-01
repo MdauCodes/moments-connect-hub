@@ -38,6 +38,8 @@ export const PERM = {
   ENQUIRY_VIEW: "ENQUIRY_VIEW",
   REVIEW_MODERATE: "REVIEW_MODERATE",
   CUSTOMER_VIEW: "CUSTOMER_VIEW",
+  // Audit
+  AUDIT_VIEW: "AUDIT_VIEW",
 } as const;
 
 export type PermissionCode = (typeof PERM)[keyof typeof PERM];

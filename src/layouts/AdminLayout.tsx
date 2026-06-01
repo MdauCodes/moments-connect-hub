@@ -33,6 +33,30 @@ import { RoleBadge } from "@/components/admin/RoleBadge";
 import { resolveStaffRole, STAFF_ROLE_DISPLAY } from "@/lib/roles";
 import { OnboardingTour } from "@/components/admin/OnboardingTour";
 import { isOnboardingDone, ROLE_TOURS } from "@/lib/onboardingTours";
+import { useMockModeState } from "@/lib/mockMode";
+
+function MockModeBanner() {
+  const { enabled, message } = useMockModeState();
+  if (!enabled) return null;
+  return (
+    <div
+      role="alert"
+      style={{
+        background: "repeating-linear-gradient(45deg, #fde68a, #fde68a 12px, #fcd34d 12px, #fcd34d 24px)",
+        color: "#7c2d12",
+        padding: "8px 16px",
+        fontSize: 12,
+        fontWeight: 700,
+        textAlign: "center",
+        borderBottom: "2px solid #b45309",
+        letterSpacing: "0.04em",
+        textTransform: "uppercase",
+      }}
+    >
+      ⚠ Mock / Test Mode is ACTIVE — all data created here is test data. {message ?? ""}
+    </div>
+  );
+}
 
 interface AdminLayoutProps {
   title: string;
@@ -107,6 +131,7 @@ const navSections: NavSection[] = [
     items: [
       { label: "Users", to: "/admin/users", icon: Users, requiresAny: [PERM.USER_VIEW, PERM.USER_CREATE, PERM.USER_MANAGE_ROLES] },
       { label: "Roles", to: "/admin/roles", icon: ShieldCheck, requiresAny: [PERM.USER_MANAGE_ROLES] },
+      { label: "Audit Logs", to: "/admin/audit-logs", icon: FileText, requiresAny: [PERM.AUDIT_VIEW] },
       { label: "Settings", to: "/admin/settings", icon: Settings, requiresAny: [PERM.SETTINGS_MANAGE] },
     ],
   },
@@ -435,8 +460,11 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
         <nav style={styles.nav}>
           {navSections.map((section, sectionIdx) => {
             const visible = section.items.filter((item) => {
-              if (item.requiresAny && !hasAnyPerm(permissions, item.requiresAny)) return false;
-              return true;
+              if (!item.requiresAny) return true;
+              if (hasAnyPerm(permissions, item.requiresAny)) return true;
+              // SUPER_ADMIN sees audit logs even without explicit AUDIT_VIEW perm.
+              if (staffRole === "SUPER_ADMIN" && item.requiresAny.includes(PERM.AUDIT_VIEW)) return true;
+              return false;
             });
             if (visible.length === 0) return null;
             return (
@@ -478,6 +506,7 @@ export function AdminLayout({ title, actionLabel, onAction, onReload, children }
 
 
       <div style={styles.main}>
+        <MockModeBanner />
         <div style={styles.topbar}>
           <div className="admin-topbar-left">
             <button type="button" className="admin-menu-btn" aria-label="Open menu" onClick={() => setSidebarOpen(true)}>

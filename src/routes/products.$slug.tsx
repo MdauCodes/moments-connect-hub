@@ -423,9 +423,17 @@ function ProductDetail() {
                         )}
                         <span className="mt-2 text-sm font-semibold text-foreground">
                           KES {cPrice.toLocaleString()}
+                          {t.originalCollectionPrice && Number(t.originalCollectionPrice) > cPrice && (
+                            <span className="ml-1.5 text-xs font-normal text-muted-foreground line-through">
+                              KES {Number(t.originalCollectionPrice).toLocaleString()}
+                            </span>
+                          )}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
                           KES {Number(t.pricePerUnit).toLocaleString()}/piece
+                          {t.originalPricePerUnit && Number(t.originalPricePerUnit) > Number(t.pricePerUnit) && (
+                            <span className="ml-1.5 line-through">KES {Number(t.originalPricePerUnit).toLocaleString()}</span>
+                          )}
                         </span>
                       </button>
                     );
@@ -444,6 +452,11 @@ function ProductDetail() {
                       <span className="mt-0.5 text-xs text-muted-foreground">Buy any quantity</span>
                       <span className="mt-2 text-sm font-semibold text-foreground">
                         KES {(product.basePrice ?? 0).toLocaleString()}/piece
+                        {product.originalBasePrice && product.basePrice && product.originalBasePrice > product.basePrice && (
+                          <span className="ml-1.5 text-xs font-normal text-muted-foreground line-through">
+                            KES {product.originalBasePrice.toLocaleString()}
+                          </span>
+                        )}
                       </span>
                     </button>
                   )}
@@ -476,6 +489,11 @@ function ProductDetail() {
             ) : product.basePrice ? (
               <p className="font-display text-2xl text-foreground">
                 KES {product.basePrice.toLocaleString()}
+                {product.originalBasePrice && product.originalBasePrice > product.basePrice && (
+                  <span className="ml-2 text-base font-normal text-muted-foreground line-through">
+                    KES {product.originalBasePrice.toLocaleString()}
+                  </span>
+                )}
                 <span className="ml-2 text-sm font-normal text-muted-foreground">per unit</span>
               </p>
             ) : (
