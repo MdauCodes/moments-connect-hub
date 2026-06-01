@@ -156,17 +156,24 @@ function ProductsPage() {
     if (page === 0) setIsLoading(true);
     else setIsLoadingMore(true);
 
-    void api
-      .getProducts({
-        industryId: selectedIndustry?.id,
-        category: category || undefined,
-        isNewArrival: newArrivals || undefined,
-        isDiscount: deals || undefined,
-        isFastMoving: fastMoving || undefined,
-        page,
-        size: PAGE_SIZE,
-        sort: sortParam,
-      })
+    // Use the diversified (category-interleaved) feed when no filters are
+    // active and the user hasn't picked a custom sort. Otherwise fall back to
+    // the standard filterable endpoint.
+    const useDiversified = !anyFilterActive && sort === "newest";
+    const fetcher = useDiversified
+      ? api.getDiversifiedProducts({ page, size: PAGE_SIZE })
+      : api.getProducts({
+          industryId: selectedIndustry?.id,
+          category: category || undefined,
+          isNewArrival: newArrivals || undefined,
+          isDiscount: deals || undefined,
+          isFastMoving: fastMoving || undefined,
+          page,
+          size: PAGE_SIZE,
+          sort: sortParam,
+        });
+
+    void fetcher
       .then((data) => {
         if (cancelled) return;
         // Client-side post-filter for price + inStock (mock-friendly).
@@ -210,7 +217,7 @@ function ProductsPage() {
       });
 
     return () => { cancelled = true; };
-  }, [selectedIndustry, category, newArrivals, deals, fastMoving, inStock, minPrice, maxPrice, sortParam, page, searchResults, anyFilterActive, retryTick]);
+  }, [selectedIndustry, category, newArrivals, deals, fastMoving, inStock, minPrice, maxPrice, sortParam, page, searchResults, anyFilterActive, retryTick, sort]);
 
   // Debounced search
   useEffect(() => {
