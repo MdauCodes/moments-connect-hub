@@ -107,6 +107,7 @@ const navSections: NavSection[] = [
     items: [
       { label: "Users", to: "/admin/users", icon: Users, requiresAny: [PERM.USER_VIEW, PERM.USER_CREATE, PERM.USER_MANAGE_ROLES] },
       { label: "Roles", to: "/admin/roles", icon: ShieldCheck, requiresAny: [PERM.USER_MANAGE_ROLES] },
+      { label: "Audit Logs", to: "/admin/audit-logs", icon: FileText, requiresAny: [PERM.AUDIT_VIEW] },
       { label: "Settings", to: "/admin/settings", icon: Settings, requiresAny: [PERM.SETTINGS_MANAGE] },
     ],
   },

@@ -62,6 +62,7 @@ import { Route as AdminAuthAdminDashboardRouteImport } from './routes/_adminAuth
 import { Route as AdminAuthAdminCustomersRouteImport } from './routes/_adminAuth.admin.customers'
 import { Route as AdminAuthAdminChangePasswordRouteImport } from './routes/_adminAuth.admin.change-password'
 import { Route as AdminAuthAdminBlogsRouteImport } from './routes/_adminAuth.admin.blogs'
+import { Route as AdminAuthAdminAuditLogsRouteImport } from './routes/_adminAuth.admin.audit-logs'
 import { Route as AdminAuthAdminAnalyticsRouteImport } from './routes/_adminAuth.admin.analytics'
 import { Route as AdminAuthAdminProductsIndexRouteImport } from './routes/_adminAuth.admin.products.index'
 import { Route as AdminAuthAdminQueuesPreparationRouteImport } from './routes/_adminAuth.admin.queues.preparation'
@@ -343,6 +344,11 @@ const AdminAuthAdminBlogsRoute = AdminAuthAdminBlogsRouteImport.update({
   path: '/admin/blogs',
   getParentRoute: () => AdminAuthRoute,
 } as any)
+const AdminAuthAdminAuditLogsRoute = AdminAuthAdminAuditLogsRouteImport.update({
+  id: '/admin/audit-logs',
+  path: '/admin/audit-logs',
+  getParentRoute: () => AdminAuthRoute,
+} as any)
 const AdminAuthAdminAnalyticsRoute = AdminAuthAdminAnalyticsRouteImport.update({
   id: '/admin/analytics',
   path: '/admin/analytics',
@@ -455,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/products/$slug': typeof ProductsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
+  '/admin/audit-logs': typeof AdminAuthAdminAuditLogsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
   '/admin/change-password': typeof AdminAuthAdminChangePasswordRoute
   '/admin/customers': typeof AdminAuthAdminCustomersRouteWithChildren
@@ -522,6 +529,7 @@ export interface FileRoutesByTo {
   '/products/$slug': typeof ProductsSlugRoute
   '/blog': typeof BlogIndexRoute
   '/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
+  '/admin/audit-logs': typeof AdminAuthAdminAuditLogsRoute
   '/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
   '/admin/change-password': typeof AdminAuthAdminChangePasswordRoute
   '/admin/customers': typeof AdminAuthAdminCustomersRouteWithChildren
@@ -591,6 +599,7 @@ export interface FileRoutesById {
   '/products/$slug': typeof ProductsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/_adminAuth/admin/analytics': typeof AdminAuthAdminAnalyticsRoute
+  '/_adminAuth/admin/audit-logs': typeof AdminAuthAdminAuditLogsRoute
   '/_adminAuth/admin/blogs': typeof AdminAuthAdminBlogsRouteWithChildren
   '/_adminAuth/admin/change-password': typeof AdminAuthAdminChangePasswordRoute
   '/_adminAuth/admin/customers': typeof AdminAuthAdminCustomersRouteWithChildren
@@ -660,6 +669,7 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/blog/'
     | '/admin/analytics'
+    | '/admin/audit-logs'
     | '/admin/blogs'
     | '/admin/change-password'
     | '/admin/customers'
@@ -727,6 +737,7 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/blog'
     | '/admin/analytics'
+    | '/admin/audit-logs'
     | '/admin/blogs'
     | '/admin/change-password'
     | '/admin/customers'
@@ -795,6 +806,7 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/blog/'
     | '/_adminAuth/admin/analytics'
+    | '/_adminAuth/admin/audit-logs'
     | '/_adminAuth/admin/blogs'
     | '/_adminAuth/admin/change-password'
     | '/_adminAuth/admin/customers'
@@ -1234,6 +1246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuthAdminBlogsRouteImport
       parentRoute: typeof AdminAuthRoute
     }
+    '/_adminAuth/admin/audit-logs': {
+      id: '/_adminAuth/admin/audit-logs'
+      path: '/admin/audit-logs'
+      fullPath: '/admin/audit-logs'
+      preLoaderRoute: typeof AdminAuthAdminAuditLogsRouteImport
+      parentRoute: typeof AdminAuthRoute
+    }
     '/_adminAuth/admin/analytics': {
       id: '/_adminAuth/admin/analytics'
       path: '/admin/analytics'
@@ -1384,6 +1403,7 @@ const AdminAuthAdminOrdersRouteWithChildren =
 
 interface AdminAuthRouteChildren {
   AdminAuthAdminAnalyticsRoute: typeof AdminAuthAdminAnalyticsRoute
+  AdminAuthAdminAuditLogsRoute: typeof AdminAuthAdminAuditLogsRoute
   AdminAuthAdminBlogsRoute: typeof AdminAuthAdminBlogsRouteWithChildren
   AdminAuthAdminChangePasswordRoute: typeof AdminAuthAdminChangePasswordRoute
   AdminAuthAdminCustomersRoute: typeof AdminAuthAdminCustomersRouteWithChildren
@@ -1410,6 +1430,7 @@ interface AdminAuthRouteChildren {
 
 const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthAdminAnalyticsRoute: AdminAuthAdminAnalyticsRoute,
+  AdminAuthAdminAuditLogsRoute: AdminAuthAdminAuditLogsRoute,
   AdminAuthAdminBlogsRoute: AdminAuthAdminBlogsRouteWithChildren,
   AdminAuthAdminChangePasswordRoute: AdminAuthAdminChangePasswordRoute,
   AdminAuthAdminCustomersRoute: AdminAuthAdminCustomersRouteWithChildren,
