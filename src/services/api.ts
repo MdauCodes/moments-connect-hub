@@ -47,6 +47,8 @@ function normalizePricingTiers(raw: any): Array<any> {
       const quantity = Number(t.quantity ?? 0) || 0;
       const pricePerUnit = Number(t.pricePerUnit ?? 0) || 0;
       const collectionPrice = Number(t.collectionPrice ?? quantity * pricePerUnit) || 0;
+      const originalPricePerUnit = t.originalPricePerUnit != null ? Number(t.originalPricePerUnit) : undefined;
+      const originalCollectionPrice = t.originalCollectionPrice != null ? Number(t.originalCollectionPrice) : undefined;
       return {
         id: String(t.id ?? `tier-${i}`),
         collectionName: String(t.collectionName ?? `Tier ${i + 1}`),
@@ -54,6 +56,11 @@ function normalizePricingTiers(raw: any): Array<any> {
         pricePerUnit,
         collectionPrice,
         sortOrder: t.sortOrder != null ? Number(t.sortOrder) : i,
+        originalPricePerUnit: originalPricePerUnit && originalPricePerUnit > pricePerUnit ? originalPricePerUnit : undefined,
+        originalCollectionPrice: originalCollectionPrice && originalCollectionPrice > collectionPrice ? originalCollectionPrice : undefined,
+        uomName: t.uomName,
+        uomDescription: t.uomDescription,
+        enabled: t.enabled !== false,
       };
     })
     .sort((a, b) => a.sortOrder - b.sortOrder);
@@ -61,6 +68,7 @@ function normalizePricingTiers(raw: any): Array<any> {
 
 function normalizeProduct(p: ProductApiDto): Product {
   const image = p.image ?? p.primaryImageUrl ?? p.imageUrls?.[0] ?? "";
+  const originalBasePrice = (p as any).originalBasePrice != null ? Number((p as any).originalBasePrice) : undefined;
   return {
     ...p,
     category: p.category ?? "bags",
@@ -84,7 +92,8 @@ function normalizeProduct(p: ProductApiDto): Product {
     lowStockThreshold: (p as any).lowStockThreshold ?? 50,
     trackInventory: (p as any).stockStatus !== 'MADE_TO_ORDER',
     stockStatus: (p as any).stockStatus ?? 'MADE_TO_ORDER',
-  };
+    originalBasePrice: originalBasePrice && p.basePrice && originalBasePrice > p.basePrice ? originalBasePrice : undefined,
+  } as Product;
 }
 
 const iconBySlug = new Map(industries.map((industry) => [industry.slug, industry.icon]));
