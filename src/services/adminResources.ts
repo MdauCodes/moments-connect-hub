@@ -26,11 +26,52 @@ export type BlogDto = {
 };
 export type BlogRequest = Omit<BlogDto, "id" | "slug" | "status" | "publishedAt" | "createdAt" | "updatedAt">;
 
+export type EnquiryPipelineStatus = "NEW" | "CONTACTED" | "QUALIFIED" | "PROPOSAL_SENT" | "WON" | "LOST" | "ARCHIVED";
+
+export type EnquiryNote = {
+  id?: string;
+  authorId?: string;
+  authorName?: string;
+  message: string;
+  createdAt?: string;
+};
+
 export type EnquiryDto = {
-  id: string; referenceNumber?: string; reference?: string; status?: EnquiryStatus; assignedTo?: string; internalNotes?: string;
+  id: string; referenceNumber?: string; reference?: string;
+  status?: EnquiryStatus | EnquiryPipelineStatus;
+  assignedTo?: string;
+  assignedToId?: string;
+  assignedToName?: string;
+  /** Append-only internal notes thread. Backend may return either a string blob (legacy) or an array. */
+  internalNotes?: string | EnquiryNote[];
+  /** Scheduled follow-up date (ISO). */
+  followUpAt?: string | null;
+  firstContactedAt?: string | null;
+  estimatedValue?: number | null;
+  productInterest?: string | null;
   name?: string; email?: string; phone?: string; companyName?: string; message?: string; createdAt?: string;
   contact?: { name?: string; email?: string; phone?: string; company?: string }; products?: Array<Record<string, unknown>>; items?: Array<Record<string, unknown>>;
 };
+
+export type EnquiryPipelineSummary = Partial<Record<EnquiryPipelineStatus, number>> & Record<string, number>;
+
+export type AuditLogEntry = {
+  id: string;
+  actorId?: string;
+  actorEmail?: string;
+  actorName?: string;
+  entityType?: string;
+  entityId?: string;
+  entityLabel?: string;
+  action?: string;
+  reason?: string;
+  /** JSON string from backend describing field changes. */
+  changes?: string;
+  ipAddress?: string;
+  createdAt?: string;
+};
+
+export type MockModeState = { enabled: boolean; message?: string };
 
 export type UserDto = {
   id: string;
