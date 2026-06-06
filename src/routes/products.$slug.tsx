@@ -503,8 +503,16 @@ function ProductDetail() {
 
           {/* Configurator */}
           <div className="mt-6 space-y-5 rounded-2xl border border-border bg-card p-5">
-            {/* Stock badge */}
-            <StockBadge state={stock.state} label={stock.label} />
+            {/* Stock badge + faint count */}
+            <div className="flex flex-wrap items-center gap-2">
+              <StockBadge state={stock.state} label={stock.label} />
+              {stock.state !== "untracked" && stock.state !== "out_of_stock" && Number.isFinite(stock.available) && stock.available > 0 && (
+                <span className="text-xs text-muted-foreground/70">
+                  {stock.available.toLocaleString()} units available
+                </span>
+              )}
+            </div>
+
 
             {variants.length > 0 && (
               <ConfigField label="Variant" note="(price & stock per variant)">
@@ -644,6 +652,13 @@ function ProductDetail() {
               </button>
             )}
 
+            {!enterprise && stock.state === "out_of_stock" && (
+              <p className="text-xs text-muted-foreground">
+                This item is currently out of stock but we can still fulfil your order — delivery may take longer than usual.
+              </p>
+            )}
+
+
             <div className="flex items-center justify-center gap-6 pt-1 text-sm text-muted-foreground">
               <button
                 type="button"
@@ -782,16 +797,24 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 function StockBadge({ state, label }: { state: string; label: string }) {
   const styles =
     state === "untracked"
-      ? "bg-muted/20 text-muted-foreground border-muted/30"
+      ? "bg-muted/30 text-muted-foreground border-muted/40"
       : state === "out_of_stock"
-        ? "bg-amber-50 text-amber-700 border-amber-300"
+        ? "bg-red-50 text-red-700 border-red-300"
         : state === "low_stock"
           ? "bg-amber-50 text-amber-700 border-amber-300"
-          : "bg-primary/10 text-primary border-primary/30";
-  const displayLabel = state === "untracked" ? "Made to order" : label;
+          : "bg-green-50 text-green-700 border-green-300";
+  const displayLabel =
+    state === "untracked"
+      ? "Made to order"
+      : state === "out_of_stock"
+        ? "Out of stock"
+        : state === "low_stock"
+          ? "Low stock"
+          : "In stock";
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider ${styles}`}
+      title={label}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" /> {displayLabel}
     </span>
