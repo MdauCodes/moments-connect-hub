@@ -248,15 +248,14 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
 
 function StockLine({ status, count }: { status?: string; count: number }) {
   const s = status ?? "MADE_TO_ORDER";
+  if (s === "MADE_TO_ORDER") return null;
   const cfg =
     s === "IN_STOCK"
       ? { label: "In stock", cls: "text-green-700 bg-green-50 border-green-200" }
       : s === "LOW_STOCK"
         ? { label: "Low stock", cls: "text-amber-700 bg-amber-50 border-amber-300" }
-        : s === "OUT_OF_STOCK"
-          ? { label: "Out of stock", cls: "text-red-700 bg-red-50 border-red-300" }
-          : { label: "Made to order", cls: "text-muted-foreground bg-muted/30 border-muted/40" };
-  const showCount = s !== "MADE_TO_ORDER" && count > 0;
+        : { label: "Out of stock", cls: "text-red-700 bg-red-50 border-red-300" };
+  const showCount = count > 0;
   return (
     <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
       <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium ${cfg.cls}`}>
