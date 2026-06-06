@@ -240,6 +240,11 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                 : "Get a quote"}
             </span>
           </button>
+          {(p as any).stockStatus === "OUT_OF_STOCK" && (
+            <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
+              Currently out of stock — we can still fulfil your order.
+            </p>
+          )}
         </div>
       </div>
     </article>
