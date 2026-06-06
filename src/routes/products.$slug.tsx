@@ -782,16 +782,24 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 function StockBadge({ state, label }: { state: string; label: string }) {
   const styles =
     state === "untracked"
-      ? "bg-muted/20 text-muted-foreground border-muted/30"
+      ? "bg-muted/30 text-muted-foreground border-muted/40"
       : state === "out_of_stock"
-        ? "bg-amber-50 text-amber-700 border-amber-300"
+        ? "bg-red-50 text-red-700 border-red-300"
         : state === "low_stock"
           ? "bg-amber-50 text-amber-700 border-amber-300"
-          : "bg-primary/10 text-primary border-primary/30";
-  const displayLabel = state === "untracked" ? "Made to order" : label;
+          : "bg-green-50 text-green-700 border-green-300";
+  const displayLabel =
+    state === "untracked"
+      ? "Made to order"
+      : state === "out_of_stock"
+        ? "Out of stock"
+        : state === "low_stock"
+          ? "Low stock"
+          : "In stock";
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider ${styles}`}
+      title={label}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" /> {displayLabel}
     </span>
