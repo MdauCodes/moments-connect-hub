@@ -653,8 +653,8 @@ function ProductDetail() {
             )}
 
             {!enterprise && stock.state === "out_of_stock" && (
-              <p className="text-xs text-muted-foreground">
-                This item is currently out of stock but we can still fulfil your order — delivery may take longer than usual.
+              <p className="text-xs text-muted-foreground/70">
+                Currently out of stock — we can still fulfil your order.
               </p>
             )}
 
