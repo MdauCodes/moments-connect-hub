@@ -652,6 +652,13 @@ function ProductDetail() {
               </button>
             )}
 
+            {!enterprise && stock.state === "out_of_stock" && (
+              <p className="text-xs text-muted-foreground">
+                This item is currently out of stock but we can still fulfil your order — delivery may take longer than usual.
+              </p>
+            )}
+
+
             <div className="flex items-center justify-center gap-6 pt-1 text-sm text-muted-foreground">
               <button
                 type="button"
