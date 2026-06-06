@@ -503,8 +503,16 @@ function ProductDetail() {
 
           {/* Configurator */}
           <div className="mt-6 space-y-5 rounded-2xl border border-border bg-card p-5">
-            {/* Stock badge */}
-            <StockBadge state={stock.state} label={stock.label} />
+            {/* Stock badge + faint count */}
+            <div className="flex flex-wrap items-center gap-2">
+              <StockBadge state={stock.state} label={stock.label} />
+              {stock.state !== "untracked" && stock.state !== "out_of_stock" && Number.isFinite(stock.available) && stock.available > 0 && (
+                <span className="text-xs text-muted-foreground/70">
+                  {stock.available.toLocaleString()} units available
+                </span>
+              )}
+            </div>
+
 
             {variants.length > 0 && (
               <ConfigField label="Variant" note="(price & stock per variant)">
