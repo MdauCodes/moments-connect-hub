@@ -214,7 +214,11 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           <p className="mt-1.5 text-[11px] text-muted-foreground sm:mt-2 sm:text-sm">Contact for pricing</p>
         )}
 
+        {/* Stock status line — one line below price */}
+        <StockLine status={(p as any).stockStatus} count={p.stock ?? 0} />
+
         <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:gap-2 sm:pt-3">
+
           <p className="text-[10px] text-muted-foreground sm:text-xs">
             {hasTiers && smallestTier
               ? `Min. order: 1 ${cleanUomLabel(smallestTier.uomName ?? smallestTier.collectionName, Number(smallestTier.quantity))} (${(Number(smallestTier.quantity) || 0).toLocaleString()} pcs)`
