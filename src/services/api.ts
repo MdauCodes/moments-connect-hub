@@ -193,10 +193,11 @@ export const api = {
   // GET /api/v1/public/products/search?q=&limit=
   searchProducts: async (q: string, limit?: number) => {
     if (!q || q.trim().length < 2) return [];
-    const data = await getJson<Product[]>(
+    const data = await getJson<Product[] | PageResponse<Product>>(
       `/api/v1/public/products/search${qs({ q: q.trim(), limit })}`,
     );
-    return data.map(normalizeProduct);
+    const list = Array.isArray(data) ? data : (data?.content ?? []);
+    return list.map(normalizeProduct).filter((p) => !!p.slug);
   },
 
   // GET /api/v1/public/products/recommended
