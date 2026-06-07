@@ -97,8 +97,8 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
         {/* Single most-relevant badge to reduce clutter on mobile */}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1 sm:left-3 sm:top-3">
           {stock.state === "out_of_stock" ? (
-            <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-2.5 sm:py-1 sm:text-[10px]">
-              Place your order
+            <span className="rounded-full bg-red-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-2.5 sm:py-1 sm:text-[10px]">
+              Out of Stock
             </span>
           ) : p.isDiscount ? (
             <span className="rounded-full bg-accent px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-accent-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
