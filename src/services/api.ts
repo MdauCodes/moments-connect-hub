@@ -3,6 +3,7 @@ import { blogStore } from "@/services/blogStore";
 import { apiUrl } from "@/config/api";
 import type { Product, Industry } from "@/data/products";
 import type { Blog, BlogStatus, BlogTemplate } from "@/data/blogs";
+import { MOCK_PRODUCTS } from "@/data/mockProducts";
 
 type PageResponse<T> = { content: T[] };
 type ProductApiDto = Partial<Product> & {
@@ -220,7 +221,7 @@ export const api = {
       const data = await getJson<Product>(`/api/v1/public/products/${encodeURIComponent(slug)}`);
       return normalizeProduct(data);
     } catch {
-      return null;
+      return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
     }
   },
 
