@@ -269,9 +269,9 @@ function Hero() {
               </Link>
             </div>
             <div className="flex items-center gap-4 text-white">
-              <button aria-label="Search" className="hover:opacity-80">
+              <Link to="/products" aria-label="Search products" className="hover:opacity-80">
                 <Search className="h-5 w-5" />
-              </button>
+              </Link>
               <Link to="/cart" aria-label="Cart" className="relative hover:opacity-80">
                 <ShoppingBag className="h-5 w-5" />
                 <span
