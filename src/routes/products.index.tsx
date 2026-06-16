@@ -114,6 +114,23 @@ function ProductsPage() {
   };
   const [loadState, setLoadState] = useState<LoadState>("ok");
   const [retryTick, setRetryTick] = useState(0);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Infinite scroll: load next page when user scrolls near bottom
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore || isLoadingMore || searchResults) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setPage((p) => p + 1);
+        }
+      },
+      { rootMargin: "400px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingMore, searchResults]);
 
   const selectedIndustry = useMemo(
     () => industries.find((i) => i.slug === industrySlug) ?? null,
