@@ -545,16 +545,15 @@ function ProductsPage() {
               ))}
             </div>
 
-            {!searchResults && hasMore && (
-              <div className="mt-10 flex justify-center">
-                <button
-                  type="button"
-                  disabled={isLoadingMore}
-                  onClick={() => setPage((p) => p + 1)}
-                  className="rounded-full border border-primary bg-background px-6 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-60"
-                >
-                  {isLoadingMore ? "Loading…" : "Load more"}
-                </button>
+            {!searchResults && (
+              <div className="mt-10 flex flex-col items-center justify-center gap-2">
+                {isLoadingMore && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    Loading more products…
+                  </div>
+                )}
+                <div ref={sentinelRef} className="h-1 w-full" />
               </div>
             )}
           </>
