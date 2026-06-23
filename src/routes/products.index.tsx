@@ -539,7 +539,7 @@ function ProductsPage() {
           </div>
         ) : (
           <>
-            <div className="mt-8 grid animate-in fade-in grid-cols-2 gap-3 duration-300 sm:mt-10 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+            <div className="mt-8 grid animate-in fade-in grid-cols-2 gap-3 duration-300 sm:mt-10 sm:gap-5 md:grid-cols-3 lg:gap-6">
               {grid.map((p) => (
                 <ProductCard key={p.id} product={p} onConfigure={handleConfigure} />
               ))}

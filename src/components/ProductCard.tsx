@@ -86,13 +86,19 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
       onClick={handleCardClick}
       className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-lg sm:rounded-2xl"
     >
-      <div className="relative aspect-square w-full overflow-hidden bg-secondary sm:aspect-[4/3]">
+      <div className="relative aspect-square w-full overflow-hidden bg-secondary sm:aspect-[4/3] lg:aspect-[16/10]">
         <img
           src={image}
           alt={p.name}
           loading="lazy"
           style={{ objectPosition: "center" }}
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        {/* Fade the image into the card body — soft, seamless merge */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-10 sm:h-14"
+          style={{ background: "linear-gradient(to bottom, transparent 0%, var(--card) 95%)" }}
         />
         {/* Single most-relevant badge to reduce clutter on mobile */}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1 sm:left-3 sm:top-3">
@@ -116,11 +122,6 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           {stock.state === "low_stock" && (
             <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-2.5 sm:py-1 sm:text-[10px]">
               {stock.label}
-            </span>
-          )}
-          {stock.state === "in_stock" && stock.available > 50 && (
-            <span className="hidden rounded-full bg-green-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:inline-block sm:px-2.5 sm:py-1 sm:text-[10px]">
-              {stock.available.toLocaleString()} in stock
             </span>
           )}
         </div>
@@ -252,6 +253,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
 }
 
 function StockLine({ status, count }: { status?: string; count: number }) {
+  void count;
   const s = status ?? "MADE_TO_ORDER";
   if (s === "MADE_TO_ORDER") return null;
   const cfg =
@@ -260,16 +262,12 @@ function StockLine({ status, count }: { status?: string; count: number }) {
       : s === "LOW_STOCK"
         ? { label: "Low stock", cls: "text-amber-700 bg-amber-50 border-amber-300" }
         : { label: "Out of stock", cls: "text-red-700 bg-red-50 border-red-300" };
-  const showCount = count > 0;
   return (
     <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
       <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium ${cfg.cls}`}>
         <span className="h-1 w-1 rounded-full bg-current" />
         {cfg.label}
       </span>
-      {showCount && (
-        <span className="text-muted-foreground/60">{count.toLocaleString()} {count === 1 ? "unit" : "units"} available</span>
-      )}
     </div>
   );
 }

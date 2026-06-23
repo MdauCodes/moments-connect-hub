@@ -424,23 +424,30 @@ function Hero() {
                 Enterprise quote
               </Link>
             </div>
-            <div
-              className="inline-flex items-center"
-              style={{
-                marginTop: "22px",
-                gap: "8px",
-                background: "rgba(255,255,255,0.09)",
-                border: "1px solid rgba(141,201,106,0.28)",
-                backdropFilter: "blur(8px)",
-                borderRadius: "8px",
-                padding: "8px 14px",
-              }}
-            >
-              <span
-                className="inline-block rounded-full"
-                style={{ width: "6px", height: "6px", background: "#00A651" }}
-              />
-              <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.82)" }}>M-Pesa accepted at checkout</span>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Link
+                to="/company-profile"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/5 px-3.5 py-1.5 text-[12px] font-medium text-white/85 backdrop-blur transition-colors hover:border-accent/60 hover:text-white"
+              >
+                View our company profile <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+              <div
+                className="inline-flex items-center"
+                style={{
+                  gap: "8px",
+                  background: "rgba(255,255,255,0.09)",
+                  border: "1px solid rgba(141,201,106,0.28)",
+                  backdropFilter: "blur(8px)",
+                  borderRadius: "8px",
+                  padding: "8px 14px",
+                }}
+              >
+                <span
+                  className="inline-block rounded-full"
+                  style={{ width: "6px", height: "6px", background: "#00A651" }}
+                />
+                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.82)" }}>M-Pesa accepted at checkout</span>
+              </div>
             </div>
           </div>
         </div>

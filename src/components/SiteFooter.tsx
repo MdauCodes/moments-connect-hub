@@ -59,6 +59,7 @@ export function SiteFooter() {
             <li><Link to="/industries" className="hover:text-accent">Industries</Link></li>
             <li><Link to="/blog" className="hover:text-accent">Blog</Link></li>
             <li><Link to="/about" className="hover:text-accent">About</Link></li>
+            <li><Link to="/company-profile" className="hover:text-accent">Company Profile</Link></li>
             <li><Link to="/orders/track" className="hover:text-accent">Track Order</Link></li>
             <li><Link to="/enterprise-quote" className="hover:text-accent">Enterprise Quote</Link></li>
           </ul>

@@ -11,10 +11,11 @@ import { useAuth } from "@/contexts/AuthContext";
  * Commerce-first nav. Categories live inside the "Shop" dropdown so the
  * top bar stays uncluttered. Deals & Enterprise sit alongside as siblings.
  */
-type SimpleNav = { to: "/products" | "/enterprise-quote" | "/orders/track"; label: string; search?: Record<string, unknown> };
+type SimpleNav = { to: "/products" | "/enterprise-quote" | "/orders/track" | "/company-profile"; label: string; search?: Record<string, unknown> };
 
 const simpleNav: readonly SimpleNav[] = [
   { to: "/products", label: "Deals", search: { deals: true } },
+  { to: "/company-profile", label: "Company" },
   { to: "/orders/track", label: "Track Order" },
   { to: "/enterprise-quote", label: "Enterprise" },
 ];
