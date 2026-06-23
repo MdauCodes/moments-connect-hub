@@ -20,6 +20,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndustriesRouteImport } from './routes/industries'
 import { Route as EnterpriseQuoteRouteImport } from './routes/enterprise-quote'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CompanyProfileRouteImport } from './routes/company-profile'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AboutRouteImport } from './routes/about'
@@ -131,6 +132,11 @@ const EnterpriseQuoteRoute = EnterpriseQuoteRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompanyProfileRoute = CompanyProfileRouteImport.update({
+  id: '/company-profile',
+  path: '/company-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -435,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/company-profile': typeof CompanyProfileRoute
   '/contact': typeof ContactRoute
   '/enterprise-quote': typeof EnterpriseQuoteRoute
   '/industries': typeof IndustriesRoute
@@ -504,6 +511,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/company-profile': typeof CompanyProfileRoute
   '/contact': typeof ContactRoute
   '/enterprise-quote': typeof EnterpriseQuoteRoute
   '/industries': typeof IndustriesRoute
@@ -574,6 +582,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRouteWithChildren
+  '/company-profile': typeof CompanyProfileRoute
   '/contact': typeof ContactRoute
   '/enterprise-quote': typeof EnterpriseQuoteRoute
   '/industries': typeof IndustriesRoute
@@ -645,6 +654,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/cart'
     | '/checkout'
+    | '/company-profile'
     | '/contact'
     | '/enterprise-quote'
     | '/industries'
@@ -714,6 +724,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/cart'
     | '/checkout'
+    | '/company-profile'
     | '/contact'
     | '/enterprise-quote'
     | '/industries'
@@ -783,6 +794,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/cart'
     | '/checkout'
+    | '/company-profile'
     | '/contact'
     | '/enterprise-quote'
     | '/industries'
@@ -854,6 +866,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRouteWithChildren
+  CompanyProfileRoute: typeof CompanyProfileRoute
   ContactRoute: typeof ContactRoute
   EnterpriseQuoteRoute: typeof EnterpriseQuoteRoute
   IndustriesRoute: typeof IndustriesRoute
@@ -960,6 +973,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/company-profile': {
+      id: '/company-profile'
+      path: '/company-profile'
+      fullPath: '/company-profile'
+      preLoaderRoute: typeof CompanyProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -1524,6 +1544,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRouteWithChildren,
+  CompanyProfileRoute: CompanyProfileRoute,
   ContactRoute: ContactRoute,
   EnterpriseQuoteRoute: EnterpriseQuoteRoute,
   IndustriesRoute: IndustriesRoute,
