@@ -126,7 +126,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           )}
         </div>
       </div>
-      <div className="flex flex-1 flex-col p-2.5 sm:p-4">
+      <div className="flex flex-1 flex-col px-2.5 pt-0 pb-2.5 sm:px-4 sm:pt-0 sm:pb-4">
         <span className="hidden self-start rounded-full border border-kraft/30 bg-kraft/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-kraft sm:inline-block">
           {p.category}
         </span>
