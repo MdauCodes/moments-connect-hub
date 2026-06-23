@@ -456,7 +456,7 @@ function Hero() {
         <svg
           viewBox="0 0 1440 60"
           preserveAspectRatio="none"
-          className="absolute left-0 right-0"
+          className="absolute left-0 right-0 pointer-events-none"
           style={{ bottom: "-1px", zIndex: 5, width: "100%", height: "60px" }}
           aria-hidden
         >
