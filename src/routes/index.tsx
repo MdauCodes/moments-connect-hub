@@ -109,7 +109,8 @@ function Hero() {
     <section
       className="relative overflow-hidden"
       style={{
-        background: "var(--ink)",
+        background:
+          "linear-gradient(135deg, color-mix(in oklab, var(--forest) 82%, black) 0%, var(--forest) 55%, color-mix(in oklab, var(--forest) 70%, black) 100%)",
         minHeight: "520px",
       }}
     >
@@ -185,13 +186,13 @@ function Hero() {
           }
         `}</style>
 
-        {/* Gradient scrim — stronger on mobile for text legibility over image */}
+        {/* Gradient scrim — forest-toned for brand consistency */}
         <div
           className="absolute inset-0 md:hidden"
           style={{
             zIndex: 3,
             background:
-              "linear-gradient(180deg, rgba(26,14,8,0.92) 0%, rgba(26,14,8,0.82) 55%, rgba(26,14,8,0.96) 100%)",
+              "linear-gradient(180deg, color-mix(in oklab, var(--forest) 70%, black) 0%, color-mix(in oklab, var(--forest) 60%, black) 55%, color-mix(in oklab, var(--forest) 80%, black) 100%)",
           }}
         />
         <div
@@ -199,7 +200,7 @@ function Hero() {
           style={{
             zIndex: 3,
             background:
-              "linear-gradient(100deg, rgba(26,14,8,0.92) 0%, rgba(26,14,8,0.78) 32%, rgba(26,14,8,0.22) 58%, rgba(26,14,8,0.0) 74%)",
+              "linear-gradient(100deg, color-mix(in oklab, var(--forest) 75%, black) 0%, color-mix(in oklab, var(--forest) 60%, black) 32%, color-mix(in oklab, var(--forest) 30%, transparent) 58%, transparent 74%)",
           }}
         />
 
