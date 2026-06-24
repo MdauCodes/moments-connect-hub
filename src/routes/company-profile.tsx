@@ -143,7 +143,7 @@ function CompanyProfilePage() {
           style={{ background: `radial-gradient(circle, ${GOLD_SOFT} 0%, transparent 70%)` }}
         />
 
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8">
+        <div className="relative mx-auto max-w-5xl px-5 py-20 sm:py-28 lg:px-8">
           <div>
             <img
               src={logoUrl}
@@ -204,19 +204,6 @@ function CompanyProfilePage() {
                 </div>
               ))}
             </div>
-          </div>
-
-          <div className="relative">
-            <div
-              className="absolute -inset-3 rounded-3xl opacity-40 blur-2xl"
-              style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 70%)` }}
-            />
-            <img
-              src={coverImg.url}
-              alt="Moments Packaging — Company Profile cover"
-              className="relative w-full rounded-2xl shadow-2xl ring-1"
-              style={{ boxShadow: "0 30px 80px -20px rgba(0,0,0,0.6)" }}
-            />
           </div>
         </div>
       </section>
