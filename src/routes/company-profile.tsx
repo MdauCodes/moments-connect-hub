@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import pdfAsset from "@/assets/moments-company-profile.pdf.asset.json";
+import logoUrl from "@/assets/moments-logo.png";
 import coverImg from "@/assets/company-profile/cover.jpg.asset.json";
 import introImg from "@/assets/company-profile/intro.jpg.asset.json";
 import visionImg from "@/assets/company-profile/vision-cups.jpg.asset.json";
@@ -144,13 +145,13 @@ function CompanyProfilePage() {
 
         <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8">
           <div>
-            <p
-              className="text-[11px] font-semibold uppercase tracking-[0.32em]"
-              style={{ color: GOLD }}
-            >
-              Moments Packaging (K) Ltd
-            </p>
-            <h1 className="mt-5 font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
+            <img
+              src={logoUrl}
+              alt="Moments Packaging (K) Limited"
+              className="h-28 w-auto sm:h-36 lg:h-44"
+              style={{ filter: "drop-shadow(0 8px 28px rgba(0,0,0,0.45))" }}
+            />
+            <h1 className="mt-7 font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
               Company<br />
               <span style={{ color: "#ffffff" }}>Profile</span>
             </h1>
