@@ -123,8 +123,9 @@ function CompanyProfilePage() {
     <SiteLayout>
       {/* HERO — mirrors PDF cover */}
       <section
-        className="relative overflow-hidden"
+        className="relative flex items-center overflow-hidden"
         style={{
+          minHeight: "82dvh",
           background:
             `radial-gradient(ellipse at 100% 0%, ${FOREST} 0%, ${FOREST_DEEP} 60%, #061a13 100%)`,
         }}
