@@ -143,9 +143,9 @@ function CompanyProfilePage() {
           style={{ background: `radial-gradient(circle, ${GOLD_SOFT} 0%, transparent 70%)` }}
         />
 
-        <div className="relative mx-auto max-w-5xl px-5 py-20 sm:py-28 lg:px-8">
+        <div className="relative mx-auto w-full max-w-7xl px-5 py-10 sm:py-14 lg:px-8">
           <div>
-            <h1 className="mt-7 font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
+            <h1 className="font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
               Company<br />
               <span style={{ color: "#ffffff" }}>Profile</span>
             </h1>
