@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import momentsBrandLogo from "@/assets/moments-logo.png.asset.json";
+import momentsBrandLogo from "@/assets/moments-logo.png";
 
 /**
  * Branded app splash — forest-green stage with the Moments logo revealed
@@ -82,7 +82,7 @@ export function AppSplash() {
           className={`mpk-splash-content absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 ${open ? "is-open" : ""}`}
         >
           <img
-            src={momentsBrandLogo.url}
+            src={momentsBrandLogo}
             alt=""
             width={360}
             height={120}
