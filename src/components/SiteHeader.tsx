@@ -177,7 +177,7 @@ export function SiteHeader() {
                 search={n.search as never}
                 className={`rounded-full px-3 py-2 text-sm font-medium transition-colors lg:px-4 ${
                   n.label === "Deals"
-                    ? "text-accent hover:bg-accent/10"
+                    ? "text-forest hover:bg-forest/10"
                     : "text-foreground/80 hover:bg-secondary hover:text-foreground"
                 }`}
                 activeProps={{ className: "bg-secondary text-foreground" }}
@@ -357,7 +357,7 @@ export function SiteHeader() {
                   search={n.search as never}
                   onClick={() => setOpen(false)}
                   className={`rounded-md px-3 py-3 text-sm font-medium hover:bg-secondary ${
-                    n.label === "Deals" ? "text-accent" : "text-foreground/80"
+                    n.label === "Deals" ? "text-forest" : "text-foreground/80"
                   }`}
                 >
                   {n.label}

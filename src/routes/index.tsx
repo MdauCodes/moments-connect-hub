@@ -257,7 +257,7 @@ function Hero() {
               <Link
                 to="/products"
                 search={{ deals: true } as never}
-                style={{ color: "var(--accent)" }}
+                style={{ color: "#e8c878" }}
                 className="hover:opacity-80"
               >
                 Deals
@@ -277,7 +277,7 @@ function Hero() {
                 <ShoppingBag className="h-5 w-5" />
                 <span
                   className="absolute -right-1 -top-1 h-2 w-2 rounded-full"
-                  style={{ background: "var(--accent)" }}
+                  style={{ background: "#e8c878" }}
                 />
               </Link>
               <Link to="/login" className="hidden md:inline text-sm hover:opacity-80">
@@ -381,7 +381,7 @@ function Hero() {
               Packaging for
               <br />
               Kenyan brands —<br />
-              <em className="italic" style={{ color: "var(--accent)" }}>
+              <em className="italic" style={{ color: "#e8c878" }}>
                 unforgettable. Utafurahia
               </em>
             </h1>
@@ -400,9 +400,10 @@ function Hero() {
             <div className="flex flex-col md:flex-row gap-3 max-w-sm md:max-w-none">
               <Link
                 to="/products"
-                className="inline-flex items-center justify-center gap-2 font-semibold text-white"
+                className="inline-flex items-center justify-center gap-2 font-semibold"
                 style={{
-                  background: "var(--accent)",
+                  background: "#e8c878",
+                  color: "#0d3320",
                   borderRadius: "10px",
                   padding: "13px 26px",
                   fontSize: "14px",
