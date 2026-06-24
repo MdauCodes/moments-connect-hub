@@ -1,7 +1,8 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { Menu, X, ChevronDown, Search, ShoppingBag, User } from "lucide-react";
 import logoUrl from "@/assets/moments-logo.png";
+import momentsBrandLogo from "@/assets/moments-logo.png.asset.json";
 import { categories } from "@/data/products";
 import { SearchCommand } from "@/components/SearchCommand";
 import { useCart } from "@/contexts/CartContext";
@@ -33,6 +34,9 @@ export function SiteHeader() {
   const navigate = useNavigate();
   const { itemCount } = useCart();
   const { isAuthenticated, user, logout } = useAuth();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isCompanyProfile = pathname.startsWith("/company-profile");
+  const activeLogoSrc = isCompanyProfile ? momentsBrandLogo.url : logoUrl;
 
   useEffect(() => {
     if (!accountOpen) return;
@@ -96,11 +100,11 @@ export function SiteHeader() {
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-4 lg:gap-5 lg:px-8">
           <Link to="/" className="group flex shrink-0 items-center" aria-label="Moments Packaging Kenya — Home">
             <img
-              src={logoUrl}
+              src={activeLogoSrc}
               alt="Moments Packaging Kenya logo"
               width={160}
               height={40}
-              className="h-5 w-auto sm:h-6 lg:h-7"
+              className={isCompanyProfile ? "h-9 w-auto sm:h-10 lg:h-11" : "h-5 w-auto sm:h-6 lg:h-7"}
             />
           </Link>
 
