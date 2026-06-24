@@ -210,7 +210,7 @@ function CompanyProfilePage() {
 
       {/* INTRODUCTION — green theme continues */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-2 lg:items-center lg:px-8">
+        <div className="mx-auto max-w-4xl px-5 py-20 lg:px-8">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
               Introduction
@@ -239,13 +239,9 @@ function CompanyProfilePage() {
               decisions.
             </p>
           </div>
-          <img
-            src={introImg.url}
-            alt="Moments Packaging introduction"
-            className="w-full rounded-2xl shadow-2xl"
-          />
         </div>
       </section>
+
 
       {/* VISION / MISSION / COMMITMENT */}
       <section className="relative" style={{ background: FOREST }}>
