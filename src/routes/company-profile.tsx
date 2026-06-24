@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import pdfAsset from "@/assets/moments-company-profile.pdf.asset.json";
-import logoAsset from "@/assets/moments-logo.png.asset.json";
 import coverImg from "@/assets/company-profile/cover.jpg.asset.json";
 import introImg from "@/assets/company-profile/intro.jpg.asset.json";
 import visionImg from "@/assets/company-profile/vision-cups.jpg.asset.json";
