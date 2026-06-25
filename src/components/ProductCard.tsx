@@ -107,7 +107,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               Out of Stock
             </span>
           ) : p.isDiscount ? (
-            <span className="rounded-full bg-accent px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-accent-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
+            <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
               -{p.discountPercent ?? 10}%
             </span>
           ) : p.isNewArrival ? (
@@ -228,7 +228,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           <button
             type="button"
             onClick={handleCTAClick}
-            className="w-full rounded-full bg-accent px-2 py-2 text-[11px] font-semibold leading-tight text-accent-foreground transition-opacity hover:opacity-90 sm:px-3 sm:text-xs"
+            className="w-full rounded-full bg-primary px-2 py-2 text-[11px] font-semibold leading-tight text-primary-foreground transition-opacity hover:opacity-90 sm:px-3 sm:text-xs"
           >
             <span className="sm:hidden">
               {hasTiers || (individualEnabled && p.basePrice) ? "Add to cart" : "Get a quote"}
