@@ -47,6 +47,11 @@ function genId() {
   return Math.random().toString(36).slice(2, 11);
 }
 
+/** Returns true only if the string is a standard UUID — i.e. came from the backend. */
+function isBackendId(id: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+}
+
 /** Best-effort normalization of a backend cart payload into CartItem[]. */
 function parseBackendCart(data: unknown): CartItem[] | null {
   if (!data || typeof data !== "object") return null;
@@ -78,11 +83,12 @@ function parseBackendCart(data: unknown): CartItem[] | null {
       tierId: it.tierId ?? null,
       collectionName: it.collectionName ?? undefined,
       collectionQuantity,
-      totalUnits: it.totalUnits != null
-        ? Number(it.totalUnits)
-        : collectionQuantity != null
-          ? quantity * collectionQuantity
-          : quantity,
+      totalUnits:
+        it.totalUnits != null
+          ? Number(it.totalUnits)
+          : collectionQuantity != null
+            ? quantity * collectionQuantity
+            : quantity,
     });
   }
   return items;
@@ -118,10 +124,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
     setHydrated(true);
-    // Show real cart instantly — no skeleton on reload.
     setCartLoading(false);
 
-    // 2) Best-effort backend sync. Never wipe a populated local cart with an empty server response.
+    // 2) Best-effort backend sync.
     void (async () => {
       try {
         const res = await apiFetch("/api/v1/cart", { session: true, auth: true });
@@ -130,11 +135,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const parsed = parseBackendCart(data);
         if (!parsed) return;
         if (parsed.length > 0) {
-          // Server has the source of truth — adopt it.
           setItems(parsed);
         } else if (localItems.length > 0) {
-          // Server is empty but we have local items (e.g. anonymous → server lost session).
-          // Push the local cart up so the two stay in sync.
           for (const it of localItems) {
             try {
               await apiFetch("/api/v1/cart/items", {
@@ -149,7 +151,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
                   size: it.size,
                   material: it.material,
                   finish: it.finish,
-                  unitPrice: it.unitPrice,
                 },
               });
             } catch {
@@ -172,12 +173,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, hydrated]);
 
-
   const addItem: CartContextValue["addItem"] = (input) => {
     const collectionQuantity = input.collectionQuantity;
     const totalUnits =
-      input.totalUnits ??
-      (collectionQuantity != null ? input.quantity * collectionQuantity : input.quantity);
+      input.totalUnits ?? (collectionQuantity != null ? input.quantity * collectionQuantity : input.quantity);
     setItems((prev) => {
       const idx = prev.findIndex(
         (it) =>
@@ -195,10 +194,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           ...next[idx],
           quantity: newQty,
           lineTotal: newQty * next[idx].unitPrice,
-          totalUnits:
-            next[idx].collectionQuantity != null
-              ? newQty * (next[idx].collectionQuantity as number)
-              : newQty,
+          totalUnits: next[idx].collectionQuantity != null ? newQty * (next[idx].collectionQuantity as number) : newQty,
         };
         next[idx] = merged;
         return next;
@@ -213,7 +209,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         },
       ];
     });
-    // Sync to backend and replace local state with backend response
+    // Sync to backend and replace local state with backend response (which carries real UUIDs)
     void apiFetch("/api/v1/cart/items", {
       method: "POST",
       session: true,
@@ -226,7 +222,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         size: input.size,
         material: input.material,
         finish: input.finish,
-        unitPrice: input.unitPrice,
       },
     })
       .then(async (res) => {
@@ -235,11 +230,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const parsed = parseBackendCart(data);
         if (parsed) setItems(parsed);
       })
-      .catch(() => { /* keep local cart even if backend rejects */ });
+      .catch(() => {
+        /* keep local cart even if backend rejects */
+      });
   };
 
   const removeItem = (id: string) => {
     setItems((prev) => prev.filter((it) => it.id !== id));
+    // Only call the backend if the id is a real UUID (confirmed by the server).
+    // Local random ids (genId) mean the item was never persisted on the backend.
+    if (!isBackendId(id)) return;
     void (async () => {
       try {
         const res = await apiFetch(`/api/v1/cart/items/${encodeURIComponent(id)}`, {
@@ -258,13 +258,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const updateQuantity = (id: string, quantity: number) => {
-    setItems((prev) =>
-      prev.map((it) =>
-        it.id === id
-          ? { ...it, quantity, lineTotal: quantity * it.unitPrice }
-          : it,
-      ),
-    );
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, quantity, lineTotal: quantity * it.unitPrice } : it)));
+    // Only call the backend if the id is a real UUID from the server.
+    if (!isBackendId(id)) return;
     void (async () => {
       try {
         const res = await apiFetch(`/api/v1/cart/items/${encodeURIComponent(id)}`, {
@@ -289,7 +285,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       method: "DELETE",
       session: true,
       auth: true,
-    }).catch(() => { /* keep local clear */ });
+    }).catch(() => {
+      /* keep local clear */
+    });
   };
 
   const { itemCount, cartTotal } = useMemo(() => {
