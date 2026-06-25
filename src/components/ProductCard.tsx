@@ -24,34 +24,31 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
   const stock = getStockInfo(p, null, 0);
   const image = p.primaryImageUrl ?? p.image;
 
-  const tiers = (((p.pricingTiers ?? []) as any[])
-    .filter((t) =>
-      t &&
-      t.enabled !== false &&
-      t.collectionName &&
-      t.collectionName !== "Legacy Tier" &&
-      Number(t.quantity) > 0 &&
-      Number(t.collectionPrice ?? 0) > 0
+  const tiers = ((p.pricingTiers ?? []) as any[])
+    .filter(
+      (t) =>
+        t &&
+        t.enabled !== false &&
+        t.collectionName &&
+        t.collectionName !== "Legacy Tier" &&
+        Number(t.quantity) > 0 &&
+        Number(t.collectionPrice ?? 0) > 0,
     )
     .slice()
-    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))) as Array<any>;
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)) as Array<any>;
 
   const hasTiers = tiers.length > 0;
   const individualEnabled = p.individualSalesEnabled === true;
   const smallestTier = tiers[0];
   const cheapestTier = tiers[tiers.length - 1];
-  const tierPrice = (t: any) =>
-    Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
+  const tierPrice = (t: any) => Number(t.collectionPrice ?? Number(t.pricePerUnit) * Number(t.quantity)) || 0;
   const tierUnitPrice = (t: any) => {
     const qty = Number(t.quantity) || 0;
     if (!qty) return 0;
     return tierPrice(t) / qty;
   };
   const tierKey = (t: any) => String(t.id ?? t.collectionName);
-  // Baseline = highest per-unit price (smallest bundle) — savings measured against this.
-  const baselineUnit = hasTiers
-    ? Math.max(...tiers.map((t) => tierUnitPrice(t)))
-    : 0;
+  const baselineUnit = hasTiers ? Math.max(...tiers.map((t) => tierUnitPrice(t))) : 0;
   const tierSavingsPct = (t: any) => {
     if (!baselineUnit) return 0;
     const u = tierUnitPrice(t);
@@ -59,12 +56,8 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
     return Math.round(((baselineUnit - u) / baselineUnit) * 100);
   };
 
-  const [activeTierId, setActiveTierId] = useState<string | null>(
-    hasTiers ? tierKey(tiers[0]) : null,
-  );
-  const activeTier = hasTiers
-    ? tiers.find((t) => tierKey(t) === activeTierId) ?? tiers[0]
-    : null;
+  const [activeTierId, setActiveTierId] = useState<string | null>(hasTiers ? tierKey(tiers[0]) : null);
+  const activeTier = hasTiers ? (tiers.find((t) => tierKey(t) === activeTierId) ?? tiers[0]) : null;
 
   const handleCardClick = () => {
     trackClick(p.id);
@@ -94,13 +87,12 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           style={{ objectPosition: "center" }}
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        {/* Fade the image into the card body — soft, seamless merge */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 bottom-0 h-10 sm:h-14"
           style={{ background: "linear-gradient(to bottom, transparent 0%, var(--card) 95%)" }}
         />
-        {/* Single most-relevant badge to reduce clutter on mobile */}
+        {/* Badges */}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1 sm:left-3 sm:top-3">
           {stock.state === "out_of_stock" ? (
             <span className="rounded-full bg-red-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-2.5 sm:py-1 sm:text-[10px]">
@@ -139,7 +131,6 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           </p>
         )}
 
-        {/* Tier pills: name + piece count; savings badge only on top tier */}
         {hasTiers && (
           <div className="mt-1.5 hidden flex-wrap gap-1 sm:mt-2 sm:flex">
             {tiers.map((t: any) => {
@@ -178,26 +169,25 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
         {hasTiers && activeTier ? (
           <div className="mt-1.5 sm:mt-2">
             <p className="text-[13px] sm:text-sm">
-              <span className="font-semibold text-primary">
-                KES {tierPrice(activeTier).toLocaleString()}
-              </span>
+              <span className="font-semibold text-primary">KES {tierPrice(activeTier).toLocaleString()}</span>
               {activeTier.originalCollectionPrice && activeTier.originalCollectionPrice > tierPrice(activeTier) && (
                 <span className="ml-1.5 text-[11px] text-muted-foreground line-through">
                   KES {Number(activeTier.originalCollectionPrice).toLocaleString()}
                 </span>
               )}
               <span className="ml-1 text-[11px] text-muted-foreground sm:text-xs">
-                / {cleanUomLabel(activeTier.uomName ?? activeTier.collectionName, Number(activeTier.quantity))} ({(Number(activeTier.quantity) || 0).toLocaleString()} pcs)
+                / {cleanUomLabel(activeTier.uomName ?? activeTier.collectionName, Number(activeTier.quantity))} (
+                {(Number(activeTier.quantity) || 0).toLocaleString()} pcs)
               </span>
             </p>
             {activeTier.uomDescription && (
-              <p className="mt-0.5 text-[11px] italic text-muted-foreground">
-                {activeTier.uomDescription}
-              </p>
+              <p className="mt-0.5 text-[11px] italic text-muted-foreground">{activeTier.uomDescription}</p>
             )}
             {tiers.length > 1 && tierKey(activeTier) !== tierKey(cheapestTier) && tierSavingsPct(cheapestTier) > 0 && (
               <p className="mt-0.5 text-[11px] font-medium text-forest">
-                Switch to {cleanUomLabel(cheapestTier.uomName ?? cheapestTier.collectionName, Number(cheapestTier.quantity))} and save {tierSavingsPct(cheapestTier)}%
+                Switch to{" "}
+                {cleanUomLabel(cheapestTier.uomName ?? cheapestTier.collectionName, Number(cheapestTier.quantity))} and
+                save {tierSavingsPct(cheapestTier)}%
               </p>
             )}
           </div>
@@ -216,10 +206,9 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
         )}
 
         {/* Stock status line — one line below price */}
-        <StockLine status={(p as any).stockStatus} count={p.stock ?? 0} />
+        <StockLine status={(p as any).stockStatus} count={stock.available} label={stock.label} />
 
         <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:gap-2 sm:pt-3">
-
           <p className="text-[10px] text-muted-foreground sm:text-xs">
             {hasTiers && smallestTier
               ? `Min. order: 1 ${cleanUomLabel(smallestTier.uomName ?? smallestTier.collectionName, Number(smallestTier.quantity))} (${(Number(smallestTier.quantity) || 0).toLocaleString()} pcs)`
@@ -237,8 +226,8 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
               {hasTiers && activeTier
                 ? `Add to cart · ${cleanUomLabel(activeTier.uomName ?? activeTier.collectionName, Number(activeTier.quantity))}`
                 : individualEnabled && p.basePrice
-                ? "Add to cart"
-                : "Get a quote"}
+                  ? "Add to cart"
+                  : "Get a quote"}
             </span>
           </button>
           {(p as any).stockStatus === "OUT_OF_STOCK" && (
@@ -252,21 +241,38 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
   );
 }
 
-function StockLine({ status, count }: { status?: string; count: number }) {
-  void count;
+function StockLine({ status, count, label }: { status?: string; count: number; label: string }) {
   const s = status ?? "MADE_TO_ORDER";
   if (s === "MADE_TO_ORDER") return null;
-  const cfg =
-    s === "IN_STOCK"
-      ? { label: "In stock", cls: "text-green-700 bg-green-50 border-green-200" }
-      : s === "LOW_STOCK"
-        ? { label: "Low stock", cls: "text-amber-700 bg-amber-50 border-amber-300" }
-        : { label: "Out of stock", cls: "text-red-700 bg-red-50 border-red-300" };
+
+  if (s === "IN_STOCK") {
+    return (
+      <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
+        <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium text-green-700 bg-green-50 border-green-200">
+          <span className="h-1 w-1 rounded-full bg-current" />
+          In stock
+        </span>
+      </div>
+    );
+  }
+
+  if (s === "LOW_STOCK") {
+    return (
+      <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
+        <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium text-amber-700 bg-amber-50 border-amber-300">
+          <span className="h-1 w-1 rounded-full bg-current" />
+          {count > 0 ? `Only ${count.toLocaleString()} left` : label}
+        </span>
+      </div>
+    );
+  }
+
+  // OUT_OF_STOCK
   return (
     <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
-      <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium ${cfg.cls}`}>
+      <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium text-red-700 bg-red-50 border-red-300">
         <span className="h-1 w-1 rounded-full bg-current" />
-        {cfg.label}
+        Out of stock
       </span>
     </div>
   );
