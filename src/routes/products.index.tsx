@@ -330,7 +330,7 @@ function ProductsPage() {
 
       <section className="bg-cream">
         <div className="mx-auto max-w-7xl px-5 py-10 sm:py-14 lg:px-8 lg:py-16">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-accent">Catalogue</p>
+          <p className="text-[11px] uppercase tracking-[0.25em] text-primary">Catalogue</p>
           <h1 className="mt-3 font-display text-4xl font-medium text-foreground sm:text-5xl">
             Shop packaging
           </h1>
