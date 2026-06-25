@@ -448,7 +448,7 @@ function ProductsPage() {
             <button
               type="button"
               onClick={clearAll}
-              className="ml-auto whitespace-nowrap text-xs font-medium text-accent hover:underline"
+              className="ml-auto whitespace-nowrap text-xs font-medium text-primary hover:underline"
             >
               Clear all
             </button>
