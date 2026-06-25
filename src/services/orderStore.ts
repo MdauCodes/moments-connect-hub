@@ -104,6 +104,8 @@ export interface PlaceOrderInput {
   courierType?: CourierType;
   courierServiceName?: string;
   courierStageOrOffice?: string;
+  /** Client-generated UUID — prevents duplicate orders on network retry. */
+  idempotencyKey?: string;
 }
 
 // ── Normalised status the UI cares about ─────────────────────────────────────
@@ -202,7 +204,8 @@ function normalizeTrackingDto(raw: Record<string, any>): CustomerOrder {
     updatedAt: raw.updatedAt ?? new Date().toISOString(),
     trackingEvents: (raw.statusHistory ?? []).map((h: any) => ({
       at: h.changedAt,
-      label: (h.status ?? "").replace(/_/g, " "),
+      // Backend returns toStatus (not status) — fall back to status for safety
+      label: (h.toStatus ?? h.status ?? "").replace(/_/g, " "),
       description: h.note ?? undefined,
     })),
   };
@@ -245,6 +248,7 @@ export const orderStore = {
       })),
       shippingFee: input.shippingFee,
     };
+    if (input.idempotencyKey) body.idempotencyKey = input.idempotencyKey;
     if (input.courierType) body.courierType = input.courierType;
     if (input.courierServiceName) body.courierServiceName = input.courierServiceName;
     if (input.courierStageOrOffice) body.courierStageOrOffice = input.courierStageOrOffice;
@@ -313,7 +317,6 @@ export const orderStore = {
 
     if (res.ok) return { success: true };
 
-
     let errorCode = "UNKNOWN";
     let message = `Payment initiation failed (${res.status})`;
 
@@ -325,7 +328,6 @@ export const orderStore = {
       /* non-JSON body */
     }
 
-    // Map specific backend codes to user-friendly copy
     if (errorCode === "MERCHANT_UNAVAILABLE") {
       message = "Payment is temporarily unavailable. Please try again in a few minutes or contact support.";
     }
@@ -336,11 +338,6 @@ export const orderStore = {
   /**
    * Poll payment status.
    * Calls GET /api/v1/payments/status/{orderId} (orderId is the UUID from the order).
-   *
-   * Backend returns a PaymentStatusResponse with status always one of:
-   *   PROCESSING | SUCCESS | FAILED | NO_PAYMENT
-   *
-   * This method maps to PaymentPollResult so the UI has a single source of truth.
    */
   async getPaymentStatus(orderId: string): Promise<PaymentPollResult> {
     try {
@@ -356,7 +353,6 @@ export const orderStore = {
       const data = (await res.json()) as BackendPaymentStatusResponse;
       const status = mapBackendStatus(data.status ?? "");
 
-      // If payment succeeded, persist receipt into localStorage order cache
       if (status === "SUCCESS" && data.orderReference) {
         const all = readAll();
         const idx = all.findIndex((o) => o.reference === data.orderReference || o.id === orderId);
@@ -386,7 +382,6 @@ export const orderStore = {
 
   /**
    * Public order tracking by reference — no auth required.
-   * Uses GET /api/v1/orders/track/{reference}.
    */
   async getStatus(reference: string): Promise<{ order: CustomerOrder | null; source: "live" | "mock" }> {
     const live = await tryLiveJson<Record<string, any>>(`/api/v1/orders/track/${encodeURIComponent(reference)}`);
@@ -471,7 +466,6 @@ export const orderStore = {
     }
   },
 
-
   /** Authed: list current customer's orders. */
   async listMine(
     page = 0,
@@ -522,8 +516,6 @@ export const orderStore = {
         undefined,
         true,
       );
-      // if (live) return { order: live, source: "live" };
-
       if (live) {
         const o = live as any;
         return {
@@ -567,10 +559,10 @@ export const orderStore = {
   },
 
   /**
-   * Initiate a PayHero (M-Pesa STK) payment for an order.
-   * Alias that matches the older call signature some components may use.
+   * Initiate an M-Pesa STK payment for an order.
+   * Legacy alias kept for backward compatibility.
    */
-  async initiatePayment(orderId: string, phone: string, paymentMethod: CheckoutPaymentMethod = "PAYHERO") {
+  async initiatePayment(orderId: string, phone: string, paymentMethod: CheckoutPaymentMethod = "MPESA") {
     try {
       const res = await apiFetch("/api/v1/payments/initiate", {
         method: "POST",
