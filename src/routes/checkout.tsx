@@ -1,6 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowRight, ArrowLeft, X, Smartphone, CheckCircle2, XCircle, ShieldCheck, Loader2, Store, Truck, PackageCheck } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowLeft,
+  X,
+  Smartphone,
+  CheckCircle2,
+  XCircle,
+  ShieldCheck,
+  Loader2,
+  Store,
+  Truck,
+  PackageCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -63,6 +75,13 @@ function CheckoutModal() {
 
   const [step, setStep] = useState<Step>("contact");
 
+  // Stable idempotency key for this checkout session — prevents duplicate orders on retry
+  const idempotencyKey = useRef<string>(
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2) + Date.now().toString(36),
+  );
+
   // Fulfillment
   const [fulfillment, setFulfillment] = useState<FulfillmentType>("OWN_COURIER");
   const [courierType, setCourierType] = useState<CourierType | "">("");
@@ -77,7 +96,7 @@ function CheckoutModal() {
   const [county, setCounty] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [address, setAddress] = useState("");
-  const [paymentGateway, setPaymentGateway] = useState<"PAYHERO" | "MPESA">("PAYHERO");
+  const [paymentGateway, setPaymentGateway] = useState<"PAYHERO" | "MPESA">("MPESA");
 
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [selectedZone, setSelectedZone] = useState<DeliveryZone | null>(null);
@@ -104,7 +123,11 @@ function CheckoutModal() {
   const [showResend, setShowResend] = useState(false);
   const [consent, setConsent] = useState(false);
 
-  const timersRef = useRef<{ poll?: ReturnType<typeof setTimeout>; timeout?: ReturnType<typeof setTimeout>; resend?: ReturnType<typeof setTimeout> }>({});
+  const timersRef = useRef<{
+    poll?: ReturnType<typeof setTimeout>;
+    timeout?: ReturnType<typeof setTimeout>;
+    resend?: ReturnType<typeof setTimeout>;
+  }>({});
 
   useEffect(() => {
     if (user) {
@@ -113,7 +136,6 @@ function CheckoutModal() {
     }
   }, [user]);
 
-  // Empty cart -> bounce back
   useEffect(() => {
     if (items.length === 0 && payState === "idle") {
       navigate({ to: "/cart", replace: true });
@@ -123,7 +145,9 @@ function CheckoutModal() {
   useEffect(() => () => clearAllTimers(), []);
 
   useEffect(() => {
-    fetchDeliveryZones().then(setZones).catch(() => {});
+    fetchDeliveryZones()
+      .then(setZones)
+      .catch(() => {});
   }, []);
 
   function clearAllTimers() {
@@ -149,7 +173,7 @@ function CheckoutModal() {
       return false;
     }
     if (!isValidKenyanPhone(phone)) {
-      toast.error("Enter a valid Kenyan phone (07XXXXXXXX or +2547XXXXXXXX)");
+      toast.error("Enter a valid Safaricom number (07XXXXXXXX or +2547XXXXXXXX) — M-Pesa requires a Safaricom line");
       return false;
     }
     if (fulfillment === "ZONE_DELIVERY") {
@@ -167,7 +191,9 @@ function CheckoutModal() {
         return false;
       }
       if (!courierServiceName.trim()) {
-        toast.error("Please specify the sacco / courier service name (e.g. 2NK, Easy Coach, Tahmeed). If unsure, type ‘Not sure — call me’.");
+        toast.error(
+          "Please specify the sacco / courier service name (e.g. 2NK, Easy Coach, Tahmeed). If unsure, type 'Not sure — call me'.",
+        );
         return false;
       }
     }
@@ -207,8 +233,8 @@ function CheckoutModal() {
           },
           shippingFee,
           paymentMethod: paymentGateway,
-
           fulfillmentType: fulfillment,
+          idempotencyKey: idempotencyKey.current,
           ...(fulfillment === "OWN_COURIER" && courierType
             ? {
                 courierType: courierType as CourierType,
@@ -287,7 +313,7 @@ function CheckoutModal() {
     if (!orderId) return;
     setShowResend(false);
     const phoneNormalized = normalizePhone(phone);
-    const init = await orderStore.startMpesaStk(orderId, phoneNormalized);
+    const init = await orderStore.startMpesaStk(orderId, phoneNormalized, paymentGateway);
     if (!init.success) {
       toast.error(init.message ?? "Could not resend the prompt.");
       setShowResend(true);
@@ -299,8 +325,7 @@ function CheckoutModal() {
 
   if (items.length === 0 && payState === "idle") return null;
 
-  const shippingFee =
-    fulfillment === "ZONE_DELIVERY" && selectedZone ? selectedZone.feeAmount : 0;
+  const shippingFee = fulfillment === "ZONE_DELIVERY" && selectedZone ? selectedZone.feeAmount : 0;
   const total = cartTotal + shippingFee;
   const shippingLabel =
     fulfillment === "PICKUP"
@@ -319,7 +344,6 @@ function CheckoutModal() {
           ? "Free"
           : fmt(shippingFee);
 
-  // Brand ring color via CSS var
   const brandStyle = { ["--brand-ring" as string]: BRAND } as React.CSSProperties;
 
   return (
@@ -385,7 +409,7 @@ function CheckoutModal() {
                 </p>
               </div>
 
-              {/* Fulfillment selector — radio cards */}
+              {/* Fulfillment selector */}
               <div className="grid gap-3 sm:grid-cols-2">
                 <FulfillmentCard
                   active={fulfillment === "OWN_COURIER"}
@@ -406,47 +430,65 @@ function CheckoutModal() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <label className={labelCls}>Full name</label>
-                  <input className={inputCls} required value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Wanjiru" />
+                  <input
+                    className={inputCls}
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Jane Wanjiru"
+                  />
                 </div>
                 <div>
                   <label className={labelCls}>Email</label>
-                  <input type="email" className={inputCls} required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                  <input
+                    type="email"
+                    className={inputCls}
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                  />
                 </div>
                 <div>
                   <label className={labelCls}>Phone (M-Pesa)</label>
-                  <input className={inputCls} required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0712 345 678" inputMode="tel" />
+                  <input
+                    className={inputCls}
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="0712 345 678"
+                    inputMode="tel"
+                  />
                 </div>
 
                 {fulfillment === "OWN_COURIER" && (
                   <div className="sm:col-span-2 space-y-4">
-                    {/* Friendly explainer */}
                     <div className="rounded-2xl border border-border bg-secondary/40 p-4 text-sm leading-relaxed text-foreground/90">
                       <p>
-                        <span className="font-semibold">How delivery works:</span> we hand your parcel
-                        to a <span className="font-semibold">sacco or parcel service</span> (e.g. 2NK,
-                        4NTE, Kukena, Easy Coach, Tahmeed, G4S, Pickup Mtaani). They handle the
-                        transport to your town, and you collect it from their office there.
+                        <span className="font-semibold">How delivery works:</span> we hand your parcel to a{" "}
+                        <span className="font-semibold">sacco or parcel service</span> (e.g. 2NK, 4NTE, Kukena, Easy
+                        Coach, Tahmeed, G4S, Pickup Mtaani). They handle the transport to your town, and you collect it
+                        from their office there.
                       </p>
                       <p className="mt-2 text-muted-foreground">
-                        The two short sections below help us get your parcel to the right place
-                        quickly. If you’re unsure about anything, just leave it blank — our team will
-                        call you to confirm before dispatch.
+                        The two short sections below help us get your parcel to the right place quickly. If you're
+                        unsure about anything, just leave it blank — our team will call you to confirm before dispatch.
                       </p>
                     </div>
 
-                    {/* SECTION 1 — DESTINATION (customer side) */}
+                    {/* SECTION 1 — DESTINATION */}
                     <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
                       <div className="mb-3 flex items-baseline justify-between gap-2">
-                        <h3 className="font-display text-lg text-foreground">
-                          1. Where do you need it delivered?
-                        </h3>
+                        <h3 className="font-display text-lg text-foreground">1. Where do you need it delivered?</h3>
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                           Your side
                         </span>
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <label className={labelCls}>Destination town <span className="text-destructive">*</span></label>
+                          <label className={labelCls}>
+                            Destination town <span className="text-destructive">*</span>
+                          </label>
                           <input
                             className={inputCls}
                             required
@@ -456,13 +498,13 @@ function CheckoutModal() {
                           />
                         </div>
                         <div>
-                          <label className={labelCls}>County <span className="text-destructive">*</span></label>
+                          <label className={labelCls}>
+                            County <span className="text-destructive">*</span>
+                          </label>
                           <CountySelect value={county} onChange={setCounty} required placeholder="Select county…" />
                         </div>
                         <div className="sm:col-span-2">
-                          <label className={labelCls}>
-                            Nearest courier office to you (optional)
-                          </label>
+                          <label className={labelCls}>Nearest courier office to you (optional)</label>
                           <input
                             className={inputCls}
                             value={address}
@@ -470,22 +512,28 @@ function CheckoutModal() {
                             placeholder="e.g. 2NK Nyeri town office, Easy Coach Eldoret stage"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            The sacco / parcel office on <em>your</em> side where you’ll pick up the
-                            parcel. Not sure which one? Leave blank — we’ll call to confirm with you.
+                            The sacco / parcel office on <em>your</em> side where you'll pick up the parcel. Not sure
+                            which one? Leave blank — we'll call to confirm with you.
                           </p>
                         </div>
                         <div className="sm:col-span-2">
                           <label className={labelCls}>Postal code (optional)</label>
-                          <input className={inputCls} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="00100" />
+                          <input
+                            className={inputCls}
+                            value={postalCode}
+                            onChange={(e) => setPostalCode(e.target.value)}
+                            placeholder="00100"
+                          />
                         </div>
                       </div>
                     </section>
 
-                    {/* SECTION 2 — DISPATCH (our side) */}
+                    {/* SECTION 2 — DISPATCH */}
                     <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
                       <div className="mb-3 flex items-baseline justify-between gap-2">
                         <h3 className="font-display text-lg text-foreground">
-                          2. Do you have an idea of which sacco / courier office in Nairobi we should use? (this is helpful to us)
+                          2. Do you have an idea of which sacco / courier office in Nairobi we should use? (this is
+                          helpful to us)
                         </h3>
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                           Our side
@@ -494,7 +542,9 @@ function CheckoutModal() {
 
                       <div className="space-y-4">
                         <div>
-                          <div className={labelCls}>Courier type <span className="text-destructive">*</span></div>
+                          <div className={labelCls}>
+                            Courier type <span className="text-destructive">*</span>
+                          </div>
                           <div className="flex flex-wrap gap-2">
                             {(
                               [
@@ -550,16 +600,13 @@ function CheckoutModal() {
                             <option value="Not sure — please call me" />
                           </datalist>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Type any sacco or courier name — the list above is just suggestions, not a
-                            fixed menu. If you’re not yet sure, type <em>“Not sure — call me”</em> and
-                            our staff will help you choose.
+                            Type any sacco or courier name. If you're not yet sure, type <em>"Not sure — call me"</em>{" "}
+                            and our staff will help.
                           </p>
                         </div>
 
                         <div>
-                          <label className={labelCls}>
-                            Dispatch stage / office in Nairobi (optional)
-                          </label>
+                          <label className={labelCls}>Dispatch stage / office in Nairobi (optional)</label>
                           <input
                             className={inputCls}
                             value={courierStageOrOffice}
@@ -567,16 +614,13 @@ function CheckoutModal() {
                             placeholder="e.g. 2NK Accra Road, Machakos Country Bus stage, Easy Coach River Road"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            The stage / booking office on <em>our</em> side where we drop the parcel
-                            for dispatch. Leave blank if you don’t know — we’ll pick the standard
-                            office for that sacco.
+                            The stage / booking office on <em>our</em> side. Leave blank if unsure.
                           </p>
                         </div>
 
                         <div className="rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-                          <strong>Transport cost is paid directly to the sacco / courier</strong> on
-                          collection (or at dispatch — we’ll confirm by phone). It is separate from
-                          your product total below.
+                          <strong>Transport cost is paid directly to the sacco / courier</strong> on collection (or at
+                          dispatch — we'll confirm by phone). It is separate from your product total below.
                         </div>
                       </div>
                     </section>
@@ -632,10 +676,12 @@ function CheckoutModal() {
                   <div className="rounded-2xl border border-border bg-card p-5">
                     <h3 className="text-sm font-semibold text-foreground">Payment method</h3>
                     <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      {([
-                        { id: "PAYHERO", label: "M-Pesa (via PayHero)", hint: "Standard checkout" },
-                        { id: "MPESA", label: "M-Pesa (Direct)", hint: "Safaricom Daraja" },
-                      ] as const).map((opt) => {
+                      {(
+                        [
+                          { id: "MPESA", label: "M-Pesa", hint: "Lipa Na M-Pesa — Safaricom Daraja" },
+                          { id: "PAYHERO", label: "M-Pesa (alternative)", hint: "Same STK push, alternate route" },
+                        ] as const
+                      ).map((opt) => {
                         const active = paymentGateway === opt.id;
                         return (
                           <button
@@ -655,10 +701,9 @@ function CheckoutModal() {
                       })}
                     </div>
                     <p className="mt-2 text-[11px] text-muted-foreground">
-                      Both options send an STK push to your phone for approval.
+                      Both options send an M-Pesa STK push to your phone for approval.
                     </p>
                   </div>
-
 
                   {/* Order summary */}
                   <div className="rounded-2xl border border-border bg-card p-5">
@@ -667,8 +712,7 @@ function CheckoutModal() {
                       {items.map((it) => (
                         <li key={it.id} className="flex justify-between gap-3">
                           <span className="text-foreground/90">
-                            {it.productName}{" "}
-                            <span className="text-muted-foreground">× {it.quantity}</span>
+                            {it.productName} <span className="text-muted-foreground">× {it.quantity}</span>
                           </span>
                           <span className="tabular-nums">{fmt(it.lineTotal)}</span>
                         </li>
@@ -710,21 +754,25 @@ function CheckoutModal() {
 
               {payState === "waiting" && (
                 <div className="flex flex-col items-center py-6 text-center">
-                  <div className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-full" style={{ backgroundColor: `${BRAND}15` }}>
-                    <span className="absolute inset-0 animate-ping rounded-full" style={{ backgroundColor: `${BRAND}25` }} />
+                  <div
+                    className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-full"
+                    style={{ backgroundColor: `${BRAND}15` }}
+                  >
+                    <span
+                      className="absolute inset-0 animate-ping rounded-full"
+                      style={{ backgroundColor: `${BRAND}25` }}
+                    />
                     <Smartphone className="relative h-11 w-11" style={{ color: BRAND }} />
                   </div>
                   <h2 className="mt-6 font-display text-2xl text-foreground">Check your phone, enter M-Pesa PIN</h2>
                   <p className="mt-2 max-w-md text-sm text-muted-foreground">
                     Enter your M-Pesa PIN on{" "}
-                    <span className="font-semibold text-foreground">{normalizePhone(phone)}</span>{" "}
-                    to complete the payment of{" "}
-                    <span className="font-semibold text-foreground">{fmt(total)}</span>.
+                    <span className="font-semibold text-foreground">{normalizePhone(phone)}</span> to complete the
+                    payment of <span className="font-semibold text-foreground">{fmt(total)}</span>.
                   </p>
                   {orderRef && (
                     <p className="mt-4 text-xs text-muted-foreground">
-                      Order reference:{" "}
-                      <span className="font-mono font-semibold text-foreground">{orderRef}</span>
+                      Order reference: <span className="font-mono font-semibold text-foreground">{orderRef}</span>
                     </p>
                   )}
                   <div className="mt-6 inline-flex items-center gap-2 text-xs text-muted-foreground">
@@ -772,7 +820,10 @@ function CheckoutModal() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => { setPayState("idle"); setStep("contact"); }}
+                      onClick={() => {
+                        setPayState("idle");
+                        setStep("contact");
+                      }}
                       className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-semibold text-foreground hover:bg-secondary"
                     >
                       <ArrowLeft className="h-4 w-4" /> Edit order details
@@ -792,8 +843,7 @@ function CheckoutModal() {
                   </p>
                   {orderRef && (
                     <p className="mt-3 text-xs text-muted-foreground">
-                      Order reference:{" "}
-                      <span className="font-mono font-semibold text-foreground">{orderRef}</span>
+                      Order reference: <span className="font-mono font-semibold text-foreground">{orderRef}</span>
                     </p>
                   )}
                   <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -807,7 +857,10 @@ function CheckoutModal() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => { setPayState("idle"); setStep("contact"); }}
+                      onClick={() => {
+                        setPayState("idle");
+                        setStep("contact");
+                      }}
                       className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary"
                     >
                       <ArrowLeft className="h-4 w-4" /> Edit order details
@@ -833,17 +886,11 @@ function StepDot({ active, done, label }: { active: boolean; done: boolean; labe
   return (
     <span
       className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${
-        active
-          ? "text-foreground"
-          : done
-          ? "text-foreground/70"
-          : "text-muted-foreground"
+        active ? "text-foreground" : done ? "text-foreground/70" : "text-muted-foreground"
       }`}
     >
       <span
-        className={`inline-block h-2 w-2 rounded-full ${
-          active ? "" : done ? "" : "bg-border"
-        }`}
+        className={`inline-block h-2 w-2 rounded-full ${active || done ? "" : "bg-border"}`}
         style={active || done ? { backgroundColor: BRAND } : undefined}
       />
       <span className={`${active ? "font-semibold" : ""}`}>{label}</span>
@@ -889,15 +936,17 @@ function FulfillmentCard({
       onClick={onClick}
       aria-pressed={active}
       className={`group flex h-full flex-col items-start gap-2 rounded-2xl border p-4 text-left transition ${
-        active
-          ? "border-transparent bg-secondary shadow-sm ring-2"
-          : "border-border bg-card hover:border-foreground/30"
+        active ? "border-transparent bg-secondary shadow-sm ring-2" : "border-border bg-card hover:border-foreground/30"
       }`}
       style={active ? ({ ["--tw-ring-color" as string]: BRAND, color: "inherit" } as React.CSSProperties) : undefined}
     >
       <span
         className="inline-flex h-9 w-9 items-center justify-center rounded-full"
-        style={{ backgroundColor: active ? BRAND : "transparent", color: active ? "#fff" : undefined, border: active ? "none" : "1px solid var(--border)" }}
+        style={{
+          backgroundColor: active ? BRAND : "transparent",
+          color: active ? "#fff" : undefined,
+          border: active ? "none" : "1px solid var(--border)",
+        }}
       >
         {icon}
       </span>
