@@ -26,10 +26,12 @@ export function SiteFooter() {
     <footer
       className="mt-16 border-t border-border text-primary-foreground sm:mt-24"
       style={{
+        /* Match the hero section's radial green gradient */
         background: "radial-gradient(ellipse at 100% 0%, #0d3320 0%, #08231a 60%, #061a13 100%)",
       }}
     >
       <div className="mx-auto grid gap-8 px-5 py-12 sm:gap-10 sm:py-16 md:grid-cols-4 max-w-7xl lg:px-8">
+        {/* Brand col */}
         <div>
           <div className="flex items-center gap-2">
             <span className="grid h-10 w-10 place-items-center rounded-md bg-primary-foreground/10 font-display text-xl text-primary-foreground">
@@ -43,6 +45,7 @@ export function SiteFooter() {
           </p>
         </div>
 
+        {/* Shop col */}
         <div>
           <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">Shop</h4>
           <ul className="mt-4 space-y-2 text-sm">
@@ -66,6 +69,7 @@ export function SiteFooter() {
           </ul>
         </div>
 
+        {/* Explore col */}
         <div>
           <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">Explore</h4>
           <ul className="mt-4 space-y-2 text-sm">
@@ -102,15 +106,14 @@ export function SiteFooter() {
           </ul>
         </div>
 
+        {/* Contact col */}
         <div>
           <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">Contact</h4>
           <ul className="mt-4 space-y-2 text-sm text-primary-foreground/80">
             <li>
-              <a href={`tel:+${WHATSAPP_NUMBER}`} className="flex items-center gap-2 hover:text-accent">
+              <a href="tel:+254119556688" className="flex items-center gap-2 hover:text-accent">
                 <Phone className="h-4 w-4 shrink-0" aria-hidden />
-                <span>
-                  {COMPANY_PHONE} / {COMPANY_PHONE_ALT}
-                </span>
+                <span>0119-55-66-88 / 0119-55-66-99</span>
               </a>
             </li>
             <li>
@@ -121,7 +124,7 @@ export function SiteFooter() {
                 className="flex items-center gap-2 hover:text-accent"
               >
                 <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
-                <span>WhatsApp: {COMPANY_PHONE}</span>
+                <span>WhatsApp: 0119-55-66-88</span>
               </a>
             </li>
             <li>
@@ -132,7 +135,7 @@ export function SiteFooter() {
             </li>
             <li className="flex items-start gap-2">
               <MapPin className="h-4 w-4 shrink-0 mt-0.5" aria-hidden />
-              <span>{COMPANY_ADDRESS}</span>
+              <span>Weithaga Building, along Ukwala Road, OTC, Nairobi CBD</span>
             </li>
           </ul>
           <div className="mt-5 flex items-center gap-2">
@@ -174,6 +177,8 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
+
+      {/* Bottom bar */}
       <div className="border-t border-primary-foreground/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-6 text-xs text-primary-foreground/60 sm:flex-row lg:px-8">
           <p>© {new Date().getFullYear()} Moments Packaging Kenya Ltd. All rights reserved.</p>
