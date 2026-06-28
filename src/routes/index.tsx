@@ -123,12 +123,12 @@ function Hero() {
         /* ── Hero image positioning ── */
         .mpk-hero-img-a,
         .mpk-hero-img-b {
-          /* Mobile: centered vertically in the hero, right-anchored */
-          right: -10%;
+          /* Mobile: large, centered vertically, bleeding off the right edge for drama */
+          right: -18%;
           top: 50%;
           bottom: auto;
-          transform: translateY(-44%);
-          width: 80%;
+          transform: translateY(-50%);
+          width: 96%;
           max-height: none;
           object-fit: contain;
         }
@@ -196,30 +196,14 @@ function Hero() {
           fading to transparent at bottom-right (image shows through).
           No more full-coverage overlay that kills the image.
         */}
-        {/* Mobile vertical scrim: heavy at top where text lives, opens in the middle so the
-            centered image shows through, closes again at the bottom for the wave transition */}
-        <div
-          className="absolute inset-0 md:hidden"
-          style={{
-            zIndex: 3,
-            background: [
-              "linear-gradient(180deg,",
-              "  color-mix(in oklab, var(--forest) 94%, black) 0%,",
-              "  color-mix(in oklab, var(--forest) 88%, black) 26%,",
-              "  color-mix(in oklab, var(--forest) 32%, black) 52%,",
-              "  color-mix(in oklab, var(--forest) 52%, black) 78%,",
-              "  color-mix(in oklab, var(--forest) 74%, black) 100%",
-              ")",
-            ].join(" "),
-          }}
-        />
-        {/* Left-side scrim — keeps text column readable regardless of image overlap */}
+        {/* Mobile scrim: diagonal — top-left is opaque (text), bottom-right is open (image).
+            Single layer, no stacking, so the image is never double-darkened. */}
         <div
           className="absolute inset-0 md:hidden"
           style={{
             zIndex: 3,
             background:
-              "linear-gradient(90deg, color-mix(in oklab, var(--forest) 90%, black) 0%, color-mix(in oklab, var(--forest) 62%, black) 40%, transparent 65%)",
+              "linear-gradient(125deg, color-mix(in oklab, var(--forest) 96%, black) 0%, color-mix(in oklab, var(--forest) 90%, black) 30%, color-mix(in oklab, var(--forest) 55%, black) 52%, color-mix(in oklab, var(--forest) 18%, transparent) 72%, transparent 100%)",
           }}
         />
 
