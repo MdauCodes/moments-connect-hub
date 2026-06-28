@@ -123,12 +123,12 @@ function Hero() {
         /* ── Hero image positioning ── */
         .mpk-hero-img-a,
         .mpk-hero-img-b {
-          /* Mobile: bottom-right corner, partial crop gives depth */
-          right: -8%;
-          bottom: -2%;
-          top: auto;
-          transform: none;
-          width: 72%;
+          /* Mobile: centered vertically in the hero, right-anchored */
+          right: -10%;
+          top: 50%;
+          bottom: auto;
+          transform: translateY(-44%);
+          width: 80%;
           max-height: none;
           object-fit: contain;
         }
@@ -196,28 +196,30 @@ function Hero() {
           fading to transparent at bottom-right (image shows through).
           No more full-coverage overlay that kills the image.
         */}
+        {/* Mobile vertical scrim: heavy at top where text lives, opens in the middle so the
+            centered image shows through, closes again at the bottom for the wave transition */}
         <div
           className="absolute inset-0 md:hidden"
           style={{
             zIndex: 3,
             background: [
-              /* Strong cover over text area (top ~60%) */
               "linear-gradient(180deg,",
-              "  color-mix(in oklab, var(--forest) 92%, black) 0%,",
-              "  color-mix(in oklab, var(--forest) 85%, black) 38%,",
-              "  color-mix(in oklab, var(--forest) 55%, black) 62%,",
-              "  transparent 100%",
+              "  color-mix(in oklab, var(--forest) 94%, black) 0%,",
+              "  color-mix(in oklab, var(--forest) 88%, black) 26%,",
+              "  color-mix(in oklab, var(--forest) 32%, black) 52%,",
+              "  color-mix(in oklab, var(--forest) 52%, black) 78%,",
+              "  color-mix(in oklab, var(--forest) 74%, black) 100%",
               ")",
             ].join(" "),
           }}
         />
-        {/* Left-side scrim so text block is always readable regardless of image overlap */}
+        {/* Left-side scrim — keeps text column readable regardless of image overlap */}
         <div
           className="absolute inset-0 md:hidden"
           style={{
             zIndex: 3,
             background:
-              "linear-gradient(90deg, color-mix(in oklab, var(--forest) 88%, black) 0%, color-mix(in oklab, var(--forest) 60%, black) 45%, transparent 72%)",
+              "linear-gradient(90deg, color-mix(in oklab, var(--forest) 90%, black) 0%, color-mix(in oklab, var(--forest) 62%, black) 40%, transparent 65%)",
           }}
         />
 
