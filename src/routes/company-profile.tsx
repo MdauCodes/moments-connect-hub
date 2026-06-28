@@ -218,14 +218,14 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* INTRODUCTION — green theme continues */}
+      {/* ABOUT US — first content section after hero */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
         <div className="mx-auto max-w-4xl px-5 py-20 lg:px-8">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
-              Introduction
+            <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+              About Us
             </p>
-            <h2 className="mt-4 font-display text-4xl font-medium text-white sm:text-5xl">
+            <h2 className="mt-4 font-display text-4xl font-medium text-white sm:text-5xl lg:text-6xl">
               A trusted packaging partner for Kenyan businesses.
             </h2>
             <div className="mt-5 flex items-center gap-3">
@@ -233,9 +233,9 @@ function CompanyProfilePage() {
               <Leaf className="h-4 w-4" style={{ color: GOLD }} />
               <span className="block h-px w-12" style={{ background: GOLD }} />
             </div>
-            <p className="mt-6 text-[15px] leading-relaxed text-white/80">
+            <p className="mt-6 text-lg leading-relaxed text-white/85">
               <span className="font-semibold" style={{ color: GOLD_SOFT }}>
-                Moments Packaging
+                Moments Packaging (K) Ltd
               </span>{" "}
               is a customer-focused packaging solutions company based in Nairobi. We offer a wide
               range of supplies designed for everyday business needs across food, beverages,
@@ -243,7 +243,7 @@ function CompanyProfilePage() {
               customer service, we deliver innovative packaging countrywide while helping brands
               create memorable moments through great presentation.
             </p>
-            <p className="mt-4 text-[15px] leading-relaxed text-white/70">
+            <p className="mt-5 text-lg leading-relaxed text-white/75">
               Packaging is more than a container — it is a powerful marketing tool that creates
               lasting first impressions, enhances brand visibility and influences purchasing
               decisions.
@@ -251,6 +251,7 @@ function CompanyProfilePage() {
           </div>
         </div>
       </section>
+
 
 
       {/* VISION / MISSION / COMMITMENT */}
