@@ -541,33 +541,30 @@ function CompanyProfilePage() {
             ))}
           </div>
 
-          {/* Poster gallery */}
+          {/* Poster — single highlight */}
           <div className="mt-14">
             <p className="text-center text-[12px] font-semibold uppercase tracking-[0.3em]" style={{ color: GOLD }}>
               Our ESG &amp; Sustainability Policy
             </p>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {[esgPoster1, esgPoster2, esgPoster3].map((poster, i) => (
-                <a
-                  key={i}
-                  href={poster.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block overflow-hidden rounded-2xl border bg-white/5 transition-transform hover:-translate-y-1"
-                  style={{ borderColor: `${GOLD}55` }}
-                  aria-label={`Open ESG poster ${i + 1} in a new tab`}
-                >
-                  <img
-                    src={poster.url}
-                    alt={`Moments Packaging — ESG &amp; Sustainability Policy poster ${i + 1}`}
-                    className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                    loading="lazy"
-                  />
-                </a>
-              ))}
+            <div className="mx-auto mt-6 max-w-2xl">
+              <a
+                href={esgPoster1.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block overflow-hidden rounded-2xl border bg-white/5 transition-transform hover:-translate-y-1"
+                style={{ borderColor: `${GOLD}55` }}
+                aria-label="Open ESG &amp; Sustainability poster in a new tab"
+              >
+                <img
+                  src={esgPoster1.url}
+                  alt="Moments Packaging — ESG &amp; Sustainability Policy"
+                  className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                  loading="lazy"
+                />
+              </a>
             </div>
             <p className="mt-4 text-center text-xs text-white/60">
-              Tap any poster to view full size — Together, we can package responsibly today and preserve tomorrow.
+              Tap to view full size — Together, we can package responsibly today and preserve tomorrow.
             </p>
           </div>
         </div>
