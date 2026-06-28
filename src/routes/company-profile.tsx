@@ -79,13 +79,6 @@ const VALUES = [
   { Icon: Users, title: "Customer Success", body: "We measure success by the growth of our clients." },
 ];
 
-const WHY = [
-  { title: "Innovative Solutions", body: "Creative packaging concepts that help brands stand out in competitive markets." },
-  { title: "Competitive Pricing", body: "Exceptional value through cost-effective solutions without compromising quality." },
-  { title: "Customisation Excellence", body: "Solutions tailored to each client so your brand message comes through clearly." },
-  { title: "Customer-Centric Approach", body: "Co-designed with our clients to achieve outstanding results." },
-  { title: "Reliable Delivery", body: "On-time fulfilment countrywide — order online and track every delivery." },
-];
 
 const CORE = [
   {
