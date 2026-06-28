@@ -12,19 +12,35 @@ import {
   MapPin,
   Globe,
   MessageCircle,
+  Instagram,
+  Facebook,
+  Recycle,
 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import pdfAsset from "@/assets/moments-company-profile.pdf.asset.json";
-import logoUrl from "@/assets/moments-logo.png";
 import coverImg from "@/assets/company-profile/cover.jpg.asset.json";
-import introImg from "@/assets/company-profile/intro.jpg.asset.json";
 import visionImg from "@/assets/company-profile/vision-cups.jpg.asset.json";
 import kraftImg from "@/assets/company-profile/kraft-solutions.jpg.asset.json";
 import woodenImg from "@/assets/company-profile/wooden-products.jpg.asset.json";
 import dessertImg from "@/assets/company-profile/dessert-cups.jpg.asset.json";
 import bagsImg from "@/assets/company-profile/bags-sacks.jpg.asset.json";
 import contactImg from "@/assets/company-profile/contact-products.jpg.asset.json";
-import { COMPANY_EMAIL, COMPANY_PHONE, WHATSAPP_NUMBER } from "@/data/products";
+import esgPoster1 from "@/assets/company-profile/esg-poster-1.jpg.asset.json";
+import esgPoster2 from "@/assets/company-profile/esg-poster-2.png.asset.json";
+import esgPoster3 from "@/assets/company-profile/esg-poster-3.png.asset.json";
+import {
+  COMPANY_EMAIL,
+  COMPANY_PHONE,
+  COMPANY_PHONE_ALT,
+  COMPANY_ADDRESS,
+  WHATSAPP_NUMBER,
+  INSTAGRAM_URL,
+  INSTAGRAM_HANDLE,
+  TIKTOK_URL,
+  TIKTOK_HANDLE,
+  FACEBOOK_URL,
+  FACEBOOK_HANDLE,
+} from "@/data/products";
 
 export const Route = createFileRoute("/company-profile")({
   head: () => ({
