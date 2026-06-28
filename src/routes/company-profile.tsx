@@ -429,30 +429,115 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* INDUSTRIES */}
-      <section className="relative" style={{ background: FOREST }}>
+      {/* SUSTAINABILITY — ESG policy + posters (replaces Industries section) */}
+      <section id="sustainability" className="relative" style={{ background: FOREST }}>
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
           <div className="text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
-              Industries We Serve
+            <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+              ESG &amp; Sustainability
             </p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl">
-              Packaging tuned to your sector.
+            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl lg:text-6xl">
+              Packaging with purpose.
             </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base italic text-white/80 sm:text-lg">
+              Thoughtful Packaging. Responsible Future.
+            </p>
+            <div className="mx-auto mt-5 flex w-fit items-center gap-3">
+              <span className="block h-px w-12" style={{ background: GOLD }} />
+              <Recycle className="h-4 w-4" style={{ color: GOLD }} />
+              <span className="block h-px w-12" style={{ background: GOLD }} />
+            </div>
           </div>
-          <div className="mx-auto mt-10 flex max-w-3xl flex-wrap justify-center gap-3">
-            {INDUSTRIES.map((i) => (
-              <span
-                key={i}
-                className="rounded-full border px-5 py-2.5 text-sm font-medium text-white"
-                style={{ borderColor: `${GOLD}80`, background: `${FOREST_DEEP}` }}
+
+          <div className="mx-auto mt-10 max-w-4xl space-y-5 text-[16px] leading-relaxed text-white/85">
+            <p>
+              At Moments Packaging Ltd, sustainability is more than a business objective — it is a
+              core value that shapes the way we design, source and deliver packaging solutions. The{" "}
+              <span className="font-semibold" style={{ color: GOLD_SOFT }}>sprouting leaf</span> in
+              our logo represents growth, renewal and a greener future, while the{" "}
+              <span className="font-semibold" style={{ color: GOLD_SOFT }}>recycling symbol ♻️</span>{" "}
+              embodies our belief in the circular economy.
+            </p>
+            <p>
+              We actively promote environmentally responsible alternatives by expanding our range of
+              Kraft packaging solutions that are eco-friendly, biodegradable, compostable and
+              recyclable — helping our customers reduce their environmental footprint without
+              compromising on quality.
+            </p>
+          </div>
+
+          {/* 3 ESG pillars */}
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {[
+              {
+                Icon: Leaf,
+                title: "Environmental Stewardship",
+                body:
+                  "Reducing waste, promoting recyclable and responsibly sourced materials, and supporting initiatives that conserve natural resources.",
+              },
+              {
+                Icon: Users,
+                title: "Social Responsibility",
+                body:
+                  "A safe, inclusive workplace. Long-term partnerships built on trust. Reliable products and exceptional service for local businesses.",
+              },
+              {
+                Icon: ShieldCheck,
+                title: "Ethical Governance",
+                body:
+                  "Transparency, accountability and integrity in every decision — complying with all applicable laws and continuously improving our ESG performance.",
+              },
+            ].map((p) => (
+              <div
+                key={p.title}
+                className="rounded-2xl border p-6"
+                style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
               >
-                {i}
-              </span>
+                <span
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border"
+                  style={{ borderColor: `${GOLD}80`, color: GOLD }}
+                >
+                  <p.Icon className="h-5 w-5" strokeWidth={1.6} />
+                </span>
+                <h3 className="mt-4 font-display text-lg font-semibold text-white">{p.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">{p.body}</p>
+              </div>
             ))}
+          </div>
+
+          {/* Poster gallery */}
+          <div className="mt-14">
+            <p className="text-center text-[12px] font-semibold uppercase tracking-[0.3em]" style={{ color: GOLD }}>
+              Our ESG &amp; Sustainability Policy
+            </p>
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {[esgPoster1, esgPoster2, esgPoster3].map((poster, i) => (
+                <a
+                  key={i}
+                  href={poster.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block overflow-hidden rounded-2xl border bg-white/5 transition-transform hover:-translate-y-1"
+                  style={{ borderColor: `${GOLD}55` }}
+                  aria-label={`Open ESG poster ${i + 1} in a new tab`}
+                >
+                  <img
+                    src={poster.url}
+                    alt={`Moments Packaging — ESG &amp; Sustainability Policy poster ${i + 1}`}
+                    className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    loading="lazy"
+                  />
+                </a>
+              ))}
+            </div>
+            <p className="mt-4 text-center text-xs text-white/60">
+              Tap any poster to view full size — Together, we can package responsibly today and preserve tomorrow.
+            </p>
           </div>
         </div>
       </section>
+
+
 
       {/* CONTACT — mirrors PDF page 21 */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
