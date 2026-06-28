@@ -70,12 +70,10 @@ export const Route = createFileRoute("/company-profile")({
   component: CompanyProfilePage,
 });
 
-// PDF brand tokens (forest green + gold)
 const FOREST = "#0d3320";
 const FOREST_DEEP = "#08231a";
 const GOLD = "#c9a44c";
 const GOLD_SOFT = "#e8c878";
-const CREAM = "#f4ead6";
 
 const VALUES = [
   { Icon: Award, title: "Excellence", body: "Highest standards in every customer interaction." },
@@ -83,14 +81,6 @@ const VALUES = [
   { Icon: ShieldCheck, title: "Integrity", body: "Business done with honesty, transparency and professionalism." },
   { Icon: Leaf, title: "Sustainability", body: "Environmentally responsible packaging for a greener future." },
   { Icon: Users, title: "Customer Success", body: "We measure success by the growth of our clients." },
-];
-
-const WHY_HIGHLIGHTS = [
-  "Innovative, creative packaging concepts that help brands stand out.",
-  "Competitive pricing — exceptional value without compromising quality.",
-  "Customisation excellence tailored to your brand message.",
-  "Customer-centric, co-designed solutions.",
-  "Reliable, on-time delivery countrywide with order tracking.",
 ];
 
 const INDUSTRIES = [
@@ -110,7 +100,6 @@ const CORE = [
     image: kraftImg.url,
     href: "/products" as const,
     search: { category: "boxes" } as Record<string, string>,
-    highlights: WHY_HIGHLIGHTS,
   },
   {
     title: "Cups, Tumblers & Beverage Range",
@@ -149,7 +138,7 @@ const CORE = [
 function CompanyProfilePage() {
   return (
     <SiteLayout>
-      {/* HERO — mirrors PDF cover, balanced two-column layout */}
+      {/* HERO — balanced two-column layout, image breathing on the right */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
@@ -157,7 +146,6 @@ function CompanyProfilePage() {
           background: `radial-gradient(ellipse at 100% 0%, ${FOREST} 0%, ${FOREST_DEEP} 60%, #061a13 100%)`,
         }}
       >
-        {/* Decorative leaf accents */}
         <div
           aria-hidden
           className="pointer-events-none absolute -right-10 -top-10 h-72 w-72 rounded-full opacity-30 blur-3xl"
@@ -243,7 +231,7 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* ABOUT US — first content section after hero */}
+      {/* ABOUT US */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
         <div className="mx-auto max-w-4xl px-5 py-20 lg:px-8">
           <div>
@@ -349,7 +337,7 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* INDUSTRIES WE SERVE */}
+      {/* INDUSTRIES WE SERVE — replaces the old "no matter the field" section */}
       <section className="relative" style={{ background: FOREST }}>
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
           <div className="text-center">
@@ -385,7 +373,8 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* CORE PRODUCTS — image + text rows, like PDF product showcases */}
+      {/* CORE PRODUCTS — "Why Choose Us" section removed; the Kraft item now
+          uses the same image + text row pattern as every other range item. */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
           <div className="text-center">
@@ -424,21 +413,6 @@ function CompanyProfilePage() {
                   <h3 className="mt-3 font-display text-3xl font-semibold text-white sm:text-4xl">{c.title}</h3>
                   <div className="mt-4 h-px w-12" style={{ background: GOLD }} />
                   <p className="mt-5 text-[15px] leading-relaxed text-white/75">{c.blurb}</p>
-
-                  {c.highlights && (
-                    <ul className="mt-5 space-y-2.5">
-                      {c.highlights.map((h) => (
-                        <li key={h} className="flex gap-2.5 text-sm leading-relaxed text-white/70">
-                          <span
-                            className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rotate-45"
-                            style={{ background: GOLD }}
-                          />
-                          {h}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
                   <Link
                     to={c.href}
                     search={c.search as never}
@@ -499,13 +473,14 @@ function CompanyProfilePage() {
             </p>
             <p>
               We actively promote environmentally responsible alternatives by expanding our range of Kraft packaging
-              solutions, which are designed with sustainability in mind. By encouraging the adoption of Kraft packaging
-              and other sustainable options, we help our customers reduce their environmental footprint without
-              compromising on quality or functionality.
+              solutions, which are designed with sustainability in mind. Many of our Kraft products are eco-friendly
+              (using renewable paper-based materials), biodegradable, compostable, and recyclable — contributing to a
+              circular lifecycle and reducing demand for virgin materials. By encouraging the adoption of Kraft
+              packaging and other sustainable options, we help our customers reduce their environmental footprint
+              without compromising on quality or functionality.
             </p>
           </div>
 
-          {/* 3 ESG pillars */}
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             {[
               {
@@ -541,7 +516,6 @@ function CompanyProfilePage() {
             ))}
           </div>
 
-          {/* Promise */}
           <div
             className="mx-auto mt-12 max-w-4xl rounded-2xl border p-7 text-center"
             style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
@@ -557,7 +531,6 @@ function CompanyProfilePage() {
             </p>
           </div>
 
-          {/* Single poster */}
           <div className="mt-14">
             <p className="text-center text-[12px] font-semibold uppercase tracking-[0.3em]" style={{ color: GOLD }}>
               Our ESG &amp; Sustainability Policy
@@ -582,7 +555,7 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* CONTACT — mirrors PDF page 21 */}
+      {/* CONTACT */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-2 lg:items-center lg:gap-14 lg:px-8">
           <div>
@@ -669,7 +642,6 @@ function CompanyProfilePage() {
           </div>
         </div>
 
-        {/* Subtle gold corner accent like PDF */}
         <div
           aria-hidden
           className="pointer-events-none absolute bottom-0 left-0 h-32 w-1/2"
