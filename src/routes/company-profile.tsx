@@ -153,59 +153,80 @@ function CompanyProfilePage() {
         />
 
         <div className="relative mx-auto w-full max-w-7xl px-5 py-10 sm:py-14 lg:px-8">
-          <div>
-            <h1 className="font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
-              Company<br />
-              <span style={{ color: "#ffffff" }}>Profile</span>
-            </h1>
-            <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
-            <p
-              className="mt-6 max-w-md font-display text-xl font-light italic leading-snug"
-              style={{ color: GOLD_SOFT }}
-            >
-              Quality packaging <span className="text-white/90">for every moment.</span>
-            </p>
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-white/75">
-              We help Kenyan brands present, protect and promote their products through innovative,
-              high-quality and cost-effective packaging — delivered countrywide.
-            </p>
+          <div className="grid items-center gap-10 lg:grid-cols-[1.05fr,1fr] lg:gap-14">
+            <div>
+              <h1 className="font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
+                Company<br />
+                <span style={{ color: "#ffffff" }}>Profile</span>
+              </h1>
+              <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
+              <p
+                className="mt-6 max-w-md font-display text-xl font-light italic leading-snug"
+                style={{ color: GOLD_SOFT }}
+              >
+                Quality packaging <span className="text-white/90">for every moment.</span>
+              </p>
+              <p className="mt-6 max-w-lg text-base leading-relaxed text-white/75">
+                We help Kenyan brands present, protect and promote their products through innovative,
+                high-quality and cost-effective packaging — delivered countrywide.
+              </p>
 
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link
-                to="/products"
-                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition-transform hover:-translate-y-0.5"
-                style={{ background: GOLD, color: FOREST_DEEP }}
-              >
-                Browse our products <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href={pdfAsset.url}
-                download="Moments-Packaging-Company-Profile.pdf"
-                className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-medium text-white backdrop-blur transition-colors hover:bg-white/10"
-                style={{ borderColor: `${GOLD}66` }}
-              >
-                <Download className="h-4 w-4" /> Download PDF
-              </a>
+              <div className="mt-9 flex flex-wrap gap-3">
+                <Link
+                  to="/products"
+                  className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition-transform hover:-translate-y-0.5"
+                  style={{ background: GOLD, color: FOREST_DEEP }}
+                >
+                  Browse our products <ArrowRight className="h-4 w-4" />
+                </Link>
+                <a
+                  href={pdfAsset.url}
+                  download="Moments-Packaging-Company-Profile.pdf"
+                  className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-medium text-white backdrop-blur transition-colors hover:bg-white/10"
+                  style={{ borderColor: `${GOLD}66` }}
+                >
+                  <Download className="h-4 w-4" /> Download PDF
+                </a>
+              </div>
+
+              <div className="mt-12 grid grid-cols-3 gap-6 border-t pt-8" style={{ borderColor: `${GOLD}33` }}>
+                {[
+                  { Icon: Leaf, label: "Quality\nPackaging" },
+                  { Icon: ShieldCheck, label: "Sustainable\nSolutions" },
+                  { Icon: Users, label: "For Every\nMoment" },
+                ].map((b) => (
+                  <div key={b.label} className="flex items-start gap-2.5">
+                    <span
+                      className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border"
+                      style={{ borderColor: `${GOLD}80`, color: GOLD }}
+                    >
+                      <b.Icon className="h-4 w-4" strokeWidth={1.75} />
+                    </span>
+                    <span className="whitespace-pre-line text-[10px] font-semibold uppercase tracking-[0.18em] text-white/85">
+                      {b.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="mt-12 grid grid-cols-3 gap-6 border-t pt-8" style={{ borderColor: `${GOLD}33` }}>
-              {[
-                { Icon: Leaf, label: "Quality\nPackaging" },
-                { Icon: ShieldCheck, label: "Sustainable\nSolutions" },
-                { Icon: Users, label: "For Every\nMoment" },
-              ].map((b) => (
-                <div key={b.label} className="flex items-start gap-2.5">
-                  <span
-                    className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border"
-                    style={{ borderColor: `${GOLD}80`, color: GOLD }}
-                  >
-                    <b.Icon className="h-4 w-4" strokeWidth={1.75} />
-                  </span>
-                  <span className="whitespace-pre-line text-[10px] font-semibold uppercase tracking-[0.18em] text-white/85">
-                    {b.label}
-                  </span>
-                </div>
-              ))}
+            {/* Hero image — balances composition on the right */}
+            <div className="relative hidden lg:block">
+              <div
+                aria-hidden
+                className="absolute -inset-6 rounded-[2rem] opacity-40 blur-2xl"
+                style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 65%)` }}
+              />
+              <div
+                className="relative overflow-hidden rounded-[1.75rem] border p-2"
+                style={{ borderColor: `${GOLD}55`, background: FOREST_DEEP }}
+              >
+                <img
+                  src={coverImg.url}
+                  alt="Moments Packaging product range"
+                  className="block w-full rounded-[1.4rem] object-cover"
+                />
+              </div>
             </div>
           </div>
         </div>
