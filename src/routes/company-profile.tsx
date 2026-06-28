@@ -536,41 +536,61 @@ function CompanyProfilePage() {
       <section className="relative" style={{ background: FOREST_DEEP }}>
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-2 lg:items-center lg:gap-14 lg:px-8">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+            <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
               Get in touch
             </p>
-            <h2 className="mt-3 font-display text-5xl font-medium text-white sm:text-6xl">
+            <h2 className="mt-3 font-display text-5xl font-medium text-white sm:text-6xl lg:text-7xl">
               Contact Us
             </h2>
             <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
 
-            <div className="mt-10 space-y-5">
+            <div className="mt-10 space-y-6">
               <ContactRow Icon={MapPin} label="Address">
-                <p className="font-semibold" style={{ color: GOLD_SOFT }}>Moments Packaging</p>
-                <p>P.O. Box 16538 — 00100, Nairobi · Industrial Area</p>
+                <p className="font-semibold text-lg" style={{ color: GOLD_SOFT }}>Moments Packaging (K) Ltd</p>
+                <p className="text-lg">{COMPANY_ADDRESS}</p>
               </ContactRow>
               <ContactRow Icon={Phone} label="Phone">
-                <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:underline">{COMPANY_PHONE}</a>
+                <p className="text-lg sm:text-xl font-semibold tracking-wide">
+                  <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:underline">{COMPANY_PHONE}</a>
+                  <span className="text-white/40"> / </span>
+                  <a href="tel:+254119556699" className="hover:underline">{COMPANY_PHONE_ALT}</a>
+                </p>
               </ContactRow>
               <ContactRow Icon={MessageCircle} label="WhatsApp">
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:underline"
+                  className="text-lg hover:underline"
                 >
-                  Chat on WhatsApp
+                  Chat on WhatsApp ({COMPANY_PHONE})
                 </a>
               </ContactRow>
               <ContactRow Icon={Mail} label="Email">
-                <a href={`mailto:${COMPANY_EMAIL}`} className="break-all hover:underline">
+                <a href={`mailto:${COMPANY_EMAIL}`} className="text-lg break-all hover:underline">
                   {COMPANY_EMAIL}
                 </a>
               </ContactRow>
+              <ContactRow Icon={Instagram} label="Instagram">
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-lg hover:underline">
+                  {INSTAGRAM_HANDLE}
+                </a>
+              </ContactRow>
+              <ContactRow Icon={Facebook} label="Facebook">
+                <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" className="text-lg hover:underline">
+                  {FACEBOOK_HANDLE}
+                </a>
+              </ContactRow>
+              <ContactRow Icon={Globe} label="TikTok">
+                <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-lg hover:underline">
+                  {TIKTOK_HANDLE}
+                </a>
+              </ContactRow>
               <ContactRow Icon={Globe} label="Online">
-                www.momentspackaging.com · @momentspackaging
+                <span className="text-lg">www.momentspackaging.com</span>
               </ContactRow>
             </div>
+
 
             <div className="mt-10 flex flex-wrap gap-3">
               <Link
