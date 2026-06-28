@@ -15,6 +15,12 @@ import {
   Instagram,
   Facebook,
   Recycle,
+  UtensilsCrossed,
+  ShoppingCart,
+  Sprout,
+  Gem,
+  PencilLine,
+  CookingPot,
 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import pdfAsset from "@/assets/moments-company-profile.pdf.asset.json";
@@ -79,56 +85,76 @@ const VALUES = [
   { Icon: Users, title: "Customer Success", body: "We measure success by the growth of our clients." },
 ];
 
+const WHY_HIGHLIGHTS = [
+  "Innovative, creative packaging concepts that help brands stand out.",
+  "Competitive pricing — exceptional value without compromising quality.",
+  "Customisation excellence tailored to your brand message.",
+  "Customer-centric, co-designed solutions.",
+  "Reliable, on-time delivery countrywide with order tracking.",
+];
+
+const INDUSTRIES = [
+  { Icon: UtensilsCrossed, title: "Food & Beverage" },
+  { Icon: ShoppingCart, title: "Wholesale & E-commerce" },
+  { Icon: Sprout, title: "Agriculture" },
+  { Icon: Gem, title: "Cosmetics" },
+  { Icon: PencilLine, title: "Stationery & General Supplies" },
+  { Icon: CookingPot, title: "Kitchen Supplies" },
+];
 
 const CORE = [
   {
     title: "Kraft Packaging Solutions",
-    blurb: "Sustainable, durable, eco-friendly kraft food packaging — boats, sandwich boxes, carry bags, lunch boxes, window pouches, food containers, paper cups and trays.",
+    blurb:
+      "Sustainable, durable, eco-friendly kraft food packaging — boats, sandwich boxes, carry bags, lunch boxes, window pouches, food containers, paper cups and trays.",
     image: kraftImg.url,
     href: "/products" as const,
     search: { category: "boxes" } as Record<string, string>,
+    highlights: WHY_HIGHLIGHTS,
   },
   {
     title: "Cups, Tumblers & Beverage Range",
-    blurb: "Single-wall, double-wall and ripple paper cups, PET cold cups, dome and flat lids, branded tumblers and bubble-tea cups.",
+    blurb:
+      "Single-wall, double-wall and ripple paper cups, PET cold cups, dome and flat lids, branded tumblers and bubble-tea cups.",
     image: visionImg.url,
     href: "/products" as const,
     search: { category: "cups" } as Record<string, string>,
   },
   {
     title: "Dessert Cups & Display Glassware",
-    blurb: "Trapeze, sundae, flower, oval, square, twisted, eye-lid, slanted and shooter cups for cafés, bakeries and caterers.",
+    blurb:
+      "Trapeze, sundae, flower, oval, square, twisted, eye-lid, slanted and shooter cups for cafés, bakeries and caterers.",
     image: dessertImg.url,
     href: "/products" as const,
     search: { category: "cups" } as Record<string, string>,
   },
   {
     title: "Wooden & Bamboo Disposables",
-    blurb: "Wooden cones, cutlery, teaspoons, skewers, stirrers, chopsticks, ice-cream sticks, cocktail picks and bamboo accessories.",
+    blurb:
+      "Wooden cones, cutlery, teaspoons, skewers, stirrers, chopsticks, ice-cream sticks, cocktail picks and bamboo accessories.",
     image: woodenImg.url,
     href: "/products" as const,
     search: {} as Record<string, string>,
   },
   {
     title: "Bags & Sacks",
-    blurb: "Woven and non-woven branded bags — V-series handle sacks, smart bags, 3D bags, vest bags, D-cut bags and bulk sacks.",
+    blurb:
+      "Woven and non-woven branded bags — V-series handle sacks, smart bags, 3D bags, vest bags, D-cut bags and bulk sacks.",
     image: bagsImg.url,
     href: "/products" as const,
     search: { category: "bags" } as Record<string, string>,
   },
 ];
 
-
 function CompanyProfilePage() {
   return (
     <SiteLayout>
-      {/* HERO — mirrors PDF cover */}
+      {/* HERO — mirrors PDF cover, balanced two-column layout */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
           minHeight: "70dvh",
-          background:
-            `radial-gradient(ellipse at 100% 0%, ${FOREST} 0%, ${FOREST_DEEP} 60%, #061a13 100%)`,
+          background: `radial-gradient(ellipse at 100% 0%, ${FOREST} 0%, ${FOREST_DEEP} 60%, #061a13 100%)`,
         }}
       >
         {/* Decorative leaf accents */}
@@ -143,82 +169,76 @@ function CompanyProfilePage() {
           style={{ background: `radial-gradient(circle, ${GOLD_SOFT} 0%, transparent 70%)` }}
         />
 
-        <div className="relative mx-auto w-full max-w-7xl px-5 py-10 sm:py-14 lg:px-8">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.05fr,1fr] lg:gap-14">
-            <div>
-              <h1 className="font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
-                Company<br />
-                <span style={{ color: "#ffffff" }}>Profile</span>
-              </h1>
-              <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
-              <p
-                className="mt-6 max-w-md font-display text-xl font-light italic leading-snug"
-                style={{ color: GOLD_SOFT }}
+        <div className="relative mx-auto grid w-full max-w-7xl items-center gap-10 px-5 py-10 sm:py-14 lg:grid-cols-[1.1fr,0.9fr] lg:gap-14 lg:px-8">
+          <div>
+            <h1 className="font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
+              Company
+              <br />
+              <span style={{ color: "#ffffff" }}>Profile</span>
+            </h1>
+            <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
+            <p
+              className="mt-6 max-w-md font-display text-xl font-light italic leading-snug"
+              style={{ color: GOLD_SOFT }}
+            >
+              Quality packaging <span className="text-white/90">for every moment.</span>
+            </p>
+            <p className="mt-6 max-w-lg text-base leading-relaxed text-white/75">
+              We help Kenyan brands present, protect and promote their products through innovative, high-quality and
+              cost-effective packaging — delivered countrywide.
+            </p>
+
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link
+                to="/products"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition-transform hover:-translate-y-0.5"
+                style={{ background: GOLD, color: FOREST_DEEP }}
               >
-                Quality packaging <span className="text-white/90">for every moment.</span>
-              </p>
-              <p className="mt-6 max-w-lg text-base leading-relaxed text-white/75">
-                We help Kenyan brands present, protect and promote their products through innovative,
-                high-quality and cost-effective packaging — delivered countrywide.
-              </p>
-
-              <div className="mt-9 flex flex-wrap gap-3">
-                <Link
-                  to="/products"
-                  className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition-transform hover:-translate-y-0.5"
-                  style={{ background: GOLD, color: FOREST_DEEP }}
-                >
-                  Browse our products <ArrowRight className="h-4 w-4" />
-                </Link>
-                <a
-                  href={pdfAsset.url}
-                  download="Moments-Packaging-Company-Profile.pdf"
-                  className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-medium text-white backdrop-blur transition-colors hover:bg-white/10"
-                  style={{ borderColor: `${GOLD}66` }}
-                >
-                  <Download className="h-4 w-4" /> Download PDF
-                </a>
-              </div>
-
-              <div className="mt-12 grid grid-cols-3 gap-6 border-t pt-8" style={{ borderColor: `${GOLD}33` }}>
-                {[
-                  { Icon: Leaf, label: "Quality\nPackaging" },
-                  { Icon: ShieldCheck, label: "Sustainable\nSolutions" },
-                  { Icon: Users, label: "For Every\nMoment" },
-                ].map((b) => (
-                  <div key={b.label} className="flex items-start gap-2.5">
-                    <span
-                      className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border"
-                      style={{ borderColor: `${GOLD}80`, color: GOLD }}
-                    >
-                      <b.Icon className="h-4 w-4" strokeWidth={1.75} />
-                    </span>
-                    <span className="whitespace-pre-line text-[10px] font-semibold uppercase tracking-[0.18em] text-white/85">
-                      {b.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                Browse our products <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a
+                href={pdfAsset.url}
+                download="Moments-Packaging-Company-Profile.pdf"
+                className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-medium text-white backdrop-blur transition-colors hover:bg-white/10"
+                style={{ borderColor: `${GOLD}66` }}
+              >
+                <Download className="h-4 w-4" /> Download PDF
+              </a>
             </div>
 
-            {/* Hero image — balances composition on the right */}
-            <div className="relative hidden lg:block">
-              <div
-                aria-hidden
-                className="absolute -inset-6 rounded-[2rem] opacity-40 blur-2xl"
-                style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 65%)` }}
-              />
-              <div
-                className="relative overflow-hidden rounded-[1.75rem] border p-2"
-                style={{ borderColor: `${GOLD}55`, background: FOREST_DEEP }}
-              >
-                <img
-                  src={coverImg.url}
-                  alt="Moments Packaging product range"
-                  className="block w-full rounded-[1.4rem] object-cover"
-                />
-              </div>
+            <div className="mt-12 grid grid-cols-3 gap-6 border-t pt-8" style={{ borderColor: `${GOLD}33` }}>
+              {[
+                { Icon: Leaf, label: "Quality\nPackaging" },
+                { Icon: ShieldCheck, label: "Sustainable\nSolutions" },
+                { Icon: Users, label: "For Every\nMoment" },
+              ].map((b) => (
+                <div key={b.label} className="flex items-start gap-2.5">
+                  <span
+                    className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border"
+                    style={{ borderColor: `${GOLD}80`, color: GOLD }}
+                  >
+                    <b.Icon className="h-4 w-4" strokeWidth={1.75} />
+                  </span>
+                  <span className="whitespace-pre-line text-[10px] font-semibold uppercase tracking-[0.18em] text-white/85">
+                    {b.label}
+                  </span>
+                </div>
+              ))}
             </div>
+          </div>
+
+          <div className="relative mx-auto hidden w-full max-w-md lg:block">
+            <div
+              aria-hidden
+              className="absolute -inset-4 rounded-3xl opacity-40 blur-2xl"
+              style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 65%)` }}
+            />
+            <img
+              src={coverImg.url}
+              alt="Moments Packaging product range"
+              className="relative w-full rounded-3xl border shadow-2xl"
+              style={{ borderColor: `${GOLD}40` }}
+            />
           </div>
         </div>
       </section>
@@ -242,22 +262,18 @@ function CompanyProfilePage() {
               <span className="font-semibold" style={{ color: GOLD_SOFT }}>
                 Moments Packaging (K) Ltd
               </span>{" "}
-              is a customer-focused packaging solutions company based in Nairobi. We offer a wide
-              range of supplies designed for everyday business needs across food, beverages,
-              cosmetics, retail and more. With a focus on reliability, convenience and excellent
-              customer service, we deliver innovative packaging countrywide while helping brands
-              create memorable moments through great presentation.
+              is a customer-focused packaging solutions company based in Nairobi. We offer a wide range of supplies
+              designed for everyday business needs across food, beverages, cosmetics, retail and more. With a focus on
+              reliability, convenience and excellent customer service, we deliver innovative packaging countrywide while
+              helping brands create memorable moments through great presentation.
             </p>
             <p className="mt-5 text-lg leading-relaxed text-white/75">
-              Packaging is more than a container — it is a powerful marketing tool that creates
-              lasting first impressions, enhances brand visibility and influences purchasing
-              decisions.
+              Packaging is more than a container — it is a powerful marketing tool that creates lasting first
+              impressions, enhances brand visibility and influences purchasing decisions.
             </p>
           </div>
         </div>
       </section>
-
-
 
       {/* VISION / MISSION / COMMITMENT */}
       <section className="relative" style={{ background: FOREST }}>
@@ -268,18 +284,15 @@ function CompanyProfilePage() {
               {[
                 {
                   tag: "Vision",
-                  body:
-                    "To redefine packaging across Africa and beyond through innovation, excellence and sustainable solutions that inspire business growth and memorable customer experiences.",
+                  body: "To redefine packaging across Africa and beyond through innovation, excellence and sustainable solutions that inspire business growth and memorable customer experiences.",
                 },
                 {
                   tag: "Mission",
-                  body:
-                    "To empower businesses through reliable, cost-effective and customised packaging solutions that enhance brand value, meet industry standards and drive sustainable growth.",
+                  body: "To empower businesses through reliable, cost-effective and customised packaging solutions that enhance brand value, meet industry standards and drive sustainable growth.",
                 },
                 {
                   tag: "Our Commitment",
-                  body:
-                    "Every package tells a story. We create solutions that protect products, strengthen brands, improve customer experience and drive business growth.",
+                  body: "Every package tells a story. We create solutions that protect products, strengthen brands, improve customer experience and drive business growth.",
                 },
               ].map((c) => (
                 <div
@@ -288,10 +301,7 @@ function CompanyProfilePage() {
                   style={{ borderColor: `${GOLD}33`, background: `${FOREST_DEEP}` }}
                 >
                   <div className="flex items-center gap-3">
-                    <span
-                      className="inline-block h-2 w-2 rotate-45"
-                      style={{ background: GOLD }}
-                    />
+                    <span className="inline-block h-2 w-2 rotate-45" style={{ background: GOLD }} />
                     <p className="text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: GOLD }}>
                       {c.tag}
                     </p>
@@ -311,9 +321,7 @@ function CompanyProfilePage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
               Our Values
             </p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl">
-              What we stand for.
-            </h2>
+            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl">What we stand for.</h2>
             <div className="mx-auto mt-5 flex w-fit items-center gap-3">
               <span className="block h-px w-12" style={{ background: GOLD }} />
               <Leaf className="h-4 w-4" style={{ color: GOLD }} />
@@ -341,57 +349,38 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* WHO WE SERVE — no matter the field, Moments is there */}
+      {/* INDUSTRIES WE SERVE */}
       <section className="relative" style={{ background: FOREST }}>
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-[1fr,1.05fr] lg:items-center lg:px-8">
-          <div className="relative">
-            <div
-              aria-hidden
-              className="absolute -inset-3 rounded-3xl opacity-30 blur-2xl"
-              style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 60%)` }}
-            />
-            <img
-              src={kraftImg.url}
-              alt="Why choose Moments Packaging"
-              className="relative w-full rounded-2xl shadow-2xl"
-            />
-          </div>
-          <div>
+        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+          <div className="text-center">
             <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
-              Industries we serve
+              Industries We Serve
             </p>
-            <h2 className="mt-3 font-display text-4xl font-medium leading-tight text-white sm:text-5xl">
-              No matter the field,<br />
-              <span style={{ color: GOLD_SOFT }}>Moments Packaging</span> is there to serve.
+            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl">
+              No matter your field, we package for it.
             </h2>
-            <div className="mt-5 h-px w-16" style={{ background: GOLD }} />
-            <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/75">
-              From everyday essentials to specialised supplies, we partner with businesses across
-              Kenya in a wide range of sectors — bringing the same care, quality and reliability to
-              every order.
-            </p>
-            <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-              {[
-                "Food & Beverage",
-                "Wholesale & E-commerce",
-                "Agriculture",
-                "Cosmetics",
-                "Stationery & General Supplies",
-                "Kitchen Supplies",
-              ].map((field) => (
-                <li
-                  key={field}
-                  className="flex items-center gap-3 rounded-xl border px-4 py-3"
-                  style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
+            <div className="mx-auto mt-5 flex w-fit items-center gap-3">
+              <span className="block h-px w-12" style={{ background: GOLD }} />
+              <Leaf className="h-4 w-4" style={{ color: GOLD }} />
+              <span className="block h-px w-12" style={{ background: GOLD }} />
+            </div>
+          </div>
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {INDUSTRIES.map((ind) => (
+              <div
+                key={ind.title}
+                className="flex items-center gap-4 rounded-2xl border p-6"
+                style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
+              >
+                <span
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border"
+                  style={{ borderColor: `${GOLD}80`, color: GOLD }}
                 >
-                  <span
-                    className="inline-block h-2.5 w-2.5 shrink-0 rotate-45"
-                    style={{ background: GOLD }}
-                  />
-                  <span className="text-sm font-medium text-white/90">{field}</span>
-                </li>
-              ))}
-            </ul>
+                  <ind.Icon className="h-5 w-5" strokeWidth={1.6} />
+                </span>
+                <h3 className="font-display text-base font-semibold text-white">{ind.title}</h3>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -426,21 +415,30 @@ function CompanyProfilePage() {
                     className="absolute -inset-2 rounded-2xl opacity-30 blur-xl"
                     style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 60%)` }}
                   />
-                  <img
-                    src={c.image}
-                    alt={c.title}
-                    className="relative w-full rounded-2xl shadow-2xl"
-                  />
+                  <img src={c.image} alt={c.title} className="relative w-full rounded-2xl shadow-2xl" />
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.28em]" style={{ color: GOLD }}>
                     0{i + 1} · Range
                   </p>
-                  <h3 className="mt-3 font-display text-3xl font-semibold text-white sm:text-4xl">
-                    {c.title}
-                  </h3>
+                  <h3 className="mt-3 font-display text-3xl font-semibold text-white sm:text-4xl">{c.title}</h3>
                   <div className="mt-4 h-px w-12" style={{ background: GOLD }} />
                   <p className="mt-5 text-[15px] leading-relaxed text-white/75">{c.blurb}</p>
+
+                  {c.highlights && (
+                    <ul className="mt-5 space-y-2.5">
+                      {c.highlights.map((h) => (
+                        <li key={h} className="flex gap-2.5 text-sm leading-relaxed text-white/70">
+                          <span
+                            className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rotate-45"
+                            style={{ background: GOLD }}
+                          />
+                          {h}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
                   <Link
                     to={c.href}
                     search={c.search as never}
@@ -456,18 +454,18 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* SUSTAINABILITY — ESG policy + posters (replaces Industries section) */}
+      {/* SUSTAINABILITY — ESG policy + single poster */}
       <section id="sustainability" className="relative" style={{ background: FOREST }}>
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
           <div className="text-center">
             <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
-              ESG &amp; Sustainability
+              ESG &amp; Sustainability Policy
             </p>
             <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl lg:text-6xl">
-              Packaging with purpose.
+              Packaging with Purpose.
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base italic text-white/80 sm:text-lg">
-              Thoughtful Packaging. Responsible Future.
+              Growing with Responsibility.
             </p>
             <div className="mx-auto mt-5 flex w-fit items-center gap-3">
               <span className="block h-px w-12" style={{ background: GOLD }} />
@@ -478,18 +476,32 @@ function CompanyProfilePage() {
 
           <div className="mx-auto mt-10 max-w-4xl space-y-5 text-[16px] leading-relaxed text-white/85">
             <p>
-              At Moments Packaging Ltd, sustainability is more than a business objective — it is a
-              core value that shapes the way we design, source and deliver packaging solutions. The{" "}
-              <span className="font-semibold" style={{ color: GOLD_SOFT }}>sprouting leaf</span> in
-              our logo represents growth, renewal and a greener future, while the{" "}
-              <span className="font-semibold" style={{ color: GOLD_SOFT }}>recycling symbol ♻️</span>{" "}
-              embodies our belief in the circular economy.
+              At Moments Packaging Ltd, sustainability is more than a business objective — it is a core value that
+              shapes the way we design, source and deliver packaging solutions. We are committed to creating products
+              that support our customers while contributing to a healthier planet and a more sustainable future.
+            </p>
+            <p className="font-semibold" style={{ color: GOLD_SOFT }}>
+              The Meaning Behind Our Logo
             </p>
             <p>
-              We actively promote environmentally responsible alternatives by expanding our range of
-              Kraft packaging solutions that are eco-friendly, biodegradable, compostable and
-              recyclable — helping our customers reduce their environmental footprint without
-              compromising on quality.
+              Our logo reflects our environmental commitment through two powerful symbols. The{" "}
+              <span className="font-semibold" style={{ color: GOLD_SOFT }}>
+                sprouting leaf
+              </span>{" "}
+              represents growth, renewal and our dedication to building a greener future through responsible innovation
+              and environmentally conscious business practices. The{" "}
+              <span className="font-semibold" style={{ color: GOLD_SOFT }}>
+                recycling symbol ♻️
+              </span>{" "}
+              embodies our belief in the circular economy, encouraging the reduction of waste through recycling, reuse
+              and responsible disposal of packaging materials. Together, these elements symbolize our promise to provide
+              packaging solutions that respect both people and the planet.
+            </p>
+            <p>
+              We actively promote environmentally responsible alternatives by expanding our range of Kraft packaging
+              solutions, which are designed with sustainability in mind. By encouraging the adoption of Kraft packaging
+              and other sustainable options, we help our customers reduce their environmental footprint without
+              compromising on quality or functionality.
             </p>
           </div>
 
@@ -499,20 +511,17 @@ function CompanyProfilePage() {
               {
                 Icon: Leaf,
                 title: "Environmental Stewardship",
-                body:
-                  "Reducing waste, promoting recyclable and responsibly sourced materials, and supporting initiatives that conserve natural resources.",
+                body: "Reducing waste, promoting recyclable and responsibly sourced materials, improving resource efficiency and supporting initiatives that conserve natural resources.",
               },
               {
                 Icon: Users,
                 title: "Social Responsibility",
-                body:
-                  "A safe, inclusive workplace. Long-term partnerships built on trust. Reliable products and exceptional service for local businesses.",
+                body: "A safe, inclusive workplace. Long-term partnerships built on trust. Reliable products, exceptional service and support for local businesses and communities.",
               },
               {
                 Icon: ShieldCheck,
                 title: "Ethical Governance",
-                body:
-                  "Transparency, accountability and integrity in every decision — complying with all applicable laws and continuously improving our ESG performance.",
+                body: "Transparency, accountability and integrity in every decision — complying with all applicable laws and continuously improving our ESG performance.",
               },
             ].map((p) => (
               <div
@@ -532,36 +541,46 @@ function CompanyProfilePage() {
             ))}
           </div>
 
-          {/* Poster — single highlight */}
+          {/* Promise */}
+          <div
+            className="mx-auto mt-12 max-w-4xl rounded-2xl border p-7 text-center"
+            style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
+          >
+            <p className="text-sm leading-relaxed text-white/80">
+              Every package we produce carries an opportunity to make a positive impact. When you see the sprouting leaf
+              and ♻️ recycling symbol in our logo, we invite you to see more than a brand — our commitment to protecting
+              natural resources, embracing sustainable innovation and promoting packaging solutions that support a
+              cleaner, greener future.
+            </p>
+            <p className="mt-3 font-display text-lg italic" style={{ color: GOLD_SOFT }}>
+              Together, we can package responsibly today and preserve tomorrow.
+            </p>
+          </div>
+
+          {/* Single poster */}
           <div className="mt-14">
             <p className="text-center text-[12px] font-semibold uppercase tracking-[0.3em]" style={{ color: GOLD }}>
               Our ESG &amp; Sustainability Policy
             </p>
-            <div className="mx-auto mt-6 max-w-2xl">
-              <a
-                href={esgPoster1.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block overflow-hidden rounded-2xl border bg-white/5 transition-transform hover:-translate-y-1"
-                style={{ borderColor: `${GOLD}55` }}
-                aria-label="Open ESG &amp; Sustainability poster in a new tab"
-              >
-                <img
-                  src={esgPoster1.url}
-                  alt="Moments Packaging — ESG &amp; Sustainability Policy"
-                  className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                  loading="lazy"
-                />
-              </a>
-            </div>
-            <p className="mt-4 text-center text-xs text-white/60">
-              Tap to view full size — Together, we can package responsibly today and preserve tomorrow.
-            </p>
+            <a
+              href={esgPoster1.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mx-auto mt-6 block max-w-md overflow-hidden rounded-2xl border bg-white/5 transition-transform hover:-translate-y-1"
+              style={{ borderColor: `${GOLD}55` }}
+              aria-label="Open ESG &amp; Sustainability Policy poster in a new tab"
+            >
+              <img
+                src={esgPoster1.url}
+                alt="Moments Packaging — ESG &amp; Sustainability Policy poster"
+                className="block h-full w-full object-cover"
+                loading="lazy"
+              />
+            </a>
+            <p className="mt-4 text-center text-xs text-white/60">Tap the poster to view full size.</p>
           </div>
         </div>
       </section>
-
-
 
       {/* CONTACT — mirrors PDF page 21 */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
@@ -570,21 +589,25 @@ function CompanyProfilePage() {
             <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
               Get in touch
             </p>
-            <h2 className="mt-3 font-display text-5xl font-medium text-white sm:text-6xl lg:text-7xl">
-              Contact Us
-            </h2>
+            <h2 className="mt-3 font-display text-5xl font-medium text-white sm:text-6xl lg:text-7xl">Contact Us</h2>
             <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
 
             <div className="mt-10 space-y-6">
               <ContactRow Icon={MapPin} label="Address">
-                <p className="font-semibold text-lg" style={{ color: GOLD_SOFT }}>Moments Packaging (K) Ltd</p>
+                <p className="font-semibold text-lg" style={{ color: GOLD_SOFT }}>
+                  Moments Packaging (K) Ltd
+                </p>
                 <p className="text-lg">{COMPANY_ADDRESS}</p>
               </ContactRow>
               <ContactRow Icon={Phone} label="Phone">
-                <p className="text-lg sm:text-xl font-semibold tracking-wide">
-                  <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:underline">{COMPANY_PHONE}</a>
+                <p className="text-xl sm:text-2xl font-semibold tracking-wide">
+                  <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:underline">
+                    {COMPANY_PHONE}
+                  </a>
                   <span className="text-white/40"> / </span>
-                  <a href="tel:+254119556699" className="hover:underline">{COMPANY_PHONE_ALT}</a>
+                  <a href="tel:+254119556699" className="hover:underline">
+                    {COMPANY_PHONE_ALT}
+                  </a>
                 </p>
               </ContactRow>
               <ContactRow Icon={MessageCircle} label="WhatsApp">
@@ -592,36 +615,35 @@ function CompanyProfilePage() {
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-lg hover:underline"
+                  className="text-xl hover:underline"
                 >
                   Chat on WhatsApp ({COMPANY_PHONE})
                 </a>
               </ContactRow>
               <ContactRow Icon={Mail} label="Email">
-                <a href={`mailto:${COMPANY_EMAIL}`} className="text-lg break-all hover:underline">
+                <a href={`mailto:${COMPANY_EMAIL}`} className="text-xl break-all hover:underline">
                   {COMPANY_EMAIL}
                 </a>
               </ContactRow>
               <ContactRow Icon={Instagram} label="Instagram">
-                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-lg hover:underline">
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-xl hover:underline">
                   {INSTAGRAM_HANDLE}
                 </a>
               </ContactRow>
               <ContactRow Icon={Facebook} label="Facebook">
-                <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" className="text-lg hover:underline">
+                <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" className="text-xl hover:underline">
                   {FACEBOOK_HANDLE}
                 </a>
               </ContactRow>
               <ContactRow Icon={Globe} label="TikTok">
-                <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-lg hover:underline">
+                <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-xl hover:underline">
                   {TIKTOK_HANDLE}
                 </a>
               </ContactRow>
               <ContactRow Icon={Globe} label="Online">
-                <span className="text-lg">www.momentspackaging.com</span>
+                <span className="text-xl">www.momentspackaging.com</span>
               </ContactRow>
             </div>
-
 
             <div className="mt-10 flex flex-wrap gap-3">
               <Link
@@ -642,15 +664,8 @@ function CompanyProfilePage() {
             </div>
           </div>
 
-          <div
-            className="relative overflow-hidden rounded-3xl border p-3 sm:p-4"
-            style={{ borderColor: `${GOLD}55` }}
-          >
-            <img
-              src={contactImg.url}
-              alt="Moments Packaging product showcase"
-              className="w-full rounded-2xl"
-            />
+          <div className="relative overflow-hidden rounded-3xl border p-3 sm:p-4" style={{ borderColor: `${GOLD}55` }}>
+            <img src={contactImg.url} alt="Moments Packaging product showcase" className="w-full rounded-2xl" />
           </div>
         </div>
 
@@ -667,10 +682,7 @@ function CompanyProfilePage() {
       {/* Closing strip */}
       <section className="relative" style={{ background: FOREST }}>
         <div className="mx-auto max-w-5xl px-5 py-14 text-center lg:px-8">
-          <p
-            className="font-display text-2xl font-light italic"
-            style={{ color: GOLD_SOFT }}
-          >
+          <p className="font-display text-2xl font-light italic" style={{ color: GOLD_SOFT }}>
             Quality packaging <span className="text-white">for every moment.</span>
           </p>
           <div className="mx-auto mt-5 flex w-fit items-center gap-3">
