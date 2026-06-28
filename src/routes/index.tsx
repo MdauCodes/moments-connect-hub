@@ -101,7 +101,7 @@ function FirstVisitSplash() {
   return <AppSplash />;
 }
 
-// ── Hero with overlay nav + announcement ──
+// ── Hero ──
 function Hero() {
   return (
     <section
@@ -119,15 +119,50 @@ function Hero() {
         .mpk-hero-img-b { animation: mpk-hero-b 14s ease-in-out infinite; }
         @keyframes mpk-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .mpk-marquee-track { animation: mpk-marquee 18s linear infinite; }
-        @media (max-width: 767px) {
-          .mpk-hero-section { min-height: 620px !important; }
+
+        /* ── Hero image positioning ── */
+        .mpk-hero-img-a,
+        .mpk-hero-img-b {
+          /* Mobile: bottom-right corner, partial crop gives depth */
+          right: -8%;
+          bottom: -2%;
+          top: auto;
+          transform: none;
+          width: 72%;
+          max-height: none;
+          object-fit: contain;
+        }
+        @media (min-width: 768px) {
+          .mpk-hero-img-a,
+          .mpk-hero-img-b {
+            right: 2%;
+            top: calc(50% + 30px);
+            bottom: auto;
+            transform: translateY(-50%);
+            width: 46%;
+            max-height: 86%;
+          }
+        }
+        @media (min-width: 1024px) {
+          .mpk-hero-img-a,
+          .mpk-hero-img-b {
+            right: 4%;
+            width: 44%;
+          }
+        }
+        @media (min-width: 1280px) {
+          .mpk-hero-img-a,
+          .mpk-hero-img-b {
+            right: 6%;
+            width: 42%;
+          }
         }
       `}</style>
 
       <div className="mpk-hero-section relative" style={{ minHeight: "560px" }}>
-        {/* Centered max-width stage so text + image share the same gutter on desktop */}
+        {/* Max-width stage shared by images and text */}
         <div className="absolute inset-0 mx-auto max-w-7xl px-5 lg:px-8">
-          {/* Crossfading hero images */}
+          {/* Crossfading hero images — visible on ALL screen sizes */}
           <img
             src={cloudV3}
             alt="A diverse cluster of branded paper packaging — bags, boxes, cups and more"
@@ -140,7 +175,6 @@ function Hero() {
               zIndex: 1,
               transition: "opacity 1.5s ease-in-out",
               filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
-              objectFit: "contain",
               opacity: 1,
             }}
           />
@@ -152,53 +186,42 @@ function Hero() {
               zIndex: 1,
               transition: "opacity 1.5s ease-in-out",
               filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
-              objectFit: "contain",
               opacity: 0,
             }}
           />
         </div>
 
-        {/* Responsive image positioning — sits inside the max-w-7xl stage */}
-        <style>{`
-          .mpk-hero-img-a, .mpk-hero-img-b {
-            right: -14%;
-            top: calc(50% + 24px);
-            transform: translateY(-50%);
-            width: 78%;
-            max-height: 58%;
-          }
-          @media (min-width: 768px) {
-            .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 2%;
-              top: calc(50% + 30px);
-              transform: translateY(-50%);
-              width: 46%;
-              max-height: 86%;
-            }
-          }
-          @media (min-width: 1024px) {
-            .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 4%;
-              width: 44%;
-            }
-          }
-          @media (min-width: 1280px) {
-            .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 6%;
-              width: 42%;
-            }
-          }
-        `}</style>
-
-        {/* Gradient scrim — forest-toned for brand consistency */}
+        {/*
+          MOBILE scrim: gradient from top-left (opaque forest = text readable)
+          fading to transparent at bottom-right (image shows through).
+          No more full-coverage overlay that kills the image.
+        */}
+        <div
+          className="absolute inset-0 md:hidden"
+          style={{
+            zIndex: 3,
+            background: [
+              /* Strong cover over text area (top ~60%) */
+              "linear-gradient(180deg,",
+              "  color-mix(in oklab, var(--forest) 92%, black) 0%,",
+              "  color-mix(in oklab, var(--forest) 85%, black) 38%,",
+              "  color-mix(in oklab, var(--forest) 55%, black) 62%,",
+              "  transparent 100%",
+              ")",
+            ].join(" "),
+          }}
+        />
+        {/* Left-side scrim so text block is always readable regardless of image overlap */}
         <div
           className="absolute inset-0 md:hidden"
           style={{
             zIndex: 3,
             background:
-              "linear-gradient(180deg, color-mix(in oklab, var(--forest) 70%, black) 0%, color-mix(in oklab, var(--forest) 60%, black) 55%, color-mix(in oklab, var(--forest) 80%, black) 100%)",
+              "linear-gradient(90deg, color-mix(in oklab, var(--forest) 88%, black) 0%, color-mix(in oklab, var(--forest) 60%, black) 45%, transparent 72%)",
           }}
         />
+
+        {/* DESKTOP scrim — unchanged */}
         <div
           className="absolute inset-0 hidden md:block"
           style={{
@@ -301,7 +324,7 @@ function Hero() {
             boxShadow: "0 1px 0 rgba(255,255,255,0.06) inset, 0 4px 14px rgba(0,0,0,0.18)",
           }}
         >
-          {/* Desktop row */}
+          {/* Desktop */}
           <div
             className="hidden md:flex items-center justify-center overflow-hidden whitespace-nowrap"
             style={{ gap: "28px", padding: "8px 40px" }}
@@ -352,7 +375,7 @@ function Hero() {
           </div>
         </div>
 
-        {/* Hero text content — sits inside the same max-w-7xl stage */}
+        {/* Hero text content */}
         <div className="absolute inset-0 mx-auto max-w-7xl px-5 lg:px-8" style={{ zIndex: 4 }}>
           <div
             className="md:absolute md:top-1/2 md:-translate-y-1/2 md:left-8 lg:left-12 md:w-[50%] lg:w-[48%]"
@@ -428,7 +451,7 @@ function Hero() {
               </Link>
             </div>
 
-            {/* Secondary CTA row — company profile link with improved tap target */}
+            {/* Secondary CTA row */}
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link
                 to="/company-profile"
@@ -478,7 +501,6 @@ function Hero() {
 function TrustBar() {
   return (
     <section style={{ background: "var(--ink)" }}>
-      {/* Desktop row */}
       <div
         className="hidden md:flex max-w-7xl mx-auto"
         style={{ justifyContent: "space-around", padding: "20px 40px" }}
@@ -496,7 +518,6 @@ function TrustBar() {
           </div>
         ))}
       </div>
-      {/* Mobile grid */}
       <div className="md:hidden grid grid-cols-2">
         {TRUST_STATS.filter((s) => !s.desktopOnly).map((s, i, arr) => (
           <div
@@ -609,7 +630,6 @@ function FeaturedProducts() {
             Browse all products <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-
         <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
           {products === null ? (
             Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
@@ -621,7 +641,6 @@ function FeaturedProducts() {
             products.map((p) => <ProductCard key={p.id} product={p} onConfigure={handleConfigure} />)
           )}
         </div>
-
         <ConfiguratorModal product={configuring} preSelectedTierId={preTier} onClose={() => setConfiguring(null)} />
       </div>
     </section>
@@ -661,7 +680,6 @@ function CategoryGrid() {
             See everything <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-
         <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-4 md:grid-cols-4">
           {categoryTiles.map((tile) => (
             <Link
@@ -726,7 +744,6 @@ function AudiencesWeServe() {
             you&apos;re ordering.
           </p>
         </div>
-
         <div className="mt-10 grid gap-8 border-t border-border pt-10 sm:grid-cols-3 sm:gap-6">
           {audienceColumns.map((col) => (
             <div key={col.role} className="flex flex-col">
