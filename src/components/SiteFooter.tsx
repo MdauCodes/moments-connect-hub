@@ -16,14 +16,19 @@ import {
 function TikTokIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.66a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-.09z"/>
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.66a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-.09z" />
     </svg>
   );
 }
 
 export function SiteFooter() {
   return (
-    <footer className="mt-16 border-t border-border bg-primary text-primary-foreground sm:mt-24">
+    <footer
+      className="mt-16 border-t border-border text-primary-foreground sm:mt-24"
+      style={{
+        background: "radial-gradient(ellipse at 100% 0%, #0d3320 0%, #08231a 60%, #061a13 100%)",
+      }}
+    >
       <div className="mx-auto grid gap-8 px-5 py-12 sm:gap-10 sm:py-16 md:grid-cols-4 max-w-7xl lg:px-8">
         <div>
           <div className="flex items-center gap-2">
@@ -33,18 +38,18 @@ export function SiteFooter() {
             <span className="font-display text-xl">Moments Packaging</span>
           </div>
           <p className="mt-4 max-w-md text-sm text-primary-foreground/70">
-            Custom-branded paper packaging built for Kenya&apos;s restaurants, retailers and brands.
-            From a 100-bag pilot run to enterprise contracts — delivered nationwide.
+            Custom-branded paper packaging built for Kenya&apos;s restaurants, retailers and brands. From a 100-bag
+            pilot run to enterprise contracts — delivered nationwide.
           </p>
         </div>
 
         <div>
-          <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">
-            Shop
-          </h4>
+          <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">Shop</h4>
           <ul className="mt-4 space-y-2 text-sm">
             <li>
-              <Link to="/products" search={{}} className="hover:text-accent">All products</Link>
+              <Link to="/products" search={{}} className="hover:text-accent">
+                All products
+              </Link>
             </li>
             {categories.map((c) => (
               <li key={c.slug}>
@@ -62,32 +67,59 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">
-            Explore
-          </h4>
+          <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">Explore</h4>
           <ul className="mt-4 space-y-2 text-sm">
-            <li><Link to="/industries" className="hover:text-accent">Industries</Link></li>
-            <li><Link to="/blog" className="hover:text-accent">Blog</Link></li>
-            <li><Link to="/about" className="hover:text-accent">About</Link></li>
-            <li><Link to="/company-profile" className="hover:text-accent">Company Profile</Link></li>
-            <li><Link to="/orders/track" className="hover:text-accent">Track Order</Link></li>
-            <li><Link to="/enterprise-quote" className="hover:text-accent">Enterprise Quote</Link></li>
+            <li>
+              <Link to="/industries" className="hover:text-accent">
+                Industries
+              </Link>
+            </li>
+            <li>
+              <Link to="/blog" className="hover:text-accent">
+                Blog
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="hover:text-accent">
+                About
+              </Link>
+            </li>
+            <li>
+              <Link to="/company-profile" className="hover:text-accent">
+                Company Profile
+              </Link>
+            </li>
+            <li>
+              <Link to="/orders/track" className="hover:text-accent">
+                Track Order
+              </Link>
+            </li>
+            <li>
+              <Link to="/enterprise-quote" className="hover:text-accent">
+                Enterprise Quote
+              </Link>
+            </li>
           </ul>
         </div>
 
         <div>
-          <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">
-            Contact
-          </h4>
+          <h4 className="font-display text-sm uppercase tracking-widest text-primary-foreground/60">Contact</h4>
           <ul className="mt-4 space-y-2 text-sm text-primary-foreground/80">
             <li>
               <a href={`tel:+${WHATSAPP_NUMBER}`} className="flex items-center gap-2 hover:text-accent">
                 <Phone className="h-4 w-4 shrink-0" aria-hidden />
-                <span>{COMPANY_PHONE} / {COMPANY_PHONE_ALT}</span>
+                <span>
+                  {COMPANY_PHONE} / {COMPANY_PHONE_ALT}
+                </span>
               </a>
             </li>
             <li>
-              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-accent">
+              <a
+                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-accent"
+              >
                 <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
                 <span>WhatsApp: {COMPANY_PHONE}</span>
               </a>
@@ -133,9 +165,7 @@ export function SiteFooter() {
             </a>
           </div>
           <div className="mt-6">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/50">
-              We accept
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/50">We accept</p>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-primary-foreground/70">
               <span className="rounded-full border border-primary-foreground/20 px-2.5 py-1">M-Pesa</span>
               <span className="rounded-full border border-primary-foreground/20 px-2.5 py-1">Bank Transfer</span>
@@ -148,10 +178,18 @@ export function SiteFooter() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-6 text-xs text-primary-foreground/60 sm:flex-row lg:px-8">
           <p>© {new Date().getFullYear()} Moments Packaging Kenya Ltd. All rights reserved.</p>
           <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-            <Link to="/privacy" className="hover:text-accent">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-accent">Terms of Service</Link>
-            <Link to="/refunds" className="hover:text-accent">Refunds &amp; Returns</Link>
-            <Link to="/contact" className="hover:text-accent">Contact</Link>
+            <Link to="/privacy" className="hover:text-accent">
+              Privacy Policy
+            </Link>
+            <Link to="/terms" className="hover:text-accent">
+              Terms of Service
+            </Link>
+            <Link to="/refunds" className="hover:text-accent">
+              Refunds &amp; Returns
+            </Link>
+            <Link to="/contact" className="hover:text-accent">
+              Contact
+            </Link>
           </nav>
         </div>
       </div>
