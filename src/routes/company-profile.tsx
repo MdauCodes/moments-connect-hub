@@ -12,19 +12,35 @@ import {
   MapPin,
   Globe,
   MessageCircle,
+  Instagram,
+  Facebook,
+  Recycle,
 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import pdfAsset from "@/assets/moments-company-profile.pdf.asset.json";
-import logoUrl from "@/assets/moments-logo.png";
 import coverImg from "@/assets/company-profile/cover.jpg.asset.json";
-import introImg from "@/assets/company-profile/intro.jpg.asset.json";
 import visionImg from "@/assets/company-profile/vision-cups.jpg.asset.json";
 import kraftImg from "@/assets/company-profile/kraft-solutions.jpg.asset.json";
 import woodenImg from "@/assets/company-profile/wooden-products.jpg.asset.json";
 import dessertImg from "@/assets/company-profile/dessert-cups.jpg.asset.json";
 import bagsImg from "@/assets/company-profile/bags-sacks.jpg.asset.json";
 import contactImg from "@/assets/company-profile/contact-products.jpg.asset.json";
-import { COMPANY_EMAIL, COMPANY_PHONE, WHATSAPP_NUMBER } from "@/data/products";
+import esgPoster1 from "@/assets/company-profile/esg-poster-1.jpg.asset.json";
+import esgPoster2 from "@/assets/company-profile/esg-poster-2.png.asset.json";
+import esgPoster3 from "@/assets/company-profile/esg-poster-3.png.asset.json";
+import {
+  COMPANY_EMAIL,
+  COMPANY_PHONE,
+  COMPANY_PHONE_ALT,
+  COMPANY_ADDRESS,
+  WHATSAPP_NUMBER,
+  INSTAGRAM_URL,
+  INSTAGRAM_HANDLE,
+  TIKTOK_URL,
+  TIKTOK_HANDLE,
+  FACEBOOK_URL,
+  FACEBOOK_HANDLE,
+} from "@/data/products";
 
 export const Route = createFileRoute("/company-profile")({
   head: () => ({
@@ -111,13 +127,6 @@ const CORE = [
   },
 ];
 
-const INDUSTRIES = [
-  "Food & Beverage",
-  "FMCG",
-  "Wholesale & Retail",
-  "Beauty & Personal Care",
-  "Agriculture",
-];
 
 function CompanyProfilePage() {
   return (
@@ -202,14 +211,14 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* INTRODUCTION — green theme continues */}
+      {/* ABOUT US — first content section after hero */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
         <div className="mx-auto max-w-4xl px-5 py-20 lg:px-8">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
-              Introduction
+            <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+              About Us
             </p>
-            <h2 className="mt-4 font-display text-4xl font-medium text-white sm:text-5xl">
+            <h2 className="mt-4 font-display text-4xl font-medium text-white sm:text-5xl lg:text-6xl">
               A trusted packaging partner for Kenyan businesses.
             </h2>
             <div className="mt-5 flex items-center gap-3">
@@ -217,9 +226,9 @@ function CompanyProfilePage() {
               <Leaf className="h-4 w-4" style={{ color: GOLD }} />
               <span className="block h-px w-12" style={{ background: GOLD }} />
             </div>
-            <p className="mt-6 text-[15px] leading-relaxed text-white/80">
+            <p className="mt-6 text-lg leading-relaxed text-white/85">
               <span className="font-semibold" style={{ color: GOLD_SOFT }}>
-                Moments Packaging
+                Moments Packaging (K) Ltd
               </span>{" "}
               is a customer-focused packaging solutions company based in Nairobi. We offer a wide
               range of supplies designed for everyday business needs across food, beverages,
@@ -227,7 +236,7 @@ function CompanyProfilePage() {
               customer service, we deliver innovative packaging countrywide while helping brands
               create memorable moments through great presentation.
             </p>
-            <p className="mt-4 text-[15px] leading-relaxed text-white/70">
+            <p className="mt-5 text-lg leading-relaxed text-white/75">
               Packaging is more than a container — it is a powerful marketing tool that creates
               lasting first impressions, enhances brand visibility and influences purchasing
               decisions.
@@ -235,6 +244,7 @@ function CompanyProfilePage() {
           </div>
         </div>
       </section>
+
 
 
       {/* VISION / MISSION / COMMITMENT */}
@@ -412,70 +422,175 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* INDUSTRIES */}
-      <section className="relative" style={{ background: FOREST }}>
+      {/* SUSTAINABILITY — ESG policy + posters (replaces Industries section) */}
+      <section id="sustainability" className="relative" style={{ background: FOREST }}>
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
           <div className="text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
-              Industries We Serve
+            <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+              ESG &amp; Sustainability
             </p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl">
-              Packaging tuned to your sector.
+            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl lg:text-6xl">
+              Packaging with purpose.
             </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-base italic text-white/80 sm:text-lg">
+              Thoughtful Packaging. Responsible Future.
+            </p>
+            <div className="mx-auto mt-5 flex w-fit items-center gap-3">
+              <span className="block h-px w-12" style={{ background: GOLD }} />
+              <Recycle className="h-4 w-4" style={{ color: GOLD }} />
+              <span className="block h-px w-12" style={{ background: GOLD }} />
+            </div>
           </div>
-          <div className="mx-auto mt-10 flex max-w-3xl flex-wrap justify-center gap-3">
-            {INDUSTRIES.map((i) => (
-              <span
-                key={i}
-                className="rounded-full border px-5 py-2.5 text-sm font-medium text-white"
-                style={{ borderColor: `${GOLD}80`, background: `${FOREST_DEEP}` }}
+
+          <div className="mx-auto mt-10 max-w-4xl space-y-5 text-[16px] leading-relaxed text-white/85">
+            <p>
+              At Moments Packaging Ltd, sustainability is more than a business objective — it is a
+              core value that shapes the way we design, source and deliver packaging solutions. The{" "}
+              <span className="font-semibold" style={{ color: GOLD_SOFT }}>sprouting leaf</span> in
+              our logo represents growth, renewal and a greener future, while the{" "}
+              <span className="font-semibold" style={{ color: GOLD_SOFT }}>recycling symbol ♻️</span>{" "}
+              embodies our belief in the circular economy.
+            </p>
+            <p>
+              We actively promote environmentally responsible alternatives by expanding our range of
+              Kraft packaging solutions that are eco-friendly, biodegradable, compostable and
+              recyclable — helping our customers reduce their environmental footprint without
+              compromising on quality.
+            </p>
+          </div>
+
+          {/* 3 ESG pillars */}
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {[
+              {
+                Icon: Leaf,
+                title: "Environmental Stewardship",
+                body:
+                  "Reducing waste, promoting recyclable and responsibly sourced materials, and supporting initiatives that conserve natural resources.",
+              },
+              {
+                Icon: Users,
+                title: "Social Responsibility",
+                body:
+                  "A safe, inclusive workplace. Long-term partnerships built on trust. Reliable products and exceptional service for local businesses.",
+              },
+              {
+                Icon: ShieldCheck,
+                title: "Ethical Governance",
+                body:
+                  "Transparency, accountability and integrity in every decision — complying with all applicable laws and continuously improving our ESG performance.",
+              },
+            ].map((p) => (
+              <div
+                key={p.title}
+                className="rounded-2xl border p-6"
+                style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
               >
-                {i}
-              </span>
+                <span
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border"
+                  style={{ borderColor: `${GOLD}80`, color: GOLD }}
+                >
+                  <p.Icon className="h-5 w-5" strokeWidth={1.6} />
+                </span>
+                <h3 className="mt-4 font-display text-lg font-semibold text-white">{p.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">{p.body}</p>
+              </div>
             ))}
+          </div>
+
+          {/* Poster gallery */}
+          <div className="mt-14">
+            <p className="text-center text-[12px] font-semibold uppercase tracking-[0.3em]" style={{ color: GOLD }}>
+              Our ESG &amp; Sustainability Policy
+            </p>
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {[esgPoster1, esgPoster2, esgPoster3].map((poster, i) => (
+                <a
+                  key={i}
+                  href={poster.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block overflow-hidden rounded-2xl border bg-white/5 transition-transform hover:-translate-y-1"
+                  style={{ borderColor: `${GOLD}55` }}
+                  aria-label={`Open ESG poster ${i + 1} in a new tab`}
+                >
+                  <img
+                    src={poster.url}
+                    alt={`Moments Packaging — ESG &amp; Sustainability Policy poster ${i + 1}`}
+                    className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    loading="lazy"
+                  />
+                </a>
+              ))}
+            </div>
+            <p className="mt-4 text-center text-xs text-white/60">
+              Tap any poster to view full size — Together, we can package responsibly today and preserve tomorrow.
+            </p>
           </div>
         </div>
       </section>
+
+
 
       {/* CONTACT — mirrors PDF page 21 */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-2 lg:items-center lg:gap-14 lg:px-8">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+            <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
               Get in touch
             </p>
-            <h2 className="mt-3 font-display text-5xl font-medium text-white sm:text-6xl">
+            <h2 className="mt-3 font-display text-5xl font-medium text-white sm:text-6xl lg:text-7xl">
               Contact Us
             </h2>
             <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
 
-            <div className="mt-10 space-y-5">
+            <div className="mt-10 space-y-6">
               <ContactRow Icon={MapPin} label="Address">
-                <p className="font-semibold" style={{ color: GOLD_SOFT }}>Moments Packaging</p>
-                <p>P.O. Box 16538 — 00100, Nairobi · Industrial Area</p>
+                <p className="font-semibold text-lg" style={{ color: GOLD_SOFT }}>Moments Packaging (K) Ltd</p>
+                <p className="text-lg">{COMPANY_ADDRESS}</p>
               </ContactRow>
               <ContactRow Icon={Phone} label="Phone">
-                <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:underline">{COMPANY_PHONE}</a>
+                <p className="text-lg sm:text-xl font-semibold tracking-wide">
+                  <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:underline">{COMPANY_PHONE}</a>
+                  <span className="text-white/40"> / </span>
+                  <a href="tel:+254119556699" className="hover:underline">{COMPANY_PHONE_ALT}</a>
+                </p>
               </ContactRow>
               <ContactRow Icon={MessageCircle} label="WhatsApp">
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:underline"
+                  className="text-lg hover:underline"
                 >
-                  Chat on WhatsApp
+                  Chat on WhatsApp ({COMPANY_PHONE})
                 </a>
               </ContactRow>
               <ContactRow Icon={Mail} label="Email">
-                <a href={`mailto:${COMPANY_EMAIL}`} className="break-all hover:underline">
+                <a href={`mailto:${COMPANY_EMAIL}`} className="text-lg break-all hover:underline">
                   {COMPANY_EMAIL}
                 </a>
               </ContactRow>
+              <ContactRow Icon={Instagram} label="Instagram">
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-lg hover:underline">
+                  {INSTAGRAM_HANDLE}
+                </a>
+              </ContactRow>
+              <ContactRow Icon={Facebook} label="Facebook">
+                <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" className="text-lg hover:underline">
+                  {FACEBOOK_HANDLE}
+                </a>
+              </ContactRow>
+              <ContactRow Icon={Globe} label="TikTok">
+                <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-lg hover:underline">
+                  {TIKTOK_HANDLE}
+                </a>
+              </ContactRow>
               <ContactRow Icon={Globe} label="Online">
-                www.momentspackaging.com · @momentspackaging
+                <span className="text-lg">www.momentspackaging.com</span>
               </ContactRow>
             </div>
+
 
             <div className="mt-10 flex flex-wrap gap-3">
               <Link
@@ -556,10 +671,10 @@ function ContactRow({
         <Icon className="h-4.5 w-4.5" strokeWidth={1.75} />
       </span>
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em]" style={{ color: GOLD }}>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.28em]" style={{ color: GOLD }}>
           {label}
         </p>
-        <div className="mt-1 text-[15px] leading-relaxed text-white/85">{children}</div>
+        <div className="mt-1.5 text-base leading-relaxed text-white/90">{children}</div>
       </div>
     </div>
   );
