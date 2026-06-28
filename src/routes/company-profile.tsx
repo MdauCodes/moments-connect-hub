@@ -32,6 +32,7 @@ import dessertImg from "@/assets/company-profile/dessert-cups.jpg.asset.json";
 import bagsImg from "@/assets/company-profile/bags-sacks.jpg.asset.json";
 import contactImg from "@/assets/company-profile/contact-products.jpg.asset.json";
 import esgPoster1 from "@/assets/company-profile/esg-poster-1.jpg.asset.json";
+import introImg from "@/assets/company-profile/intro.jpg.asset.json";
 import {
   COMPANY_EMAIL,
   COMPANY_PHONE,
@@ -92,12 +93,16 @@ const INDUSTRIES = [
   { Icon: CookingPot, title: "Kitchen Supplies" },
 ];
 
+// NOTE: asset file names don't match their visual contents —
+//   vision-cups.jpg  → actually the Kraft Packaging Solutions poster grid
+//   kraft-solutions.jpg → actually the "Why Choose Us?" / dessert cups graphic
+// Images are assigned below to match what each file actually shows.
 const CORE = [
   {
     title: "Kraft Packaging Solutions",
     blurb:
       "Sustainable, durable, eco-friendly kraft food packaging — boats, sandwich boxes, carry bags, lunch boxes, window pouches, food containers, paper cups and trays.",
-    image: kraftImg.url,
+    image: visionImg.url, // vision-cups.jpg = Kraft poster grid
     href: "/products" as const,
     search: { category: "boxes" } as Record<string, string>,
   },
@@ -105,7 +110,7 @@ const CORE = [
     title: "Cups, Tumblers & Beverage Range",
     blurb:
       "Single-wall, double-wall and ripple paper cups, PET cold cups, dome and flat lids, branded tumblers and bubble-tea cups.",
-    image: visionImg.url,
+    image: kraftImg.url, // kraft-solutions.jpg = cups/dessert graphic
     href: "/products" as const,
     search: { category: "cups" } as Record<string, string>,
   },
@@ -135,7 +140,29 @@ const CORE = [
   },
 ];
 
-// Updated address & phone to match confirmed details
+const WHY_CHOOSE = [
+  {
+    title: "Innovative Solutions",
+    body: "Creative packaging concepts that help brands stand out in competitive markets.",
+  },
+  {
+    title: "Customization Excellence",
+    body: "Solutions tailored to the unique needs of each client, ensuring their brand message is communicated effectively.",
+  },
+  {
+    title: "Competitive Pricing",
+    body: "Exceptional value through cost-effective solutions without compromising on quality.",
+  },
+  {
+    title: "Reliable Delivery",
+    body: "Committed to delivering goods on time within agreed timelines — order conveniently and track deliveries online.",
+  },
+  {
+    title: "Customer-Centric Approach",
+    body: "Clients are at the heart of everything we do. We work closely with you to co-design solutions that achieve outstanding results.",
+  },
+];
+
 const DISPLAY_PHONE = "0119-55-66-88";
 const DISPLAY_PHONE_ALT = "0119-55-66-99";
 const DISPLAY_ADDRESS = "Weithaga Building, along Ukwala Road, OTC, Nairobi CBD";
@@ -143,7 +170,7 @@ const DISPLAY_ADDRESS = "Weithaga Building, along Ukwala Road, OTC, Nairobi CBD"
 function CompanyProfilePage() {
   return (
     <SiteLayout>
-      {/* ─── HERO — balanced two-column layout ─── */}
+      {/* ─── HERO ─── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
@@ -151,7 +178,6 @@ function CompanyProfilePage() {
           background: `radial-gradient(ellipse at 100% 0%, ${FOREST} 0%, ${FOREST_DEEP} 60%, #061a13 100%)`,
         }}
       >
-        {/* Mobile / small-screen: cover image as background */}
         <div
           className="absolute inset-0 lg:hidden"
           style={{
@@ -163,8 +189,6 @@ function CompanyProfilePage() {
           }}
           aria-hidden
         />
-
-        {/* Decorative blobs */}
         <div
           aria-hidden
           className="pointer-events-none absolute -right-10 -top-10 h-72 w-72 rounded-full opacity-30 blur-3xl"
@@ -177,7 +201,6 @@ function CompanyProfilePage() {
         />
 
         <div className="relative mx-auto grid w-full max-w-7xl items-center gap-8 px-5 py-14 sm:py-16 lg:grid-cols-2 lg:gap-14 lg:px-8 lg:py-20">
-          {/* LEFT — text */}
           <div>
             <h1 className="font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
               Company
@@ -235,7 +258,6 @@ function CompanyProfilePage() {
             </div>
           </div>
 
-          {/* RIGHT — image, visible on lg+ only (mobile handled via bg above) */}
           <div className="relative mx-auto hidden w-full max-w-lg lg:block">
             <div
               aria-hidden
@@ -286,7 +308,7 @@ function CompanyProfilePage() {
       <section className="relative" style={{ background: FOREST }}>
         <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
           <div className="grid gap-6 lg:grid-cols-2 lg:items-center lg:gap-12">
-            <img src={visionImg.url} alt="Vision — Moments cups range" className="w-full rounded-2xl shadow-2xl" />
+            <img src={coverImg.url} alt="Vision — Moments packaging range" className="w-full rounded-2xl shadow-2xl" />
             <div className="grid gap-5">
               {[
                 {
@@ -305,7 +327,7 @@ function CompanyProfilePage() {
                 <div
                   key={c.tag}
                   className="rounded-2xl border p-5"
-                  style={{ borderColor: `${GOLD}33`, background: `${FOREST_DEEP}` }}
+                  style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
                 >
                   <div className="flex items-center gap-3">
                     <span className="inline-block h-2 w-2 rotate-45" style={{ background: GOLD }} />
@@ -392,9 +414,50 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* ─── CORE PRODUCTS — "The Moments Range" ─── */}
-      {/* Kraft item now uses kraftImg (the actual product photo), same pattern as all other items */}
+      {/* ─── WHY CHOOSE US ─── */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
+        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
+            {/* Left — text */}
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+                Why Choose Us
+              </p>
+              <h2 className="mt-3 font-display text-3xl font-medium text-white sm:text-4xl lg:text-5xl">
+                Innovation. Quality. Partnership.
+              </h2>
+              <div className="mt-4 h-px w-12" style={{ background: GOLD }} />
+              <div className="mt-7 space-y-5">
+                {WHY_CHOOSE.map((pt) => (
+                  <div key={pt.title} className="flex gap-3">
+                    <span className="mt-1 h-2.5 w-2.5 shrink-0 rotate-45" style={{ background: GOLD }} />
+                    <div>
+                      <p className="text-sm font-semibold text-white">{pt.title}</p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-white/65">{pt.body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right — graphic */}
+            <div className="relative">
+              <div
+                className="absolute -inset-3 rounded-2xl opacity-25 blur-xl"
+                style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 60%)` }}
+              />
+              <img
+                src={introImg.url}
+                alt="Why choose Moments Packaging"
+                className="relative w-full rounded-2xl shadow-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CORE PRODUCTS — "The Moments Range" ─── */}
+      <section className="relative" style={{ background: FOREST }}>
         <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
           <div className="text-center">
             <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
@@ -410,7 +473,7 @@ function CompanyProfilePage() {
             </div>
           </div>
 
-          <div className="mt-12 space-y-12">
+          <div className="mt-12 space-y-16">
             {CORE.map((c, i) => (
               <div
                 key={c.title}
@@ -418,6 +481,7 @@ function CompanyProfilePage() {
                   i % 2 === 1 ? "lg:[&>*:first-child]:order-2" : ""
                 }`}
               >
+                {/* Image */}
                 <div className="relative">
                   <div
                     className="absolute -inset-2 rounded-2xl opacity-25 blur-xl"
@@ -425,6 +489,8 @@ function CompanyProfilePage() {
                   />
                   <img src={c.image} alt={c.title} className="relative w-full rounded-2xl shadow-2xl" />
                 </div>
+
+                {/* Text */}
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.28em]" style={{ color: GOLD }}>
                     0{i + 1} · Range
@@ -448,7 +514,7 @@ function CompanyProfilePage() {
       </section>
 
       {/* ─── SUSTAINABILITY — ESG policy + single poster ─── */}
-      <section id="sustainability" className="relative" style={{ background: FOREST }}>
+      <section id="sustainability" className="relative" style={{ background: FOREST_DEEP }}>
         <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
           <div className="text-center">
             <p className="text-[12px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
@@ -519,7 +585,7 @@ function CompanyProfilePage() {
               <div
                 key={p.title}
                 className="rounded-2xl border p-5"
-                style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
+                style={{ borderColor: `${GOLD}33`, background: FOREST }}
               >
                 <span
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full border"
@@ -535,7 +601,7 @@ function CompanyProfilePage() {
 
           <div
             className="mx-auto mt-10 max-w-4xl rounded-2xl border p-6 text-center"
-            style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
+            style={{ borderColor: `${GOLD}33`, background: FOREST }}
           >
             <p className="text-sm leading-relaxed text-white/80">
               Every package we produce carries an opportunity to make a positive impact. When you see the sprouting leaf
@@ -574,7 +640,7 @@ function CompanyProfilePage() {
       </section>
 
       {/* ─── CONTACT ─── */}
-      <section className="relative" style={{ background: FOREST_DEEP }}>
+      <section className="relative" style={{ background: FOREST }}>
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 lg:grid-cols-2 lg:items-center lg:gap-14 lg:px-8 lg:py-20">
           <div>
             <p className="text-[12px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
@@ -670,7 +736,7 @@ function CompanyProfilePage() {
       </section>
 
       {/* ─── Closing strip ─── */}
-      <section className="relative" style={{ background: FOREST }}>
+      <section className="relative" style={{ background: FOREST_DEEP }}>
         <div className="mx-auto max-w-5xl px-5 py-12 text-center lg:px-8">
           <p className="font-display text-xl font-light italic" style={{ color: GOLD_SOFT }}>
             Quality packaging <span className="text-white">for every moment.</span>
