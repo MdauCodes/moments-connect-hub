@@ -83,7 +83,7 @@ export function SiteFooter() {
             <li>
               <a href={`tel:+${WHATSAPP_NUMBER}`} className="flex items-center gap-2 hover:text-accent">
                 <Phone className="h-4 w-4 shrink-0" aria-hidden />
-                <span>{COMPANY_PHONE}</span>
+                <span>{COMPANY_PHONE} / {COMPANY_PHONE_ALT}</span>
               </a>
             </li>
             <li>
@@ -98,9 +98,9 @@ export function SiteFooter() {
                 <span className="break-all">{COMPANY_EMAIL}</span>
               </a>
             </li>
-            <li className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 shrink-0" aria-hidden />
-              <span>Industrial Area, Nairobi</span>
+            <li className="flex items-start gap-2">
+              <MapPin className="h-4 w-4 shrink-0 mt-0.5" aria-hidden />
+              <span>{COMPANY_ADDRESS}</span>
             </li>
           </ul>
           <div className="mt-5 flex items-center gap-2">
@@ -108,7 +108,7 @@ export function SiteFooter() {
               href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Instagram @momentspackaging"
+              aria-label="Instagram @moments_packaging"
               className="grid h-9 w-9 place-items-center rounded-full border border-primary-foreground/20 transition hover:border-accent hover:text-accent"
             >
               <Instagram className="h-4 w-4" aria-hidden />
@@ -117,10 +117,19 @@ export function SiteFooter() {
               href={TIKTOK_URL}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="TikTok @momentspackaging"
+              aria-label="TikTok moments Packaging"
               className="grid h-9 w-9 place-items-center rounded-full border border-primary-foreground/20 transition hover:border-accent hover:text-accent"
             >
               <TikTokIcon className="h-4 w-4" />
+            </a>
+            <a
+              href={FACEBOOK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook moments Packaging"
+              className="grid h-9 w-9 place-items-center rounded-full border border-primary-foreground/20 transition hover:border-accent hover:text-accent"
+            >
+              <Facebook className="h-4 w-4" aria-hidden />
             </a>
           </div>
           <div className="mt-6">
