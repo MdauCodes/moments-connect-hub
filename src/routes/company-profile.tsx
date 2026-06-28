@@ -350,35 +350,57 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* WHY CHOOSE US — mirrors page 5 of PDF */}
+      {/* WHO WE SERVE — no matter the field, Moments is there */}
       <section className="relative" style={{ background: FOREST }}>
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-[1fr,1.2fr] lg:items-center lg:px-8">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
-              Why Choose Us
-            </p>
-            <h2 className="mt-3 font-display text-4xl font-medium uppercase leading-tight text-white sm:text-5xl">
-              Why choose<br />us?
-            </h2>
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-[1fr,1.05fr] lg:items-center lg:px-8">
+          <div className="relative">
+            <div
+              aria-hidden
+              className="absolute -inset-3 rounded-3xl opacity-30 blur-2xl"
+              style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 60%)` }}
+            />
             <img
-              src={dessertImg.url}
-              alt="Dessert cups range"
-              className="mt-8 hidden w-full rounded-2xl shadow-2xl lg:block"
+              src={kraftImg.url}
+              alt="Why choose Moments Packaging"
+              className="relative w-full rounded-2xl shadow-2xl"
             />
           </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            {WHY.map((w) => (
-              <div key={w.title} className="flex gap-3">
-                <span
-                  className="mt-1 inline-block h-3 w-3 shrink-0 rotate-45"
-                  style={{ background: GOLD }}
-                />
-                <div className="border-b pb-4" style={{ borderColor: `${GOLD}33` }}>
-                  <h3 className="font-display text-base font-semibold text-white">{w.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/70">{w.body}</p>
-                </div>
-              </div>
-            ))}
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+              Industries we serve
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium leading-tight text-white sm:text-5xl">
+              No matter the field,<br />
+              <span style={{ color: GOLD_SOFT }}>Moments Packaging</span> is there to serve.
+            </h2>
+            <div className="mt-5 h-px w-16" style={{ background: GOLD }} />
+            <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/75">
+              From everyday essentials to specialised supplies, we partner with businesses across
+              Kenya in a wide range of sectors — bringing the same care, quality and reliability to
+              every order.
+            </p>
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+              {[
+                "Food & Beverage",
+                "Wholesale & E-commerce",
+                "Agriculture",
+                "Cosmetics",
+                "Stationery & General Supplies",
+                "Kitchen Supplies",
+              ].map((field) => (
+                <li
+                  key={field}
+                  className="flex items-center gap-3 rounded-xl border px-4 py-3"
+                  style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
+                >
+                  <span
+                    className="inline-block h-2.5 w-2.5 shrink-0 rotate-45"
+                    style={{ background: GOLD }}
+                  />
+                  <span className="text-sm font-medium text-white/90">{field}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
