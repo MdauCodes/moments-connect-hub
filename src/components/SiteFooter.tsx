@@ -1,6 +1,16 @@
 import { Link } from "@tanstack/react-router";
-import { Phone, Mail, MapPin, Instagram, MessageCircle } from "lucide-react";
-import { COMPANY_EMAIL, COMPANY_PHONE, WHATSAPP_NUMBER, INSTAGRAM_URL, TIKTOK_URL, categories } from "@/data/products";
+import { Phone, Mail, MapPin, Instagram, MessageCircle, Facebook } from "lucide-react";
+import {
+  COMPANY_EMAIL,
+  COMPANY_PHONE,
+  COMPANY_PHONE_ALT,
+  COMPANY_ADDRESS,
+  WHATSAPP_NUMBER,
+  INSTAGRAM_URL,
+  TIKTOK_URL,
+  FACEBOOK_URL,
+  categories,
+} from "@/data/products";
 
 // TikTok icon (not in lucide-react)
 function TikTokIcon({ className }: { className?: string }) {
