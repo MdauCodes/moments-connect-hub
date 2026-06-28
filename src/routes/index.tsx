@@ -426,12 +426,13 @@ function Hero() {
                 Enterprise quote
               </Link>
             </div>
-            <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link
                 to="/company-profile"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/5 px-3.5 py-1.5 text-[12px] font-medium text-white/85 backdrop-blur transition-colors hover:border-accent/60 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white/10"
+                style={{ borderColor: "#e8c878", color: "#e8c878" }}
               >
-                View our company profile <ArrowRight className="h-3.5 w-3.5" />
+                View our company profile <ArrowRight className="h-4 w-4" />
               </Link>
               <div
                 className="inline-flex items-center"

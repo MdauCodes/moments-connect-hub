@@ -26,8 +26,6 @@ import dessertImg from "@/assets/company-profile/dessert-cups.jpg.asset.json";
 import bagsImg from "@/assets/company-profile/bags-sacks.jpg.asset.json";
 import contactImg from "@/assets/company-profile/contact-products.jpg.asset.json";
 import esgPoster1 from "@/assets/company-profile/esg-poster-1.jpg.asset.json";
-import esgPoster2 from "@/assets/company-profile/esg-poster-2.png.asset.json";
-import esgPoster3 from "@/assets/company-profile/esg-poster-3.png.asset.json";
 import {
   COMPANY_EMAIL,
   COMPANY_PHONE,
@@ -81,13 +79,6 @@ const VALUES = [
   { Icon: Users, title: "Customer Success", body: "We measure success by the growth of our clients." },
 ];
 
-const WHY = [
-  { title: "Innovative Solutions", body: "Creative packaging concepts that help brands stand out in competitive markets." },
-  { title: "Competitive Pricing", body: "Exceptional value through cost-effective solutions without compromising quality." },
-  { title: "Customisation Excellence", body: "Solutions tailored to each client so your brand message comes through clearly." },
-  { title: "Customer-Centric Approach", body: "Co-designed with our clients to achieve outstanding results." },
-  { title: "Reliable Delivery", body: "On-time fulfilment countrywide — order online and track every delivery." },
-];
 
 const CORE = [
   {
@@ -153,59 +144,80 @@ function CompanyProfilePage() {
         />
 
         <div className="relative mx-auto w-full max-w-7xl px-5 py-10 sm:py-14 lg:px-8">
-          <div>
-            <h1 className="font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
-              Company<br />
-              <span style={{ color: "#ffffff" }}>Profile</span>
-            </h1>
-            <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
-            <p
-              className="mt-6 max-w-md font-display text-xl font-light italic leading-snug"
-              style={{ color: GOLD_SOFT }}
-            >
-              Quality packaging <span className="text-white/90">for every moment.</span>
-            </p>
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-white/75">
-              We help Kenyan brands present, protect and promote their products through innovative,
-              high-quality and cost-effective packaging — delivered countrywide.
-            </p>
+          <div className="grid items-center gap-10 lg:grid-cols-[1.05fr,1fr] lg:gap-14">
+            <div>
+              <h1 className="font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
+                Company<br />
+                <span style={{ color: "#ffffff" }}>Profile</span>
+              </h1>
+              <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
+              <p
+                className="mt-6 max-w-md font-display text-xl font-light italic leading-snug"
+                style={{ color: GOLD_SOFT }}
+              >
+                Quality packaging <span className="text-white/90">for every moment.</span>
+              </p>
+              <p className="mt-6 max-w-lg text-base leading-relaxed text-white/75">
+                We help Kenyan brands present, protect and promote their products through innovative,
+                high-quality and cost-effective packaging — delivered countrywide.
+              </p>
 
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link
-                to="/products"
-                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition-transform hover:-translate-y-0.5"
-                style={{ background: GOLD, color: FOREST_DEEP }}
-              >
-                Browse our products <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href={pdfAsset.url}
-                download="Moments-Packaging-Company-Profile.pdf"
-                className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-medium text-white backdrop-blur transition-colors hover:bg-white/10"
-                style={{ borderColor: `${GOLD}66` }}
-              >
-                <Download className="h-4 w-4" /> Download PDF
-              </a>
+              <div className="mt-9 flex flex-wrap gap-3">
+                <Link
+                  to="/products"
+                  className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition-transform hover:-translate-y-0.5"
+                  style={{ background: GOLD, color: FOREST_DEEP }}
+                >
+                  Browse our products <ArrowRight className="h-4 w-4" />
+                </Link>
+                <a
+                  href={pdfAsset.url}
+                  download="Moments-Packaging-Company-Profile.pdf"
+                  className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-medium text-white backdrop-blur transition-colors hover:bg-white/10"
+                  style={{ borderColor: `${GOLD}66` }}
+                >
+                  <Download className="h-4 w-4" /> Download PDF
+                </a>
+              </div>
+
+              <div className="mt-12 grid grid-cols-3 gap-6 border-t pt-8" style={{ borderColor: `${GOLD}33` }}>
+                {[
+                  { Icon: Leaf, label: "Quality\nPackaging" },
+                  { Icon: ShieldCheck, label: "Sustainable\nSolutions" },
+                  { Icon: Users, label: "For Every\nMoment" },
+                ].map((b) => (
+                  <div key={b.label} className="flex items-start gap-2.5">
+                    <span
+                      className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border"
+                      style={{ borderColor: `${GOLD}80`, color: GOLD }}
+                    >
+                      <b.Icon className="h-4 w-4" strokeWidth={1.75} />
+                    </span>
+                    <span className="whitespace-pre-line text-[10px] font-semibold uppercase tracking-[0.18em] text-white/85">
+                      {b.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="mt-12 grid grid-cols-3 gap-6 border-t pt-8" style={{ borderColor: `${GOLD}33` }}>
-              {[
-                { Icon: Leaf, label: "Quality\nPackaging" },
-                { Icon: ShieldCheck, label: "Sustainable\nSolutions" },
-                { Icon: Users, label: "For Every\nMoment" },
-              ].map((b) => (
-                <div key={b.label} className="flex items-start gap-2.5">
-                  <span
-                    className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border"
-                    style={{ borderColor: `${GOLD}80`, color: GOLD }}
-                  >
-                    <b.Icon className="h-4 w-4" strokeWidth={1.75} />
-                  </span>
-                  <span className="whitespace-pre-line text-[10px] font-semibold uppercase tracking-[0.18em] text-white/85">
-                    {b.label}
-                  </span>
-                </div>
-              ))}
+            {/* Hero image — balances composition on the right */}
+            <div className="relative hidden lg:block">
+              <div
+                aria-hidden
+                className="absolute -inset-6 rounded-[2rem] opacity-40 blur-2xl"
+                style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 65%)` }}
+              />
+              <div
+                className="relative overflow-hidden rounded-[1.75rem] border p-2"
+                style={{ borderColor: `${GOLD}55`, background: FOREST_DEEP }}
+              >
+                <img
+                  src={coverImg.url}
+                  alt="Moments Packaging product range"
+                  className="block w-full rounded-[1.4rem] object-cover"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -329,35 +341,57 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* WHY CHOOSE US — mirrors page 5 of PDF */}
+      {/* WHO WE SERVE — no matter the field, Moments is there */}
       <section className="relative" style={{ background: FOREST }}>
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-[1fr,1.2fr] lg:items-center lg:px-8">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
-              Why Choose Us
-            </p>
-            <h2 className="mt-3 font-display text-4xl font-medium uppercase leading-tight text-white sm:text-5xl">
-              Why choose<br />us?
-            </h2>
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-[1fr,1.05fr] lg:items-center lg:px-8">
+          <div className="relative">
+            <div
+              aria-hidden
+              className="absolute -inset-3 rounded-3xl opacity-30 blur-2xl"
+              style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 60%)` }}
+            />
             <img
-              src={dessertImg.url}
-              alt="Dessert cups range"
-              className="mt-8 hidden w-full rounded-2xl shadow-2xl lg:block"
+              src={kraftImg.url}
+              alt="Why choose Moments Packaging"
+              className="relative w-full rounded-2xl shadow-2xl"
             />
           </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            {WHY.map((w) => (
-              <div key={w.title} className="flex gap-3">
-                <span
-                  className="mt-1 inline-block h-3 w-3 shrink-0 rotate-45"
-                  style={{ background: GOLD }}
-                />
-                <div className="border-b pb-4" style={{ borderColor: `${GOLD}33` }}>
-                  <h3 className="font-display text-base font-semibold text-white">{w.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/70">{w.body}</p>
-                </div>
-              </div>
-            ))}
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+              Industries we serve
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-medium leading-tight text-white sm:text-5xl">
+              No matter the field,<br />
+              <span style={{ color: GOLD_SOFT }}>Moments Packaging</span> is there to serve.
+            </h2>
+            <div className="mt-5 h-px w-16" style={{ background: GOLD }} />
+            <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/75">
+              From everyday essentials to specialised supplies, we partner with businesses across
+              Kenya in a wide range of sectors — bringing the same care, quality and reliability to
+              every order.
+            </p>
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+              {[
+                "Food & Beverage",
+                "Wholesale & E-commerce",
+                "Agriculture",
+                "Cosmetics",
+                "Stationery & General Supplies",
+                "Kitchen Supplies",
+              ].map((field) => (
+                <li
+                  key={field}
+                  className="flex items-center gap-3 rounded-xl border px-4 py-3"
+                  style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
+                >
+                  <span
+                    className="inline-block h-2.5 w-2.5 shrink-0 rotate-45"
+                    style={{ background: GOLD }}
+                  />
+                  <span className="text-sm font-medium text-white/90">{field}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
@@ -498,33 +532,30 @@ function CompanyProfilePage() {
             ))}
           </div>
 
-          {/* Poster gallery */}
+          {/* Poster — single highlight */}
           <div className="mt-14">
             <p className="text-center text-[12px] font-semibold uppercase tracking-[0.3em]" style={{ color: GOLD }}>
               Our ESG &amp; Sustainability Policy
             </p>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {[esgPoster1, esgPoster2, esgPoster3].map((poster, i) => (
-                <a
-                  key={i}
-                  href={poster.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block overflow-hidden rounded-2xl border bg-white/5 transition-transform hover:-translate-y-1"
-                  style={{ borderColor: `${GOLD}55` }}
-                  aria-label={`Open ESG poster ${i + 1} in a new tab`}
-                >
-                  <img
-                    src={poster.url}
-                    alt={`Moments Packaging — ESG &amp; Sustainability Policy poster ${i + 1}`}
-                    className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                    loading="lazy"
-                  />
-                </a>
-              ))}
+            <div className="mx-auto mt-6 max-w-2xl">
+              <a
+                href={esgPoster1.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block overflow-hidden rounded-2xl border bg-white/5 transition-transform hover:-translate-y-1"
+                style={{ borderColor: `${GOLD}55` }}
+                aria-label="Open ESG &amp; Sustainability poster in a new tab"
+              >
+                <img
+                  src={esgPoster1.url}
+                  alt="Moments Packaging — ESG &amp; Sustainability Policy"
+                  className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                  loading="lazy"
+                />
+              </a>
             </div>
             <p className="mt-4 text-center text-xs text-white/60">
-              Tap any poster to view full size — Together, we can package responsibly today and preserve tomorrow.
+              Tap to view full size — Together, we can package responsibly today and preserve tomorrow.
             </p>
           </div>
         </div>
