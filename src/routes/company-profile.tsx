@@ -671,10 +671,10 @@ function ContactRow({
         <Icon className="h-4.5 w-4.5" strokeWidth={1.75} />
       </span>
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em]" style={{ color: GOLD }}>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.28em]" style={{ color: GOLD }}>
           {label}
         </p>
-        <div className="mt-1 text-[15px] leading-relaxed text-white/85">{children}</div>
+        <div className="mt-1.5 text-base leading-relaxed text-white/90">{children}</div>
       </div>
     </div>
   );
