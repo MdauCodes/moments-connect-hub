@@ -135,10 +135,15 @@ const CORE = [
   },
 ];
 
+// Updated address & phone to match confirmed details
+const DISPLAY_PHONE = "0119-55-66-88";
+const DISPLAY_PHONE_ALT = "0119-55-66-99";
+const DISPLAY_ADDRESS = "Weithaga Building, along Ukwala Road, OTC, Nairobi CBD";
+
 function CompanyProfilePage() {
   return (
     <SiteLayout>
-      {/* HERO — balanced two-column layout, image breathing on the right */}
+      {/* ─── HERO — balanced two-column layout ─── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
@@ -146,6 +151,20 @@ function CompanyProfilePage() {
           background: `radial-gradient(ellipse at 100% 0%, ${FOREST} 0%, ${FOREST_DEEP} 60%, #061a13 100%)`,
         }}
       >
+        {/* Mobile / small-screen: cover image as background */}
+        <div
+          className="absolute inset-0 lg:hidden"
+          style={{
+            backgroundImage: `url(${coverImg.url})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center right",
+            backgroundRepeat: "no-repeat",
+            opacity: 0.22,
+          }}
+          aria-hidden
+        />
+
+        {/* Decorative blobs */}
         <div
           aria-hidden
           className="pointer-events-none absolute -right-10 -top-10 h-72 w-72 rounded-full opacity-30 blur-3xl"
@@ -157,26 +176,27 @@ function CompanyProfilePage() {
           style={{ background: `radial-gradient(circle, ${GOLD_SOFT} 0%, transparent 70%)` }}
         />
 
-        <div className="relative mx-auto grid w-full max-w-7xl items-center gap-10 px-5 py-10 sm:py-14 lg:grid-cols-[1.1fr,0.9fr] lg:gap-14 lg:px-8">
+        <div className="relative mx-auto grid w-full max-w-7xl items-center gap-8 px-5 py-14 sm:py-16 lg:grid-cols-2 lg:gap-14 lg:px-8 lg:py-20">
+          {/* LEFT — text */}
           <div>
             <h1 className="font-display text-5xl font-medium leading-[1.02] text-white sm:text-6xl lg:text-7xl">
               Company
               <br />
               <span style={{ color: "#ffffff" }}>Profile</span>
             </h1>
-            <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
+            <div className="mt-5 h-px w-16" style={{ background: GOLD }} />
             <p
-              className="mt-6 max-w-md font-display text-xl font-light italic leading-snug"
+              className="mt-5 max-w-md font-display text-lg font-light italic leading-snug sm:text-xl"
               style={{ color: GOLD_SOFT }}
             >
               Quality packaging <span className="text-white/90">for every moment.</span>
             </p>
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-white/75">
+            <p className="mt-5 max-w-lg text-base leading-relaxed text-white/75">
               We help Kenyan brands present, protect and promote their products through innovative, high-quality and
               cost-effective packaging — delivered countrywide.
             </p>
 
-            <div className="mt-9 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to="/products"
                 className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition-transform hover:-translate-y-0.5"
@@ -194,20 +214,20 @@ function CompanyProfilePage() {
               </a>
             </div>
 
-            <div className="mt-12 grid grid-cols-3 gap-6 border-t pt-8" style={{ borderColor: `${GOLD}33` }}>
+            <div className="mt-10 grid grid-cols-3 gap-5 border-t pt-7" style={{ borderColor: `${GOLD}33` }}>
               {[
                 { Icon: Leaf, label: "Quality\nPackaging" },
                 { Icon: ShieldCheck, label: "Sustainable\nSolutions" },
                 { Icon: Users, label: "For Every\nMoment" },
               ].map((b) => (
-                <div key={b.label} className="flex items-start gap-2.5">
+                <div key={b.label} className="flex items-start gap-2">
                   <span
-                    className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border"
+                    className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border"
                     style={{ borderColor: `${GOLD}80`, color: GOLD }}
                   >
-                    <b.Icon className="h-4 w-4" strokeWidth={1.75} />
+                    <b.Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
                   </span>
-                  <span className="whitespace-pre-line text-[10px] font-semibold uppercase tracking-[0.18em] text-white/85">
+                  <span className="whitespace-pre-line text-[10px] font-semibold uppercase tracking-[0.15em] text-white/80">
                     {b.label}
                   </span>
                 </div>
@@ -215,7 +235,8 @@ function CompanyProfilePage() {
             </div>
           </div>
 
-          <div className="relative mx-auto hidden w-full max-w-md lg:block">
+          {/* RIGHT — image, visible on lg+ only (mobile handled via bg above) */}
+          <div className="relative mx-auto hidden w-full max-w-lg lg:block">
             <div
               aria-hidden
               className="absolute -inset-4 rounded-3xl opacity-40 blur-2xl"
@@ -224,48 +245,46 @@ function CompanyProfilePage() {
             <img
               src={coverImg.url}
               alt="Moments Packaging product range"
-              className="relative w-full rounded-3xl border shadow-2xl"
-              style={{ borderColor: `${GOLD}40` }}
+              className="relative w-full rounded-3xl border shadow-2xl object-cover"
+              style={{ borderColor: `${GOLD}40`, maxHeight: "520px" }}
             />
           </div>
         </div>
       </section>
 
-      {/* ABOUT US */}
+      {/* ─── ABOUT US ─── */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
-        <div className="mx-auto max-w-4xl px-5 py-20 lg:px-8">
-          <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
-              About Us
-            </p>
-            <h2 className="mt-4 font-display text-4xl font-medium text-white sm:text-5xl lg:text-6xl">
-              A trusted packaging partner for Kenyan businesses.
-            </h2>
-            <div className="mt-5 flex items-center gap-3">
-              <span className="block h-px w-12" style={{ background: GOLD }} />
-              <Leaf className="h-4 w-4" style={{ color: GOLD }} />
-              <span className="block h-px w-12" style={{ background: GOLD }} />
-            </div>
-            <p className="mt-6 text-lg leading-relaxed text-white/85">
-              <span className="font-semibold" style={{ color: GOLD_SOFT }}>
-                Moments Packaging (K) Ltd
-              </span>{" "}
-              is a customer-focused packaging solutions company based in Nairobi. We offer a wide range of supplies
-              designed for everyday business needs across food, beverages, cosmetics, retail and more. With a focus on
-              reliability, convenience and excellent customer service, we deliver innovative packaging countrywide while
-              helping brands create memorable moments through great presentation.
-            </p>
-            <p className="mt-5 text-lg leading-relaxed text-white/75">
-              Packaging is more than a container — it is a powerful marketing tool that creates lasting first
-              impressions, enhances brand visibility and influences purchasing decisions.
-            </p>
+        <div className="mx-auto max-w-4xl px-5 py-16 lg:px-8">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+            About Us
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-medium text-white sm:text-4xl lg:text-5xl">
+            A trusted packaging partner for Kenyan businesses.
+          </h2>
+          <div className="mt-4 flex items-center gap-3">
+            <span className="block h-px w-12" style={{ background: GOLD }} />
+            <Leaf className="h-4 w-4" style={{ color: GOLD }} />
+            <span className="block h-px w-12" style={{ background: GOLD }} />
           </div>
+          <p className="mt-5 text-base leading-relaxed text-white/85">
+            <span className="font-semibold" style={{ color: GOLD_SOFT }}>
+              Moments Packaging (K) Ltd
+            </span>{" "}
+            is a customer-focused packaging solutions company based in Nairobi. We offer a wide range of supplies
+            designed for everyday business needs across food, beverages, cosmetics, retail and more. With a focus on
+            reliability, convenience and excellent customer service, we deliver innovative packaging countrywide while
+            helping brands create memorable moments through great presentation.
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-white/70">
+            Packaging is more than a container — it is a powerful marketing tool that creates lasting first impressions,
+            enhances brand visibility and influences purchasing decisions.
+          </p>
         </div>
       </section>
 
-      {/* VISION / MISSION / COMMITMENT */}
+      {/* ─── VISION / MISSION / COMMITMENT ─── */}
       <section className="relative" style={{ background: FOREST }}>
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
           <div className="grid gap-6 lg:grid-cols-2 lg:items-center lg:gap-12">
             <img src={visionImg.url} alt="Vision — Moments cups range" className="w-full rounded-2xl shadow-2xl" />
             <div className="grid gap-5">
@@ -285,7 +304,7 @@ function CompanyProfilePage() {
               ].map((c) => (
                 <div
                   key={c.tag}
-                  className="rounded-2xl border p-6"
+                  className="rounded-2xl border p-5"
                   style={{ borderColor: `${GOLD}33`, background: `${FOREST_DEEP}` }}
                 >
                   <div className="flex items-center gap-3">
@@ -294,7 +313,7 @@ function CompanyProfilePage() {
                       {c.tag}
                     </p>
                   </div>
-                  <p className="mt-3 text-[15px] leading-relaxed text-white/85">{c.body}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-white/85">{c.body}</p>
                 </div>
               ))}
             </div>
@@ -302,96 +321,96 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* VALUES */}
+      {/* ─── VALUES ─── */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
           <div className="text-center">
             <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
               Our Values
             </p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl">What we stand for.</h2>
-            <div className="mx-auto mt-5 flex w-fit items-center gap-3">
+            <h2 className="mt-3 font-display text-3xl font-medium text-white sm:text-4xl">What we stand for.</h2>
+            <div className="mx-auto mt-4 flex w-fit items-center gap-3">
               <span className="block h-px w-12" style={{ background: GOLD }} />
               <Leaf className="h-4 w-4" style={{ color: GOLD }} />
               <span className="block h-px w-12" style={{ background: GOLD }} />
             </div>
           </div>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {VALUES.map((v) => (
               <div
                 key={v.title}
-                className="group rounded-2xl border p-6 transition-colors"
+                className="group rounded-2xl border p-5 transition-colors"
                 style={{ borderColor: `${GOLD}33`, background: FOREST }}
               >
                 <span
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border"
                   style={{ borderColor: `${GOLD}80`, color: GOLD }}
                 >
-                  <v.Icon className="h-5 w-5" strokeWidth={1.6} />
+                  <v.Icon className="h-4.5 w-4.5" strokeWidth={1.6} />
                 </span>
-                <h3 className="mt-4 font-display text-lg font-semibold text-white">{v.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/65">{v.body}</p>
+                <h3 className="mt-4 font-display text-base font-semibold text-white">{v.title}</h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-white/65">{v.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* INDUSTRIES WE SERVE — replaces the old "no matter the field" section */}
+      {/* ─── INDUSTRIES WE SERVE ─── */}
       <section className="relative" style={{ background: FOREST }}>
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
           <div className="text-center">
             <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
               Industries We Serve
             </p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl">
+            <h2 className="mt-3 font-display text-3xl font-medium text-white sm:text-4xl lg:text-5xl">
               No matter your field, we package for it.
             </h2>
-            <div className="mx-auto mt-5 flex w-fit items-center gap-3">
+            <div className="mx-auto mt-4 flex w-fit items-center gap-3">
               <span className="block h-px w-12" style={{ background: GOLD }} />
               <Leaf className="h-4 w-4" style={{ color: GOLD }} />
               <span className="block h-px w-12" style={{ background: GOLD }} />
             </div>
           </div>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {INDUSTRIES.map((ind) => (
               <div
                 key={ind.title}
-                className="flex items-center gap-4 rounded-2xl border p-6"
+                className="flex items-center gap-4 rounded-2xl border p-5"
                 style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
               >
                 <span
-                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border"
                   style={{ borderColor: `${GOLD}80`, color: GOLD }}
                 >
-                  <ind.Icon className="h-5 w-5" strokeWidth={1.6} />
+                  <ind.Icon className="h-4.5 w-4.5" strokeWidth={1.6} />
                 </span>
-                <h3 className="font-display text-base font-semibold text-white">{ind.title}</h3>
+                <h3 className="font-display text-sm font-semibold text-white">{ind.title}</h3>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CORE PRODUCTS — "Why Choose Us" section removed; the Kraft item now
-          uses the same image + text row pattern as every other range item. */}
+      {/* ─── CORE PRODUCTS — "The Moments Range" ─── */}
+      {/* Kraft item now uses kraftImg (the actual product photo), same pattern as all other items */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
           <div className="text-center">
             <p className="text-[11px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
-              Core Products & Services
+              Core Products &amp; Services
             </p>
-            <h2 className="mt-3 font-display text-4xl font-medium uppercase text-white sm:text-5xl">
-              The Moments range
+            <h2 className="mt-3 font-display text-3xl font-medium uppercase text-white sm:text-4xl lg:text-5xl">
+              The Moments Range
             </h2>
-            <div className="mx-auto mt-5 flex w-fit items-center gap-3">
+            <div className="mx-auto mt-4 flex w-fit items-center gap-3">
               <span className="block h-px w-12" style={{ background: GOLD }} />
               <Leaf className="h-4 w-4" style={{ color: GOLD }} />
               <span className="block h-px w-12" style={{ background: GOLD }} />
             </div>
           </div>
 
-          <div className="mt-14 space-y-14">
+          <div className="mt-12 space-y-12">
             {CORE.map((c, i) => (
               <div
                 key={c.title}
@@ -401,7 +420,7 @@ function CompanyProfilePage() {
               >
                 <div className="relative">
                   <div
-                    className="absolute -inset-2 rounded-2xl opacity-30 blur-xl"
+                    className="absolute -inset-2 rounded-2xl opacity-25 blur-xl"
                     style={{ background: `linear-gradient(135deg, ${GOLD} 0%, transparent 60%)` }}
                   />
                   <img src={c.image} alt={c.title} className="relative w-full rounded-2xl shadow-2xl" />
@@ -410,13 +429,13 @@ function CompanyProfilePage() {
                   <p className="text-[11px] font-semibold uppercase tracking-[0.28em]" style={{ color: GOLD }}>
                     0{i + 1} · Range
                   </p>
-                  <h3 className="mt-3 font-display text-3xl font-semibold text-white sm:text-4xl">{c.title}</h3>
-                  <div className="mt-4 h-px w-12" style={{ background: GOLD }} />
-                  <p className="mt-5 text-[15px] leading-relaxed text-white/75">{c.blurb}</p>
+                  <h3 className="mt-3 font-display text-2xl font-semibold text-white sm:text-3xl">{c.title}</h3>
+                  <div className="mt-3 h-px w-12" style={{ background: GOLD }} />
+                  <p className="mt-4 text-sm leading-relaxed text-white/75">{c.blurb}</p>
                   <Link
                     to={c.href}
                     search={c.search as never}
-                    className="mt-6 inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-white/5"
+                    className="mt-5 inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-white/5"
                     style={{ borderColor: GOLD, color: GOLD }}
                   >
                     Explore the range <ArrowRight className="h-4 w-4" />
@@ -428,33 +447,31 @@ function CompanyProfilePage() {
         </div>
       </section>
 
-      {/* SUSTAINABILITY — ESG policy + single poster */}
+      {/* ─── SUSTAINABILITY — ESG policy + single poster ─── */}
       <section id="sustainability" className="relative" style={{ background: FOREST }}>
-        <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
           <div className="text-center">
-            <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
               ESG &amp; Sustainability Policy
             </p>
-            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-display text-3xl font-medium text-white sm:text-4xl lg:text-5xl">
               Packaging with Purpose.
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-base italic text-white/80 sm:text-lg">
-              Growing with Responsibility.
-            </p>
-            <div className="mx-auto mt-5 flex w-fit items-center gap-3">
+            <p className="mx-auto mt-2 max-w-2xl text-base italic text-white/80">Growing with Responsibility.</p>
+            <div className="mx-auto mt-4 flex w-fit items-center gap-3">
               <span className="block h-px w-12" style={{ background: GOLD }} />
               <Recycle className="h-4 w-4" style={{ color: GOLD }} />
               <span className="block h-px w-12" style={{ background: GOLD }} />
             </div>
           </div>
 
-          <div className="mx-auto mt-10 max-w-4xl space-y-5 text-[16px] leading-relaxed text-white/85">
+          <div className="mx-auto mt-8 max-w-4xl space-y-4 text-[15px] leading-relaxed text-white/85">
             <p>
               At Moments Packaging Ltd, sustainability is more than a business objective — it is a core value that
               shapes the way we design, source and deliver packaging solutions. We are committed to creating products
               that support our customers while contributing to a healthier planet and a more sustainable future.
             </p>
-            <p className="font-semibold" style={{ color: GOLD_SOFT }}>
+            <p className="font-semibold text-sm" style={{ color: GOLD_SOFT }}>
               The Meaning Behind Our Logo
             </p>
             <p>
@@ -481,7 +498,7 @@ function CompanyProfilePage() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
             {[
               {
                 Icon: Leaf,
@@ -501,23 +518,23 @@ function CompanyProfilePage() {
             ].map((p) => (
               <div
                 key={p.title}
-                className="rounded-2xl border p-6"
+                className="rounded-2xl border p-5"
                 style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
               >
                 <span
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border"
                   style={{ borderColor: `${GOLD}80`, color: GOLD }}
                 >
-                  <p.Icon className="h-5 w-5" strokeWidth={1.6} />
+                  <p.Icon className="h-4.5 w-4.5" strokeWidth={1.6} />
                 </span>
-                <h3 className="mt-4 font-display text-lg font-semibold text-white">{p.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{p.body}</p>
+                <h3 className="mt-3 font-display text-base font-semibold text-white">{p.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-white/70">{p.body}</p>
               </div>
             ))}
           </div>
 
           <div
-            className="mx-auto mt-12 max-w-4xl rounded-2xl border p-7 text-center"
+            className="mx-auto mt-10 max-w-4xl rounded-2xl border p-6 text-center"
             style={{ borderColor: `${GOLD}33`, background: FOREST_DEEP }}
           >
             <p className="text-sm leading-relaxed text-white/80">
@@ -526,20 +543,21 @@ function CompanyProfilePage() {
               natural resources, embracing sustainable innovation and promoting packaging solutions that support a
               cleaner, greener future.
             </p>
-            <p className="mt-3 font-display text-lg italic" style={{ color: GOLD_SOFT }}>
+            <p className="mt-3 font-display text-base italic" style={{ color: GOLD_SOFT }}>
               Together, we can package responsibly today and preserve tomorrow.
             </p>
           </div>
 
-          <div className="mt-14">
-            <p className="text-center text-[12px] font-semibold uppercase tracking-[0.3em]" style={{ color: GOLD }}>
+          {/* Single ESG poster */}
+          <div className="mt-12">
+            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.3em]" style={{ color: GOLD }}>
               Our ESG &amp; Sustainability Policy
             </p>
             <a
               href={esgPoster1.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mx-auto mt-6 block max-w-md overflow-hidden rounded-2xl border bg-white/5 transition-transform hover:-translate-y-1"
+              className="mx-auto mt-5 block max-w-md overflow-hidden rounded-2xl border bg-white/5 transition-transform hover:-translate-y-1"
               style={{ borderColor: `${GOLD}55` }}
               aria-label="Open ESG &amp; Sustainability Policy poster in a new tab"
             >
@@ -550,36 +568,36 @@ function CompanyProfilePage() {
                 loading="lazy"
               />
             </a>
-            <p className="mt-4 text-center text-xs text-white/60">Tap the poster to view full size.</p>
+            <p className="mt-3 text-center text-xs text-white/60">Tap the poster to view full size.</p>
           </div>
         </div>
       </section>
 
-      {/* CONTACT */}
+      {/* ─── CONTACT ─── */}
       <section className="relative" style={{ background: FOREST_DEEP }}>
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-2 lg:items-center lg:gap-14 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 lg:grid-cols-2 lg:items-center lg:gap-14 lg:px-8 lg:py-20">
           <div>
-            <p className="text-[13px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.32em]" style={{ color: GOLD }}>
               Get in touch
             </p>
-            <h2 className="mt-3 font-display text-5xl font-medium text-white sm:text-6xl lg:text-7xl">Contact Us</h2>
-            <div className="mt-6 h-px w-16" style={{ background: GOLD }} />
+            <h2 className="mt-3 font-display text-4xl font-medium text-white sm:text-5xl lg:text-6xl">Contact Us</h2>
+            <div className="mt-5 h-px w-16" style={{ background: GOLD }} />
 
-            <div className="mt-10 space-y-6">
+            <div className="mt-8 space-y-5">
               <ContactRow Icon={MapPin} label="Address">
-                <p className="font-semibold text-lg" style={{ color: GOLD_SOFT }}>
+                <p className="font-semibold text-base" style={{ color: GOLD_SOFT }}>
                   Moments Packaging (K) Ltd
                 </p>
-                <p className="text-lg">{COMPANY_ADDRESS}</p>
+                <p className="text-base">{DISPLAY_ADDRESS}</p>
               </ContactRow>
               <ContactRow Icon={Phone} label="Phone">
-                <p className="text-xl sm:text-2xl font-semibold tracking-wide">
-                  <a href={`tel:+${WHATSAPP_NUMBER}`} className="hover:underline">
-                    {COMPANY_PHONE}
+                <p className="text-lg font-semibold tracking-wide">
+                  <a href="tel:+254119556688" className="hover:underline">
+                    {DISPLAY_PHONE}
                   </a>
                   <span className="text-white/40"> / </span>
                   <a href="tel:+254119556699" className="hover:underline">
-                    {COMPANY_PHONE_ALT}
+                    {DISPLAY_PHONE_ALT}
                   </a>
                 </p>
               </ContactRow>
@@ -588,37 +606,37 @@ function CompanyProfilePage() {
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xl hover:underline"
+                  className="text-base hover:underline"
                 >
-                  Chat on WhatsApp ({COMPANY_PHONE})
+                  Chat on WhatsApp ({DISPLAY_PHONE})
                 </a>
               </ContactRow>
               <ContactRow Icon={Mail} label="Email">
-                <a href={`mailto:${COMPANY_EMAIL}`} className="text-xl break-all hover:underline">
+                <a href={`mailto:${COMPANY_EMAIL}`} className="text-base break-all hover:underline">
                   {COMPANY_EMAIL}
                 </a>
               </ContactRow>
               <ContactRow Icon={Instagram} label="Instagram">
-                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-xl hover:underline">
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-base hover:underline">
                   {INSTAGRAM_HANDLE}
                 </a>
               </ContactRow>
               <ContactRow Icon={Facebook} label="Facebook">
-                <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" className="text-xl hover:underline">
+                <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" className="text-base hover:underline">
                   {FACEBOOK_HANDLE}
                 </a>
               </ContactRow>
               <ContactRow Icon={Globe} label="TikTok">
-                <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-xl hover:underline">
+                <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-base hover:underline">
                   {TIKTOK_HANDLE}
                 </a>
               </ContactRow>
               <ContactRow Icon={Globe} label="Online">
-                <span className="text-xl">www.momentspackaging.com</span>
+                <span className="text-base">www.momentspackaging.com</span>
               </ContactRow>
             </div>
 
-            <div className="mt-10 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to="/enterprise-quote"
                 className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-transform hover:-translate-y-0.5"
@@ -651,13 +669,13 @@ function CompanyProfilePage() {
         />
       </section>
 
-      {/* Closing strip */}
+      {/* ─── Closing strip ─── */}
       <section className="relative" style={{ background: FOREST }}>
-        <div className="mx-auto max-w-5xl px-5 py-14 text-center lg:px-8">
-          <p className="font-display text-2xl font-light italic" style={{ color: GOLD_SOFT }}>
+        <div className="mx-auto max-w-5xl px-5 py-12 text-center lg:px-8">
+          <p className="font-display text-xl font-light italic" style={{ color: GOLD_SOFT }}>
             Quality packaging <span className="text-white">for every moment.</span>
           </p>
-          <div className="mx-auto mt-5 flex w-fit items-center gap-3">
+          <div className="mx-auto mt-4 flex w-fit items-center gap-3">
             <span className="block h-px w-12" style={{ background: GOLD }} />
             <Leaf className="h-4 w-4" style={{ color: GOLD }} />
             <span className="block h-px w-12" style={{ background: GOLD }} />
@@ -680,16 +698,16 @@ function ContactRow({
   return (
     <div className="flex items-start gap-4">
       <span
-        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border"
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border"
         style={{ borderColor: `${GOLD}80`, color: GOLD }}
       >
-        <Icon className="h-4.5 w-4.5" strokeWidth={1.75} />
+        <Icon className="h-4 w-4" strokeWidth={1.75} />
       </span>
       <div>
-        <p className="text-[12px] font-semibold uppercase tracking-[0.28em]" style={{ color: GOLD }}>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.28em]" style={{ color: GOLD }}>
           {label}
         </p>
-        <div className="mt-1.5 text-base leading-relaxed text-white/90">{children}</div>
+        <div className="mt-1 text-sm leading-relaxed text-white/90">{children}</div>
       </div>
     </div>
   );
