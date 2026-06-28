@@ -123,13 +123,13 @@ function Hero() {
         /* ── Hero image positioning ── */
         .mpk-hero-img-a,
         .mpk-hero-img-b {
-          /* Mobile: large, centered vertically, bleeding off the right edge for drama */
-          right: -18%;
+          /* Mobile: right half of screen, vertically centered, bleeds off right edge */
+          right: -20%;
           top: 50%;
           bottom: auto;
           transform: translateY(-50%);
-          width: 96%;
-          max-height: none;
+          width: 68%;
+          max-height: 70%;
           object-fit: contain;
         }
         @media (min-width: 768px) {
