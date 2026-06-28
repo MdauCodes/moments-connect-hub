@@ -127,13 +127,6 @@ const CORE = [
   },
 ];
 
-const INDUSTRIES = [
-  "Food & Beverage",
-  "FMCG",
-  "Wholesale & Retail",
-  "Beauty & Personal Care",
-  "Agriculture",
-];
 
 function CompanyProfilePage() {
   return (
