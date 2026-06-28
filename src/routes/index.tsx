@@ -123,13 +123,13 @@ function Hero() {
         /* ── Hero image positioning ── */
         .mpk-hero-img-a,
         .mpk-hero-img-b {
-          /* Mobile: right half of screen, vertically centered, bleeds off right edge */
-          right: -20%;
+          /* Mobile: fixed to viewport-relative right side via the section's coordinate space */
+          right: -12vw;
           top: 50%;
           bottom: auto;
-          transform: translateY(-50%);
-          width: 68%;
-          max-height: 70%;
+          transform: translateY(-46%);
+          width: 72vw;
+          max-height: none;
           object-fit: contain;
         }
         @media (min-width: 768px) {
@@ -160,36 +160,33 @@ function Hero() {
       `}</style>
 
       <div className="mpk-hero-section relative" style={{ minHeight: "560px" }}>
-        {/* Max-width stage shared by images and text */}
-        <div className="absolute inset-0 mx-auto max-w-7xl px-5 lg:px-8">
-          {/* Crossfading hero images — visible on ALL screen sizes */}
-          <img
-            src={cloudV3}
-            alt="A diverse cluster of branded paper packaging — bags, boxes, cups and more"
-            width={1600}
-            height={1000}
-            fetchPriority="high"
-            decoding="async"
-            className="mpk-hero-img-a absolute pointer-events-none select-none"
-            style={{
-              zIndex: 1,
-              transition: "opacity 1.5s ease-in-out",
-              filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
-              opacity: 1,
-            }}
-          />
-          <img
-            src={cloudKraft}
-            alt="A cluster of kraft paper packaging — bags, boxes, cups"
-            className="mpk-hero-img-b absolute pointer-events-none select-none"
-            style={{
-              zIndex: 1,
-              transition: "opacity 1.5s ease-in-out",
-              filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
-              opacity: 0,
-            }}
-          />
-        </div>
+        {/* Hero images — positioned relative to the full section, not the padded container */}
+        <img
+          src={cloudV3}
+          alt="A diverse cluster of branded paper packaging — bags, boxes, cups and more"
+          width={1600}
+          height={1000}
+          fetchPriority="high"
+          decoding="async"
+          className="mpk-hero-img-a absolute pointer-events-none select-none"
+          style={{
+            zIndex: 1,
+            transition: "opacity 1.5s ease-in-out",
+            filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
+            opacity: 1,
+          }}
+        />
+        <img
+          src={cloudKraft}
+          alt="A cluster of kraft paper packaging — bags, boxes, cups"
+          className="mpk-hero-img-b absolute pointer-events-none select-none"
+          style={{
+            zIndex: 1,
+            transition: "opacity 1.5s ease-in-out",
+            filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
+            opacity: 0,
+          }}
+        />
 
         {/*
           MOBILE scrim: gradient from top-left (opaque forest = text readable)
