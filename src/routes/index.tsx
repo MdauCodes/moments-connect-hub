@@ -101,8 +101,6 @@ function FirstVisitSplash() {
   return <AppSplash />;
 }
 
-// MobileFab now lives globally in SiteLayout — see src/components/MobileFab.tsx
-
 // ── Hero with overlay nav + announcement ──
 function Hero() {
   return (
@@ -171,17 +169,23 @@ function Hero() {
           }
           @media (min-width: 768px) {
             .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 18%;
+              right: 2%;
               top: calc(50% + 30px);
               transform: translateY(-50%);
-              width: 40%;
+              width: 46%;
               max-height: 86%;
+            }
+          }
+          @media (min-width: 1024px) {
+            .mpk-hero-img-a, .mpk-hero-img-b {
+              right: 4%;
+              width: 44%;
             }
           }
           @media (min-width: 1280px) {
             .mpk-hero-img-a, .mpk-hero-img-b {
-              right: 22%;
-              width: 38%;
+              right: 6%;
+              width: 42%;
             }
           }
         `}</style>
@@ -275,10 +279,7 @@ function Hero() {
               </Link>
               <Link to="/cart" aria-label="Cart" className="relative hover:opacity-80">
                 <ShoppingBag className="h-5 w-5" />
-                <span
-                  className="absolute -right-1 -top-1 h-2 w-2 rounded-full"
-                  style={{ background: "#e8c878" }}
-                />
+                <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full" style={{ background: "#e8c878" }} />
               </Link>
               <Link to="/login" className="hidden md:inline text-sm hover:opacity-80">
                 Sign in
@@ -354,7 +355,7 @@ function Hero() {
         {/* Hero text content — sits inside the same max-w-7xl stage */}
         <div className="absolute inset-0 mx-auto max-w-7xl px-5 lg:px-8" style={{ zIndex: 4 }}>
           <div
-            className="md:absolute md:top-1/2 md:-translate-y-1/2 md:left-8 lg:left-12 md:w-[54%] lg:w-[52%]"
+            className="md:absolute md:top-1/2 md:-translate-y-1/2 md:left-8 lg:left-12 md:w-[50%] lg:w-[48%]"
             style={{ paddingTop: "120px", paddingBottom: "40px" }}
           >
             <p
@@ -426,13 +427,15 @@ function Hero() {
                 Enterprise quote
               </Link>
             </div>
+
+            {/* Secondary CTA row — company profile link with improved tap target */}
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link
                 to="/company-profile"
-                className="inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white/10"
-                style={{ borderColor: "#e8c878", color: "#e8c878" }}
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/8 px-4 py-2.5 text-[13px] font-medium text-white/90 backdrop-blur transition-colors hover:border-accent/60 hover:bg-white/12 hover:text-white active:scale-95"
+                style={{ minHeight: "40px" }}
               >
-                View our company profile <ArrowRight className="h-4 w-4" />
+                View our company profile <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               <div
                 className="inline-flex items-center"
@@ -443,6 +446,7 @@ function Hero() {
                   backdropFilter: "blur(8px)",
                   borderRadius: "8px",
                   padding: "8px 14px",
+                  minHeight: "40px",
                 }}
               >
                 <span
@@ -565,7 +569,7 @@ function CategoryRow() {
   );
 }
 
-// ── Featured products (preserved from previous version) ──
+// ── Featured products ──
 function FeaturedProducts() {
   const [products, setProducts] = useState<Product[] | null>(null);
   const [configuring, setConfiguring] = useState<Product | null>(null);
@@ -624,8 +628,7 @@ function FeaturedProducts() {
   );
 }
 
-// ── Category image grid (editorial Kenyan tile photography) ──
-
+// ── Category image grid ──
 type CategoryTile = { label: string; image: string; search: Record<string, string> };
 const categoryTiles: CategoryTile[] = [
   { label: "Paper bags", image: catPaperBagsImg, search: { category: "bags" } },
@@ -685,7 +688,7 @@ function CategoryGrid() {
   );
 }
 
-// ── Audiences we serve (preserved) ──
+// ── Audiences we serve ──
 const audienceColumns = [
   {
     Icon: Gift,
