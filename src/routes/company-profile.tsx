@@ -26,8 +26,6 @@ import dessertImg from "@/assets/company-profile/dessert-cups.jpg.asset.json";
 import bagsImg from "@/assets/company-profile/bags-sacks.jpg.asset.json";
 import contactImg from "@/assets/company-profile/contact-products.jpg.asset.json";
 import esgPoster1 from "@/assets/company-profile/esg-poster-1.jpg.asset.json";
-import esgPoster2 from "@/assets/company-profile/esg-poster-2.png.asset.json";
-import esgPoster3 from "@/assets/company-profile/esg-poster-3.png.asset.json";
 import {
   COMPANY_EMAIL,
   COMPANY_PHONE,
