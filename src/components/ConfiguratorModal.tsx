@@ -148,11 +148,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
         <div className="space-y-6 px-6 py-6">
           <div className="flex items-center gap-4">
             <div className="h-20 w-20 overflow-hidden rounded-xl bg-secondary">
-              <img
-                src={product.primaryImageUrl ?? product.image}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
+              <img src={product.primaryImageUrl} alt={product.name} className="h-full w-full object-cover" />
             </div>
             <div className="flex flex-col gap-1.5">
               <div className="flex flex-wrap items-center gap-1.5">
