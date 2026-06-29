@@ -144,11 +144,11 @@ function Hero() {
         .mpk-hero-img-b,
         .mpk-hero-img-c {
           /* Mobile: fixed to viewport-relative right side via the section's coordinate space */
-          right: -12vw;
+          right: -8vw;
           top: 50%;
           bottom: auto;
-          transform: translateY(-46%);
-          width: 72vw;
+          transform: translateY(-44%);
+          width: 92vw;
           max-height: none;
           object-fit: contain;
         }
