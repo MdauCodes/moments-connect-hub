@@ -74,6 +74,8 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
     onConfigure(p, activeTierId ?? undefined);
   };
 
+  const isTracked = stock.state !== "untracked" && stock.state !== "made_to_order";
+
   return (
     <article
       onClick={handleCardClick}
@@ -92,32 +94,42 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           className="pointer-events-none absolute inset-x-0 bottom-0 h-10 sm:h-14"
           style={{ background: "linear-gradient(to bottom, transparent 0%, var(--card) 95%)" }}
         />
+
         {/* Badges */}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1 sm:left-3 sm:top-3">
-          {stock.state === "out_of_stock" ? (
-            <span className="rounded-full bg-red-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-2.5 sm:py-1 sm:text-[10px]">
-              Out of Stock
-            </span>
-          ) : p.isDiscount ? (
-            <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
-              -{p.discountPercent ?? 10}%
-            </span>
-          ) : p.isNewArrival ? (
-            <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
-              New
-            </span>
-          ) : p.isFastMoving ? (
-            <span className="rounded-full bg-kraft px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-kraft-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
-              Hot
-            </span>
-          ) : null}
-          {stock.state === "low_stock" && (
-            <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-2.5 sm:py-1 sm:text-[10px]">
-              {stock.label}
+          {/* Stock state badge — always shown for tracked products */}
+          {isTracked && (
+            <span
+              className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-2.5 sm:py-1 sm:text-[10px] ${
+                stock.state === "out_of_stock"
+                  ? "bg-red-600"
+                  : stock.state === "low_stock"
+                    ? "bg-amber-500"
+                    : "bg-green-600"
+              }`}
+            >
+              {stock.state === "out_of_stock" ? "Out of Stock" : stock.state === "low_stock" ? stock.label : "In Stock"}
             </span>
           )}
+
+          {/* Marketing badges — only shown when product is purchasable */}
+          {stock.state !== "out_of_stock" &&
+            (p.isDiscount ? (
+              <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
+                -{p.discountPercent ?? 10}%
+              </span>
+            ) : p.isNewArrival ? (
+              <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
+                New
+              </span>
+            ) : p.isFastMoving ? (
+              <span className="rounded-full bg-kraft px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-kraft-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
+                Hot
+              </span>
+            ) : null)}
         </div>
       </div>
+
       <div className="flex flex-1 flex-col px-2.5 pt-0 pb-2.5 sm:px-4 sm:pt-0 sm:pb-4">
         <span className="hidden self-start rounded-full border border-kraft/30 bg-kraft/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-kraft sm:inline-block">
           {p.category}
@@ -205,7 +217,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           <p className="mt-1.5 text-[11px] text-muted-foreground sm:mt-2 sm:text-sm">Contact for pricing</p>
         )}
 
-        {/* Stock status line — single source of truth: stock.state from getStockInfo */}
+        {/* Stock detail line — supplements the image badge with extra info */}
         <StockLine state={stock.state} count={stock.available} label={stock.label} />
 
         <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:gap-2 sm:pt-3">
@@ -230,11 +242,6 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                   : "Get a quote"}
             </span>
           </button>
-          {stock.state === "out_of_stock" && (
-            <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
-              Currently out of stock — we can still fulfil your order.
-            </p>
-          )}
         </div>
       </div>
     </article>
@@ -242,18 +249,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
 }
 
 function StockLine({ state, count, label }: { state: string; count: number; label: string }) {
-  if (state === "untracked" || state === "made_to_order") return null;
-
-  if (state === "in_stock") {
-    return (
-      <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
-        <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium text-green-700 bg-green-50 border-green-200">
-          <span className="h-1 w-1 rounded-full bg-current" />
-          In stock
-        </span>
-      </div>
-    );
-  }
+  if (state === "untracked" || state === "made_to_order" || state === "in_stock") return null;
 
   if (state === "low_stock") {
     return (
@@ -267,12 +263,9 @@ function StockLine({ state, count, label }: { state: string; count: number; labe
   }
 
   return (
-    <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
-      <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium text-red-700 bg-red-50 border-red-300">
-        <span className="h-1 w-1 rounded-full bg-current" />
-        Out of stock
-      </span>
-    </div>
+    <p className="mt-1 text-[10px] text-muted-foreground/70 sm:text-[11px]">
+      Out of stock — we can still fulfil your order.
+    </p>
   );
 }
 
