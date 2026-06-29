@@ -136,7 +136,8 @@ function Hero() {
         .mpk-hero-img-c { animation: mpk-hero-c 21s ease-in-out infinite; }
         @keyframes mpk-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .mpk-marquee-track { animation: mpk-marquee 18s linear infinite; }
-        @media (max-width: 767px) { .mpk-hero-section { min-height: 720px !important; } }
+        @media (max-width: 767px) { .mpk-hero-section { min-height: 760px !important; } }
+        @media (min-width: 768px) { .mpk-hero-section { min-height: 680px !important; } }
 
         /* ── Hero image positioning ── */
         .mpk-hero-img-a,
