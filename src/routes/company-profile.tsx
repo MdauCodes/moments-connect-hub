@@ -27,6 +27,7 @@ import pdfAsset from "@/assets/moments-company-profile.pdf.asset.json";
 import coverImg from "@/assets/company-profile/cover.jpg.asset.json";
 import visionImg from "@/assets/company-profile/vision-cups.jpg.asset.json";
 import kraftImg from "@/assets/company-profile/kraft-solutions.jpg.asset.json";
+import cupsBeverageImg from "@/assets/company-profile/cups-beverage.jpg";
 import woodenImg from "@/assets/company-profile/wooden-products.jpg.asset.json";
 import dessertImg from "@/assets/company-profile/dessert-cups.jpg.asset.json";
 import bagsImg from "@/assets/company-profile/bags-sacks.jpg.asset.json";
@@ -110,7 +111,7 @@ const CORE = [
     title: "Cups, Tumblers & Beverage Range",
     blurb:
       "Single-wall, double-wall and ripple paper cups, PET cold cups, dome and flat lids, branded tumblers and bubble-tea cups.",
-    image: kraftImg.url, // kraft-solutions.jpg = cups/dessert graphic
+    image: cupsBeverageImg, // generated cups/tumblers/beverage photo
     href: "/products" as const,
     search: { category: "cups" } as Record<string, string>,
   },
