@@ -123,9 +123,7 @@ function ProductDetail() {
 
   // Gallery
   const allImages = useMemo(() => {
-    const list = [product.primaryImageUrl ?? product.image, ...(product.imageUrls ?? product.images ?? [])].filter(
-      Boolean,
-    );
+    const list = [product.primaryImageUrl, ...(product.imageUrls ?? [])].filter(Boolean);
     return Array.from(new Set(list));
   }, [product]);
   const [activeImage, setActiveImage] = useState(allImages[0]);
@@ -251,7 +249,8 @@ function ProductDetail() {
     addItem({
       productId: product.id,
       productName: product.name,
-      primaryImageUrl: product.primaryImageUrl ?? product.image,
+
+      primaryImageUrl: product.primaryImageUrl,
       size: size || "Standard",
       material: material || "Standard",
       finish: finish || "Standard",
