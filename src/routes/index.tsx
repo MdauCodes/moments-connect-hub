@@ -86,6 +86,10 @@ const CATEGORIES = [
   { name: "Café & restaurant", desc: "Cups, boxes, sleeves", Icon: Coffee, search: { category: "cups" } },
   { name: "Retail & e-commerce", desc: "Mailers, carrier bags", Icon: Package, search: { category: "bags" } },
   { name: "Events & gifting", desc: "Gift boxes, wrapping", Icon: Gift, search: { category: "gifting" } },
+  { name: "Agriculture", desc: "Sacks, liners, kraft", Icon: Sprout, search: { category: "bags" } },
+  { name: "Cosmetics", desc: "Boxes, pouches, labels", Icon: Gem, search: { category: "boxes" } },
+  { name: "Stationery & General", desc: "Mailers, wraps", Icon: PencilLine, search: { category: "boxes" } },
+  { name: "Kitchen Supplies", desc: "Food-safe containers", Icon: CookingPot, search: { category: "boxes" } },
   { name: "Enterprise", desc: "10,000+ unit runs", Icon: Briefcase, search: { category: "boxes" } },
 ];
 
@@ -132,18 +136,19 @@ function Hero() {
         .mpk-hero-img-c { animation: mpk-hero-c 21s ease-in-out infinite; }
         @keyframes mpk-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .mpk-marquee-track { animation: mpk-marquee 18s linear infinite; }
-        @media (max-width: 767px) { .mpk-hero-section { min-height: 720px !important; } }
+        @media (max-width: 767px) { .mpk-hero-section { min-height: 760px !important; } }
+        @media (min-width: 768px) { .mpk-hero-section { min-height: 680px !important; } }
 
         /* ── Hero image positioning ── */
         .mpk-hero-img-a,
         .mpk-hero-img-b,
         .mpk-hero-img-c {
           /* Mobile: fixed to viewport-relative right side via the section's coordinate space */
-          right: -12vw;
+          right: -8vw;
           top: 50%;
           bottom: auto;
-          transform: translateY(-46%);
-          width: 72vw;
+          transform: translateY(-44%);
+          width: 92vw;
           max-height: none;
           object-fit: contain;
         }
@@ -393,7 +398,7 @@ function Hero() {
         <div className="relative md:absolute md:inset-0 mx-auto max-w-7xl px-5 lg:px-8" style={{ zIndex: 4 }}>
           <div
             className="md:absolute md:top-1/2 md:-translate-y-1/2 md:left-8 lg:left-12 md:w-[50%] lg:w-[48%]"
-            style={{ paddingTop: "120px", paddingBottom: "80px" }}
+            style={{ paddingTop: "150px", paddingBottom: "60px" }}
           >
             <p
               className="uppercase font-medium"
