@@ -205,6 +205,17 @@ function Hero() {
             opacity: 0,
           }}
         />
+        <img
+          src={ecoCluster.url}
+          alt="Eco-friendly food packaging — kraft bags, containers, cups and bagasse plates"
+          className="mpk-hero-img-c absolute pointer-events-none select-none"
+          style={{
+            zIndex: 1,
+            transition: "opacity 1.5s ease-in-out",
+            filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
+            opacity: 0,
+          }}
+        />
 
         {/*
           MOBILE scrim: gradient from top-left (opaque forest = text readable)
