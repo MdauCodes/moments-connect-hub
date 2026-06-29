@@ -149,7 +149,8 @@ function Hero() {
         }
         @media (min-width: 768px) {
           .mpk-hero-img-a,
-          .mpk-hero-img-b {
+          .mpk-hero-img-b,
+          .mpk-hero-img-c {
             right: 2%;
             top: calc(50% + 30px);
             bottom: auto;
@@ -160,14 +161,16 @@ function Hero() {
         }
         @media (min-width: 1024px) {
           .mpk-hero-img-a,
-          .mpk-hero-img-b {
+          .mpk-hero-img-b,
+          .mpk-hero-img-c {
             right: 4%;
             width: 44%;
           }
         }
         @media (min-width: 1280px) {
           .mpk-hero-img-a,
-          .mpk-hero-img-b {
+          .mpk-hero-img-b,
+          .mpk-hero-img-c {
             right: 6%;
             width: 42%;
           }
