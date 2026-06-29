@@ -34,7 +34,9 @@ export const Route = createFileRoute("/products/$slug")({
     const p = loaderData?.product;
     const reviewSummary = loaderData?.reviewSummary;
     if (!p) return { meta: [{ title: "Product — Moments Packaging" }] };
-    const image = p.primaryImageUrl ?? p.image;
+
+    const image = p.primaryImageUrl;
+
     const url = `https://www.momentspackaging.com/products/${p.slug}`;
     const tracked = p.trackInventory ?? typeof p.stock === "number";
     const inStock = !tracked || (p.stock ?? 0) > 0;
@@ -432,7 +434,9 @@ function ProductDetail() {
                         <span className="text-[11px] text-muted-foreground">
                           KES {Number(t.pricePerUnit).toLocaleString()}/piece
                           {t.originalPricePerUnit && Number(t.originalPricePerUnit) > Number(t.pricePerUnit) && (
-                            <span className="ml-1.5 line-through">KES {Number(t.originalPricePerUnit).toLocaleString()}</span>
+                            <span className="ml-1.5 line-through">
+                              KES {Number(t.originalPricePerUnit).toLocaleString()}
+                            </span>
                           )}
                         </span>
                       </button>
@@ -452,11 +456,13 @@ function ProductDetail() {
                       <span className="mt-0.5 text-xs text-muted-foreground">Buy any quantity</span>
                       <span className="mt-2 text-sm font-semibold text-foreground">
                         KES {(product.basePrice ?? 0).toLocaleString()}/piece
-                        {product.originalBasePrice && product.basePrice && product.originalBasePrice > product.basePrice && (
-                          <span className="ml-1.5 text-xs font-normal text-muted-foreground line-through">
-                            KES {product.originalBasePrice.toLocaleString()}
-                          </span>
-                        )}
+                        {product.originalBasePrice &&
+                          product.basePrice &&
+                          product.originalBasePrice > product.basePrice && (
+                            <span className="ml-1.5 text-xs font-normal text-muted-foreground line-through">
+                              KES {product.originalBasePrice.toLocaleString()}
+                            </span>
+                          )}
                       </span>
                     </button>
                   )}
@@ -506,13 +512,15 @@ function ProductDetail() {
             {/* Stock badge + faint count */}
             <div className="flex flex-wrap items-center gap-2">
               <StockBadge state={stock.state} label={stock.label} />
-              {stock.state !== "untracked" && stock.state !== "out_of_stock" && Number.isFinite(stock.available) && stock.available > 0 && (
-                <span className="text-xs text-muted-foreground/70">
-                  {stock.available.toLocaleString()} units available
-                </span>
-              )}
+              {stock.state !== "untracked" &&
+                stock.state !== "out_of_stock" &&
+                Number.isFinite(stock.available) &&
+                stock.available > 0 && (
+                  <span className="text-xs text-muted-foreground/70">
+                    {stock.available.toLocaleString()} units available
+                  </span>
+                )}
             </div>
-
 
             {variants.length > 0 && (
               <ConfigField label="Variant" note="(price & stock per variant)">
@@ -623,7 +631,8 @@ function ProductDetail() {
                 <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
                 {stock.state === "out_of_stock" ? (
                   <p>
-                    <strong>Place your order</strong> — this item is made on demand. Expected lead time: <strong>14–21 business days</strong>.
+                    <strong>Place your order</strong> — this item is made on demand. Expected lead time:{" "}
+                    <strong>14–21 business days</strong>.
                   </p>
                 ) : (
                   <p>
@@ -657,7 +666,6 @@ function ProductDetail() {
                 Currently out of stock — we can still fulfil your order.
               </p>
             )}
-
 
             <div className="flex items-center justify-center gap-6 pt-1 text-sm text-muted-foreground">
               <button
@@ -802,12 +810,7 @@ function StockBadge({ state, label }: { state: string; label: string }) {
       : state === "low_stock"
         ? "bg-amber-50 text-amber-700 border-amber-300"
         : "bg-green-50 text-green-700 border-green-300";
-  const displayLabel =
-    state === "out_of_stock"
-      ? "Out of stock"
-      : state === "low_stock"
-        ? "Low stock"
-        : "In stock";
+  const displayLabel = state === "out_of_stock" ? "Out of stock" : state === "low_stock" ? "Low stock" : "In stock";
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider ${styles}`}
