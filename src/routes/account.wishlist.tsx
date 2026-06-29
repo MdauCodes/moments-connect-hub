@@ -53,7 +53,8 @@ function WishlistPage() {
                 </button>
                 <Link to="/products/$slug" params={{ slug: p.slug }} className="block">
                   <img
-                    src={p.primaryImageUrl ?? p.image}
+
+                    src={p.primaryImageUrl}
                     alt={p.name}
                     className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                   />
@@ -69,7 +70,8 @@ function WishlistPage() {
                     onClick={() => {
                       addItem({
                         productId: p.id,
-                        productName: p.name,
+
+                        primaryImageUrl: p.primaryImageUrl
                         primaryImageUrl: p.primaryImageUrl ?? p.image,
                         size: p.sizes?.[0] ?? "Standard",
                         material: p.materials?.[0] ?? p.material ?? "Standard",
