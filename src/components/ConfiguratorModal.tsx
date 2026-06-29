@@ -106,7 +106,7 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
       productId: product.id,
       productName: product.name,
 
-      primaryImageUrl: product.primaryImageUrl,
+      primaryImageUrl: product.primaryImageUrl ?? "",
       size: size || "Standard",
       material: material || "Standard",
       finish: finish || "Standard",
