@@ -493,6 +493,24 @@ function Hero() {
                 <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.82)" }}>M-Pesa accepted at checkout</span>
               </div>
             </div>
+
+            {/* Global industries chip strip */}
+            <div
+              className="mt-6 flex flex-wrap gap-2"
+              style={{ maxWidth: "560px" }}
+            >
+              {HERO_INDUSTRIES.map((ind) => (
+                <Link
+                  key={ind.label}
+                  to="/products"
+                  search={ind.search as never}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-white/85 backdrop-blur-sm transition-colors hover:border-accent/50 hover:bg-white/12 hover:text-white"
+                >
+                  <ind.Icon className="h-3.5 w-3.5" style={{ color: "#e8c878" }} strokeWidth={1.8} />
+                  {ind.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
 
