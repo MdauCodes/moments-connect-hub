@@ -48,6 +48,7 @@ function WishlistPage() {
             {items.map((p) => (
               <li key={p.id} className="group relative overflow-hidden rounded-2xl border border-border bg-card">
                 <button
+                  type="button"
                   onClick={() => {
                     remove(p.id);
                     toast.success("Removed from wishlist");
@@ -58,11 +59,17 @@ function WishlistPage() {
                   <X className="h-4 w-4" />
                 </button>
                 <Link to="/products/$slug" params={{ slug: p.slug }} className="block">
-                  <img
-                    src={p.primaryImageUrl}
-                    alt={p.name}
-                    className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                  />
+                  {p.primaryImageUrl ? (
+                    <img
+                      src={p.primaryImageUrl}
+                      alt={p.name}
+                      className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                  ) : (
+                    <div className="flex aspect-[4/3] w-full items-center justify-center bg-secondary">
+                      <span className="text-xs text-muted-foreground/40">{p.name}</span>
+                    </div>
+                  )}
                 </Link>
                 <div className="p-4">
                   <Link
@@ -76,10 +83,11 @@ function WishlistPage() {
                     {p.basePrice ? `From ${fmt(p.basePrice)} · ` : ""}MOQ {p.moq.toLocaleString()}
                   </p>
                   <button
+                    type="button"
                     onClick={() => {
                       addItem({
                         productId: p.id,
-
+                        productName: p.name,
                         primaryImageUrl: p.primaryImageUrl,
                         size: p.sizes?.[0] ?? "Standard",
                         material: p.materials?.[0] ?? p.material ?? "Standard",
