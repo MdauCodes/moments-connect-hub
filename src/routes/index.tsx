@@ -18,13 +18,14 @@ import catLabelsStickersImg from "@/assets/categories/cat-labels-stickers.jpg";
 import catFoodContainersImg from "@/assets/categories/cat-food-containers.jpg";
 import catGiftEventImg from "@/assets/categories/cat-gift-event.jpg";
 import catBeautyPharmaImg from "@/assets/categories/cat-beauty-pharma.jpg";
-import { ArrowRight, Search, ShoppingBag, Tag, Briefcase, Coffee, Package, Gift, ChevronRight } from "lucide-react";
+import { ArrowRight, Search, ShoppingBag, Tag, Briefcase, Coffee, Package, Gift, ChevronRight, UtensilsCrossed, ShoppingCart, Sprout, Gem, PencilLine, CookingPot } from "lucide-react";
 import { Check } from "lucide-react";
 import { DotGrid, PaperTexture, ArcStroke, CornerLines, SignatureDivider } from "@/components/BrandDecor";
 import { api } from "@/services/api";
 import type { Product } from "@/data/products";
 import cloudV3 from "@/assets/packaging-cloud-hero-v3.png";
 import cloudKraft from "@/assets/packaging-cloud-hero.png";
+import ecoCluster from "@/assets/company-profile/eco-packaging-cluster.png.asset.json";
 import logoUrl from "@/assets/moments-logo.png";
 
 const SPLASH_KEY = "moments_splash_shown";
@@ -88,6 +89,16 @@ const CATEGORIES = [
   { name: "Enterprise", desc: "10,000+ unit runs", Icon: Briefcase, search: { category: "boxes" } },
 ];
 
+// Global industry chips — mirrors the company-profile "industries" list
+const HERO_INDUSTRIES = [
+  { Icon: UtensilsCrossed, label: "Food & Beverage", search: { category: "cups" } },
+  { Icon: ShoppingCart, label: "Wholesale & E-commerce", search: { category: "bags" } },
+  { Icon: Sprout, label: "Agriculture", search: { category: "bags" } },
+  { Icon: Gem, label: "Cosmetics", search: { category: "boxes" } },
+  { Icon: PencilLine, label: "Stationery & General", search: { category: "boxes" } },
+  { Icon: CookingPot, label: "Kitchen Supplies", search: { category: "boxes" } },
+];
+
 // ── First-visit splash ──
 function FirstVisitSplash() {
   const [show, setShow] = useState(false);
@@ -113,17 +124,20 @@ function Hero() {
       }}
     >
       <style>{`
-        @keyframes mpk-hero-a { 0%,40% { opacity: 1; } 50%,90% { opacity: 0; } 100% { opacity: 1; } }
-        @keyframes mpk-hero-b { 0%,40% { opacity: 0; } 50%,90% { opacity: 1; } 100% { opacity: 0; } }
-        .mpk-hero-img-a { animation: mpk-hero-a 14s ease-in-out infinite; }
-        .mpk-hero-img-b { animation: mpk-hero-b 14s ease-in-out infinite; }
+        @keyframes mpk-hero-a { 0%, 28% { opacity: 1; } 33%, 94% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes mpk-hero-b { 0%, 28% { opacity: 0; } 33%, 61% { opacity: 1; } 66%, 100% { opacity: 0; } }
+        @keyframes mpk-hero-c { 0%, 61% { opacity: 0; } 66%, 94% { opacity: 1; } 100%, 100% { opacity: 0; } }
+        .mpk-hero-img-a { animation: mpk-hero-a 21s ease-in-out infinite; }
+        .mpk-hero-img-b { animation: mpk-hero-b 21s ease-in-out infinite; }
+        .mpk-hero-img-c { animation: mpk-hero-c 21s ease-in-out infinite; }
         @keyframes mpk-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .mpk-marquee-track { animation: mpk-marquee 18s linear infinite; }
         @media (max-width: 767px) { .mpk-hero-section { min-height: 720px !important; } }
 
         /* ── Hero image positioning ── */
         .mpk-hero-img-a,
-        .mpk-hero-img-b {
+        .mpk-hero-img-b,
+        .mpk-hero-img-c {
           /* Mobile: fixed to viewport-relative right side via the section's coordinate space */
           right: -12vw;
           top: 50%;
@@ -135,7 +149,8 @@ function Hero() {
         }
         @media (min-width: 768px) {
           .mpk-hero-img-a,
-          .mpk-hero-img-b {
+          .mpk-hero-img-b,
+          .mpk-hero-img-c {
             right: 2%;
             top: calc(50% + 30px);
             bottom: auto;
@@ -146,14 +161,16 @@ function Hero() {
         }
         @media (min-width: 1024px) {
           .mpk-hero-img-a,
-          .mpk-hero-img-b {
+          .mpk-hero-img-b,
+          .mpk-hero-img-c {
             right: 4%;
             width: 44%;
           }
         }
         @media (min-width: 1280px) {
           .mpk-hero-img-a,
-          .mpk-hero-img-b {
+          .mpk-hero-img-b,
+          .mpk-hero-img-c {
             right: 6%;
             width: 42%;
           }
@@ -181,6 +198,17 @@ function Hero() {
           src={cloudKraft}
           alt="A cluster of kraft paper packaging — bags, boxes, cups"
           className="mpk-hero-img-b absolute pointer-events-none select-none"
+          style={{
+            zIndex: 1,
+            transition: "opacity 1.5s ease-in-out",
+            filter: "drop-shadow(0 20px 50px rgba(0,0,0,0.5))",
+            opacity: 0,
+          }}
+        />
+        <img
+          src={ecoCluster.url}
+          alt="Eco-friendly food packaging — kraft bags, containers, cups and bagasse plates"
+          className="mpk-hero-img-c absolute pointer-events-none select-none"
           style={{
             zIndex: 1,
             transition: "opacity 1.5s ease-in-out",
@@ -464,6 +492,24 @@ function Hero() {
                 />
                 <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.82)" }}>M-Pesa accepted at checkout</span>
               </div>
+            </div>
+
+            {/* Global industries chip strip */}
+            <div
+              className="mt-6 flex flex-wrap gap-2"
+              style={{ maxWidth: "560px" }}
+            >
+              {HERO_INDUSTRIES.map((ind) => (
+                <Link
+                  key={ind.label}
+                  to="/products"
+                  search={ind.search as never}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-white/85 backdrop-blur-sm transition-colors hover:border-accent/50 hover:bg-white/12 hover:text-white"
+                >
+                  <ind.Icon className="h-3.5 w-3.5" style={{ color: "#e8c878" }} strokeWidth={1.8} />
+                  {ind.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>
