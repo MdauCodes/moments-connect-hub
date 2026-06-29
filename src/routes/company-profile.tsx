@@ -26,7 +26,6 @@ import { SiteLayout } from "@/components/SiteLayout";
 import pdfAsset from "@/assets/moments-company-profile.pdf.asset.json";
 import coverImg from "@/assets/company-profile/cover.jpg.asset.json";
 import visionImg from "@/assets/company-profile/vision-cups.jpg.asset.json";
-import kraftImg from "@/assets/company-profile/kraft-solutions.jpg.asset.json";
 import cupsBeverageImg from "@/assets/company-profile/cups-beverage.jpg";
 import woodenImg from "@/assets/company-profile/wooden-products.jpg.asset.json";
 import dessertImg from "@/assets/company-profile/dessert-cups.jpg.asset.json";
