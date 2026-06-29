@@ -71,6 +71,7 @@ function WishlistPage() {
                       addItem({
                         productId: p.id,
 
+
                         primaryImageUrl: p.primaryImageUrl
                                     size: p.sizes?.[0] ?? "Standard",
                         material: p.materials?.[0] ?? p.material ?? "Standard",
