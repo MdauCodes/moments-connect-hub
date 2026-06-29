@@ -205,8 +205,8 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           <p className="mt-1.5 text-[11px] text-muted-foreground sm:mt-2 sm:text-sm">Contact for pricing</p>
         )}
 
-        {/* Stock status line — one line below price */}
-        <StockLine status={(p as any).stockStatus} count={stock.available} label={stock.label} />
+        {/* Stock status line — single source of truth: stock.state from getStockInfo */}
+        <StockLine state={stock.state} count={stock.available} label={stock.label} />
 
         <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:gap-2 sm:pt-3">
           <p className="text-[10px] text-muted-foreground sm:text-xs">
@@ -230,7 +230,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
                   : "Get a quote"}
             </span>
           </button>
-          {(p as any).stockStatus === "OUT_OF_STOCK" && (
+          {stock.state === "out_of_stock" && (
             <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
               Currently out of stock — we can still fulfil your order.
             </p>
@@ -241,11 +241,10 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
   );
 }
 
-function StockLine({ status, count, label }: { status?: string; count: number; label: string }) {
-  const s = status ?? "MADE_TO_ORDER";
-  if (s === "MADE_TO_ORDER") return null;
+function StockLine({ state, count, label }: { state: string; count: number; label: string }) {
+  if (state === "untracked" || state === "made_to_order") return null;
 
-  if (s === "IN_STOCK") {
+  if (state === "in_stock") {
     return (
       <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
         <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium text-green-700 bg-green-50 border-green-200">
@@ -256,7 +255,7 @@ function StockLine({ status, count, label }: { status?: string; count: number; l
     );
   }
 
-  if (s === "LOW_STOCK") {
+  if (state === "low_stock") {
     return (
       <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
         <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium text-amber-700 bg-amber-50 border-amber-300">
@@ -267,13 +266,33 @@ function StockLine({ status, count, label }: { status?: string; count: number; l
     );
   }
 
-  // OUT_OF_STOCK
   return (
     <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
       <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium text-red-700 bg-red-50 border-red-300">
         <span className="h-1 w-1 rounded-full bg-current" />
         Out of stock
       </span>
+    </div>
+  );
+}
+
+export function ProductCardSkeleton() {
+  return (
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="shimmer aspect-[16/10] w-full" />
+      <div className="flex flex-1 flex-col p-6">
+        <div className="shimmer h-5 w-3/4 rounded-md" />
+        <div className="shimmer mt-2 h-3 w-full rounded-md" />
+        <div className="shimmer mt-1.5 h-3 w-2/3 rounded-md" />
+        <div className="mt-5 flex items-end justify-between">
+          <div className="space-y-1.5">
+            <div className="shimmer h-2.5 w-10 rounded-md" />
+            <div className="shimmer h-5 w-16 rounded-md" />
+          </div>
+          <div className="shimmer h-3 w-12 rounded-md" />
+        </div>
+        <div className="shimmer mt-4 h-9 w-full rounded-full" />
+      </div>
     </div>
   );
 }
