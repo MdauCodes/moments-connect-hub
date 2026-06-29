@@ -75,7 +75,7 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
     onConfigure(p, activeTierId ?? undefined);
   };
 
-  const isTracked = stock.state !== "untracked" && stock.state !== "made_to_order";
+  const isTracked = stock.state !== "untracked";
 
   return (
     <article
