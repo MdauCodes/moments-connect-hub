@@ -18,13 +18,14 @@ import catLabelsStickersImg from "@/assets/categories/cat-labels-stickers.jpg";
 import catFoodContainersImg from "@/assets/categories/cat-food-containers.jpg";
 import catGiftEventImg from "@/assets/categories/cat-gift-event.jpg";
 import catBeautyPharmaImg from "@/assets/categories/cat-beauty-pharma.jpg";
-import { ArrowRight, Search, ShoppingBag, Tag, Briefcase, Coffee, Package, Gift, ChevronRight } from "lucide-react";
+import { ArrowRight, Search, ShoppingBag, Tag, Briefcase, Coffee, Package, Gift, ChevronRight, UtensilsCrossed, ShoppingCart, Sprout, Gem, PencilLine, CookingPot } from "lucide-react";
 import { Check } from "lucide-react";
 import { DotGrid, PaperTexture, ArcStroke, CornerLines, SignatureDivider } from "@/components/BrandDecor";
 import { api } from "@/services/api";
 import type { Product } from "@/data/products";
 import cloudV3 from "@/assets/packaging-cloud-hero-v3.png";
 import cloudKraft from "@/assets/packaging-cloud-hero.png";
+import ecoCluster from "@/assets/company-profile/eco-packaging-cluster.png.asset.json";
 import logoUrl from "@/assets/moments-logo.png";
 
 const SPLASH_KEY = "moments_splash_shown";
@@ -86,6 +87,16 @@ const CATEGORIES = [
   { name: "Retail & e-commerce", desc: "Mailers, carrier bags", Icon: Package, search: { category: "bags" } },
   { name: "Events & gifting", desc: "Gift boxes, wrapping", Icon: Gift, search: { category: "gifting" } },
   { name: "Enterprise", desc: "10,000+ unit runs", Icon: Briefcase, search: { category: "boxes" } },
+];
+
+// Global industry chips — mirrors the company-profile "industries" list
+const HERO_INDUSTRIES = [
+  { Icon: UtensilsCrossed, label: "Food & Beverage", search: { category: "cups" } },
+  { Icon: ShoppingCart, label: "Wholesale & E-commerce", search: { category: "bags" } },
+  { Icon: Sprout, label: "Agriculture", search: { category: "bags" } },
+  { Icon: Gem, label: "Cosmetics", search: { category: "boxes" } },
+  { Icon: PencilLine, label: "Stationery & General", search: { category: "boxes" } },
+  { Icon: CookingPot, label: "Kitchen Supplies", search: { category: "boxes" } },
 ];
 
 // ── First-visit splash ──
