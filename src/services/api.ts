@@ -57,8 +57,10 @@ function normalizePricingTiers(raw: any): Array<any> {
         pricePerUnit,
         collectionPrice,
         sortOrder: t.sortOrder != null ? Number(t.sortOrder) : i,
-        originalPricePerUnit: originalPricePerUnit && originalPricePerUnit > pricePerUnit ? originalPricePerUnit : undefined,
-        originalCollectionPrice: originalCollectionPrice && originalCollectionPrice > collectionPrice ? originalCollectionPrice : undefined,
+        originalPricePerUnit:
+          originalPricePerUnit && originalPricePerUnit > pricePerUnit ? originalPricePerUnit : undefined,
+        originalCollectionPrice:
+          originalCollectionPrice && originalCollectionPrice > collectionPrice ? originalCollectionPrice : undefined,
         uomName: t.uomName,
         uomDescription: t.uomDescription,
         enabled: t.enabled !== false,
@@ -68,15 +70,14 @@ function normalizePricingTiers(raw: any): Array<any> {
 }
 
 function normalizeProduct(p: ProductApiDto): Product {
-  const image = p.image ?? p.primaryImageUrl ?? p.imageUrls?.[0] ?? "";
   const originalBasePrice = (p as any).originalBasePrice != null ? Number((p as any).originalBasePrice) : undefined;
   return {
     ...p,
     category: p.category ?? "bags",
     description: p.description ?? "",
     moq: p.moq ?? 1,
-    image,
-    images: p.images ?? p.imageUrls ?? (image ? [image] : []),
+    primaryImageUrl: p.primaryImageUrl ?? p.imageUrls?.[0],
+    imageUrls: p.imageUrls ?? [],
     isDiscount: p.isDiscount ?? false,
     isNewArrival: p.isNewArrival ?? false,
     isFastMoving: p.isFastMoving ?? false,
@@ -91,9 +92,10 @@ function normalizeProduct(p: ProductApiDto): Product {
     pricingTiers: normalizePricingTiers((p as any).pricingTiers),
     stock: (p as any).stockCount ?? (p as any).stock ?? 0,
     lowStockThreshold: (p as any).lowStockThreshold ?? 50,
-    trackInventory: (p as any).stockStatus !== 'MADE_TO_ORDER',
-    stockStatus: (p as any).stockStatus ?? 'MADE_TO_ORDER',
-    originalBasePrice: originalBasePrice && p.basePrice && originalBasePrice > p.basePrice ? originalBasePrice : undefined,
+    trackInventory: (p as any).stockStatus !== "MADE_TO_ORDER",
+    stockStatus: (p as any).stockStatus ?? "MADE_TO_ORDER",
+    originalBasePrice:
+      originalBasePrice && p.basePrice && originalBasePrice > p.basePrice ? originalBasePrice : undefined,
   } as Product;
 }
 
@@ -113,32 +115,21 @@ function normalizeIndustry(industry: Partial<Industry> & { displayId?: number })
 }
 
 export const api = {
-  // TODO: GET /api/config
   getConfig: async () => ({
     blogsEnabled: true,
     emailCaptureEnabled: true,
   }),
 
-  // TODO: GET /api/blogs?status=published
-  getBlogs: async (params?: {
-    status?: BlogStatus;
-    template?: BlogTemplate;
-    limit?: number;
-  }): Promise<Blog[]> => blogStore.list(params),
+  getBlogs: async (params?: { status?: BlogStatus; template?: BlogTemplate; limit?: number }): Promise<Blog[]> =>
+    blogStore.list(params),
 
-  // TODO: GET /api/blogs/{slug}
-  getBlogBySlug: async (slug: string): Promise<Blog | null> =>
-    blogStore.getBySlug(slug),
+  getBlogBySlug: async (slug: string): Promise<Blog | null> => blogStore.getBySlug(slug),
 
-  // TODO: GET /api/blogs/latest?limit=3 (published only)
-  getLatestBlogs: async (limit = 3): Promise<Blog[]> =>
-    blogStore.list({ status: "published", limit }),
+  getLatestBlogs: async (limit = 3): Promise<Blog[]> => blogStore.list({ status: "published", limit }),
 
-  // TODO: GET /api/blogs/{slug}/related?limit=2
   getRelatedBlogs: async (excludeSlug: string, limit = 2): Promise<Blog[]> => {
     const all = await blogStore.list({ status: "published" });
     const others = all.filter((b) => b.slug !== excludeSlug);
-    // Shuffle deterministically-ish then slice
     for (let i = others.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [others[i], others[j]] = [others[j], others[i]];
@@ -146,7 +137,6 @@ export const api = {
     return others.slice(0, limit);
   },
 
-  // GET /api/v1/public/products
   getProducts: async (params?: {
     industryId?: string;
     industryIds?: string[];
@@ -175,13 +165,10 @@ export const api = {
     if (params?.industryIds?.length) {
       params.industryIds.forEach((id) => search.append("industryId", id));
     }
-    const data = await getJson<PageResponse<Product> | Product[]>(
-      `/api/v1/public/products?${search.toString()}`,
-    );
+    const data = await getJson<PageResponse<Product> | Product[]>(`/api/v1/public/products?${search.toString()}`);
     return (Array.isArray(data) ? data : data.content).map(normalizeProduct);
   },
 
-  // GET /api/v1/public/products/diversified — category-interleaved feed
   getDiversifiedProducts: async (params?: { page?: number; size?: number }) => {
     const page = params?.page ?? 0;
     const size = params?.size ?? 20;
@@ -191,7 +178,6 @@ export const api = {
     return (Array.isArray(data) ? data : data.content).map(normalizeProduct);
   },
 
-  // GET /api/v1/public/products/search?q=&limit=
   searchProducts: async (q: string, limit?: number) => {
     if (!q || q.trim().length < 2) return [];
     const data = await getJson<Product[] | PageResponse<Product>>(
@@ -201,21 +187,16 @@ export const api = {
     return list.map(normalizeProduct).filter((p) => !!p.slug);
   },
 
-  // GET /api/v1/public/products/recommended
   getRecommended: async () => {
     const data = await getJson<Product[]>("/api/v1/public/products/recommended");
     return data.map(normalizeProduct);
   },
 
-  // GET /api/v1/public/industries
   getIndustries: async () => {
-    const data = await getJson<Array<Partial<Industry> & { displayId?: number }>>(
-      "/api/v1/public/industries",
-    );
+    const data = await getJson<Array<Partial<Industry> & { displayId?: number }>>("/api/v1/public/industries");
     return data.map(normalizeIndustry);
   },
 
-  // GET /api/v1/public/products/{slug}
   getProductBySlug: async (slug: string): Promise<Product | null> => {
     try {
       const data = await getJson<Product>(`/api/v1/public/products/${encodeURIComponent(slug)}`);
@@ -225,7 +206,6 @@ export const api = {
     }
   },
 
-  // POST /api/v1/public/enquiries
   submitEnquiry: async (payload: unknown) => {
     const res = await fetch(apiUrl("/api/v1/public/enquiries"), {
       method: "POST",
@@ -236,7 +216,6 @@ export const api = {
     return res.json() as Promise<{ id: string; reference?: string; success?: boolean }>;
   },
 
-  // POST /api/v1/public/leads
   submitLead: async (email: string, persona: string) => {
     const res = await fetch(apiUrl("/api/v1/public/leads"), {
       method: "POST",
@@ -247,7 +226,6 @@ export const api = {
     return { success: true };
   },
 
-  // POST /api/v1/public/products/{id}/click
   trackClick: async (productId: string) => {
     try {
       await fetch(apiUrl(`/api/v1/public/products/${encodeURIComponent(productId)}/click`), {
@@ -258,4 +236,3 @@ export const api = {
     }
   },
 };
-
