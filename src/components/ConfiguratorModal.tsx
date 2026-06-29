@@ -105,7 +105,8 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
     addItem({
       productId: product.id,
       productName: product.name,
-      primaryImageUrl: product.primaryImageUrl ?? product.image,
+
+      primaryImageUrl: product.primaryImageUrl,
       size: size || "Standard",
       material: material || "Standard",
       finish: finish || "Standard",
@@ -193,9 +194,10 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
                   const smallest = collectionTiers[0] as any;
                   const smallestUnit = Number(smallest.collectionPrice) / Number(smallest.quantity);
                   const thisUnit = cPrice / Number(t.quantity);
-                  const save = smallestUnit > 0 && thisUnit < smallestUnit
-                    ? Math.round(((smallestUnit - thisUnit) / smallestUnit) * 100)
-                    : 0;
+                  const save =
+                    smallestUnit > 0 && thisUnit < smallestUnit
+                      ? Math.round(((smallestUnit - thisUnit) / smallestUnit) * 100)
+                      : 0;
                   return (
                     <button
                       key={key}
@@ -265,8 +267,6 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             </Section>
           )}
 
-
-
           {/* Per-unit hint when there are no collections */}
           {!hasCollections && individualEnabled && (
             <div className="rounded-xl border border-forest/20 bg-forest/5 px-4 py-3">
@@ -335,7 +335,8 @@ export function ConfiguratorModal({ product, onClose, preSelectedTierId }: Confi
             <div className="rounded-xl bg-primary px-5 py-4 text-primary-foreground">
               {selectedTier ? (
                 <p className="text-sm">
-                  {quantity.toLocaleString()} × {cleanUomLabel(selectedTier.uomName ?? selectedTier.collectionName, Number(selectedTier.quantity))} ={" "}
+                  {quantity.toLocaleString()} ×{" "}
+                  {cleanUomLabel(selectedTier.uomName ?? selectedTier.collectionName, Number(selectedTier.quantity))} ={" "}
                   <span className="font-display text-lg font-semibold">KES {lineTotal.toLocaleString()}</span>
                 </p>
               ) : unitPrice > 0 ? (
