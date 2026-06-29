@@ -124,17 +124,20 @@ function Hero() {
       }}
     >
       <style>{`
-        @keyframes mpk-hero-a { 0%,40% { opacity: 1; } 50%,90% { opacity: 0; } 100% { opacity: 1; } }
-        @keyframes mpk-hero-b { 0%,40% { opacity: 0; } 50%,90% { opacity: 1; } 100% { opacity: 0; } }
-        .mpk-hero-img-a { animation: mpk-hero-a 14s ease-in-out infinite; }
-        .mpk-hero-img-b { animation: mpk-hero-b 14s ease-in-out infinite; }
+        @keyframes mpk-hero-a { 0%, 28% { opacity: 1; } 33%, 94% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes mpk-hero-b { 0%, 28% { opacity: 0; } 33%, 61% { opacity: 1; } 66%, 100% { opacity: 0; } }
+        @keyframes mpk-hero-c { 0%, 61% { opacity: 0; } 66%, 94% { opacity: 1; } 100%, 100% { opacity: 0; } }
+        .mpk-hero-img-a { animation: mpk-hero-a 21s ease-in-out infinite; }
+        .mpk-hero-img-b { animation: mpk-hero-b 21s ease-in-out infinite; }
+        .mpk-hero-img-c { animation: mpk-hero-c 21s ease-in-out infinite; }
         @keyframes mpk-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .mpk-marquee-track { animation: mpk-marquee 18s linear infinite; }
         @media (max-width: 767px) { .mpk-hero-section { min-height: 720px !important; } }
 
         /* ── Hero image positioning ── */
         .mpk-hero-img-a,
-        .mpk-hero-img-b {
+        .mpk-hero-img-b,
+        .mpk-hero-img-c {
           /* Mobile: fixed to viewport-relative right side via the section's coordinate space */
           right: -12vw;
           top: 50%;
