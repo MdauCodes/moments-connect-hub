@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowLeft, ArrowRight, Heart, Share2, Star } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Heart, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton";
@@ -20,7 +20,6 @@ export const Route = createFileRoute("/products/$slug")({
   loader: async ({ params }) => {
     const product = await api.getProductBySlug(params.slug);
     if (!product) throw notFound();
-    // Best-effort review summary for AggregateRating JSON-LD; never blocks rendering.
     let reviewSummary: { count: number; average: number } | null = null;
     try {
       const { summary } = await reviewStore.listForProduct(product.slug);
@@ -36,7 +35,6 @@ export const Route = createFileRoute("/products/$slug")({
     if (!p) return { meta: [{ title: "Product — Moments Packaging" }] };
 
     const image = p.primaryImageUrl;
-
     const url = `https://www.momentspackaging.com/products/${p.slug}`;
     const tracked = p.trackInventory ?? typeof p.stock === "number";
     const inStock = !tracked || (p.stock ?? 0) > 0;
@@ -121,14 +119,12 @@ function ProductDetail() {
   const { addItem } = useCart();
   const wishlist = useWishlist();
 
-  // Gallery
   const allImages = useMemo(() => {
-    const list = [product.primaryImageUrl, ...(product.imageUrls ?? [])].filter(Boolean);
+    const list = [product.primaryImageUrl, ...(product.imageUrls ?? [])].filter((x): x is string => Boolean(x));
     return Array.from(new Set(list));
   }, [product]);
-  const [activeImage, setActiveImage] = useState(allImages[0]);
+  const [activeImage, setActiveImage] = useState<string | undefined>(allImages[0]);
 
-  // Variants take precedence — when present, drive price/sku/stock.
   const variants = product.variants ?? [];
   const [variantId, setVariantId] = useState<string | undefined>(variants[0]?.id ?? variants[0]?.label);
   const activeVariant = useMemo(
@@ -136,7 +132,6 @@ function ProductDetail() {
     [variants, variantId],
   );
 
-  // Configurator state
   const [size, setSize] = useState(product.sizes?.[0] ?? "");
   const [material, setMaterial] = useState(product.materials?.[0] ?? product.material ?? "");
   const [finish, setFinish] = useState(product.finish ?? "Standard");
@@ -154,7 +149,6 @@ function ProductDetail() {
 
   const enterprise = product.moq >= 10000;
 
-  // ── Pricing tiers ──────────────────────────────────────────────────────────
   const tiers = product.pricingTiers ?? [];
   const collectionTiers = useMemo(
     () =>
@@ -167,8 +161,6 @@ function ProductDetail() {
   const hasCollections = collectionTiers.length > 0;
   const individualEnabled = product.individualSalesEnabled === true;
 
-  // selectedTierId = null  → individual units
-  // selectedTierId = "id"  → that tier
   const [selectedTierId, setSelectedTierId] = useState<string | null>(() => {
     if (hasCollections) return (collectionTiers[0] as any).id ?? `tier-0`;
     return null;
@@ -178,7 +170,6 @@ function ProductDetail() {
       ? (collectionTiers.find((t: any) => (t.id ?? `tier-${collectionTiers.indexOf(t)}`) === selectedTierId) as any)
       : null;
 
-  // Legacy quantity-bracket tier (mock data only — when no collection tiers).
   const legacyTier = useMemo(
     () =>
       !hasCollections
@@ -188,7 +179,6 @@ function ProductDetail() {
     [tiers, qty, hasCollections],
   );
 
-  // Variant price overrides tier price when present.
   const unitPrice = selectedTier
     ? Number(selectedTier.pricePerUnit) || 0
     : (activeVariant?.price ?? (legacyTier as any)?.pricePerUnit ?? product.basePrice ?? 0);
@@ -198,7 +188,6 @@ function ProductDetail() {
 
   const stock = useMemo(() => getStockInfo(product, activeVariant, qty), [product, activeVariant, qty]);
 
-  // Click tracking on mount
   useEffect(() => {
     fetch(apiUrl(`/api/v1/public/products/${encodeURIComponent(product.id)}/click`), {
       method: "POST",
@@ -207,7 +196,6 @@ function ProductDetail() {
     });
   }, [product.id]);
 
-  // Related: recommended endpoint
   useEffect(() => {
     let cancelled = false;
     api
@@ -249,7 +237,6 @@ function ProductDetail() {
     addItem({
       productId: product.id,
       productName: product.name,
-
       primaryImageUrl: product.primaryImageUrl,
       size: size || "Standard",
       material: material || "Standard",
@@ -300,7 +287,6 @@ function ProductDetail() {
         </Link>
       </div>
 
-      {/* Breadcrumb */}
       <nav className="mx-auto max-w-7xl px-5 pt-4 text-xs text-muted-foreground lg:px-8">
         <Link to="/" className="hover:text-foreground">
           Home
@@ -316,10 +302,30 @@ function ProductDetail() {
       </nav>
 
       <section className="mx-auto grid max-w-7xl gap-8 px-5 py-8 sm:gap-10 sm:py-10 lg:grid-cols-5 lg:gap-12 lg:px-8 lg:py-12">
-        {/* LEFT — gallery (60%) */}
+        {/* LEFT — gallery */}
         <div className="lg:col-span-3">
           <div className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-secondary">
-            <img src={activeImage} alt={product.name} className="h-full w-full object-cover" />
+            {activeImage ? (
+              <img src={activeImage} alt={product.name} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-secondary px-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-16 w-16 text-muted-foreground/20"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                  />
+                </svg>
+                <span className="text-center text-xs text-muted-foreground/40">{product.name}</span>
+              </div>
+            )}
             <div className="absolute left-3 top-3 flex flex-col gap-1.5">
               {product.isNewArrival && (
                 <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
@@ -357,7 +363,7 @@ function ProductDetail() {
           )}
         </div>
 
-        {/* RIGHT — info + configurator (40%) */}
+        {/* RIGHT — info + configurator */}
         <div className="lg:col-span-2">
           {productIndustries.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
@@ -508,7 +514,6 @@ function ProductDetail() {
 
           {/* Configurator */}
           <div className="mt-6 space-y-5 rounded-2xl border border-border bg-card p-5">
-            {/* Stock badge + faint count */}
             <div className="flex flex-wrap items-center gap-2">
               <StockBadge state={stock.state} label={stock.label} />
               {stock.state !== "untracked" &&
@@ -685,7 +690,6 @@ function ProductDetail() {
             </div>
           </div>
 
-          {/* Trust chips */}
           <ul className="mt-5 flex flex-wrap gap-2 text-xs text-foreground/70">
             <li className="rounded-full border border-border bg-cream px-3 py-1">✓ Secure M-Pesa checkout</li>
             <li className="rounded-full border border-border bg-cream px-3 py-1">✓ 7–14 day production</li>
@@ -739,7 +743,6 @@ function ProductDetail() {
         </Tabs>
       </section>
 
-      {/* Related */}
       {related.length > 0 && (
         <section className="mx-auto max-w-7xl px-5 pb-20 sm:pb-24 lg:px-8">
           <h2 className="font-display text-2xl text-foreground sm:text-3xl">You might also like</h2>
