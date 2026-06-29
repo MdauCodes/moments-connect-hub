@@ -36,7 +36,10 @@ function WishlistPage() {
           <div className="mt-10 rounded-2xl border border-dashed border-border bg-card p-10 text-center">
             <Heart className="mx-auto h-10 w-10 text-muted-foreground" />
             <p className="mt-4 text-sm text-muted-foreground">Your wishlist is empty.</p>
-            <Link to="/products" className="mt-5 inline-block rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+            <Link
+              to="/products"
+              className="mt-5 inline-block rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            >
               Browse catalogue
             </Link>
           </div>
@@ -45,7 +48,10 @@ function WishlistPage() {
             {items.map((p) => (
               <li key={p.id} className="group relative overflow-hidden rounded-2xl border border-border bg-card">
                 <button
-                  onClick={() => { remove(p.id); toast.success("Removed from wishlist"); }}
+                  onClick={() => {
+                    remove(p.id);
+                    toast.success("Removed from wishlist");
+                  }}
                   className="absolute right-2 top-2 z-10 grid h-8 w-8 place-items-center rounded-full bg-background/85 text-foreground/70 backdrop-blur hover:bg-background"
                   aria-label="Remove"
                 >
@@ -53,14 +59,17 @@ function WishlistPage() {
                 </button>
                 <Link to="/products/$slug" params={{ slug: p.slug }} className="block">
                   <img
-
                     src={p.primaryImageUrl}
                     alt={p.name}
                     className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                   />
                 </Link>
                 <div className="p-4">
-                  <Link to="/products/$slug" params={{ slug: p.slug }} className="block font-display text-lg leading-tight hover:text-accent">
+                  <Link
+                    to="/products/$slug"
+                    params={{ slug: p.slug }}
+                    className="block font-display text-lg leading-tight hover:text-accent"
+                  >
                     {p.name}
                   </Link>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -71,9 +80,8 @@ function WishlistPage() {
                       addItem({
                         productId: p.id,
 
-
-                        primaryImageUrl: p.primaryImageUrl
-                                    size: p.sizes?.[0] ?? "Standard",
+                        primaryImageUrl: p.primaryImageUrl,
+                        size: p.sizes?.[0] ?? "Standard",
                         material: p.materials?.[0] ?? p.material ?? "Standard",
                         finish: p.finish ?? "Standard",
                         quantity: p.moq,
