@@ -145,10 +145,7 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
   const showEmpty = !isLoading && debounced.trim().length >= 2 && results.length === 0;
   const showIdle = debounced.trim().length < 2;
 
-  const industryById = useMemo(
-    () => Object.fromEntries(allIndustries.map((i) => [i.id, i])),
-    [],
-  );
+  const industryById = useMemo(() => Object.fromEntries(allIndustries.map((i) => [i.id, i])), []);
 
   if (!open) return null;
 
@@ -291,12 +288,8 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
           {/* Empty */}
           {showEmpty && (
             <div className="px-5 py-12 text-center">
-              <p className="text-base text-foreground">
-                No products match &lsquo;{debounced}&rsquo;
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Try a different word or browse our catalogue.
-              </p>
+              <p className="text-base text-foreground">No products match &lsquo;{debounced}&rsquo;</p>
+              <p className="mt-2 text-sm text-muted-foreground">Try a different word or browse our catalogue.</p>
               <Link
                 to="/products"
                 onClick={onClose}
@@ -333,7 +326,7 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
                     >
                       <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-secondary">
                         <img
-                          src={p.image}
+                          src={p.primaryImageUrl ?? ""}
                           alt={p.name}
                           loading="lazy"
                           className="h-full w-full object-cover"
@@ -341,9 +334,7 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate font-display text-[15px] text-foreground">
-                            {p.name}
-                          </p>
+                          <p className="truncate font-display text-[15px] text-foreground">{p.name}</p>
                           {p.isDiscount && (
                             <span className="shrink-0 rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-semibold text-accent">
                               -{p.discountPercent}%

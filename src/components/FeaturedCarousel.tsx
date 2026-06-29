@@ -39,9 +39,7 @@ function getCardCopy(p: FlaggedProduct): { hook: string; cta: string } {
   switch (p.flag) {
     case "discount":
       return {
-        hook: p.discountPercent
-          ? `Save ${p.discountPercent}% on bulk orders`
-          : "Limited-time bulk deal",
+        hook: p.discountPercent ? `Save ${p.discountPercent}% on bulk orders` : "Limited-time bulk deal",
         cta: p.discountPercent ? `Get ${p.discountPercent}% off` : "Grab the deal",
       };
     case "fast":
@@ -131,9 +129,7 @@ export function FeaturedCarousel() {
       <div className="mx-auto max-w-7xl px-5 py-8 sm:py-10 lg:px-8 lg:py-12">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-accent sm:text-xs">
-              Curated highlights
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-accent sm:text-xs">Curated highlights</p>
             <h2 className="mt-1.5 font-display text-xl font-medium text-foreground sm:text-2xl lg:text-3xl">
               {heading}
             </h2>
@@ -163,9 +159,7 @@ export function FeaturedCarousel() {
         </div>
 
         {isEmpty ? (
-          <p className="mt-4 text-sm text-muted-foreground">
-            Nothing featured right now — check back soon.
-          </p>
+          <p className="mt-4 text-sm text-muted-foreground">Nothing featured right now — check back soon.</p>
         ) : (
           <div
             ref={scrollerRef}
@@ -185,7 +179,7 @@ export function FeaturedCarousel() {
                 >
                   <div className="relative aspect-square h-[88px] w-[88px] shrink-0 overflow-hidden rounded-lg bg-secondary sm:h-24 sm:w-24">
                     <img
-                      src={p.image}
+                      src={p.primaryImageUrl ?? ""}
                       alt={p.name}
                       loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -207,13 +201,9 @@ export function FeaturedCarousel() {
                       <h3 className="mt-1 truncate font-display text-sm font-medium text-foreground sm:text-base">
                         {p.name}
                       </h3>
-                      <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
-                        {copy.hook}
-                      </p>
+                      <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted-foreground">{copy.hook}</p>
                     </div>
-                    <span
-                      className={`mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold ${meta.ctaTone}`}
-                    >
+                    <span className={`mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold ${meta.ctaTone}`}>
                       {copy.cta}
                       <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                     </span>
