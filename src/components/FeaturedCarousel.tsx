@@ -31,10 +31,6 @@ const flagMeta: Record<Flag, { label: string; icon: typeof Tag; tone: string; ct
   },
 };
 
-/**
- * Builds the per-flag "scanning brain" hook + CTA copy.
- * Discount → savings-led. Fast → social proof. New → freshness in Sheng.
- */
 function getCardCopy(p: FlaggedProduct): { hook: string; cta: string } {
   switch (p.flag) {
     case "discount":
@@ -55,11 +51,6 @@ function getCardCopy(p: FlaggedProduct): { hook: string; cta: string } {
   }
 }
 
-/**
- * Compact horizontal carousel showcasing products flagged by admin as
- * discounted, new arrivals, or fast moving. Mocked via api.getProducts
- * until the backend is wired up. Renders nothing if no products qualify.
- */
 export function FeaturedCarousel() {
   const [items, setItems] = useState<FlaggedProduct[] | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -119,9 +110,7 @@ export function FeaturedCarousel() {
 
   const heading = useMemo(() => "Picks of the moment", []);
 
-  // Render nothing while loading to avoid layout flash
   if (items === null) return null;
-  // Empty state: keep the heading per user preference
   const isEmpty = items.length === 0;
 
   return (
@@ -178,12 +167,16 @@ export function FeaturedCarousel() {
                   className="group flex w-[72%] shrink-0 snap-start gap-3 rounded-xl border border-border bg-card p-2.5 transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md sm:w-[300px] sm:p-3"
                 >
                   <div className="relative aspect-square h-[88px] w-[88px] shrink-0 overflow-hidden rounded-lg bg-secondary sm:h-24 sm:w-24">
-                    <img
-                      src={p.primaryImageUrl ?? ""}
-                      alt={p.name}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {p.primaryImageUrl ? (
+                      <img
+                        src={p.primaryImageUrl}
+                        alt={p.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-secondary" />
+                    )}
                     {p.flag === "discount" && p.discountPercent ? (
                       <span className="absolute left-1 top-1 rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-bold text-accent-foreground shadow-sm">
                         -{p.discountPercent}%
