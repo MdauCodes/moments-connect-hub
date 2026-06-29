@@ -72,8 +72,7 @@ function WishlistPage() {
                         productId: p.id,
 
                         primaryImageUrl: p.primaryImageUrl
-                        primaryImageUrl: p.primaryImageUrl ?? p.image,
-                        size: p.sizes?.[0] ?? "Standard",
+                                    size: p.sizes?.[0] ?? "Standard",
                         material: p.materials?.[0] ?? p.material ?? "Standard",
                         finish: p.finish ?? "Standard",
                         quantity: p.moq,
