@@ -22,7 +22,8 @@ function trackClick(id: string) {
 export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
   const navigate = useNavigate();
   const stock = getStockInfo(p, null, 0);
-  const image = p.primaryImageUrl ?? p.image;
+
+  const image = p.primaryImageUrl;
 
   const tiers = ((p.pricingTiers ?? []) as any[])
     .filter(
