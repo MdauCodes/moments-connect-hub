@@ -41,18 +41,9 @@ const SUGGESTED = ["Coffee cups", "Mailers", "Gift box", "SOS bag", "Labels"];
 interface SearchCommandProps {
   open: boolean;
   onClose: () => void;
-  /** Pre-fill the input when opening (used by desktop bar handoff). */
   initialQuery?: string;
 }
 
-/**
- * Universal product search overlay. Works as:
- *  • a centered desktop dialog (≥ md), or
- *  • a full-screen sheet on mobile (< md).
- *
- * Plug-and-play with backend: results come from `api.searchProducts(q)` —
- * once the Spring backend is live, only that function changes.
- */
 export function SearchCommand({ open, onClose, initialQuery = "" }: SearchCommandProps) {
   const [query, setQuery] = useState(initialQuery);
   const [debounced, setDebounced] = useState(initialQuery);
@@ -63,18 +54,15 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  // Sync initialQuery whenever the overlay is (re)opened
   useEffect(() => {
     if (open) {
       setQuery(initialQuery);
       setDebounced(initialQuery);
       setRecents(readRecents());
-      // Defer to next frame so the input is mounted
       requestAnimationFrame(() => inputRef.current?.focus());
     }
   }, [open, initialQuery]);
 
-  // Lock body scroll while open
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -84,13 +72,11 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
     };
   }, [open]);
 
-  // Debounce input
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query), 200);
     return () => clearTimeout(id);
   }, [query]);
 
-  // Fetch ranked results
   useEffect(() => {
     if (!open) return;
     const q = debounced.trim();
@@ -112,7 +98,6 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
     };
   }, [debounced, open]);
 
-  // Keyboard navigation
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -156,7 +141,6 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
       aria-modal="true"
       aria-label="Search products"
     >
-      {/* Backdrop */}
       <button
         type="button"
         aria-label="Close search"
@@ -164,9 +148,7 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
         className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
       />
 
-      {/* Panel */}
       <div className="relative mx-auto flex h-full w-full max-w-2xl flex-col bg-background shadow-2xl md:mt-[8vh] md:h-auto md:max-h-[80vh] md:rounded-2xl md:border md:border-border">
-        {/* Input row */}
         <div className="flex items-center gap-2 border-b border-border px-4 py-3 md:px-5 md:py-4">
           <Search className="h-5 w-5 text-muted-foreground" aria-hidden />
           <input
@@ -189,9 +171,7 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
           </button>
         </div>
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto">
-          {/* Idle state — recents + suggestions */}
           {showIdle && (
             <div className="px-4 py-5 md:px-5">
               {recents.length > 0 && (
@@ -270,7 +250,6 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
             </div>
           )}
 
-          {/* Loading shimmer */}
           {isLoading && (
             <ul className="divide-y divide-border">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -285,7 +264,6 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
             </ul>
           )}
 
-          {/* Empty */}
           {showEmpty && (
             <div className="px-5 py-12 text-center">
               <p className="text-base text-foreground">No products match &lsquo;{debounced}&rsquo;</p>
@@ -300,11 +278,10 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
             </div>
           )}
 
-          {/* Results */}
           {!isLoading && results.length > 0 && (
             <ul className="divide-y divide-border">
               {results.map((p, idx) => {
-                const inds = p.industryIds
+                const inds = (p.industryIds ?? [])
                   .map((id) => industryById[id])
                   .filter(Boolean)
                   .slice(0, 2);
@@ -325,12 +302,16 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
                       }`}
                     >
                       <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-secondary">
-                        <img
-                          src={p.primaryImageUrl ?? ""}
-                          alt={p.name}
-                          loading="lazy"
-                          className="h-full w-full object-cover"
-                        />
+                        {p.primaryImageUrl ? (
+                          <img
+                            src={p.primaryImageUrl}
+                            alt={p.name}
+                            loading="lazy"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-secondary" />
+                        )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
@@ -360,7 +341,6 @@ export function SearchCommand({ open, onClose, initialQuery = "" }: SearchComman
           )}
         </div>
 
-        {/* Footer hint (desktop only) */}
         <div className="hidden items-center justify-between border-t border-border px-5 py-2.5 text-[11px] text-muted-foreground md:flex">
           <span>
             <kbd className="rounded border border-border bg-secondary px-1.5 py-0.5">↑↓</kbd> navigate ·{" "}
