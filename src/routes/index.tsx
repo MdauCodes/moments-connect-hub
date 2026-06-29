@@ -398,7 +398,7 @@ function Hero() {
         <div className="relative md:absolute md:inset-0 mx-auto max-w-7xl px-5 lg:px-8" style={{ zIndex: 4 }}>
           <div
             className="md:absolute md:top-1/2 md:-translate-y-1/2 md:left-8 lg:left-12 md:w-[50%] lg:w-[48%]"
-            style={{ paddingTop: "120px", paddingBottom: "80px" }}
+            style={{ paddingTop: "150px", paddingBottom: "60px" }}
           >
             <p
               className="uppercase font-medium"
