@@ -69,9 +69,7 @@ export function CategoryShowcase() {
       <div className="mx-auto max-w-7xl px-5 py-10 sm:py-14 lg:px-8 lg:py-16">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-accent sm:text-xs">
-              Self-serve discovery
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-accent sm:text-xs">Self-serve discovery</p>
             <h2 className="mt-1.5 font-display text-2xl font-medium text-foreground sm:text-3xl lg:text-4xl">
               Let the products talk.
             </h2>
@@ -108,9 +106,7 @@ export function CategoryShowcase() {
                       : "border-border bg-background text-foreground hover:border-foreground/40"
                 }`}
               >
-                <Icon
-                  className={`h-3.5 w-3.5 ${isActive ? "text-background" : disabled ? "" : tabAccent[t.key]}`}
-                />
+                <Icon className={`h-3.5 w-3.5 ${isActive ? "text-background" : disabled ? "" : tabAccent[t.key]}`} />
                 <span className="text-xs font-semibold sm:text-sm">{t.label}</span>
                 <span
                   className={`hidden text-[10px] font-medium uppercase tracking-wider sm:inline ${
@@ -167,11 +163,7 @@ function MarqueeRail({ items, flag }: MarqueeRailProps) {
   const durationSec = Math.max(20, Math.min(60, looped.length * 4));
 
   if (items.length === 0) {
-    return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        Nothing here yet — check the other tabs.
-      </p>
-    );
+    return <p className="py-8 text-center text-sm text-muted-foreground">Nothing here yet — check the other tabs.</p>;
   }
 
   return (
@@ -195,12 +187,7 @@ function MarqueeRail({ items, flag }: MarqueeRailProps) {
 }
 
 function ShowcaseCard({ product, flag }: { product: Product; flag: TabKey }) {
-  const accent =
-    flag === "discount"
-      ? "text-accent"
-      : flag === "new"
-        ? "text-primary"
-        : "text-kraft";
+  const accent = flag === "discount" ? "text-accent" : flag === "new" ? "text-primary" : "text-kraft";
   const cta =
     flag === "discount"
       ? product.discountPercent
@@ -218,7 +205,7 @@ function ShowcaseCard({ product, flag }: { product: Product; flag: TabKey }) {
     >
       <div className="relative aspect-square overflow-hidden bg-secondary">
         <img
-          src={product.image}
+          src={product.primaryImageUrl ?? ""}
           alt={product.name}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
@@ -231,16 +218,10 @@ function ShowcaseCard({ product, flag }: { product: Product; flag: TabKey }) {
       </div>
       <div className="flex flex-1 flex-col justify-between p-2.5 sm:p-3">
         <div>
-          <h3 className="truncate font-display text-sm font-medium text-foreground sm:text-base">
-            {product.name}
-          </h3>
-          <p className="mt-0.5 text-[10px] text-muted-foreground">
-            MOQ {product.moq.toLocaleString()}
-          </p>
+          <h3 className="truncate font-display text-sm font-medium text-foreground sm:text-base">{product.name}</h3>
+          <p className="mt-0.5 text-[10px] text-muted-foreground">MOQ {product.moq.toLocaleString()}</p>
         </div>
-        <span
-          className={`mt-2 inline-flex items-center gap-1 text-[11px] font-semibold ${accent}`}
-        >
+        <span className={`mt-2 inline-flex items-center gap-1 text-[11px] font-semibold ${accent}`}>
           {cta}
           <ArrowRight className="h-3 w-3 transition-transform group-hover/card:translate-x-0.5" />
         </span>
