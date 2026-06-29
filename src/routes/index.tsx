@@ -86,6 +86,10 @@ const CATEGORIES = [
   { name: "Café & restaurant", desc: "Cups, boxes, sleeves", Icon: Coffee, search: { category: "cups" } },
   { name: "Retail & e-commerce", desc: "Mailers, carrier bags", Icon: Package, search: { category: "bags" } },
   { name: "Events & gifting", desc: "Gift boxes, wrapping", Icon: Gift, search: { category: "gifting" } },
+  { name: "Agriculture", desc: "Sacks, liners, kraft", Icon: Sprout, search: { category: "bags" } },
+  { name: "Cosmetics", desc: "Boxes, pouches, labels", Icon: Gem, search: { category: "boxes" } },
+  { name: "Stationery & General", desc: "Mailers, wraps", Icon: PencilLine, search: { category: "boxes" } },
+  { name: "Kitchen Supplies", desc: "Food-safe containers", Icon: CookingPot, search: { category: "boxes" } },
   { name: "Enterprise", desc: "10,000+ unit runs", Icon: Briefcase, search: { category: "boxes" } },
 ];
 
