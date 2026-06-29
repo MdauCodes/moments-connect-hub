@@ -1,9 +1,3 @@
-// ----------------------------------------------------------------------------
-// Product store — uses the Spring Boot admin API via VITE_API_BASE_URL.
-// Mock localStorage data is disabled by default and only used when
-// VITE_USE_MOCK_DATA=true or no API URL is configured.
-// ----------------------------------------------------------------------------
-
 import { industries, products as seedProducts, type Product } from "@/data/products";
 import { API_BASE_URL } from "@/config/api";
 import { adminFetch } from "@/services/adminApi";
@@ -43,8 +37,8 @@ function toBackendPayload(input: Partial<ProductDraft>) {
     moq: input.moq,
     sizes: input.sizes ?? [],
     tags: input.tags ?? [],
-    primaryImageUrl: input.image,
-    imageUrls: input.images ?? [],
+    primaryImageUrl: input.primaryImageUrl,
+    imageUrls: input.imageUrls ?? [],
     isDiscount: input.isDiscount ?? false,
     discountPercent: input.isDiscount ? input.discountPercent : null,
     isNewArrival: input.isNewArrival ?? false,
@@ -94,14 +88,13 @@ function normalizePricingTiers(raw: any): Array<any> {
 }
 
 function normalizeProduct(p: ProductApiDto): Product {
-  const image = p.image ?? p.primaryImageUrl ?? p.imageUrls?.[0] ?? "";
   return {
     ...p,
     category: p.category ?? "bags",
     description: p.description ?? "",
     moq: p.moq ?? 1,
-    image,
-    images: p.images ?? p.imageUrls ?? (image ? [image] : []),
+    primaryImageUrl: p.primaryImageUrl ?? p.imageUrls?.[0],
+    imageUrls: p.imageUrls ?? [],
     isDiscount: p.isDiscount ?? false,
     isNewArrival: p.isNewArrival ?? false,
     isFastMoving: p.isFastMoving ?? false,
@@ -174,7 +167,7 @@ export const productStore = {
       const data = await adminJson<PageResponse<Product> | Product[]>("/products?size=100");
       return (Array.isArray(data) ? data : data.content).map(normalizeProduct);
     }
-    return [...readAll()].sort((a, b) => b.monthlyClicks - a.monthlyClicks);
+    return [...readAll()].sort((a, b) => (b.monthlyClicks ?? 0) - (a.monthlyClicks ?? 0));
   },
 
   getById: async (id: string): Promise<Product | null> => {
@@ -200,7 +193,7 @@ export const productStore = {
       ...input,
       id: `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
       slug,
-      images: input.images?.length ? input.images : [input.image],
+      imageUrls: input.imageUrls?.length ? input.imageUrls : input.primaryImageUrl ? [input.primaryImageUrl] : [],
     };
     writeAll([product, ...all]);
     return product;
@@ -221,11 +214,9 @@ export const productStore = {
     const merged: Product = { ...current, ...patch, id: current.id };
     if (patch.slug) {
       merged.slug = uniqueSlug(slugify(patch.slug), all, id);
-    } else if (patch.name && patch.name !== current.name && !patch.slug) {
-      // Only re-slug if explicitly changed via slug; auto-rename can break links
     }
-    if (patch.image && (!patch.images || patch.images.length === 0)) {
-      merged.images = [patch.image];
+    if (patch.primaryImageUrl && !patch.imageUrls?.length) {
+      merged.imageUrls = [patch.primaryImageUrl];
     }
     all[idx] = merged;
     writeAll(all);
