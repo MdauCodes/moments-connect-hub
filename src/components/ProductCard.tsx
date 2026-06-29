@@ -82,13 +82,36 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
       className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-lg sm:rounded-2xl"
     >
       <div className="relative aspect-square w-full overflow-hidden bg-secondary sm:aspect-[4/3] lg:aspect-[16/10]">
-        <img
-          src={image}
-          alt={p.name}
-          loading="lazy"
-          style={{ objectPosition: "center" }}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+        {image ? (
+          <img
+            src={image}
+            alt={p.name}
+            loading="lazy"
+            style={{ objectPosition: "center" }}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-secondary px-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-10 w-10 text-muted-foreground/25 sm:h-14 sm:w-14"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              />
+            </svg>
+            <span className="text-center text-[9px] font-medium uppercase tracking-wide text-muted-foreground/40 line-clamp-2 sm:text-[10px]">
+              {p.name}
+            </span>
+          </div>
+        )}
+
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 bottom-0 h-10 sm:h-14"
@@ -97,7 +120,6 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
 
         {/* Badges */}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1 sm:left-3 sm:top-3">
-          {/* Stock state badge — always shown for tracked products */}
           {isTracked && (
             <span
               className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-2.5 sm:py-1 sm:text-[10px] ${
@@ -112,7 +134,6 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
             </span>
           )}
 
-          {/* Marketing badges — only shown when product is purchasable */}
           {stock.state !== "out_of_stock" &&
             (p.isDiscount ? (
               <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary-foreground sm:px-2.5 sm:py-1 sm:text-[10px]">
@@ -217,7 +238,6 @@ export function ProductCard({ product: p, onConfigure }: ProductCardProps) {
           <p className="mt-1.5 text-[11px] text-muted-foreground sm:mt-2 sm:text-sm">Contact for pricing</p>
         )}
 
-        {/* Stock detail line — supplements the image badge with extra info */}
         <StockLine state={stock.state} count={stock.available} label={stock.label} />
 
         <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:gap-2 sm:pt-3">
@@ -254,7 +274,7 @@ function StockLine({ state, count, label }: { state: string; count: number; labe
   if (state === "low_stock") {
     return (
       <div className="mt-1 flex items-center gap-1.5 text-[10px] sm:text-[11px]">
-        <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-px font-medium text-amber-700 bg-amber-50 border-amber-300">
+        <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-1.5 py-px font-medium text-amber-700">
           <span className="h-1 w-1 rounded-full bg-current" />
           {count > 0 ? `Only ${count.toLocaleString()} left` : label}
         </span>
