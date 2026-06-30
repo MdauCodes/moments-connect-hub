@@ -15,6 +15,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { getStockInfo } from "@/lib/stock";
 import { reviewStore } from "@/services/reviewStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DELIVERY_PROMISE_SENTENCE } from "@/lib/delivery";
 
 export const Route = createFileRoute("/products/$slug")({
   loader: async ({ params }) => {
