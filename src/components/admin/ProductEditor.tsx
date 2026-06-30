@@ -525,15 +525,11 @@ function chip(active: boolean): CSSProperties {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function ImagePicker({
-  value,
-  onChange,
-  invalid,
-}: {
+const ImagePicker = forwardRef<ImagePickerHandle, {
   value: string;
   onChange: (url: string) => void;
   invalid?: boolean;
-}) {
+}>(function ImagePicker({ value, onChange, invalid }, ref) {
   const [urlDraft, setUrlDraft] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -541,6 +537,7 @@ function ImagePicker({
   // Staged file (not yet uploaded) — preview shown locally first.
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null);
+  const pendingFileRef = useRef<File | null>(null);
 
   // Revoke object URL to avoid memory leaks
   useEffect(() => {
@@ -549,53 +546,87 @@ function ImagePicker({
     };
   }, [pendingPreviewUrl]);
 
+  const performUpload = async (file: File): Promise<string | null> => {
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const result = await adminResources.uploadImage(file, "products");
+      onChange(result.url);
+      // clear pending state
+      setPendingFile(null);
+      pendingFileRef.current = null;
+      setPendingPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      toast.success("Image uploaded");
+      return result.url;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Image upload failed";
+      setUploadError(msg);
+      toast.error(`Image upload failed: ${msg}`);
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
 
-    // Basic client-side validation before previewing
     const MAX_BYTES = 5 * 1024 * 1024;
     if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
-      setUploadError("Only JPEG, PNG or WebP images are allowed.");
+      const msg = "Only JPEG, PNG or WebP images are allowed.";
+      setUploadError(msg);
+      toast.error(msg);
       return;
     }
     if (file.size > MAX_BYTES) {
-      setUploadError("Image is larger than 5 MB.");
+      const msg = "Image is larger than 5 MB.";
+      setUploadError(msg);
+      toast.error(msg);
       return;
     }
 
     setUploadError(null);
     if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
     setPendingFile(file);
+    pendingFileRef.current = file;
     setPendingPreviewUrl(URL.createObjectURL(file));
+
+    // Auto-upload immediately so the admin never has to remember a second click.
+    void performUpload(file);
   };
 
   const cancelPending = () => {
     if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
     setPendingFile(null);
+    pendingFileRef.current = null;
     setPendingPreviewUrl(null);
     setUploadError(null);
   };
 
   const uploadPending = async () => {
     if (!pendingFile) return;
-    setUploadError(null);
-    setUploading(true);
-    try {
-      const result = await adminResources.uploadImage(pendingFile, "products");
-      onChange(result.url);
-      cancelPending();
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      setUploading(false);
-    }
+    await performUpload(pendingFile);
   };
+
+  // Expose a flush so the parent form can guarantee any staged file is
+  // uploaded before submitting the rest of the product data.
+  useImperativeHandle(ref, () => ({
+    flushPending: async () => {
+      const file = pendingFileRef.current;
+      if (!file) return value || null;
+      return await performUpload(file);
+    },
+  }), [value]);
 
   // What to show in the preview area: pending (local) takes precedence over uploaded value.
   const previewSrc = pendingPreviewUrl ?? value;
   const showInvalid = invalid && !previewSrc;
+
 
   const previewBoxStyle: CSSProperties = {
     ...s.imgPreview,
