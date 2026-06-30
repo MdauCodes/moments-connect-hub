@@ -637,7 +637,7 @@ function ProductDetail() {
                 {stock.state === "out_of_stock" ? (
                   <p>
                     <strong>Place your order</strong> — this item is made on demand. Expected lead time:{" "}
-                    <strong>14–21 business days</strong>.
+                    <strong>2-5 business days</strong>.
                   </p>
                 ) : (
                   <p>
