@@ -1063,6 +1063,7 @@ export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDel
             <div style={s.cardTitle}>{reqLabel("Product image")}</div>
           </div>
           <ImagePicker
+            ref={imagePickerRef}
             value={values.image}
             onChange={(url) => set("image", url)}
             invalid={submitted && !values.image}
