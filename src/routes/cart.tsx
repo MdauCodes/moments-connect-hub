@@ -3,6 +3,7 @@ import { ArrowRight, MessageCircle, Trash2, ShoppingBag } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useCart } from "@/contexts/CartContext";
 import { WHATSAPP_NUMBER } from "@/data/products";
+import { DELIVERY_PROMISE_SENTENCE } from "@/lib/delivery";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -198,6 +199,9 @@ function CartPage() {
                 <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal</dt><dd>{fmt(cartTotal)}</dd></div>
                 <p className="text-xs text-muted-foreground">
                   Shipping calculated at checkout based on your delivery zone.
+                </p>
+                <p className="text-xs text-foreground/80">
+                  <span className="font-semibold">Delivery:</span> {DELIVERY_PROMISE_SENTENCE}
                 </p>
               </dl>
               <button

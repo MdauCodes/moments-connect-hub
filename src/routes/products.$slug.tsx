@@ -15,6 +15,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { getStockInfo } from "@/lib/stock";
 import { reviewStore } from "@/services/reviewStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DELIVERY_PROMISE_SENTENCE } from "@/lib/delivery";
 
 export const Route = createFileRoute("/products/$slug")({
   loader: async ({ params }) => {
@@ -670,6 +671,10 @@ function ProductDetail() {
                 Currently out of stock — we can still fulfil your order.
               </p>
             )}
+
+            <div className="rounded-xl border border-border bg-secondary/40 px-4 py-3 text-xs text-foreground">
+              <span className="font-semibold">Delivery:</span> {DELIVERY_PROMISE_SENTENCE}
+            </div>
 
             <div className="flex items-center justify-center gap-6 pt-1 text-sm text-muted-foreground">
               <button

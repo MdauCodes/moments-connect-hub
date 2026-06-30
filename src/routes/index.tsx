@@ -69,18 +69,19 @@ export const Route = createFileRoute("/")({
 const ANNOUNCE_ITEMS = [
   "Order online 24/7",
   "M-Pesa accepted",
-  "Same day — Nairobi",
-  "Up to 3 days countrywide",
+  "Same-day delivery within Nairobi",
+  "Up to 3 days delivery elsewhere in Kenya",
   "Branding available on order",
 ];
 
 const TRUST_STATS = [
   { num: "500+", label: "Kenyan businesses served" },
-  { num: "Same day", label: "Nairobi delivery" },
-  { num: "No min.", label: "Order any quantity" },
+  { num: "Same day", label: "Delivery within Nairobi" },
+  { num: "≤ 3 days", label: "Elsewhere in Kenya" },
   { num: "24/7", label: "Order anytime" },
   { num: "M-Pesa", label: "Accepted at checkout", desktopOnly: true },
 ];
+
 
 const CATEGORIES = [
   { name: "Café & restaurant", desc: "Cups, boxes, sleeves", Icon: Coffee, search: { category: "cups" } },
@@ -437,8 +438,8 @@ function Hero() {
                 margin: "22px 0 30px",
               }}
             >
-              Bags, boxes, cups and more — order online, pay with M-Pesa. Delivered same day within Nairobi, up to 3
-              days countrywide.
+              Bags, boxes, cups and more — order online, pay with M-Pesa. Same-day delivery if you're around
+              Nairobi, and up to 3 days delivery anywhere else within Kenya.
             </p>
             <div className="flex flex-col md:flex-row gap-3 max-w-sm md:max-w-none">
               <Link

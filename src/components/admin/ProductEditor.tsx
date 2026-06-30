@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type FormEvent } from "react";
+import { toast } from "sonner";
 import { adminJson } from "@/services/adminApi";
 import { adminResources } from "@/services/adminResources";
 import { api } from "@/services/api";
 import type { Product, ProductTag } from "@/data/products";
 import { categories } from "@/data/products";
 import { fetchPublicUoms, adminCreateUom, type Uom } from "@/services/uomService";
+
+export type ImagePickerHandle = { flushPending: () => Promise<string | null> };
 
 // ---------------------------------------------------------------------------
 // Types
@@ -522,15 +525,11 @@ function chip(active: boolean): CSSProperties {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function ImagePicker({
-  value,
-  onChange,
-  invalid,
-}: {
+const ImagePicker = forwardRef<ImagePickerHandle, {
   value: string;
   onChange: (url: string) => void;
   invalid?: boolean;
-}) {
+}>(function ImagePicker({ value, onChange, invalid }, ref) {
   const [urlDraft, setUrlDraft] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -538,6 +537,7 @@ function ImagePicker({
   // Staged file (not yet uploaded) — preview shown locally first.
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null);
+  const pendingFileRef = useRef<File | null>(null);
 
   // Revoke object URL to avoid memory leaks
   useEffect(() => {
@@ -546,53 +546,87 @@ function ImagePicker({
     };
   }, [pendingPreviewUrl]);
 
+  const performUpload = async (file: File): Promise<string | null> => {
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const result = await adminResources.uploadImage(file, "products");
+      onChange(result.url);
+      // clear pending state
+      setPendingFile(null);
+      pendingFileRef.current = null;
+      setPendingPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      toast.success("Image uploaded");
+      return result.url;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Image upload failed";
+      setUploadError(msg);
+      toast.error(`Image upload failed: ${msg}`);
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
 
-    // Basic client-side validation before previewing
     const MAX_BYTES = 5 * 1024 * 1024;
     if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
-      setUploadError("Only JPEG, PNG or WebP images are allowed.");
+      const msg = "Only JPEG, PNG or WebP images are allowed.";
+      setUploadError(msg);
+      toast.error(msg);
       return;
     }
     if (file.size > MAX_BYTES) {
-      setUploadError("Image is larger than 5 MB.");
+      const msg = "Image is larger than 5 MB.";
+      setUploadError(msg);
+      toast.error(msg);
       return;
     }
 
     setUploadError(null);
     if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
     setPendingFile(file);
+    pendingFileRef.current = file;
     setPendingPreviewUrl(URL.createObjectURL(file));
+
+    // Auto-upload immediately so the admin never has to remember a second click.
+    void performUpload(file);
   };
 
   const cancelPending = () => {
     if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
     setPendingFile(null);
+    pendingFileRef.current = null;
     setPendingPreviewUrl(null);
     setUploadError(null);
   };
 
   const uploadPending = async () => {
     if (!pendingFile) return;
-    setUploadError(null);
-    setUploading(true);
-    try {
-      const result = await adminResources.uploadImage(pendingFile, "products");
-      onChange(result.url);
-      cancelPending();
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      setUploading(false);
-    }
+    await performUpload(pendingFile);
   };
+
+  // Expose a flush so the parent form can guarantee any staged file is
+  // uploaded before submitting the rest of the product data.
+  useImperativeHandle(ref, () => ({
+    flushPending: async () => {
+      const file = pendingFileRef.current;
+      if (!file) return value || null;
+      return await performUpload(file);
+    },
+  }), [value]);
 
   // What to show in the preview area: pending (local) takes precedence over uploaded value.
   const previewSrc = pendingPreviewUrl ?? value;
   const showInvalid = invalid && !previewSrc;
+
 
   const previewBoxStyle: CSSProperties = {
     ...s.imgPreview,
@@ -717,11 +751,12 @@ function ImagePicker({
         </div>
       )}
       <div style={s.helper}>
-        JPEG, PNG or WebP · max 5 MB. Choose a file to preview it first, then click <strong>Upload to server</strong> to send it to the backend.
+        JPEG, PNG or WebP · max 5 MB. The file uploads as soon as you choose it.
       </div>
     </div>
   );
-}
+});
+
 
 function TokenInput({
   values,
@@ -803,6 +838,8 @@ export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDel
   const [submitted, setSubmitted] = useState(false);
   const [liveIndustries, setLiveIndustries] = useState<Array<{ id: string; name: string; slug: string }>>([]);
   const [uoms, setUoms] = useState<Uom[]>([]);
+  const imagePickerRef = useRef<ImagePickerHandle>(null);
+
   const [showUomDialog, setShowUomDialog] = useState(false);
   const [priceModes, setPriceModes] = useState<Record<number, "perUnit" | "total">>({});
 
@@ -854,20 +891,41 @@ export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDel
     e.preventDefault();
     setError(null);
     setSubmitted(true);
-    if (validationIssues.length) {
+
+    // Make sure any image the admin picked but didn't manually upload
+    // is sent to the backend BEFORE we validate / save the product.
+    let resolvedImage = values.image;
+    try {
+      const flushed = await imagePickerRef.current?.flushPending();
+      if (flushed) resolvedImage = flushed;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Image upload failed";
+      toast.error(`Image upload failed: ${msg}`);
+      setError(msg);
+      return;
+    }
+
+    const nextValues: ProductFormValues = { ...values, image: resolvedImage };
+    const issues = validateProduct(nextValues);
+    if (issues.length) {
       setError("Please resolve the highlighted fields before saving.");
+      toast.error(issues[0]);
       return;
     }
     setBusy(true);
     try {
-      const images = values.images.length ? values.images : [values.image];
-      await onSubmit({ ...values, slug: values.slug || slugifyDraft(values.name), images });
+      const images = nextValues.images.length ? nextValues.images : [resolvedImage];
+      await onSubmit({ ...nextValues, slug: nextValues.slug || slugifyDraft(nextValues.name), images });
+      toast.success(productId ? "Product saved" : "Product created");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save product.");
+      const msg = err instanceof Error ? err.message : "Failed to save product.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setBusy(false);
     }
   };
+
 
   const variants = values.variants ?? [];
   const pricingTiers = values.pricingTiers ?? [];
@@ -1005,6 +1063,7 @@ export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDel
             <div style={s.cardTitle}>{reqLabel("Product image")}</div>
           </div>
           <ImagePicker
+            ref={imagePickerRef}
             value={values.image}
             onChange={(url) => set("image", url)}
             invalid={submitted && !values.image}
