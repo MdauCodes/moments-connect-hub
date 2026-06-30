@@ -838,6 +838,8 @@ export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDel
   const [submitted, setSubmitted] = useState(false);
   const [liveIndustries, setLiveIndustries] = useState<Array<{ id: string; name: string; slug: string }>>([]);
   const [uoms, setUoms] = useState<Uom[]>([]);
+  const imagePickerRef = useRef<ImagePickerHandle>(null);
+
   const [showUomDialog, setShowUomDialog] = useState(false);
   const [priceModes, setPriceModes] = useState<Record<number, "perUnit" | "total">>({});
 
