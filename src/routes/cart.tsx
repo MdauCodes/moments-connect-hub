@@ -200,6 +200,9 @@ function CartPage() {
                 <p className="text-xs text-muted-foreground">
                   Shipping calculated at checkout based on your delivery zone.
                 </p>
+                <p className="text-xs text-foreground/80">
+                  <span className="font-semibold">Delivery:</span> {DELIVERY_PROMISE_SENTENCE}
+                </p>
               </dl>
               <button
                 type="button"
