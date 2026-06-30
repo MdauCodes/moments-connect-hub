@@ -465,6 +465,10 @@ function CheckoutModal() {
                   <div className="sm:col-span-2 space-y-4">
                     <div className="rounded-2xl border border-border bg-secondary/40 p-4 text-sm leading-relaxed text-foreground/90">
                       <p>
+                        <span className="font-semibold">Delivery:</span> Same-day delivery if you're around Nairobi,
+                        and up to 3 days delivery anywhere else within Kenya.
+                      </p>
+                      <p className="mt-2">
                         <span className="font-semibold">How delivery works:</span> we hand your parcel to a{" "}
                         <span className="font-semibold">sacco or parcel service</span> (e.g. 2NK, 4NTE, Kukena, Easy
                         Coach, Tahmeed, G4S, Pickup Mtaani). They handle the transport to your town, and you collect it
