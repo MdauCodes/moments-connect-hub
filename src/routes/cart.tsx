@@ -3,6 +3,7 @@ import { ArrowRight, MessageCircle, Trash2, ShoppingBag } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useCart } from "@/contexts/CartContext";
 import { WHATSAPP_NUMBER } from "@/data/products";
+import { DELIVERY_PROMISE_SENTENCE } from "@/lib/delivery";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
