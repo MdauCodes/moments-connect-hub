@@ -672,6 +672,10 @@ function ProductDetail() {
               </p>
             )}
 
+            <div className="rounded-xl border border-border bg-secondary/40 px-4 py-3 text-xs text-foreground">
+              <span className="font-semibold">Delivery:</span> {DELIVERY_PROMISE_SENTENCE}
+            </div>
+
             <div className="flex items-center justify-center gap-6 pt-1 text-sm text-muted-foreground">
               <button
                 type="button"
