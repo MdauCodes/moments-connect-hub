@@ -751,11 +751,12 @@ const ImagePicker = forwardRef<ImagePickerHandle, {
         </div>
       )}
       <div style={s.helper}>
-        JPEG, PNG or WebP · max 5 MB. Choose a file to preview it first, then click <strong>Upload to server</strong> to send it to the backend.
+        JPEG, PNG or WebP · max 5 MB. The file uploads as soon as you choose it.
       </div>
     </div>
   );
-}
+});
+
 
 function TokenInput({
   values,
