@@ -438,8 +438,8 @@ function Hero() {
                 margin: "22px 0 30px",
               }}
             >
-              Bags, boxes, cups and more — order online, pay with M-Pesa. Delivered same day within Nairobi, up to 3
-              days countrywide.
+              Bags, boxes, cups and more — order online, pay with M-Pesa. Same-day delivery if you're around
+              Nairobi, and up to 3 days delivery anywhere else within Kenya.
             </p>
             <div className="flex flex-col md:flex-row gap-3 max-w-sm md:max-w-none">
               <Link
