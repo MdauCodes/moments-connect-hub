@@ -891,20 +891,41 @@ export function ProductEditor({ initial, productId, submitLabel, onSubmit, onDel
     e.preventDefault();
     setError(null);
     setSubmitted(true);
-    if (validationIssues.length) {
+
+    // Make sure any image the admin picked but didn't manually upload
+    // is sent to the backend BEFORE we validate / save the product.
+    let resolvedImage = values.image;
+    try {
+      const flushed = await imagePickerRef.current?.flushPending();
+      if (flushed) resolvedImage = flushed;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Image upload failed";
+      toast.error(`Image upload failed: ${msg}`);
+      setError(msg);
+      return;
+    }
+
+    const nextValues: ProductFormValues = { ...values, image: resolvedImage };
+    const issues = validateProduct(nextValues);
+    if (issues.length) {
       setError("Please resolve the highlighted fields before saving.");
+      toast.error(issues[0]);
       return;
     }
     setBusy(true);
     try {
-      const images = values.images.length ? values.images : [values.image];
-      await onSubmit({ ...values, slug: values.slug || slugifyDraft(values.name), images });
+      const images = nextValues.images.length ? nextValues.images : [resolvedImage];
+      await onSubmit({ ...nextValues, slug: nextValues.slug || slugifyDraft(nextValues.name), images });
+      toast.success(productId ? "Product saved" : "Product created");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save product.");
+      const msg = err instanceof Error ? err.message : "Failed to save product.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setBusy(false);
     }
   };
+
 
   const variants = values.variants ?? [];
   const pricingTiers = values.pricingTiers ?? [];
